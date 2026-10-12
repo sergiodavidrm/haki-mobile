@@ -1,0 +1,8 @@
+{
+  "SUPABASE_URL": "",
+  "SUPABASE_ANON_KEY": "",
+  "STREAM_API_KEY": "",
+  "API_URL": "http://10.0.2.2:5073/api/v1",
+  "GOOGLE_WEB_CLIENT_ID": "",
+  "GOOGLE_IOS_CLIENT_ID": ""
+}

@@ -143,13 +143,17 @@ atleta elige la unidad al registrar:
 - **Switch por día** en el header de la sesión; arranca en
   `client_profiles.preferred_weight_unit`.
 - **Override por ejercicio:** tap en la unidad de un ejercicio la invierte solo
-  para ese ejercicio; sobrevive a cambios del switch del día. Sin setting de
-  "dónde va el switch" (se descartó por complejidad).
+  para ese ejercicio; sobrevive a cambios del switch del día. Si el override
+  queda igual a la unidad del día (otro tap o cambio del switch) se borra y el
+  ejercicio vuelve a seguir al switch. Sin setting de "dónde va el switch"
+  (se descartó por complejidad).
 - Unidad efectiva = `override ?? unidadDelDía` (dos providers Riverpod:
   unidad del día + `Map<exerciseLogId, WeightUnit>` de overrides).
 - Al tocar el switch **no** se convierte lo que se está escribiendo (si escribió
   45 y la máquina es en lb, quiso decir 45 lb). Sí se convierten prescripción y
-  "última vez". Sets ya guardados se muestran en su `weightUnit` original.
+  "última vez". **Sets ya guardados también se convierten** a la unidad
+  efectiva (140 kg → 308.6 lb; decisión de Sergio 2026-10-16). Si se edita uno,
+  se vuelve a guardar en la unidad efectiva.
 - Mostrar la unidad junto a cada input (`[ 45 ] lb`) para evitar registros en
   la unidad equivocada.
 - Guardar: mandar `{ weight, weightUnit }` tal cual lo escribió; el backend
@@ -275,12 +279,114 @@ Esqueleto base: env por ambiente, tema con tokens, router con guard de auth,
 cliente `dio` con JWT, login email/password y Google con Supabase,
 `AthleteGate` (compara `role` sin distinguir mayúsculas: la API devuelve
 `"CLIENT"`), login con el logo (`HakiLogo` en `core/widgets/`, isotipo dibujado
-con `CustomPainter` igual al SVG del web, brillo que late) y una Home
-placeholder que llama `GET /auth/me` para probar la conexión con la API.
+con `CustomPainter` igual al SVG del web, brillo que late).
 
-Siguiente: kit de componentes en `core/widgets/` sacados del mockup
-(`HakiCard`, `SectionLabel`, `PillChip`, `ProgressBar`, `ExerciseTile`,
-`SetRow`, `PrimaryButton`) y después la pantalla Hoy con datos reales.
+Navegación: `StatefulShellRoute` con 4 tabs (`AppShell` en `core/widgets/`):
+Hoy `/` · Programa `/programa` · Chat `/chat` · Perfil `/perfil`.
+`AthleteGate` envuelve el shell. Programa y Chat son `ComingSoon`; Hoy tiene
+cabecera + saludo (nombre de `user_metadata` de Supabase); Perfil tiene
+cuenta + cerrar sesión.
+
+Kit en `core/widgets/`: `HakiCard` (tone neutral/gold/turquoise, tocable),
+`SectionLabel`, `PillChip`, `SegmentedProgress`, `UserAvatar`. El botón
+primario es `FilledButton` con el tema (52 px, radio 16). Tokens del mockup
+en `HakiColors` (`goldBright` para texto dorado, `goldSurface`/`goldBorder`,
+`turquoiseSurface`/`turquoiseBorder`, `textSecondary`, `navBar`).
+`ExerciseTile` y `SetRow` se hacen con la pantalla de Sesión.
+
+Hoy con datos reales: `features/program/data/` (DTOs de block-assignments +
+`ProgramRepository`) y `program_schedule.dart` con la lógica pura
+(`classifyPrograms`, `resolveToday`, `weekStrip`; tests en
+`test/program_schedule_test.dart`). Providers: `programSections` →
+`currentProgramDetail` → `today` (`TodayState`). Estados cubiertos: sin
+programa, solo próximo, toca entrenar (Empezar/Continuar/completado), día vacío,
+descanso (con próximo día), semana completa, programa terminado, error.
+Refresca con pull-to-refresh. **Falta:** caché por `blockUpdatedAt`, refresh
+al volver a primer plano y modo offline del programa.
+
+Sesión (`/sesion/:assignmentId/:dayId`, fuera del shell): registro de series
+offline-first. Sincroniza contra `workout-sessions`; la sesión se crea con
+status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
+- `core/db/app_database.dart` (drift, `haki.sqlite`): `LocalSessions`,
+  `LocalSets` (peso tal cual se escribió + unidad), `LocalExerciseLogs` (caché
+  de ids). Claves naturales = las de los upserts de la API.
+- `SessionStore` escribe local y patea `SessionSync`, que sube en orden
+  (crear sesión → exercise-log → series → complete) con backoff 15 s…5 min y
+  al volver a primer plano. Una serie editada mientras se subía queda
+  pendiente (se marca subida solo si `updatedAt` no cambió). Tests en
+  `test/session_sync_test.dart`.
+- **riverpod_generator no ve las clases que genera drift**: el store expone
+  `LocalSessionInfo` / `LocalSetEntry`, nunca `LocalSession` / `LocalSet`.
+- Hoy pisa el estado del día con las sesiones locales (empezada/completada
+  aunque no haya subido).
+- UI (igual al mockup): superseries agrupadas (A1/A2, carril + flujo
+  "A1 → A2 → descanso ↻ repetir"), switch KG/LB del día + override por
+  ejercicio, objetivo convertido a la unidad efectiva, series guardadas en su
+  unidad original, aviso de series sin subir. Fila guardada = texto, pendiente
+  = "–", la primera pendiente de la sesión (`workOrder`) queda con inputs
+  abiertos (sin resaltar: a Sergio no lo convenció); tocar otra fila la abre
+  para cargar/corregir. Sin check: se guarda sola al salir de la fila si tiene
+  reps. Cámara en **todas** las series: dorada con punto = pedida por el
+  coach, tachada = no pedida (al tocarla confirma "Tu entrenador no solicitó
+  video…"), turquesa = `videoUrl` ya subido; hoy muestra "pronto" (videos sin
+  integrar). Override de unidad por ejercicio: si queda igual a la del día se
+  borra (vuelve a seguir al switch). Ejercicios sin series y sin la siguiente
+  se muestran colapsados; tocar los abre.
+  Falta del mockup: "Sem. pasada" + e1RM (necesita `LastPerformanceDto`) y
+  tocar el nombre → Detalle de ejercicio.
+
+Lógica pura de la sesión en `features/session/data/session_plan.dart`
+(`groupSupersets`, `setCountOf`, `savedSetFor`, `workOrder` por rondas en
+superseries, `afterSave`, `summarize`; tests en `test/session_plan_test.dart`).
+
+Timer de descanso (`providers/rest_timer.dart`, keepAlive, basado en `endsAt`):
+**manual** (decisión de Sergio 2026-10-16): no arranca al guardar una serie;
+el atleta lo abre desde el botón del header y toca Iniciar (cierra la
+pantalla y vuelve a la Sesión). Mientras está
+activo queda la barra flotante. Cada serie guardada le pasa al timer
+(`prepare`) qué se terminó y qué viene (tarjeta "Siguiente"); en superserie a
+mitad de ronda dice "seguí sin pausa". Presets 1:00/1:30/2:00/3:00, ±15 s;
+la última duración elegida se guarda en `shared_preferences`. UI: botón en el
+header de la Sesión, `RestTimerBar` flotante abajo y `RestTimerScreen`
+(`/descanso`) con anillo + tarjeta "Siguiente". Al terminar vibra (app
+abierta).
+
+Notificaciones del timer (`core/notifications/rest_notifications.dart`,
+`flutter_local_notifications` + `timezone`): mientras corre, notificación
+fija con cuenta regresiva nativa (Android: `usesChronometer` +
+`chronometerCountDown`, canal `rest_timer_running`, sin sonido, se va sola al
+terminar); al terminar, notificación programada (`zonedSchedule` en UTC)
+con sonido (canal `rest_timer_done`), aunque la app esté cerrada. En pausa
+queda la notificación fija "Descanso en pausa · 0:45" (sin aviso de fin). 
+Cerrar las cancela. El permiso se pide al iniciar el primer descanso. Exacta
+si `canScheduleExactNotifications()` (manifest: `SCHEDULE_EXACT_ALARM`; en
+Android 14 viene apagado y no se pide), si no inexacta. Android necesita
+desugaring en `build.gradle.kts` y el `ScheduledNotificationReceiver` en el
+manifest. iOS: solo la de fin (la cuenta regresiva en bloqueo necesita Live
+Activities, pendiente).
+
+Entreno completado (`/completado/:assignmentId/:dayId`): Finalizar hace
+`pushReplacement` acá; muestra duración (sesión local), series hechas/total y
+volumen en la unidad del día. "Listo" refresca el programa y va a Hoy. Una
+sesión ya completada muestra "ver resumen". `DayWeightUnit` y
+`ExerciseUnitOverrides` son keepAlive (sobreviven a salir de la Sesión).
+
+Unidad inicial: `DayWeightUnit` arranca en `preferredWeightUnit` de
+`GET /auth/me` (kg si no viene).
+
+BD local de un solo usuario: `LocalDataGuard` (`session/providers/`, se
+arranca en `app.dart`) guarda el dueño en `shared_preferences`
+(`local_db_owner`); al cerrar sesión o si entra otro usuario hace
+`AppDatabase.wipe()` y resetea unidad/overrides/timer. Sin dueño guardado se
+asume del usuario actual. Perfil → Cerrar sesión avisa si
+`SessionStore.pendingCount()` > 0 ("Tenés entrenos sin subir").
+
+**Pendiente de Sesión:** errores 4xx permanentes que traban la cola,
+"última vez" (`LastPerformanceDto`), aviso "Tu coach actualizó este día",
+Live Activity de iOS para el timer, videos y detalle de ejercicio. Del mockup de
+Entreno completado faltan (necesitan backend): +XP, nuevo PR, subida de
+videos, RPE de la sesión y nota al coach (`WorkoutSession` no tiene esos
+campos).
 Flujo de UI acordado: Sergio ajusta el mockup → se traduce a widgets con el kit
 (no FlutterFlow ni generadores Figma/HTML → Flutter).
 

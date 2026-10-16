@@ -32,13 +32,32 @@ ThemeData buildAppTheme(HakiColors c) {
       labelStyle: TextStyle(color: c.textMuted),
       border: inputBorder,
       enabledBorder: inputBorder,
-      focusedBorder: inputBorder.copyWith(borderSide: BorderSide(color: c.gold, width: 1.5)),
+      focusedBorder: inputBorder.copyWith(
+        borderSide: BorderSide(color: c.gold, width: 1.5),
+      ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        minimumSize: const Size.fromHeight(50),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        minimumSize: const Size.fromHeight(52),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+      ),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: c.navBar,
+      indicatorColor: Colors.transparent,
+      height: 68,
+      labelTextStyle: WidgetStateProperty.resolveWith(
+        (s) => TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: s.contains(WidgetState.selected) ? c.goldBright : c.textMuted,
+        ),
+      ),
+      iconTheme: WidgetStateProperty.resolveWith(
+        (s) => IconThemeData(
+          color: s.contains(WidgetState.selected) ? c.goldBright : c.textMuted,
+        ),
       ),
     ),
   );

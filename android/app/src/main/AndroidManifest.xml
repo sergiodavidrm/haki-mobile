@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Necesario en release para llamar a la API / Supabase -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Timer de descanso: aviso con sonido a la hora exacta (Android 14 lo
+         deja apagado por defecto; sin él la notificación llega "inexacta") -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <application
         android:label="haki_mobile"
         android:name="${applicationName}"
@@ -27,6 +30,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- flutter_local_notifications: muestra las notificaciones programadas -->
+        <receiver android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

@@ -18,6 +18,19 @@ class AuthRepository {
 
   bool get isLoggedIn => _auth.currentSession != null;
 
+  String? get email => _auth.currentUser?.email;
+
+  String? get userId => _auth.currentUser?.id;
+
+  /// Nombre de Supabase (Google lo trae en `full_name`/`name`); si no hay,
+  /// la parte local del email.
+  String get displayName {
+    final meta = _auth.currentUser?.userMetadata ?? const {};
+    final name = (meta['full_name'] ?? meta['name']) as String?;
+    if (name != null && name.trim().isNotEmpty) return name.trim();
+    return email?.split('@').first ?? '';
+  }
+
   Stream<AuthState> authChanges() => _auth.onAuthStateChange;
 
   Future<void> signIn(String email, String password) =>
@@ -46,7 +59,10 @@ class AuthRepository {
     final idToken = account.authentication.idToken;
     if (idToken == null) throw StateError('Google no devolvió id token');
 
-    await _auth.signInWithIdToken(provider: OAuthProvider.google, idToken: idToken);
+    await _auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+    );
     return true;
   }
 

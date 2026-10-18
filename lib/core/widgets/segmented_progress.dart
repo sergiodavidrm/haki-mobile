@@ -11,12 +11,16 @@ class SegmentedProgress extends StatelessWidget {
     required this.done,
     this.highlightCurrent = false,
     this.height = 6,
+    this.trackColor,
   });
 
   final int total;
   final int done;
   final bool highlightCurrent;
   final double height;
+
+  /// Color de los segmentos sin hacer (por defecto el borde).
+  final Color? trackColor;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +35,9 @@ class SegmentedProgress extends StatelessWidget {
               decoration: BoxDecoration(
                 color: i < done
                     ? c.turquoise
-                    : (highlightCurrent && i == done ? c.gold : c.border),
+                    : (highlightCurrent && i == done
+                          ? c.gold
+                          : trackColor ?? c.border),
                 borderRadius: BorderRadius.circular(height / 2),
               ),
             ),

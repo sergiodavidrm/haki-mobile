@@ -28,6 +28,28 @@ class ProgramRepository {
     );
     return AssignmentDetailDto.fromJson(res.data!);
   }
+
+  /// Fecha de inicio + día de la semana de cada entreno ([weekDays]:
+  /// DayNumber → 1 = lunes … 7 = domingo). La API recalcula el fin.
+  Future<AssignmentDetailDto> schedule(
+    String assignmentId,
+    DateTime start,
+    Map<int, int> weekDays,
+  ) async {
+    final date =
+        '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}';
+    final res = await _api.put<Map<String, dynamic>>(
+      '/block-assignments/$assignmentId/schedule',
+      data: {
+        'startDate': date,
+        'dayMappings': [
+          for (final e in weekDays.entries)
+            {'dayNumber': e.key, 'weekDay': DayMappingDto.codeOf(e.value)},
+        ],
+      },
+    );
+    return AssignmentDetailDto.fromJson(res.data!);
+  }
 }
 
 @Riverpod(keepAlive: true)

@@ -9,6 +9,10 @@ import '../../features/auth/ui/athlete_gate.dart';
 import '../../features/auth/ui/login_screen.dart';
 import '../../features/home/ui/home_screen.dart';
 import '../../features/profile/ui/profile_screen.dart';
+import '../../features/program/ui/assign_dates_screen.dart';
+import '../../features/program/ui/past_session_screen.dart';
+import '../../features/program/ui/program_screen.dart';
+import '../../features/program/ui/programs_list_screen.dart';
 import '../../features/session/ui/rest_timer_screen.dart';
 import '../../features/session/ui/session_screen.dart';
 import '../../features/session/ui/workout_complete_screen.dart';
@@ -28,6 +32,20 @@ abstract final class Routes {
       '/sesion/$assignmentId/$dayId';
   static String sessionDone(String assignmentId, String dayId) =>
       '/completado/$assignmentId/$dayId';
+
+  // Dentro del tab Programa (con la barra de tabs)
+  static const programs = '/programa/todos';
+
+  /// Tab Programa forzando la semana actual en el selector (aunque el
+  /// atleta hubiera elegido otra antes).
+  static String programAtCurrentWeek() =>
+      '$program?semana=${DateTime.now().microsecondsSinceEpoch}';
+  static String programView(String assignmentId) => '/programa/p/$assignmentId';
+  static String pastSession(String assignmentId, String dayId) =>
+      '/programa/sesion/$assignmentId/$dayId';
+
+  /// Pantalla completa, sin tabs.
+  static String assignDates(String assignmentId) => '/fechas/$assignmentId';
 }
 
 // Rutas + guard de auth (equivalente a app.routes.ts + authGuard del web).
@@ -59,6 +77,12 @@ GoRouter appRouter(Ref ref) {
       ),
       GoRoute(path: Routes.rest, builder: (_, _) => const RestTimerScreen()),
       GoRoute(
+        path: '/fechas/:assignmentId',
+        builder: (_, state) => AssignDatesScreen(
+          assignmentId: state.pathParameters['assignmentId']!,
+        ),
+      ),
+      GoRoute(
         path: '/completado/:assignmentId/:dayId',
         builder: (_, state) => WorkoutCompleteScreen(
           assignmentId: state.pathParameters['assignmentId']!,
@@ -78,10 +102,28 @@ GoRouter appRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.program,
-                builder: (_, _) => const ComingSoon(
-                  title: 'Programa',
-                  message: 'Acá vas a ver las semanas y días de tu bloque.',
+                builder: (_, state) => ProgramScreen(
+                  resetWeek: state.uri.queryParameters['semana'],
                 ),
+                routes: [
+                  GoRoute(
+                    path: 'todos',
+                    builder: (_, _) => const ProgramsListScreen(),
+                  ),
+                  GoRoute(
+                    path: 'p/:assignmentId',
+                    builder: (_, state) => ProgramScreen(
+                      assignmentId: state.pathParameters['assignmentId'],
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'sesion/:assignmentId/:dayId',
+                    builder: (_, state) => PastSessionScreen(
+                      assignmentId: state.pathParameters['assignmentId']!,
+                      dayId: state.pathParameters['dayId']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -51,3 +51,17 @@ String formatShortDate(DateTime d) =>
 
 /// Inicial del día de la semana para la tira de Hoy: L M X J V S D.
 String weekdayInitial(DateTime d) => 'LMXJVSD'[d.weekday - 1];
+
+/// "14 sep"
+String formatDayMonth(DateTime d) => '${d.day} ${_monthsShort[d.month - 1]}';
+
+/// "Octubre 2026"
+String formatMonthYear(DateTime d) =>
+    '${capitalize(_months[d.month - 1])} ${d.year}';
+
+/// "SEP" (para la línea de tiempo de programas anteriores)
+String monthShortUpper(DateTime d) => _monthsShort[d.month - 1].toUpperCase();
+
+/// "sáb 3 oct" → "Sáb 3 oct"
+String capitalize(String s) =>
+    s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';

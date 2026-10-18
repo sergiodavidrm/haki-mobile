@@ -29,3 +29,16 @@ Dio apiClient(Ref ref) {
 
   return dio;
 }
+
+/// Mensaje para mostrar de un error de la API: el `detail` del ProblemDetails
+/// (ApiExceptionHandler) o uno genérico según el caso.
+String apiErrorMessage(Object error) {
+  if (error is DioException) {
+    final data = error.response?.data;
+    if (data is Map && data['detail'] is String) {
+      return data['detail'] as String;
+    }
+    if (error.response == null) return 'Sin conexión. Probá de nuevo.';
+  }
+  return 'Algo salió mal. Probá de nuevo.';
+}

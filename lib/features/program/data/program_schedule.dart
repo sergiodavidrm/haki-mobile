@@ -21,6 +21,17 @@ class ProgramSections {
 
   /// ANTERIORES, el más reciente primero.
   final List<AssignmentSummaryDto> past;
+
+  int get count => (current == null ? 0 : 1) + upcoming.length + past.length;
+
+  AssignmentSummaryDto? find(String assignmentId) => [
+    ?current,
+    ...upcoming,
+    ...past,
+  ].where((a) => a.assignmentId == assignmentId).firstOrNull;
+
+  bool isPast(String assignmentId) =>
+      past.any((a) => a.assignmentId == assignmentId);
 }
 
 ProgramSections classifyPrograms(
@@ -228,4 +239,126 @@ StripDayKind _kindOn(AssignmentDetailDto p, DateTime d) {
   return day.sessionStatus == SessionStatus.completed
       ? StripDayKind.done
       : StripDayKind.planned;
+}
+
+// ---------------------------------------------------------------------------
+// Tab Programa
+
+/// Semana que se abre por defecto en el selector S1…SN: con fechas, la del
+/// calendario (acotada al programa); sin fechas, la del primer día sin
+/// completar (o la última si ya se hizo todo).
+int currentWeekOf(AssignmentDetailDto p, DateTime today) {
+  final total = p.totalWeeks < 1 ? 1 : p.totalWeeks;
+  if (p.hasDates) {
+    return weekNumberFor(p.startDate!, today).clamp(1, total);
+  }
+  for (final w in p.weeks) {
+    if (w.days.any((d) => d.sessionStatus != SessionStatus.completed)) {
+      return w.weekNumber;
+    }
+  }
+  return p.weeks.isEmpty ? 1 : p.weeks.last.weekNumber;
+}
+
+/// Fecha en la que toca [dayNumber] en la semana [weekNumber] (programas con
+/// fechas y día de la semana por entreno). null si no aplica.
+DateTime? dateOfDay(AssignmentDetailDto p, int weekNumber, int dayNumber) {
+  if (!p.hasDates) return null;
+  final m = p.dayMappings.where((m) => m.dayNumber == dayNumber).firstOrNull;
+  if (m == null) return null;
+  final start = p.startDate!;
+  final offset = (m.weekDay - start.weekday + 7) % 7;
+  return start.add(Duration(days: (weekNumber - 1) * 7 + offset));
+}
+
+/// (completados, total) de entrenos de todo el programa.
+(int, int) dayCountsOf(AssignmentDetailDto p) {
+  final days = p.weeks.expand((w) => w.days);
+  return (
+    days.where((d) => d.sessionStatus == SessionStatus.completed).length,
+    days.length,
+  );
+}
+
+/// Duración del entreno si se sabe y es creíble (1 min – 6 h).
+Duration? durationOf(DayDto d) {
+  if (d.startedAt == null || d.completedAt == null) return null;
+  final x = d.completedAt!.difference(d.startedAt!);
+  return x.inMinutes < 1 || x.inHours >= 6 ? null : x;
+}
+
+enum DayRowKind {
+  /// Completado → Sesión pasada.
+  done,
+
+  /// El que toca (hoy, o el siguiente sin fechas).
+  next,
+
+  /// Empezado y sin terminar (no es el que toca).
+  inProgress,
+
+  /// Sin hacer todavía.
+  pending,
+
+  /// Sin ejercicios: "Tu coach lo está preparando".
+  preparing,
+}
+
+class DayRow {
+  const DayRow({
+    required this.day,
+    required this.kind,
+    this.date,
+    this.isToday = false,
+  });
+
+  final DayDto day;
+  final DayRowKind kind;
+
+  /// Hecho: cuándo se completó (o la fecha programada); si no, la programada.
+  final DateTime? date;
+  final bool isToday;
+}
+
+/// Filas de una semana del tab Programa. [highlightNext] solo para el
+/// programa en curso (en uno terminado o próximo no hay "el que toca").
+List<DayRow> weekRows(
+  AssignmentDetailDto p,
+  WeekDto week,
+  DateTime today, {
+  bool highlightNext = true,
+}) {
+  final t = dateOnly(today);
+  final nextId = !highlightNext
+      ? null
+      : switch (resolveToday(p, today)) {
+          TrainingDay(:final day) => day.id,
+          RestDay(:final next) => next?.id,
+          _ => null,
+        };
+  return [
+    for (final d in week.days)
+      () {
+        final scheduled = dateOfDay(p, week.weekNumber, d.dayNumber);
+        if (d.sessionStatus == SessionStatus.completed) {
+          final doneOn = d.completedAt == null
+              ? scheduled
+              : dateOnly(d.completedAt!);
+          return DayRow(day: d, kind: DayRowKind.done, date: doneOn);
+        }
+        final kind = d.exercises.isEmpty
+            ? DayRowKind.preparing
+            : d.id == nextId
+            ? DayRowKind.next
+            : d.sessionStatus == SessionStatus.inProgress
+            ? DayRowKind.inProgress
+            : DayRowKind.pending;
+        return DayRow(
+          day: d,
+          kind: kind,
+          date: scheduled,
+          isToday: scheduled == t,
+        );
+      }(),
+  ];
 }

@@ -3,7 +3,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
-import '../../session/providers/session_providers.dart';
 
 part 'today_provider.g.dart';
 
@@ -39,22 +38,9 @@ Future<TodayState> today(Ref ref) async {
         ? const NoProgram()
         : OnlyUpcoming(sections.upcoming.first);
   }
-  final remote = (await ref.watch(currentProgramDetailProvider.future))!;
-
-  // Lo registrado en el teléfono manda (puede no haber llegado a la API todavía)
-  final local = await ref.watch(
-    localSessionsOfProvider(remote.assignmentId).future,
-  );
-  final program = remote.withDayStatuses(
-    {
-      for (final s in local)
-        s.dayId: s.completedAt != null
-            ? SessionStatus.completed
-            : SessionStatus.inProgress,
-    }..removeWhere(
-      (dayId, status) =>
-          _serverCompleted(remote, dayId) && status != SessionStatus.completed,
-    ),
+  // Con las sesiones del teléfono (pueden no haber llegado a la API todavía)
+  final program = await ref.watch(
+    programWithLocalProvider(sections.current!.assignmentId).future,
   );
 
   return WithProgram(
@@ -62,7 +48,3 @@ Future<TodayState> today(Ref ref) async {
     plan: resolveToday(program, DateTime.now()),
   );
 }
-
-bool _serverCompleted(AssignmentDetailDto p, String dayId) => p.weeks
-    .expand((w) => w.days)
-    .any((d) => d.id == dayId && d.sessionStatus == SessionStatus.completed);

@@ -10,6 +10,14 @@ DateTime? _date(Object? v) {
   return DateTime.utc(d.year, d.month, d.day);
 }
 
+/// Fecha y hora de .NET (UTC) → hora local. Sin zona en el texto se asume UTC.
+DateTime? _dateTime(Object? v) {
+  if (v == null) return null;
+  final s = v as String;
+  final hasZone = RegExp(r'(Z|[+-]\d\d:?\d\d)$').hasMatch(s);
+  return DateTime.parse(hasZone ? s : '${s}Z').toLocal();
+}
+
 /// GET block-assignments/{clientId}/assignments
 class AssignmentSummaryDto {
   const AssignmentSummaryDto({
@@ -22,6 +30,8 @@ class AssignmentSummaryDto {
     required this.completedWeeks,
     required this.blockUpdatedAt,
     required this.activatedAt,
+    this.totalDays = 0,
+    this.completedDays = 0,
   });
 
   final String assignmentId;
@@ -36,7 +46,15 @@ class AssignmentSummaryDto {
   final DateTime blockUpdatedAt;
   final DateTime? activatedAt;
 
+  /// Entrenos del programa (todas las semanas) y cuántos están completados.
+  final int totalDays;
+  final int completedDays;
+
   bool get hasDates => startDate != null && endDate != null;
+
+  /// 0–100, null si el programa no tiene entrenos.
+  int? get adherencePct =>
+      totalDays == 0 ? null : (completedDays * 100 / totalDays).round();
 
   factory AssignmentSummaryDto.fromJson(Map<String, dynamic> j) =>
       AssignmentSummaryDto(
@@ -51,6 +69,8 @@ class AssignmentSummaryDto {
         activatedAt: j['activatedAt'] == null
             ? null
             : DateTime.parse(j['activatedAt'] as String),
+        totalDays: j['totalDays'] as int? ?? 0,
+        completedDays: j['completedDays'] as int? ?? 0,
       );
 }
 
@@ -59,6 +79,7 @@ class AssignmentDetailDto {
   const AssignmentDetailDto({
     required this.assignmentId,
     required this.blockName,
+    this.status = 'active',
     required this.startDate,
     required this.endDate,
     required this.numberOfWeeks,
@@ -69,6 +90,9 @@ class AssignmentDetailDto {
 
   final String assignmentId;
   final String blockName;
+
+  /// active | completed. Solo a un programa activo se le pueden poner fechas.
+  final String status;
   final DateTime? startDate;
   final DateTime? endDate;
   final int numberOfWeeks;
@@ -84,34 +108,28 @@ class AssignmentDetailDto {
   int get totalWeeks =>
       weeks.length > numberOfWeeks ? weeks.length : numberOfWeeks;
 
-  /// Copia con el estado de algunos días pisado (sesiones locales sin subir).
-  AssignmentDetailDto withDayStatuses(Map<String, SessionStatus> statuses) =>
-      statuses.isEmpty
-      ? this
-      : AssignmentDetailDto(
-          assignmentId: assignmentId,
-          blockName: blockName,
-          startDate: startDate,
-          endDate: endDate,
-          numberOfWeeks: numberOfWeeks,
-          weeks: [
-            for (final w in weeks)
-              WeekDto(
-                weekNumber: w.weekNumber,
-                days: [
-                  for (final d in w.days)
-                    statuses[d.id] == null ? d : d.withStatus(statuses[d.id]!),
-                ],
-              ),
-          ],
-          dayMappings: dayMappings,
-          blockUpdatedAt: blockUpdatedAt,
-        );
+  /// Copia con cada día transformado por [f] (p. ej. estado de las sesiones
+  /// locales sin subir).
+  AssignmentDetailDto mapDays(DayDto Function(DayDto) f) => AssignmentDetailDto(
+    assignmentId: assignmentId,
+    blockName: blockName,
+    status: status,
+    startDate: startDate,
+    endDate: endDate,
+    numberOfWeeks: numberOfWeeks,
+    weeks: [
+      for (final w in weeks)
+        WeekDto(weekNumber: w.weekNumber, days: [for (final d in w.days) f(d)]),
+    ],
+    dayMappings: dayMappings,
+    blockUpdatedAt: blockUpdatedAt,
+  );
 
   factory AssignmentDetailDto.fromJson(Map<String, dynamic> j) =>
       AssignmentDetailDto(
         assignmentId: j['assignmentId'] as String,
         blockName: j['blockName'] as String,
+        status: j['status'] as String? ?? 'active',
         startDate: _date(j['startDate']),
         endDate: _date(j['endDate']),
         numberOfWeeks: j['numberOfWeeks'] as int? ?? 0,
@@ -164,6 +182,8 @@ class DayDto {
     required this.sessionStatus,
     required this.workoutSessionId,
     required this.exercises,
+    this.startedAt,
+    this.completedAt,
   });
 
   final String id;
@@ -173,19 +193,30 @@ class DayDto {
   final String? workoutSessionId;
   final List<DayExerciseDto> exercises;
 
+  /// Según la API: primera serie que llegó y cuándo se completó (hora del
+  /// servidor; si el entreno se hizo sin conexión puede ser más tarde).
+  final DateTime? startedAt;
+  final DateTime? completedAt;
+
   /// "Día 3 · Espalda y bíceps" (o solo "Día 3" si el coach no le puso nombre).
   String get title {
     final n = name?.trim();
     return n == null || n.isEmpty ? 'Día $dayNumber' : 'Día $dayNumber · $n';
   }
 
-  DayDto withStatus(SessionStatus status) => DayDto(
+  DayDto withStatus(
+    SessionStatus status, {
+    DateTime? startedAt,
+    DateTime? completedAt,
+  }) => DayDto(
     id: id,
     dayNumber: dayNumber,
     name: name,
     sessionStatus: status,
     workoutSessionId: workoutSessionId,
     exercises: exercises,
+    startedAt: startedAt ?? this.startedAt,
+    completedAt: completedAt ?? this.completedAt,
   );
 
   int get supersetCount => exercises
@@ -207,6 +238,8 @@ class DayDto {
       for (final e in j['exercises'] as List? ?? const [])
         DayExerciseDto.fromJson(e as Map<String, dynamic>),
     ],
+    startedAt: _dateTime(j['startedAt']),
+    completedAt: _dateTime(j['completedAt']),
   );
 }
 
@@ -216,6 +249,7 @@ class DayExerciseDto {
     required this.exerciseName,
     required this.supersetGroupId,
     this.coachNote,
+    this.athleteNote,
     this.targetSets = const [],
     this.loggedSets = const [],
   });
@@ -225,6 +259,9 @@ class DayExerciseDto {
   final String exerciseName;
   final String? supersetGroupId;
   final String? coachNote;
+
+  /// Nota que dejó el atleta en este ejercicio (ExerciseLog.AthleteNote).
+  final String? athleteNote;
   final List<TargetSetDto> targetSets;
 
   /// Series ya guardadas en la API (de este u otro teléfono).
@@ -237,6 +274,7 @@ class DayExerciseDto {
     exerciseName: j['exerciseName'] as String,
     supersetGroupId: j['supersetGroupId'] as String?,
     coachNote: j['coachNote'] as String?,
+    athleteNote: j['athleteNote'] as String?,
     targetSets: [
       for (final s in j['targetSets'] as List? ?? const [])
         TargetSetDto.fromJson(s as Map<String, dynamic>),
@@ -313,6 +351,9 @@ class DayMappingDto {
   final int weekDay;
 
   static const _codes = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+
+  /// 1 → "MON" … 7 → "SUN" (como lo espera la API).
+  static String codeOf(int weekDay) => _codes[weekDay - 1];
 
   factory DayMappingDto.fromJson(Map<String, dynamic> j) => DayMappingDto(
     dayNumber: j['dayNumber'] as int,

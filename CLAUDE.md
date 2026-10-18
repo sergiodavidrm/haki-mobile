@@ -283,7 +283,7 @@ con `CustomPainter` igual al SVG del web, brillo que late).
 
 Navegación: `StatefulShellRoute` con 4 tabs (`AppShell` en `core/widgets/`):
 Hoy `/` · Programa `/programa` · Chat `/chat` · Perfil `/perfil`.
-`AthleteGate` envuelve el shell. Programa y Chat son `ComingSoon`; Hoy tiene
+`AthleteGate` envuelve el shell. Chat es `ComingSoon`; Hoy tiene
 cabecera + saludo (nombre de `user_metadata` de Supabase); Perfil tiene
 cuenta + cerrar sesión.
 
@@ -334,6 +334,32 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
   se muestran colapsados; tocar los abre.
   Falta del mockup: "Sem. pasada" + e1RM (necesita `LastPerformanceDto`) y
   tocar el nombre → Detalle de ejercicio.
+
+Tab Programa (`features/program/ui/`, 2026-10-17):
+- `/programa` (`ProgramScreen`): tarjeta del bloque (rótulo + "Asignar/Cambiar
+  fechas", semana X de N, entrenos hechos/total, barra por semanas), selector
+  S1…SN (abre en la semana actual) y días de la semana elegida: hecho (check
+  turquesa → Sesión pasada), el que toca (dorado → Sesión), en curso,
+  pendiente, sin ejercicios (punteado "Tu coach lo está preparando"). Solo el
+  programa en curso entra a la Sesión. `/programa/p/:id` = mismo, para
+  terminados/próximos (solo lectura).
+- Sin programa en curso, el tab muestra directo Mis programas
+  (`ProgramsListScreen(asTab: true)`, sin volver).
+- `/programa/todos` (`ProgramsListScreen`): EN CURSO / PRÓXIMO (sin fechas →
+  Asignar fechas) / ANTERIORES (línea de tiempo, adherencia =
+  `completedDays/totalDays`).
+- `/fechas/:id` (`AssignDatesScreen`, sin tabs): calendario (desde hoy, o el
+  inicio que ya tenía) + día de la semana por entreno (elegir uno ocupado
+  intercambia); `PUT schedule` vía `ScheduleSaver`, error = `detail` de la API
+  (`apiErrorMessage`).
+- `/programa/sesion/:a/:d` (`PastSessionScreen`): series registradas en la
+  unidad en que se cargaron, objetivo, nota del atleta, cámara si hay video.
+  Falta: hilo de feedback del coach y ver videos.
+- Lógica pura: `currentWeekOf`, `dateOfDay`, `weekRows`, `durationOf`,
+  `dayCountsOf` (`program_schedule.dart`) y `assign_dates.dart`; tests en
+  `test/program_tab_test.dart` y `test/assign_dates_test.dart`.
+- Providers: `programDetail(id)` (API) → `programWithLocal(id)` (pisa estados
+  con las sesiones del teléfono, `mergeLocalSessions`); Hoy usa este último.
 
 Lógica pura de la sesión en `features/session/data/session_plan.dart`
 (`groupSupersets`, `setCountOf`, `savedSetFor`, `workOrder` por rondas en

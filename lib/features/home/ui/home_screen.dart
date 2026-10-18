@@ -113,9 +113,8 @@ class HomeScreen extends ConsumerWidget {
             TrainingDay() => TrainingDayCard(
               program: program,
               plan: plan,
-              onStart: () => context.push(
-                Routes.session(program.assignmentId, plan.day.id),
-              ),
+              onStart: () =>
+                  _openSession(context, program.assignmentId, plan.day.id),
             ),
             RestDay(:final next, :final nextDate) => TodayInfoCard(
               label: 'Hoy · Descanso',
@@ -139,6 +138,16 @@ class HomeScreen extends ConsumerWidget {
         ];
     }
   }
+}
+
+/// La Sesión se abre encima del tab Programa: al volver se ve el programa en
+/// la semana actual, no Hoy.
+void _openSession(BuildContext context, String assignmentId, String dayId) {
+  final router = GoRouter.of(context);
+  router.go(Routes.programAtCurrentWeek());
+  WidgetsBinding.instance.addPostFrameCallback(
+    (_) => router.push(Routes.session(assignmentId, dayId)),
+  );
 }
 
 class _Header extends StatelessWidget {

@@ -22,6 +22,26 @@ class RestNotifications {
   static const _runningId = 1001;
   static const _doneId = 1002;
 
+  // Android fija la vibración por canal: uno para cada opción de Ajustes
+  static const _doneNoVibration = NotificationDetails(
+    android: AndroidNotificationDetails(
+      'rest_timer_done_quiet',
+      'Fin del descanso (sin vibrar)',
+      channelDescription: 'Aviso con sonido cuando termina el descanso',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: false,
+      category: AndroidNotificationCategory.alarm,
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentSound: true,
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    ),
+  );
+
   static const _done = NotificationDetails(
     android: AndroidNotificationDetails(
       'rest_timer_done',
@@ -76,8 +96,13 @@ class RestNotifications {
     }
   }
 
-  /// Muestra la cuenta regresiva y programa el aviso de fin.
-  Future<void> start(DateTime endsAt, {String? title}) async {
+  /// Muestra la cuenta regresiva y programa el aviso de fin ([vibrate]:
+  /// Ajustes → Vibrar al terminar el descanso).
+  Future<void> start(
+    DateTime endsAt, {
+    String? title,
+    bool vibrate = true,
+  }) async {
     try {
       await _ensureInit();
       await _ensurePermission();
@@ -118,7 +143,7 @@ class RestNotifications {
             ? 'Terminó el descanso'
             : 'Terminó el descanso · $title',
         scheduledDate: tz.TZDateTime.from(endsAt.toUtc(), tz.UTC),
-        notificationDetails: _done,
+        notificationDetails: vibrate ? _done : _doneNoVibration,
         androidScheduleMode: await _scheduleMode(),
       );
     } catch (e) {

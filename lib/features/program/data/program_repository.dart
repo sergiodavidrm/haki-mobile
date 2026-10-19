@@ -1,33 +1,34 @@
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/cache/api_cache.dart';
 import '../../../core/network/api_client.dart';
 import 'assignment_dtos.dart';
 
 part 'program_repository.g.dart';
 
+// Lecturas con ApiCache: sin señal se ven los programas y el detalle de la
+// última vez que hubo conexión (y se puede entrenar).
 class ProgramRepository {
-  ProgramRepository(this._api);
+  ProgramRepository(this._api, this._cache);
 
   final Dio _api;
+  final ApiCache _cache;
 
   /// Programas del atleta (la API ya excluye borradores y cancelados).
-  Future<List<AssignmentSummaryDto>> getAssignments(String clientId) async {
-    final res = await _api.get<List<dynamic>>(
-      '/block-assignments/$clientId/assignments',
-    );
-    return [
-      for (final j in res.data ?? const [])
-        AssignmentSummaryDto.fromJson(j as Map<String, dynamic>),
-    ];
-  }
+  Future<List<AssignmentSummaryDto>> getAssignments(String clientId) =>
+      _cache.get(
+        '/block-assignments/$clientId/assignments',
+        (j) => [
+          for (final x in j as List? ?? const [])
+            AssignmentSummaryDto.fromJson(x as Map<String, dynamic>),
+        ],
+      );
 
-  Future<AssignmentDetailDto> getDetail(String assignmentId) async {
-    final res = await _api.get<Map<String, dynamic>>(
-      '/block-assignments/$assignmentId/detail',
-    );
-    return AssignmentDetailDto.fromJson(res.data!);
-  }
+  Future<AssignmentDetailDto> getDetail(String assignmentId) => _cache.get(
+    '/block-assignments/$assignmentId/detail',
+    (j) => AssignmentDetailDto.fromJson(j as Map<String, dynamic>),
+  );
 
   /// Fecha de inicio + día de la semana de cada entreno ([weekDays]:
   /// DayNumber → 1 = lunes … 7 = domingo). La API recalcula el fin.
@@ -53,5 +54,7 @@ class ProgramRepository {
 }
 
 @Riverpod(keepAlive: true)
-ProgramRepository programRepository(Ref ref) =>
-    ProgramRepository(ref.watch(apiClientProvider));
+ProgramRepository programRepository(Ref ref) => ProgramRepository(
+  ref.watch(apiClientProvider),
+  ref.watch(apiCacheProvider),
+);

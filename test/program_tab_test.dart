@@ -245,4 +245,38 @@ void main() {
     expect(durationOf(days[2]), const Duration(minutes: 50));
     expect(dayCountsOf(merged), (2, 3));
   });
+
+  test('adherenceOf: solo días con fecha hasta hoy y con ejercicios', () {
+    // monday = lunes; mappings: día 1 lunes, día 2 miércoles, día 3 viernes
+    final p = detail(
+      start: monday,
+      weeks: [
+        WeekDto(
+          weekNumber: 1,
+          days: [
+            day(1, 1, status: SessionStatus.completed),
+            day(1, 2, exercises: 0), // en preparación: no cuenta
+            day(1, 3),
+          ],
+        ),
+        WeekDto(
+          weekNumber: 2,
+          days: [
+            day(2, 1, status: SessionStatus.completed),
+            day(2, 2),
+            day(2, 3),
+          ],
+        ),
+      ],
+      mappings: mappings,
+    );
+    // Lunes de la semana 2: tocaban día 1 y 3 de S1 + día 1 de S2
+    expect(adherenceOf(p, monday.add(const Duration(days: 7))), (2, 3));
+    // Sin calendario no hay días vencidos
+    expect(
+      adherenceOf(detail(start: monday, weeks: plainWeeks(1)), monday),
+      isNull,
+    );
+    expect(adherenceOf(detail(weeks: plainWeeks(1)), monday), isNull);
+  });
 }

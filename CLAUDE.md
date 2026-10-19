@@ -284,8 +284,7 @@ con `CustomPainter` igual al SVG del web, brillo que late).
 Navegación: `StatefulShellRoute` con 4 tabs (`AppShell` en `core/widgets/`):
 Hoy `/` · Programa `/programa` · Chat `/chat` · Perfil `/perfil`.
 `AthleteGate` envuelve el shell. Chat es `ComingSoon`; Hoy tiene
-cabecera + saludo (nombre de `user_metadata` de Supabase); Perfil tiene
-cuenta + cerrar sesión.
+cabecera + saludo (nombre de `user_metadata` de Supabase); Perfil ver abajo.
 
 Kit en `core/widgets/`: `HakiCard` (tone neutral/gold/turquoise, tocable),
 `SectionLabel`, `PillChip`, `SegmentedProgress`, `UserAvatar`. El botón
@@ -301,8 +300,19 @@ Hoy con datos reales: `features/program/data/` (DTOs de block-assignments +
 `currentProgramDetail` → `today` (`TodayState`). Estados cubiertos: sin
 programa, solo próximo, toca entrenar (Empezar/Continuar/completado), día vacío,
 descanso (con próximo día), semana completa, programa terminado, error.
-Refresca con pull-to-refresh. **Falta:** caché por `blockUpdatedAt`, refresh
-al volver a primer plano y modo offline del programa.
+Refresca con pull-to-refresh y al volver a primer plano (ver Offline abajo).
+
+Offline (2026-10-18): `core/cache/api_cache.dart` (`ApiCache`) = GET con
+respaldo en la tabla drift `CachedResponses` (schema 2): primero la red y se
+guarda el JSON; sin respuesta del servidor se usa lo último guardado (un 4xx/5xx
+no cae al caché). Lo usan `/auth/me` (si no, `AthleteGate` bloqueaba la app sin
+señal), la lista de programas y el detalle → Hoy, Programa y la Sesión abren sin
+señal. `wipe()` también lo borra. `programRefresher` (arrancado en `app.dart`)
+invalida programas y detalle al volver a primer plano, **salvo en pantallas de
+entreno** (`/sesion`, `/descanso`, `/ejercicio`, `/completado`). Se descartó
+"bajar el detalle solo si cambió `blockUpdatedAt`": el detalle también trae
+sesiones, series y "última vez", que cambian sin tocar el bloque. Pendiente:
+aviso "sin conexión · datos de tal hora" y "Tu coach actualizó este día".
 
 Sesión (`/sesion/:assignmentId/:dayId`, fuera del shell): registro de series
 offline-first. Sincroniza contra `workout-sessions`; la sesión se crea con
@@ -332,8 +342,20 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
   integrar). Override de unidad por ejercicio: si queda igual a la del día se
   borra (vuelve a seguir al switch). Ejercicios sin series y sin la siguiente
   se muestran colapsados; tocar los abre.
-  Falta del mockup: "Sem. pasada" + e1RM (necesita `LastPerformanceDto`) y
-  tocar el nombre → Detalle de ejercicio.
+  Debajo de cada ejercicio: "Sem. pasada: 116 lb × 12·12·12·12 · e1RM 163.8 lb"
+  (`lastPerformance` del detalle; "Sem. N" si es otra semana del programa, la
+  fecha si es de otro programa), en la unidad efectiva del ejercicio. Tocar el
+  nombre → Detalle de ejercicio.
+
+Detalle de ejercicio (`/ejercicio/:assignmentId/:dayId/:dayExerciseId`, sin
+tabs, `features/exercise/`): video técnico (`videoUrl` del coach o
+`exerciseVideoUrl` del catálogo, se abre afuera con `url_launcher`), "Cómo se
+hace" (`exerciseDescription`, 3 líneas + Ver más), nota del coach, e1RM (último,
+NUEVO PR si supera a todos los anteriores, tendencia con `BodyLineChart`,
+"+X en el bloque", volumen de hoy) e historial (hoy con borde dorado + `GET
+progress/{clientId}/exercises/{exerciseId}/history`, chips "12 @1"). Sin red:
+hoy + "última vez". Lógica pura en `exercise/data/exercise_stats.dart` (tests en
+`test/exercise_stats_test.dart`). Falta: feedback del coach (hilo, con Chat).
 
 Tab Programa (`features/program/ui/`, 2026-10-17):
 - `/programa` (`ProgramScreen`): tarjeta del bloque (rótulo + "Asignar/Cambiar
@@ -360,6 +382,47 @@ Tab Programa (`features/program/ui/`, 2026-10-17):
   `test/program_tab_test.dart` y `test/assign_dates_test.dart`.
 - Providers: `programDetail(id)` (API) → `programWithLocal(id)` (pisa estados
   con las sesiones del teléfono, `mergeLocalSessions`); Hoy usa este último.
+
+Perfil (`features/profile/` + `features/body/`, 2026-10-18):
+- `/perfil`: avatar, nombre, "Coach: X" (`coachName` de `/auth/me`) y
+  tarjetas Peso (último + sparkline + cambio en 4 sem), Medidas (cintura o la
+  primera pedida, cantidad y fecha) y Adherencia (`currentAdherence`: hechos /
+  días que ya tocaban del programa en curso, `adherenceOf`; sin calendario
+  muestra hechos / total). Niveles, racha y Récords del mockup **ocultos**
+  hasta que tengan backend (decisión de Sergio). Engranaje → Ajustes.
+- `/perfil/ajustes` (`SettingsScreen`, `features/settings/`): cuenta (nombre,
+  email, Cambiar contraseña con Supabase `updateUser` — solo si tiene identidad
+  `email`, no con solo Google), unidad de peso (`PATCH auth/me/weight-unit` →
+  invalida `/auth/me`), Vibrar al terminar el descanso (`RestVibration`,
+  `shared_preferences` `rest_vibrate`; apaga el háptico y usa el canal Android
+  `rest_timer_done_quiet`, porque la vibración es fija por canal) y Cerrar
+  sesión (avisa si hay series sin subir). Del mockup faltan: videos solo con
+  Wi-Fi, notificaciones, Google Fit, idioma, ayuda, términos y versión.
+- `DayWeightUnit` escucha `bodyWeightUnit` (no `authMe` directo): refrescar
+  `/auth/me` no pisa el switch del día; cambiar la unidad en Ajustes sí.
+- `/perfil/peso` y `/perfil/medidas/m/:key` (`BodySeriesScreen`, misma
+  pantalla para el peso y cada medida): último valor, cambio en el rango
+  (4 sem / 3 meses / Todo), gráfico (`BodyLineChart`, `CustomPainter`, sin
+  librería), historial con diferencia y botón Registrar peso (hoja, hoy) o
+  Registrar medidas.
+- `/perfil/medidas` (`MeasuresScreen`): solo las que pidió el coach
+  (`bodyMeasurements` de `/auth/me`), último valor de cada una y diferencia con
+  su registro anterior; tocar una → su historial. Pull-to-refresh vuelve a
+  pedir `/auth/me` (el coach puede cambiar las medidas).
+- `/perfil/medidas/registros` (`MeasureLogsScreen`, "Ver registros
+  anteriores"): un registro por día con medidas pedidas (`measureLogsOf`);
+  tocar uno → Registrar medidas en esa fecha.
+- `/medidas/registrar?fecha=YYYY-MM-DD` (`LogMeasuresScreen`, sin tabs): fecha
+  (hoy por defecto, editable hasta 3 años atrás), medidas agrupadas (Tronco / Brazos y piernas /
+  Composición) con "Anterior"; si el día ya tiene registro arranca cargado. Se
+  mandan solo las que tienen valor (la API mergea).
+- Datos: `GET body-logs/{clientId}` (`bodyLogs`) y `POST body-logs/me`
+  (`BodyLogSaver`). Necesitan red. Peso y masa muscular en
+  `preferredWeightUnit` (`bodyWeightUnit`); circunferencias siempre en cm.
+  Diferencias: turquesa si bajó, dorado si subió.
+- Lógica pura en `body/data/body_measures.dart` (catálogo = claves de
+  `BodyMeasurementKeys` de la API, `seriesOf`, `lastTwo`, `inRange`,
+  `changeOf`, `previousBefore`, `measureLogsOf`); tests en `test/body_measures_test.dart`.
 
 Lógica pura de la sesión en `features/session/data/session_plan.dart`
 (`groupSupersets`, `setCountOf`, `savedSetFor`, `workOrder` por rondas en
@@ -404,12 +467,12 @@ BD local de un solo usuario: `LocalDataGuard` (`session/providers/`, se
 arranca en `app.dart`) guarda el dueño en `shared_preferences`
 (`local_db_owner`); al cerrar sesión o si entra otro usuario hace
 `AppDatabase.wipe()` y resetea unidad/overrides/timer. Sin dueño guardado se
-asume del usuario actual. Perfil → Cerrar sesión avisa si
+asume del usuario actual. Ajustes → Cerrar sesión avisa si
 `SessionStore.pendingCount()` > 0 ("Tenés entrenos sin subir").
 
 **Pendiente de Sesión:** errores 4xx permanentes que traban la cola,
-"última vez" (`LastPerformanceDto`), aviso "Tu coach actualizó este día",
-Live Activity de iOS para el timer, videos y detalle de ejercicio. Del mockup de
+aviso "Tu coach actualizó este día", Live Activity de iOS para el timer y
+videos. Del mockup de
 Entreno completado faltan (necesitan backend): +XP, nuevo PR, subida de
 videos, RPE de la sesión y nota al coach (`WorkoutSession` no tiene esos
 campos).

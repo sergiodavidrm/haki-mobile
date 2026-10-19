@@ -55,19 +55,40 @@ class LocalSets extends Table {
   Set<Column> get primaryKey => {assignmentId, dayExerciseId, setNumber};
 }
 
-@DriftDatabase(tables: [LocalSessions, LocalExerciseLogs, LocalSets])
+/// Última respuesta de la API para lo que tiene que verse sin señal
+/// (`/auth/me`, programas, detalle). JSON tal cual vino (ApiCache).
+class CachedResponses extends Table {
+  TextColumn get key => text()();
+  TextColumn get json => text()();
+  DateTimeColumn get savedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {key};
+}
+
+@DriftDatabase(
+  tables: [LocalSessions, LocalExerciseLogs, LocalSets, CachedResponses],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
     : super(executor ?? driftDatabase(name: 'haki'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      if (from < 2) await m.createTable(cachedResponses);
+    },
+  );
 
   /// Borra todo lo local (cerrar sesión / entra otro usuario).
   Future<void> wipe() => transaction(() async {
     await delete(localSets).go();
     await delete(localExerciseLogs).go();
     await delete(localSessions).go();
+    await delete(cachedResponses).go();
   });
 }
 

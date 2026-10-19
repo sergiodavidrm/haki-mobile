@@ -53,7 +53,7 @@ final class RestTimerProvider
   }
 }
 
-String _$restTimerHash() => r'68145d0192552e5477661e9cbaa6b49869f846ad';
+String _$restTimerHash() => r'927cb1269a9e38e5936764b3628cd7c18c14e026';
 
 /// Timer de descanso de la sesión. keepAlive: sigue corriendo al pasar entre
 /// la Sesión y la pantalla del timer. Se recuerda la última duración elegida.

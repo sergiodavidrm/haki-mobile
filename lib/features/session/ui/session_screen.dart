@@ -8,6 +8,7 @@ import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../../core/widgets/haki_card.dart';
+import '../../exercise/data/exercise_stats.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../data/session_plan.dart';
 import '../data/session_store.dart';
@@ -112,6 +113,14 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         exercise: e,
         badge: badge,
         showRail: showRail,
+        lastTime: e.lastPerformance == null
+            ? null
+            : lastTimeLabel(
+                e.lastPerformance!,
+                assignmentId: _a,
+                weekNumber: s.week.weekNumber,
+              ),
+        onOpenDetail: () => context.push(Routes.exercise(_a, _d, e.id)),
         nextSetNumber: next?.exercise.id == e.id ? next!.setNumber : null,
         onVideo: (n, requested) => _uploadVideo(n, requested),
         unit: unit,

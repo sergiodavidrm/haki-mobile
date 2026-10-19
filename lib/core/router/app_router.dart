@@ -7,12 +7,18 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/ui/athlete_gate.dart';
 import '../../features/auth/ui/login_screen.dart';
+import '../../features/body/ui/log_measures_screen.dart';
+import '../../features/body/ui/measures_screen.dart';
+import '../../features/body/ui/body_series_screen.dart';
+import '../../features/body/ui/measure_logs_screen.dart';
+import '../../features/exercise/ui/exercise_detail_screen.dart';
 import '../../features/home/ui/home_screen.dart';
 import '../../features/profile/ui/profile_screen.dart';
 import '../../features/program/ui/assign_dates_screen.dart';
 import '../../features/program/ui/past_session_screen.dart';
 import '../../features/program/ui/program_screen.dart';
 import '../../features/program/ui/programs_list_screen.dart';
+import '../../features/settings/ui/settings_screen.dart';
 import '../../features/session/ui/rest_timer_screen.dart';
 import '../../features/session/ui/session_screen.dart';
 import '../../features/session/ui/workout_complete_screen.dart';
@@ -30,6 +36,13 @@ abstract final class Routes {
   static const rest = '/descanso';
   static String session(String assignmentId, String dayId) =>
       '/sesion/$assignmentId/$dayId';
+
+  /// Detalle de ejercicio desde la Sesión ([dayExerciseId] = BlockDayExerciseId).
+  static String exercise(
+    String assignmentId,
+    String dayId,
+    String dayExerciseId,
+  ) => '/ejercicio/$assignmentId/$dayId/$dayExerciseId';
   static String sessionDone(String assignmentId, String dayId) =>
       '/completado/$assignmentId/$dayId';
 
@@ -44,7 +57,20 @@ abstract final class Routes {
   static String pastSession(String assignmentId, String dayId) =>
       '/programa/sesion/$assignmentId/$dayId';
 
-  /// Pantalla completa, sin tabs.
+  // Dentro del tab Perfil
+  static const weight = '/perfil/peso';
+  static const measures = '/perfil/medidas';
+  static const settings = '/perfil/ajustes';
+  static const measureLogs = '/perfil/medidas/registros';
+
+  /// Historial y gráfico de una medida (clave de BodyMeasurementKeys).
+  static String bodySeries(String key) => '/perfil/medidas/m/$key';
+
+  /// Pantallas completas, sin tabs.
+  /// [date] = día a ver o corregir (por defecto hoy).
+  static String logMeasures({DateTime? date}) => date == null
+      ? '/medidas/registrar'
+      : '/medidas/registrar?fecha=${date.toIso8601String().substring(0, 10)}';
   static String assignDates(String assignmentId) => '/fechas/$assignmentId';
 }
 
@@ -77,9 +103,26 @@ GoRouter appRouter(Ref ref) {
       ),
       GoRoute(path: Routes.rest, builder: (_, _) => const RestTimerScreen()),
       GoRoute(
+        path: '/ejercicio/:assignmentId/:dayId/:dayExerciseId',
+        builder: (_, state) => ExerciseDetailScreen(
+          assignmentId: state.pathParameters['assignmentId']!,
+          dayId: state.pathParameters['dayId']!,
+          dayExerciseId: state.pathParameters['dayExerciseId']!,
+        ),
+      ),
+      GoRoute(
         path: '/fechas/:assignmentId',
         builder: (_, state) => AssignDatesScreen(
           assignmentId: state.pathParameters['assignmentId']!,
+        ),
+      ),
+      GoRoute(
+        path: '/medidas/registrar',
+        builder: (_, state) => LogMeasuresScreen(
+          initialDate: switch (state.uri.queryParameters['fecha']) {
+            final f? => DateTime.tryParse('${f}T00:00:00Z'),
+            null => null,
+          },
         ),
       ),
       GoRoute(
@@ -143,6 +186,32 @@ GoRouter appRouter(Ref ref) {
               GoRoute(
                 path: Routes.profile,
                 builder: (_, _) => const ProfileScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'peso',
+                    builder: (_, _) => const BodySeriesScreen(),
+                  ),
+                  GoRoute(
+                    path: 'ajustes',
+                    builder: (_, _) => const SettingsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'medidas',
+                    builder: (_, _) => const MeasuresScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'registros',
+                        builder: (_, _) => const MeasureLogsScreen(),
+                      ),
+                      GoRoute(
+                        path: 'm/:key',
+                        builder: (_, state) => BodySeriesScreen(
+                          measureKey: state.pathParameters['key'],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),

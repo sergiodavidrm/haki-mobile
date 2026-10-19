@@ -387,7 +387,7 @@ final class DayWeightUnitProvider
   }
 }
 
-String _$dayWeightUnitHash() => r'7e66642e108ab03c38fa5c88b99c4a04a3595915';
+String _$dayWeightUnitHash() => r'eddf1b5de2b6cd6469fe2c2c982d89d813c14418';
 
 /// Unidad del día (switch del header). Arranca en la preferida del atleta
 /// (`GET /auth/me`, kg si no viene). keepAlive: se mantiene al salir y volver

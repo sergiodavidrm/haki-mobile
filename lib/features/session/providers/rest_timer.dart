@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/notifications/rest_notifications.dart';
+import '../../settings/providers/settings_providers.dart';
 
 part 'rest_timer.g.dart';
 
@@ -195,6 +196,7 @@ class RestTimer extends _$RestTimer {
 
   void _run(int seconds, {int? total}) {
     _done?.cancel();
+    final vibrate = ref.read(restVibrationProvider);
     final endsAt = DateTime.now().add(Duration(seconds: seconds));
     state = state.copyWith(
       totalSeconds: total,
@@ -202,9 +204,12 @@ class RestTimer extends _$RestTimer {
       pausedLeft: () => null,
     );
     unawaited(
-      ref.read(restNotificationsProvider).start(endsAt, title: _nextLabel()),
+      ref
+          .read(restNotificationsProvider)
+          .start(endsAt, title: _nextLabel(), vibrate: vibrate),
     );
     _done = Timer(Duration(seconds: seconds), () async {
+      if (!vibrate) return;
       await HapticFeedback.heavyImpact();
       await Future<void>.delayed(const Duration(milliseconds: 180));
       await HapticFeedback.heavyImpact();

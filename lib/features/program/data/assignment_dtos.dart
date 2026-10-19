@@ -248,15 +248,34 @@ class DayExerciseDto {
     required this.id,
     required this.exerciseName,
     required this.supersetGroupId,
+    this.exerciseId = '',
     this.coachNote,
     this.athleteNote,
+    this.description,
+    this.coachVideoUrl,
+    this.techniqueVideoUrl,
     this.targetSets = const [],
     this.loggedSets = const [],
+    this.lastPerformance,
   });
 
   /// BlockDayExerciseId: clave de los logs de este ejercicio en este día.
   final String id;
+
+  /// Ejercicio del catálogo (el mismo en todos los programas).
+  final String exerciseId;
   final String exerciseName;
+
+  /// "Cómo se hace" (catálogo).
+  final String? description;
+
+  /// Video que el coach puso para este ejercicio en el programa; si no hay,
+  /// [techniqueVideoUrl] (el del catálogo).
+  final String? coachVideoUrl;
+  final String? techniqueVideoUrl;
+
+  /// Última vez que lo hizo antes de este día (de cualquier programa).
+  final LastPerformanceDto? lastPerformance;
   final String? supersetGroupId;
   final String? coachNote;
 
@@ -271,7 +290,16 @@ class DayExerciseDto {
 
   factory DayExerciseDto.fromJson(Map<String, dynamic> j) => DayExerciseDto(
     id: j['id'] as String,
+    exerciseId: j['exerciseId'] as String? ?? '',
     exerciseName: j['exerciseName'] as String,
+    description: j['exerciseDescription'] as String?,
+    coachVideoUrl: j['videoUrl'] as String?,
+    techniqueVideoUrl: j['exerciseVideoUrl'] as String?,
+    lastPerformance: j['lastPerformance'] == null
+        ? null
+        : LastPerformanceDto.fromJson(
+            j['lastPerformance'] as Map<String, dynamic>,
+          ),
     supersetGroupId: j['supersetGroupId'] as String?,
     coachNote: j['coachNote'] as String?,
     athleteNote: j['athleteNote'] as String?,
@@ -339,6 +367,32 @@ class LoggedSetDto {
     rir: j['rir'] as int?,
     videoUrl: j['videoUrl'] as String?,
   );
+}
+
+/// La última vez que se hizo un ejercicio (de este u otro programa).
+class LastPerformanceDto {
+  const LastPerformanceDto({
+    required this.assignmentId,
+    required this.weekNumber,
+    required this.date,
+    required this.sets,
+  });
+
+  final String assignmentId;
+  final int weekNumber;
+  final DateTime date;
+  final List<LoggedSetDto> sets;
+
+  factory LastPerformanceDto.fromJson(Map<String, dynamic> j) =>
+      LastPerformanceDto(
+        assignmentId: j['assignmentId'] as String,
+        weekNumber: j['weekNumber'] as int,
+        date: DateTime.parse(j['date'] as String),
+        sets: [
+          for (final s in j['sets'] as List? ?? const [])
+            LoggedSetDto.fromJson(s as Map<String, dynamic>),
+        ],
+      );
 }
 
 /// Qué día de la semana se hace cada entreno; se repite todas las semanas.

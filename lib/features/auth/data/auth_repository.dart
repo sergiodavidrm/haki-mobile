@@ -31,7 +31,15 @@ class AuthRepository {
     return email?.split('@').first ?? '';
   }
 
+  /// Entra con email/password (la invitación le pidió una). Solo con Google no
+  /// tiene contraseña que cambiar.
+  bool get hasPassword =>
+      _auth.currentUser?.identities?.any((i) => i.provider == 'email') ?? false;
+
   Stream<AuthState> authChanges() => _auth.onAuthStateChange;
+
+  Future<void> changePassword(String password) =>
+      _auth.updateUser(UserAttributes(password: password));
 
   Future<void> signIn(String email, String password) =>
       _auth.signInWithPassword(email: email.trim(), password: password);

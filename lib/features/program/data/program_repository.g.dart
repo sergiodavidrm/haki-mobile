@@ -54,4 +54,4 @@ final class ProgramRepositoryProvider
   }
 }
 
-String _$programRepositoryHash() => r'6d07b9f19a8e15cd1e7713f645044816f9a67726';
+String _$programRepositoryHash() => r'a7697cb9d6e6eecbd38ea744009e4d8fe84ee117';

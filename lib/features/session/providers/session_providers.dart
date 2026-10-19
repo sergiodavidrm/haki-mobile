@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/units/weight_unit.dart';
-import '../../auth/providers/auth_me_provider.dart';
+import '../../body/providers/body_providers.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../../program/providers/program_providers.dart';
 import '../data/session_plan.dart';
@@ -70,8 +70,10 @@ Stream<Map<String, LocalSetEntry>> localSets(
 @Riverpod(keepAlive: true)
 class DayWeightUnit extends _$DayWeightUnit {
   @override
-  WeightUnit build(String dayId) =>
-      ref.watch(authMeProvider).value?.preferredWeightUnit ?? WeightUnit.kg;
+  // bodyWeightUnit solo avisa si la unidad cambia: refrescar /auth/me
+  // (pull-to-refresh del Perfil) no pisa el switch que el atleta tocó; un
+  // cambio real de unidad (Ajustes) sí lo reinicia
+  WeightUnit build(String dayId) => ref.watch(bodyWeightUnitProvider);
 
   void set(WeightUnit unit) => state = unit;
 }

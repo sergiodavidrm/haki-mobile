@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
+import '../../exercise/data/exercise_stats.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../data/session_plan.dart';
 import 'set_row.dart';
@@ -30,7 +31,16 @@ class ExerciseBlock extends StatelessWidget {
     required this.onVideo,
     this.badge,
     this.showRail = true,
+    this.lastTime,
+    this.onOpenDetail,
   });
+
+  /// "Sem. pasada" / "Sem. 2" / "25 sep" (lastTimeLabel); null = no mostrar
+  /// la última vez.
+  final String? lastTime;
+
+  /// Tocar el nombre → Detalle de ejercicio.
+  final VoidCallback? onOpenDetail;
 
   final DayExerciseDto exercise;
   final WeightUnit unit;
@@ -90,6 +100,8 @@ class ExerciseBlock extends StatelessWidget {
       ],
     );
 
+    final last = exercise.lastPerformance;
+    final lastE1rm = last == null ? null : bestE1rmKg(last.sets);
     final extras = <Widget>[
       if (pendingVideo.isNotEmpty) ...[
         const SizedBox(height: 10),
@@ -107,6 +119,40 @@ class ExerciseBlock extends StatelessWidget {
           ],
         ),
       ],
+      // "Sem. pasada: 116 lb × 12·12·12·12        e1RM 163.8 lb"
+      if (last != null && lastTime != null && last.sets.isNotEmpty) ...[
+        const SizedBox(height: 10),
+        DefaultTextStyle.merge(
+          style: TextStyle(
+            fontSize: 12,
+            color: c.textMuted,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text('$lastTime: ${setsSummary(last.sets, unit)}'),
+              ),
+              if (lastE1rm != null)
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      const TextSpan(text: 'e1RM '),
+                      TextSpan(
+                        text: formatWeight(unit.fromKg(lastE1rm)),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: c.text,
+                        ),
+                      ),
+                      TextSpan(text: ' ${unit.label}'),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     ];
 
     if (!inSuperset) {
@@ -118,10 +164,14 @@ class ExerciseBlock extends StatelessWidget {
               const ExerciseIconTile(),
               const SizedBox(width: 12),
               Expanded(
-                child: _Title(
-                  name: exercise.exerciseName,
-                  summary: exerciseSummary(exercise),
-                  size: 17,
+                child: GestureDetector(
+                  onTap: onOpenDetail,
+                  behavior: HitTestBehavior.opaque,
+                  child: _Title(
+                    name: exercise.exerciseName,
+                    summary: exerciseSummary(exercise),
+                    size: 17,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -196,12 +246,16 @@ class ExerciseBlock extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      exercise.exerciseName,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: c.text,
+                    child: GestureDetector(
+                      onTap: onOpenDetail,
+                      behavior: HitTestBehavior.opaque,
+                      child: Text(
+                        exercise.exerciseName,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: c.text,
+                        ),
                       ),
                     ),
                   ),

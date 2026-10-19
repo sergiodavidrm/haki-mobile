@@ -280,6 +280,24 @@ DateTime? dateOfDay(AssignmentDetailDto p, int weekNumber, int dayNumber) {
   );
 }
 
+/// Adherencia del programa: (hechos, que ya tocaban) contando solo los días
+/// con fecha hasta [today] inclusive y con ejercicios. null si el programa no
+/// tiene calendario (sin fechas o sin día de la semana por entreno): ahí ningún
+/// día "vence".
+(int, int)? adherenceOf(AssignmentDetailDto p, DateTime today) {
+  if (!p.hasDates || p.dayMappings.isEmpty) return null;
+  var done = 0, due = 0;
+  for (final w in p.weeks) {
+    for (final d in w.days) {
+      final date = dateOfDay(p, w.weekNumber, d.dayNumber);
+      if (date == null || date.isAfter(today) || d.exercises.isEmpty) continue;
+      due++;
+      if (d.sessionStatus == SessionStatus.completed) done++;
+    }
+  }
+  return (done, due);
+}
+
 /// Duración del entreno si se sabe y es creíble (1 min – 6 h).
 Duration? durationOf(DayDto d) {
   if (d.startedAt == null || d.completedAt == null) return null;

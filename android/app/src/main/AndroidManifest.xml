@@ -5,7 +5,7 @@
          deja apagado por defecto; sin él la notificación llega "inexacta") -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <application
-        android:label="haki_mobile"
+        android:label="Haki"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <!-- Push del chat (FCM vía Stream): canal y color por defecto -->

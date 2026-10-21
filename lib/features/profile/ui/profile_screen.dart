@@ -32,6 +32,7 @@ class ProfileScreen extends ConsumerWidget {
     final c = context.colors;
     final auth = ref.watch(authRepositoryProvider);
     final me = ref.watch(authMeProvider).value;
+    final name = ref.watch(displayNameProvider);
     final logs = ref.watch(bodyLogsProvider).value ?? const <BodyLogDto>[];
     final unit = ref.watch(bodyWeightUnitProvider);
 
@@ -56,7 +57,7 @@ class ProfileScreen extends ConsumerWidget {
               Row(
                 children: [
                   UserAvatar(
-                    name: auth.displayName,
+                    name: name,
                     size: 60,
                     highlighted: true,
                   ),
@@ -66,7 +67,7 @@ class ProfileScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          auth.displayName,
+                          name,
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w800,

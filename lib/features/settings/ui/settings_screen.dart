@@ -39,7 +39,7 @@ class SettingsScreen extends ConsumerWidget {
             const _Section('Cuenta'),
             _Group(
               children: [
-                _Row(title: auth.displayName, subtitle: auth.email),
+                _Row(title: ref.watch(displayNameProvider), subtitle: auth.email),
                 if (auth.hasPassword)
                   _Row(
                     title: 'Cambiar contraseña',

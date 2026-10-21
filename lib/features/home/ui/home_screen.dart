@@ -9,7 +9,7 @@ import '../../../core/theme/haki_colors.dart';
 import '../../../core/widgets/haki_loader.dart';
 import '../../../core/widgets/haki_logo.dart';
 import '../../../core/widgets/user_avatar.dart';
-import '../../auth/data/auth_repository.dart';
+import '../../auth/providers/auth_me_provider.dart';
 import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
 import '../providers/today_provider.dart';
@@ -22,7 +22,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
-    final name = ref.watch(authRepositoryProvider).displayName;
+    final name = ref.watch(displayNameProvider);
     final today = ref.watch(todayProvider);
 
     return Scaffold(

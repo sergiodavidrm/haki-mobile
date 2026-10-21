@@ -1,7 +1,7 @@
 import '../../../core/units/weight_unit.dart';
 import '../../body/data/body_measures.dart';
 
-// GET /auth/me → { exists, userId, role, preferredWeightUnit, coachName,
+// GET /auth/me → { exists, userId, role, fullName, preferredWeightUnit, coachName,
 // exerciseFeedbackEnabled, bodyMeasurements }. role viene del enum de Postgres ("CLIENT" | "COACH" |
 // "ADMIN") o null: comparar sin distinguir mayúsculas. Los últimos tres solo
 // para atletas.
@@ -10,6 +10,7 @@ class AuthMeDto {
     required this.exists,
     required this.userId,
     this.role,
+    this.fullName,
     this.preferredWeightUnit,
     this.coachName,
     this.exerciseFeedbackEnabled = false,
@@ -19,6 +20,9 @@ class AuthMeDto {
   final bool exists;
   final String userId;
   final String? role;
+
+  /// Nombre completo del atleta (el que cargó el coach al invitarlo).
+  final String? fullName;
 
   /// Unidad de la Sesión y del peso corporal (null = no es atleta o API vieja).
   final WeightUnit? preferredWeightUnit;
@@ -38,6 +42,7 @@ class AuthMeDto {
     exists: json['exists'] as bool? ?? false,
     userId: json['userId'] as String,
     role: json['role'] as String?,
+    fullName: json['fullName'] as String?,
     preferredWeightUnit: json['preferredWeightUnit'] == null
         ? null
         : WeightUnit.parse(json['preferredWeightUnit'] as String),

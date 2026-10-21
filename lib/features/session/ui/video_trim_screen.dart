@@ -287,7 +287,7 @@ class _TrimStripState extends State<_TrimStrip> {
             child: Icon(
               isStart ? Icons.chevron_left : Icons.chevron_right,
               size: 14,
-              color: c.background,
+              color: c.onAccent,
             ),
           ),
         );

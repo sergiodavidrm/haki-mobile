@@ -110,7 +110,7 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
                           height: 22,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            color: c.background,
+                            color: c.onAccent,
                           ),
                         )
                       : const Text('Guardar fechas'),
@@ -330,7 +330,7 @@ class _Calendar extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       fontFeatures: const [FontFeature.tabularFigures()],
                       color: on
-                          ? c.background
+                          ? c.onAccent
                           : enabled
                           ? c.text
                           : c.textMuted.withValues(alpha: .45),

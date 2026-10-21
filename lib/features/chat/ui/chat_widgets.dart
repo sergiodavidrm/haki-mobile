@@ -432,7 +432,7 @@ class _ChatComposerState extends State<ChatComposer> {
               onPressed: _send,
               style: IconButton.styleFrom(
                 backgroundColor: c.gold,
-                foregroundColor: c.background,
+                foregroundColor: c.onAccent,
               ),
               icon: const Icon(Icons.send_rounded, size: 18),
             ),

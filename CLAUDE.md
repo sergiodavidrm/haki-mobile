@@ -125,6 +125,16 @@ Paleta **Obsidian/Gold/Turquoise** (UI dark del atleta):
 
 - Tokens en `core/theme/haki_colors.dart` (`HakiColors`, un `ThemeExtension`)
   y `ThemeData` en `core/theme/app_theme.dart`.
+- **Tema claro y oscuro (2026-10-20):** `HakiColors.obsidian` (oscuro) y
+  `HakiColors.light` (mockup "Tema claro · propuesta": fondo `#F7F6F3`,
+  dorado/turquesa de texto más oscuros `#7A5C0C` / `#00766C`, texto tenue
+  `#575757`).
+  `buildAppTheme(c, brightness:)`; en `app.dart` `theme` / `darkTheme` /
+  `themeMode` = `AppThemeMode` (Ajustes → Apariencia → Sistema/Claro/Oscuro,
+  `shared_preferences` `theme_mode`, default Sistema). Texto/íconos **sobre
+  dorado o turquesa** usan `onAccent` (oscuro en los dos), nunca `background`.
+  El splash queda siempre oscuro (marca, empalma con el nativo). Barra de
+  estado con `AnnotatedRegion` según el tema.
 - En widgets: `context.colors.gold`. **Prohibido `Color(0x...)` fuera de
   `core/theme/`.** Cambiar de paleta = otro `HakiColors` en `app.dart`.
 - Preferir estilos del tema (`inputDecorationTheme`, `filledButtonTheme`…)
@@ -378,6 +388,22 @@ entreno** (`/sesion`, `/descanso`, `/ejercicio`, `/completado`). Se descartó
 "bajar el detalle solo si cambió `blockUpdatedAt`": el detalle también trae
 sesiones, series y "última vez", que cambian sin tocar el bloque. Pendiente:
 aviso "sin conexión · datos de tal hora" y "Tu coach actualizó este día".
+
+**Pendiente (anotado 2026-10-20): abrir con la caché primero.** Hoy `ApiCache`
+es *network-first*: con señal mala (no nula) la app queda en "Cargando tu
+semana…" hasta el `connectTimeout` de 10 s antes de caer a la caché. Cambiarlo
+a *stale-while-revalidate* para `/auth/me`, programas y detalle: mostrar al
+instante el JSON guardado y pedir a la API en segundo plano; si la respuesta
+cambió, actualizar. A resolver:
+- Si llega un cambio mientras el atleta mira Hoy/Programa: reemplazar sin
+  más (como pull-to-refresh) o avisar. En la Sesión nunca reemplazar: reusar
+  el aviso pendiente "Tu coach actualizó este día · Actualizar".
+- Primera vez sin caché (instalación nueva o tras cerrar sesión): sigue
+  esperando la red.
+- `/auth/me` viejo puede traer un rol/coach desactualizado: decidir si
+  `AthleteGate` confía en la caché o espera la red cuando el usuario cambió.
+- Mostrar "Actualizado hace X" o el aviso de sin conexión cuando se está
+  viendo la copia y la red falló.
 
 Sesión (`/sesion/:assignmentId/:dayId`, fuera del shell): registro de series
 offline-first. Sincroniza contra `workout-sessions`; la sesión se crea con

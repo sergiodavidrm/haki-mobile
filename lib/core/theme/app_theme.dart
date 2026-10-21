@@ -3,17 +3,25 @@ import 'package:flutter/material.dart';
 import 'haki_colors.dart';
 
 // Arma el ThemeData de Material a partir de los tokens. Cambiar de paleta =
-// pasar otro HakiColors acá; los widgets no se tocan.
-ThemeData buildAppTheme(HakiColors c) {
-  final scheme = ColorScheme.dark(
-    primary: c.gold,
-    onPrimary: c.background,
-    secondary: c.turquoise,
-    onSecondary: c.background,
-    surface: c.surface,
-    onSurface: c.text,
-    error: c.danger,
-  );
+// pasar otro HakiColors acá; los widgets no se tocan. [brightness] = tema
+// claro (HakiColors.light) u oscuro (HakiColors.obsidian).
+ThemeData buildAppTheme(
+  HakiColors c, {
+  Brightness brightness = Brightness.dark,
+}) {
+  final scheme =
+      (brightness == Brightness.dark
+              ? const ColorScheme.dark()
+              : const ColorScheme.light())
+          .copyWith(
+            primary: c.gold,
+            onPrimary: c.onAccent,
+            secondary: c.turquoise,
+            onSecondary: c.onAccent,
+            surface: c.surface,
+            onSurface: c.text,
+            error: c.danger,
+          );
 
   final inputBorder = OutlineInputBorder(
     borderRadius: BorderRadius.circular(12),
@@ -22,7 +30,7 @@ ThemeData buildAppTheme(HakiColors c) {
 
   return ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
+    brightness: brightness,
     colorScheme: scheme,
     scaffoldBackgroundColor: c.background,
     extensions: [c],

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,6 +31,30 @@ class RestVibration extends _$RestVibration {
   void set(bool on) {
     state = on;
     unawaited(SharedPreferencesAsync().setBool(_vibrationKey, on));
+  }
+}
+
+const _themeKey = 'theme_mode';
+
+/// Ajustes → Tema: Sistema (default), Claro u Oscuro. Preferencia del
+/// teléfono (shared_preferences `theme_mode`: system | light | dark).
+@Riverpod(keepAlive: true)
+class AppThemeMode extends _$AppThemeMode {
+  @override
+  ThemeMode build() {
+    unawaited(_load());
+    return ThemeMode.system;
+  }
+
+  Future<void> _load() async {
+    final saved = await SharedPreferencesAsync().getString(_themeKey);
+    final mode = ThemeMode.values.asNameMap()[saved];
+    if (mode != null) state = mode;
+  }
+
+  void set(ThemeMode mode) {
+    state = mode;
+    unawaited(SharedPreferencesAsync().setString(_themeKey, mode.name));
   }
 }
 

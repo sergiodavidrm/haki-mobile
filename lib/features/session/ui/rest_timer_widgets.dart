@@ -219,7 +219,7 @@ class _BarButton extends StatelessWidget {
       style: IconButton.styleFrom(
         fixedSize: const Size(44, 44),
         backgroundColor: primary ? c.gold : c.border,
-        foregroundColor: primary ? c.background : c.text,
+        foregroundColor: primary ? c.onAccent : c.text,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       icon: Icon(icon, size: 20),

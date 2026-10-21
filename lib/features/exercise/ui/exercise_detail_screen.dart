@@ -178,7 +178,7 @@ class _VideoCard extends StatelessWidget {
               child: Icon(
                 Icons.play_arrow_rounded,
                 size: 32,
-                color: c.background,
+                color: c.onAccent,
               ),
             ),
             const SizedBox(height: 10),

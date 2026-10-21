@@ -64,7 +64,7 @@ class WeekStrip extends StatelessWidget {
                             ? FontWeight.w700
                             : FontWeight.w600,
                         color: d.isToday
-                            ? c.background
+                            ? c.onAccent
                             : (d.kind == StripDayKind.done
                                   ? c.turquoise
                                   : c.textSecondary),

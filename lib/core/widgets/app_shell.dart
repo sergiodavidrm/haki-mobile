@@ -46,7 +46,7 @@ class AppShell extends ConsumerWidget {
                     isLabelVisible: n > 0,
                     label: Text(n > 9 ? '9+' : '$n'),
                     backgroundColor: context.colors.gold,
-                    textColor: context.colors.background,
+                    textColor: context.colors.onAccent,
                     child: const Icon(Icons.chat_bubble_outline),
                   );
                 },

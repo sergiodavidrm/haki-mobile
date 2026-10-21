@@ -364,7 +364,7 @@ class _Value extends StatelessWidget {
         style: TextStyle(
           fontSize: 16,
           fontWeight: empty ? FontWeight.w400 : FontWeight.w600,
-          color: empty ? c.textMuted.withValues(alpha: .7) : c.text,
+          color: empty ? c.textMuted : c.text,
           fontFeatures: const [FontFeature.tabularFigures()],
         ),
       ),
@@ -468,7 +468,7 @@ class _CameraButton extends StatelessWidget {
                       border: Border.all(color: c.surface, width: 2),
                     ),
                     child: sent
-                        ? Icon(Icons.check, size: 8, color: c.background)
+                        ? Icon(Icons.check, size: 8, color: c.onAccent)
                         : null,
                   ),
                 ),
@@ -538,7 +538,7 @@ class _Input extends StatelessWidget {
             ),
             hintText: hint,
             hintStyle: TextStyle(
-              color: c.textMuted.withValues(alpha: .7),
+              color: c.textMuted,
               fontWeight: FontWeight.w500,
             ),
             filled: true,

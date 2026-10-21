@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
@@ -10,6 +11,7 @@ import 'features/chat/providers/chat_providers.dart';
 import 'features/program/providers/program_refresher.dart';
 import 'features/session/data/session_sync.dart';
 import 'features/session/providers/local_data_guard.dart';
+import 'features/settings/providers/settings_providers.dart';
 
 class HakiApp extends ConsumerWidget {
   const HakiApp({super.key});
@@ -25,13 +27,22 @@ class HakiApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Haki',
       debugShowCheckedModeBanner: false,
-      theme: buildAppTheme(HakiColors.obsidian),
+      // Tema: Sistema (default), Claro u Oscuro desde Ajustes
+      theme: buildAppTheme(HakiColors.light, brightness: Brightness.light),
+      darkTheme: buildAppTheme(HakiColors.obsidian),
+      themeMode: ref.watch(appThemeModeProvider),
       routerConfig: ref.watch(appRouterProvider),
       // Conexión de Stream: se corta en background y vuelve al abrir la app.
       // El splash va arriba de todo mientras la app arranca abajo.
-      builder: (_, child) => StreamChatCore(
-        client: ref.watch(streamClientProvider),
-        child: SplashOverlay(child: child!),
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        // Íconos de la barra de estado según el tema (no hay AppBar que lo haga)
+        value: Theme.of(context).brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
+        child: StreamChatCore(
+          client: ref.watch(streamClientProvider),
+          child: SplashOverlay(child: child!),
+        ),
       ),
     );
   }

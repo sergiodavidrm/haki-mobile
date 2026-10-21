@@ -22,6 +22,7 @@ class HakiColors extends ThemeExtension<HakiColors> {
     required this.turquoiseBorder,
     required this.turquoiseMuted,
     required this.danger,
+    required this.onAccent,
   });
 
   final Color background;
@@ -34,7 +35,8 @@ class HakiColors extends ThemeExtension<HakiColors> {
   final Color textMuted;
   final Color gold;
 
-  /// Dorado para texto e íconos sobre fondo oscuro (el `gold` no llega a 4.5:1).
+  /// Dorado para texto e íconos sobre el fondo (el `gold` no llega a 4.5:1):
+  /// más claro en el tema oscuro, más oscuro en el claro.
   final Color goldBright;
   final Color goldSurface;
   final Color goldBorder;
@@ -45,6 +47,10 @@ class HakiColors extends ThemeExtension<HakiColors> {
   /// Texto secundario sobre superficies turquesa (superseries).
   final Color turquoiseMuted;
   final Color danger;
+
+  /// Texto e íconos sobre dorado o turquesa (botones, badges, checks): oscuro
+  /// en los dos temas.
+  final Color onAccent;
 
   /// Paleta vigente del atleta: Obsidian / Gold / Turquoise.
   static const obsidian = HakiColors(
@@ -65,6 +71,32 @@ class HakiColors extends ThemeExtension<HakiColors> {
     turquoiseBorder: Color(0xFF1D3A37),
     turquoiseMuted: Color(0xFF8FB9B5),
     danger: Color(0xFFE5484D),
+    onAccent: Color(0xFF0D0D0D),
+  );
+
+  /// Tema claro (mockup "Tema claro · propuesta", 2026-10-20): mismo dorado de
+  /// botones; dorado y turquesa más oscuros donde son texto. Texto tenue,
+  /// turquesa y dorado de texto oscurecidos un escalón más tras probarlo en el
+  /// emulador (el texto chico no se leía bien).
+  static const light = HakiColors(
+    background: Color(0xFFF7F6F3),
+    surface: Color(0xFFFFFFFF),
+    surfaceHigh: Color(0xFFF0EEE9),
+    navBar: Color(0xFFFFFFFF),
+    border: Color(0xFFE3E0D8),
+    text: Color(0xFF141414),
+    textSecondary: Color(0xFF3D3D3D),
+    textMuted: Color(0xFF575757),
+    gold: Color(0xFFB8922A),
+    goldBright: Color(0xFF7A5C0C),
+    goldSurface: Color(0xFFFBF4E2),
+    goldBorder: Color(0xFFEAD9A8),
+    turquoise: Color(0xFF00766C),
+    turquoiseSurface: Color(0xFFE3F5F3),
+    turquoiseBorder: Color(0xFFBFE6E2),
+    turquoiseMuted: Color(0xFF3F7A75),
+    danger: Color(0xFFD93036),
+    onAccent: Color(0xFF141414),
   );
 
   @override
@@ -86,6 +118,7 @@ class HakiColors extends ThemeExtension<HakiColors> {
     Color? turquoiseBorder,
     Color? turquoiseMuted,
     Color? danger,
+    Color? onAccent,
   }) {
     return HakiColors(
       background: background ?? this.background,
@@ -105,6 +138,7 @@ class HakiColors extends ThemeExtension<HakiColors> {
       turquoiseBorder: turquoiseBorder ?? this.turquoiseBorder,
       turquoiseMuted: turquoiseMuted ?? this.turquoiseMuted,
       danger: danger ?? this.danger,
+      onAccent: onAccent ?? this.onAccent,
     );
   }
 
@@ -133,6 +167,7 @@ class HakiColors extends ThemeExtension<HakiColors> {
       turquoiseBorder: Color.lerp(turquoiseBorder, other.turquoiseBorder, t)!,
       turquoiseMuted: Color.lerp(turquoiseMuted, other.turquoiseMuted, t)!,
       danger: Color.lerp(danger, other.danger, t)!,
+      onAccent: Color.lerp(onAccent, other.onAccent, t)!,
     );
   }
 }

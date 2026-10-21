@@ -313,7 +313,7 @@ class _BigButton extends StatelessWidget {
         style: FilledButton.styleFrom(
           minimumSize: const Size.fromHeight(56),
           backgroundColor: primary ? c.gold : c.surfaceHigh,
-          foregroundColor: primary ? c.background : c.text,
+          foregroundColor: primary ? c.onAccent : c.text,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),

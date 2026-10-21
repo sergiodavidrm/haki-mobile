@@ -619,7 +619,7 @@ class _UnitSegment extends StatelessWidget {
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             letterSpacing: .7,
-                            color: u == unit ? c.background : c.textMuted,
+                            color: u == unit ? c.onAccent : c.textMuted,
                           ),
                         ),
                       ),
@@ -809,7 +809,7 @@ class _LetterTile extends StatelessWidget {
         style: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.w800,
-          color: c.background,
+          color: c.onAccent,
         ),
       ),
     );

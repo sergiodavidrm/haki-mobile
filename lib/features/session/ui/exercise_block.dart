@@ -197,7 +197,7 @@ class ExerciseBlock extends StatelessWidget {
                       shape: BoxShape.circle,
                       color: c.turquoise,
                     ),
-                    child: Icon(Icons.check, size: 18, color: c.background),
+                    child: Icon(Icons.check, size: 18, color: c.onAccent),
                   ),
                 ),
               ],

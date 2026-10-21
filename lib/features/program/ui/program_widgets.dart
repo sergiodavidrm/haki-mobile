@@ -356,7 +356,7 @@ class _Badge extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(shape: BoxShape.circle, color: c.turquoise),
-        child: Icon(Icons.check_rounded, size: 20, color: c.background),
+        child: Icon(Icons.check_rounded, size: 20, color: c.onAccent),
       );
     }
     final (border, width, fg, weight) = switch (row.kind) {

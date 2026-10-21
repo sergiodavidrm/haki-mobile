@@ -66,7 +66,7 @@ class SettingsScreen extends ConsumerWidget {
                         : (s) => _saveUnit(context, ref, s.first),
                     style: SegmentedButton.styleFrom(
                       selectedBackgroundColor: c.gold,
-                      selectedForegroundColor: c.background,
+                      selectedForegroundColor: c.onAccent,
                       foregroundColor: c.textMuted,
                       side: BorderSide(color: c.border),
                       textStyle: const TextStyle(
@@ -83,6 +83,45 @@ class SettingsScreen extends ConsumerWidget {
                     value: vibrate,
                     activeTrackColor: c.turquoise,
                     onChanged: ref.read(restVibrationProvider.notifier).set,
+                  ),
+                ),
+              ],
+            ),
+            const _Section('Apariencia'),
+            _Group(
+              children: [
+                _Row(
+                  title: 'Tema',
+                  trailing: SegmentedButton<ThemeMode>(
+                    segments: const [
+                      ButtonSegment(
+                        value: ThemeMode.system,
+                        label: Text('Sistema'),
+                      ),
+                      ButtonSegment(
+                        value: ThemeMode.light,
+                        label: Text('Claro'),
+                      ),
+                      ButtonSegment(
+                        value: ThemeMode.dark,
+                        label: Text('Oscuro'),
+                      ),
+                    ],
+                    selected: {ref.watch(appThemeModeProvider)},
+                    showSelectedIcon: false,
+                    onSelectionChanged: (s) =>
+                        ref.read(appThemeModeProvider.notifier).set(s.first),
+                    style: SegmentedButton.styleFrom(
+                      selectedBackgroundColor: c.gold,
+                      selectedForegroundColor: c.onAccent,
+                      foregroundColor: c.textMuted,
+                      side: BorderSide(color: c.border),
+                      textStyle: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                    ),
                   ),
                 ),
               ],

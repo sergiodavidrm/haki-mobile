@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
 import '../theme/haki_colors.dart';
 import 'haki_logo.dart';
 
@@ -162,7 +163,11 @@ class _SplashOverlayState extends State<SplashOverlay> {
               opacity: _visible ? 1 : 0,
               duration: const Duration(milliseconds: 350),
               onEnd: () => setState(() => _gone = true),
-              child: const SplashScreen(),
+              // Siempre oscuro: es la marca y empalma con el splash nativo
+              child: Theme(
+                data: buildAppTheme(HakiColors.obsidian),
+                child: const SplashScreen(),
+              ),
             ),
           ),
       ],

@@ -70,6 +70,68 @@ abstract class _$RestVibration extends $Notifier<bool> {
   }
 }
 
+/// Ajustes → Tema: Sistema (default), Claro u Oscuro. Preferencia del
+/// teléfono (shared_preferences `theme_mode`: system | light | dark).
+
+@ProviderFor(AppThemeMode)
+final appThemeModeProvider = AppThemeModeProvider._();
+
+/// Ajustes → Tema: Sistema (default), Claro u Oscuro. Preferencia del
+/// teléfono (shared_preferences `theme_mode`: system | light | dark).
+final class AppThemeModeProvider
+    extends $NotifierProvider<AppThemeMode, ThemeMode> {
+  /// Ajustes → Tema: Sistema (default), Claro u Oscuro. Preferencia del
+  /// teléfono (shared_preferences `theme_mode`: system | light | dark).
+  AppThemeModeProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appThemeModeProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$appThemeModeHash();
+
+  @$internal
+  @override
+  AppThemeMode create() => AppThemeMode();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ThemeMode value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ThemeMode>(value),
+    );
+  }
+}
+
+String _$appThemeModeHash() => r'46fe0ba76d8fb2216056cd1dc90d09ce7f79f9b3';
+
+/// Ajustes → Tema: Sistema (default), Claro u Oscuro. Preferencia del
+/// teléfono (shared_preferences `theme_mode`: system | light | dark).
+
+abstract class _$AppThemeMode extends $Notifier<ThemeMode> {
+  ThemeMode build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<ThemeMode, ThemeMode>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<ThemeMode, ThemeMode>,
+              ThemeMode,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// Ajustes → Unidad de peso: PATCH auth/me/weight-unit y refresca /auth/me
 /// (Sesión y peso corporal la leen de ahí). El estado es el guardado en curso.
 

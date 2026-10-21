@@ -5,6 +5,7 @@ import '../../session/data/session_store.dart';
 import '../data/assignment_dtos.dart';
 import '../data/program_repository.dart';
 import '../data/program_schedule.dart';
+import 'program_refresher.dart';
 
 part 'program_providers.g.dart';
 
@@ -14,14 +15,23 @@ Future<ProgramSections> programSections(Ref ref) async {
   final me = await ref.watch(authMeProvider.future);
   final all = await ref
       .watch(programRepositoryProvider)
-      .getAssignments(me.userId);
+      .getAssignments(me.userId, onUpdated: () => _reload(ref));
   return classifyPrograms(all, DateTime.now());
 }
 
 /// Detalle (semanas, días, ejercicios) de un programa, tal como lo da la API.
 @riverpod
-Future<AssignmentDetailDto> programDetail(Ref ref, String assignmentId) =>
-    ref.watch(programRepositoryProvider).getDetail(assignmentId);
+Future<AssignmentDetailDto> programDetail(Ref ref, String assignmentId) => ref
+    .watch(programRepositoryProvider)
+    .getDetail(assignmentId, onUpdated: () => _reload(ref));
+
+/// La API devolvió algo distinto a la copia que se mostró: recargar, salvo
+/// durante un entreno (no se le cambia el día en pantalla al atleta; lo nuevo
+/// ya quedó guardado y se ve al salir).
+void _reload(Ref ref) {
+  if (!ref.mounted || isTraining(ref)) return;
+  ref.invalidateSelf();
+}
 
 /// Detalle del programa en curso; null si no hay.
 @riverpod

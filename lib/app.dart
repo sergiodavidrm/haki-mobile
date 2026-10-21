@@ -8,6 +8,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/haki_colors.dart';
 import 'core/widgets/splash_screen.dart';
 import 'features/chat/providers/chat_providers.dart';
+import 'features/chat/providers/chat_push.dart';
 import 'features/program/providers/program_refresher.dart';
 import 'features/session/data/session_sync.dart';
 import 'features/session/providers/local_data_guard.dart';
@@ -24,6 +25,8 @@ class HakiApp extends ConsumerWidget {
     ref.watch(localDataGuardProvider);
     // Recarga programas al volver a primer plano (no durante un entreno)
     ref.watch(programRefresherProvider);
+    // Push del chat: abre el chat/hilo al tocar una notificación
+    ref.watch(chatPushProvider);
     return MaterialApp.router(
       title: 'Haki',
       debugShowCheckedModeBanner: false,

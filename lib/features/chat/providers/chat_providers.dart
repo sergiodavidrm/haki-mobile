@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
 import '../../../core/config/env.dart';
 import '../data/chat_repository.dart';
+import 'chat_push.dart';
 
 part 'chat_providers.g.dart';
 
@@ -32,6 +34,12 @@ Future<Channel> generalChannel(Ref ref) async {
       User(id: token.userId, name: token.userName),
       token.token,
     );
+    // Push: registrar este teléfono (si falla, el chat anda igual)
+    try {
+      await ref.read(chatPushProvider).register(client, token.token);
+    } catch (e) {
+      debugPrint('ChatPush: no se pudo registrar el teléfono ($e)');
+    }
   }
 
   final (type, id) = await repo.generalChannel();

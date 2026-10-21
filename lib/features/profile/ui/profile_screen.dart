@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/cache/api_cache.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
@@ -16,12 +17,13 @@ import '../../body/providers/body_providers.dart';
 import '../../body/ui/body_widgets.dart';
 import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
+import '../data/records.dart';
 import '../data/streak_dto.dart';
 import '../providers/profile_providers.dart';
 
 // Tab Perfil: cuenta (engranaje → Ajustes) + racha de semanas + tarjetas de
-// Peso, Medidas y Adherencia. Niveles y Récords del mockup se suman cuando
-// tengan backend.
+// Peso, Medidas, Adherencia y Récords + PRs recientes. Niveles del mockup se
+// suma cuando tenga backend.
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -37,8 +39,10 @@ class ProfileScreen extends ConsumerWidget {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
+            ref.read(apiCacheProvider).expire(wait: true);
             ref.invalidate(programSectionsProvider);
             ref.invalidate(streakProvider);
+            ref.invalidate(recordsProvider);
             // /auth/me trae las medidas que pidió el coach (puede cambiarlas);
             // bodyLogs depende de él, así que también se vuelve a pedir
             ref.invalidate(authMeProvider);
@@ -116,10 +120,11 @@ class ProfileScreen extends ConsumerWidget {
                   children: [
                     const Expanded(child: _AdherenceTile()),
                     const SizedBox(width: 12),
-                    const Expanded(child: SizedBox()),
+                    const Expanded(child: _RecordsTile()),
                   ],
                 ),
               ),
+              const _RecentPrs(),
             ],
           ),
         ),
@@ -211,6 +216,122 @@ class _StreakCard extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Récords: PRs (superó su marca) del programa en curso, o de siempre si no
+/// hay programa. Sin red queda "—".
+class _RecordsTile extends ConsumerWidget {
+  const _RecordsTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final records = ref.watch(recordsProvider).value;
+    final current = ref.watch(currentAssignmentIdProvider).value;
+    void open() => context.push(Routes.records);
+    if (records == null) {
+      return _Tile(
+        title: 'Récords',
+        value: '—',
+        footer: const Text('Tus mejores marcas'),
+        onTap: open,
+      );
+    }
+    final prs = records
+        .where((r) => r.isPr)
+        .where((r) => current == null || r.assignmentId == current)
+        .length;
+    return _Tile(
+      title: 'Récords',
+      value: '$prs',
+      valueSuffix: prs == 1 ? ' PR' : ' PRs',
+      footer: Text(current == null ? 'en total' : 'en este bloque'),
+      onTap: open,
+    );
+  }
+}
+
+/// Los 3 PRs más recientes (mockup: "PRs recientes"). Sin PRs no se muestra.
+class _RecentPrs extends ConsumerWidget {
+  const _RecentPrs();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final prs = (ref.watch(recordsProvider).value ?? const [])
+        .where((r) => r.isPr)
+        .take(3)
+        .toList();
+    if (prs.isEmpty) return const SizedBox.shrink();
+    final today = DateTime.now();
+    return Padding(
+      padding: const EdgeInsets.only(top: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'PRs recientes',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: c.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          for (final r in prs)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: HakiCard(
+                radius: 16,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                onTap: () => context.push(Routes.records),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: c.goldBright,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        r.exerciseName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: c.text,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      r.e1RmLabel,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: c.goldBright,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      recordDateLabel(r.date, today),
+                      style: TextStyle(fontSize: 12, color: c.textMuted),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

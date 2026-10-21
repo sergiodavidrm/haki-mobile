@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "840498643222",
+    "project_id": "haki-86a98",
+    "storage_bucket": "haki-86a98.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:840498643222:android:0e63f4aac8358305135037",
+        "android_client_info": {
+          "package_name": "com.hakifit.haki_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvrCD37ZdruIqSTpZbcEC6tpURbp46-A4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

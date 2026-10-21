@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/cache/api_cache.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
@@ -30,6 +31,7 @@ class ProgramsListScreen extends ConsumerWidget {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () {
+            ref.read(apiCacheProvider).expire(wait: true);
             ref.invalidate(programSectionsProvider);
             return ref.read(programSectionsProvider.future);
           },

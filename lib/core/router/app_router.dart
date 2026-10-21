@@ -14,6 +14,7 @@ import '../../features/body/ui/measure_logs_screen.dart';
 import '../../features/exercise/ui/exercise_detail_screen.dart';
 import '../../features/home/ui/home_screen.dart';
 import '../../features/profile/ui/profile_screen.dart';
+import '../../features/profile/ui/records_screen.dart';
 import '../../features/program/ui/assign_dates_screen.dart';
 import '../../features/program/ui/past_session_screen.dart';
 import '../../features/program/ui/program_screen.dart';
@@ -61,6 +62,7 @@ abstract final class Routes {
   static const weight = '/perfil/peso';
   static const measures = '/perfil/medidas';
   static const settings = '/perfil/ajustes';
+  static const records = '/perfil/records';
   static const measureLogs = '/perfil/medidas/registros';
 
   /// Historial y gráfico de una medida (clave de BodyMeasurementKeys).
@@ -188,6 +190,10 @@ GoRouter appRouter(Ref ref) {
                   GoRoute(
                     path: 'ajustes',
                     builder: (_, _) => const SettingsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'records',
+                    builder: (_, _) => const RecordsScreen(),
                   ),
                   GoRoute(
                     path: 'medidas',

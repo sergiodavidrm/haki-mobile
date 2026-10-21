@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../auth/providers/auth_me_provider.dart';
 import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
+import '../data/records.dart';
 import '../data/streak_dto.dart';
 
 part 'profile_providers.g.dart';
@@ -33,3 +34,15 @@ Future<StreakDto> streak(Ref ref) async {
   final me = await ref.watch(authMeProvider.future);
   return ref.watch(streakRepositoryProvider).get(me.userId);
 }
+
+/// Récords personales (tarjeta del Perfil y pantalla Récords). Necesita red.
+@riverpod
+Future<List<PersonalRecordDto>> records(Ref ref) async {
+  final me = await ref.watch(authMeProvider.future);
+  return ref.watch(recordsRepositoryProvider).get(me.userId);
+}
+
+/// Programa en curso (para "Este bloque"); null si no hay.
+@riverpod
+Future<String?> currentAssignmentId(Ref ref) async =>
+    (await ref.watch(programSectionsProvider.future)).current?.assignmentId;

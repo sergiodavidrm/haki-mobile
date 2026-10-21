@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/cache/api_cache.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
@@ -49,6 +50,7 @@ class MeasuresScreen extends ConsumerWidget {
                 AsyncData() => RefreshIndicator(
                   // Vuelve a pedir /auth/me (medidas del coach) y con él bodyLogs
                   onRefresh: () {
+                    ref.read(apiCacheProvider).expire(wait: true);
                     ref.invalidate(authMeProvider);
                     return ref.read(bodyLogsProvider.future);
                   },

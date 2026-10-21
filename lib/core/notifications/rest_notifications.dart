@@ -6,6 +6,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'local_notifications.dart';
+
 part 'rest_notifications.g.dart';
 
 // Notificaciones del timer de descanso:
@@ -15,7 +17,7 @@ part 'rest_notifications.g.dart';
 // iOS solo tiene la de "terminó": la cuenta regresiva en la pantalla de
 // bloqueo necesita Live Activities (nativo, pendiente).
 class RestNotifications {
-  final _plugin = FlutterLocalNotificationsPlugin();
+  final _plugin = localNotifications;
   Future<void>? _init;
   bool _askedPermission = false;
 
@@ -63,17 +65,8 @@ class RestNotifications {
 
   Future<void> _ensureInit() => _init ??= () async {
     tzdata.initializeTimeZones();
-    await _plugin.initialize(
-      settings: const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-        // El permiso se pide al iniciar el primer descanso, no al abrir la app
-        iOS: DarwinInitializationSettings(
-          requestAlertPermission: false,
-          requestBadgePermission: false,
-          requestSoundPermission: false,
-        ),
-      ),
-    );
+    // Compartido con el push del chat (un solo initialize)
+    await ensureLocalNotifications();
   }();
 
   /// Pide el permiso de notificaciones la primera vez (momento con contexto:

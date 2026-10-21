@@ -50,7 +50,7 @@ final class ProgramSectionsProvider
   }
 }
 
-String _$programSectionsHash() => r'5e4c7b1dd75e73e7784354b31fd298777f46f5a6';
+String _$programSectionsHash() => r'475adcd559bdb893d775874d48be5d974a1fc11d';
 
 /// Detalle (semanas, días, ejercicios) de un programa, tal como lo da la API.
 
@@ -114,7 +114,7 @@ final class ProgramDetailProvider
   }
 }
 
-String _$programDetailHash() => r'100cf6204877f71507550ec2d401a696d8e0b220';
+String _$programDetailHash() => r'7c58413d3eb3a7d048ab25f91c0d3a91a0f1df26';
 
 /// Detalle (semanas, días, ejercicios) de un programa, tal como lo da la API.
 

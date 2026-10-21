@@ -2,4 +2,6 @@
 <resources>
     <!-- Fondo del splash nativo = obsidian del tema (el splash animado es de Flutter) -->
     <color name="splash_background">#0D0D0D</color>
+    <!-- Acento de las notificaciones (dorado) -->
+    <color name="notification_color">#B8922A</color>
 </resources>

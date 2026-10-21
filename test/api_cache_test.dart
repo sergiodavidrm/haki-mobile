@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -42,11 +43,13 @@ void main() {
   late AppDatabase db;
   late FakeServer server;
   late ApiCache cache;
+  String? user = 'u1';
 
   setUp(() {
     db = AppDatabase(NativeDatabase.memory());
     server = FakeServer();
-    cache = ApiCache(Dio()..httpClientAdapter = server, db);
+    user = 'u1';
+    cache = ApiCache(Dio()..httpClientAdapter = server, db, () => user);
   });
 
   tearDown(() => db.close());
@@ -76,6 +79,71 @@ void main() {
   test('wipe borra el caché (cerrar sesión)', () async {
     await cache.get('/x', parse);
     await db.wipe();
+    server.offline = true;
+    expect(cache.get('/x', parse), throwsA(isA<DioException>()));
+  });
+
+  group('stale-while-revalidate (onUpdated)', () {
+    test(
+      'con copia la devuelve al instante y avisa si la API cambió',
+      () async {
+        expect(await cache.get('/x', parse), 1);
+        cache.expire();
+        server.body = {'v': 2};
+
+        final updated = Completer<void>();
+        expect(
+          await cache.get('/x', parse, onUpdated: updated.complete),
+          1, // la copia, sin esperar la red
+        );
+        await updated.future; // la API respondió distinto
+        expect(await cache.get('/x', parse, onUpdated: () {}), 2);
+      },
+    );
+
+    test('si la API devuelve lo mismo no avisa', () async {
+      await cache.get('/x', parse);
+      cache.expire();
+      var calls = 0;
+      await cache.get('/x', parse, onUpdated: () => calls++);
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(calls, 0);
+    });
+
+    test('recién pedido no vuelve a pedir (sin pedido doble)', () async {
+      await cache.get('/x', parse);
+      server.body = {'v': 2};
+      var calls = 0;
+      expect(await cache.get('/x', parse, onUpdated: () => calls++), 1);
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(calls, 0);
+    });
+
+    test('sin copia espera la red', () async {
+      expect(await cache.get('/x', parse, onUpdated: () {}), 1);
+    });
+
+    test('pull-to-refresh (expire wait) espera la red', () async {
+      await cache.get('/x', parse);
+      server.body = {'v': 2};
+      cache.expire(wait: true);
+      expect(await cache.get('/x', parse, onUpdated: () {}), 2);
+    });
+
+    test('sin señal queda la copia', () async {
+      await cache.get('/x', parse);
+      cache.expire();
+      server.offline = true;
+      var calls = 0;
+      expect(await cache.get('/x', parse, onUpdated: () => calls++), 1);
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(calls, 0);
+    });
+  });
+
+  test('la copia es por usuario', () async {
+    await cache.get('/x', parse);
+    user = 'u2';
     server.offline = true;
     expect(cache.get('/x', parse), throwsA(isA<DioException>()));
   });

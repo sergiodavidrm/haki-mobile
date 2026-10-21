@@ -48,4 +48,4 @@ final class ApiCacheProvider
   }
 }
 
-String _$apiCacheHash() => r'47f8034db3a0a21929f39c5c13a62df7cfdaa044';
+String _$apiCacheHash() => r'749146bca87b6381179c83d16c198b899fa9c19d';

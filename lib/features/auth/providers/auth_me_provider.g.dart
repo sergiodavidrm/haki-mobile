@@ -45,4 +45,4 @@ final class AuthMeProvider
   }
 }
 
-String _$authMeHash() => r'b0520ff34d1130e7a3c508893ba7dab9be6a0896';
+String _$authMeHash() => r'3ccea763a0ad021da7f111ff936ac97f32aa484d';

@@ -55,4 +55,4 @@ final class ProgramRefresherProvider
   }
 }
 
-String _$programRefresherHash() => r'67d8b8f2ea08a6b76c7686576efb1f40f32cfac1';
+String _$programRefresherHash() => r'5e19810fcf7c3db8f7f0c888a4ca7f5d0a186de5';

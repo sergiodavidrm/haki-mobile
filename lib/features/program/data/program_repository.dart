@@ -16,18 +16,26 @@ class ProgramRepository {
   final ApiCache _cache;
 
   /// Programas del atleta (la API ya excluye borradores y cancelados).
-  Future<List<AssignmentSummaryDto>> getAssignments(String clientId) =>
-      _cache.get(
-        '/block-assignments/$clientId/assignments',
-        (j) => [
-          for (final x in j as List? ?? const [])
-            AssignmentSummaryDto.fromJson(x as Map<String, dynamic>),
-        ],
-      );
+  /// [onUpdated]: la copia mostrada quedó vieja (ver ApiCache).
+  Future<List<AssignmentSummaryDto>> getAssignments(
+    String clientId, {
+    void Function()? onUpdated,
+  }) => _cache.get(
+    '/block-assignments/$clientId/assignments',
+    (j) => [
+      for (final x in j as List? ?? const [])
+        AssignmentSummaryDto.fromJson(x as Map<String, dynamic>),
+    ],
+    onUpdated: onUpdated,
+  );
 
-  Future<AssignmentDetailDto> getDetail(String assignmentId) => _cache.get(
+  Future<AssignmentDetailDto> getDetail(
+    String assignmentId, {
+    void Function()? onUpdated,
+  }) => _cache.get(
     '/block-assignments/$assignmentId/detail',
     (j) => AssignmentDetailDto.fromJson(j as Map<String, dynamic>),
+    onUpdated: onUpdated,
   );
 
   /// Fecha de inicio + día de la semana de cada entreno ([weekDays]:

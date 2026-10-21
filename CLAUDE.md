@@ -314,7 +314,39 @@ pesado (grabación, galería, encuestas) y porque hay que pisar todo su diseño.
 - El hilo pagina respuestas viejas al llegar arriba (de a 20).
 - Badge de no leídos en el tab Chat (`AppShell` conecta el chat al entrar y
   escucha `unreadCountStream` del canal; las respuestas de hilo no suman).
-- Falta: push (FCM + Stream; necesita proyecto de Firebase). Decidido 2026-10-20: **no** hay mensajes por ejercicio sin video
+- **Push del chat (2026-10-21, funciona en el emulador):** FCM + integración de push
+  de Stream. Firebase: proyecto `haki-86a98`, `android/app/google-services.json`
+  (versionado, no es secreto; plugin `com.google.gms.google-services` en
+  Gradle). Stream: push provider **`firebase`** (dashboard → Push Providers)
+  con la clave de cuenta de servicio de Firebase (secreta: no va al repo).
+  `chat/providers/chat_push.dart` (`ChatPush`): `Firebase.initializeApp` en
+  `main` (sin config, p. ej. iOS sin plist, no hay push y la app anda igual);
+  al conectar el chat registra el token con `addDevice(..., pushProviderName:
+  'firebase')` (usa `getToken`, deprecado en firebase_messaging 17: el
+  `register()` nuevo da un FID que Stream no usa); al cerrar sesión
+  `removeDevice`; permiso la primera vez que entra al Chat; tocar la
+  notificación → Chat y, si es respuesta de un hilo, el hilo (`data.id` →
+  `getMessage` → `parentId`). Canal Android `chat_messages` + color dorado
+  (meta-data en el manifest). Stream manda push solo si el atleta no está
+  conectado al chat (en segundo plano `StreamChatCore` corta a los 15 s).
+  **Stream usa push v3: a Firebase manda solo datos** (`id` del mensaje,
+  `cid`…), sin título ni texto, y los templates no cambian eso (probado con
+  `testPushSettings`). La notificación la arma la app
+  (`chat/data/chat_notifications.dart`): handler de fondo de FCM
+  (`chatPushBackgroundHandler`, registrado en `main`) → `getMessage` con un
+  cliente REST (`connectWebSocket: false`) y las credenciales de Stream del
+  atleta guardadas en `flutter_secure_storage` (se borran al cerrar sesión) →
+  notificación local "Juan Pérez · texto" / "Feedback de Juan Pérez" con el
+  id del mensaje como payload. Con la app abierta **no** se muestra push
+  (decisión de Sergio: el aviso es el badge del tab Chat). **Ojo:** en el
+  dashboard nuevo de Stream cada tipo de evento viene con push apagado; hay
+  que activar `message.new` para el provider (`POST /push_templates` con
+  `enable_push: true`, o "Chat templates" en el menú de la tarjeta del
+  provider). Sin eso Stream no manda nada y no reporta error (activado en
+  `kojo-dev` 2026-10-21; repetirlo en la app de prod). Las notificaciones locales del timer y del chat comparten
+  un solo `initialize` (`core/notifications/local_notifications.dart`), si
+  no se pisa el callback del toque. Falta: iOS (clave APNs en Firebase,
+  desde Mac) y push del backend (no-chat). Decidido 2026-10-20: **no** hay mensajes por ejercicio sin video
   (para eso está el chat general).
 
 ## Feedback del coach (hilos)
@@ -389,21 +421,16 @@ entreno** (`/sesion`, `/descanso`, `/ejercicio`, `/completado`). Se descartó
 sesiones, series y "última vez", que cambian sin tocar el bloque. Pendiente:
 aviso "sin conexión · datos de tal hora" y "Tu coach actualizó este día".
 
-**Pendiente (anotado 2026-10-20): abrir con la caché primero.** Hoy `ApiCache`
-es *network-first*: con señal mala (no nula) la app queda en "Cargando tu
-semana…" hasta el `connectTimeout` de 10 s antes de caer a la caché. Cambiarlo
-a *stale-while-revalidate* para `/auth/me`, programas y detalle: mostrar al
-instante el JSON guardado y pedir a la API en segundo plano; si la respuesta
-cambió, actualizar. A resolver:
-- Si llega un cambio mientras el atleta mira Hoy/Programa: reemplazar sin
-  más (como pull-to-refresh) o avisar. En la Sesión nunca reemplazar: reusar
-  el aviso pendiente "Tu coach actualizó este día · Actualizar".
-- Primera vez sin caché (instalación nueva o tras cerrar sesión): sigue
-  esperando la red.
-- `/auth/me` viejo puede traer un rol/coach desactualizado: decidir si
-  `AthleteGate` confía en la caché o espera la red cuando el usuario cambió.
-- Mostrar "Actualizado hace X" o el aviso de sin conexión cuando se está
-  viendo la copia y la red falló.
+**Abrir con la caché primero (2026-10-21):** `ApiCache.get(..., onUpdated:)`
+es *stale-while-revalidate* para `/auth/me`, programas y detalle: con copia la
+devuelve al instante y pide a la API en segundo plano; si cambió la guarda y
+`onUpdated` recarga el provider (`ref.invalidateSelf`). No repide lo pedido
+hace menos de 30 s (evita el pedido doble al recargar). Sin copia espera la
+red. Durante un entreno (`isTraining`) el programa no se recarga: lo nuevo
+queda guardado y se ve al salir. `expire()` al volver a primer plano (copia +
+actualiza); `expire(wait: true)` en los pull-to-refresh (espera la red). La
+copia es por usuario (clave `userId:path`). Tests en
+`test/api_cache_test.dart`.
 
 Sesión (`/sesion/:assignmentId/:dayId`, fuera del shell): registro de series
 offline-first. Sincroniza contra `workout-sessions`; la sesión se crea con
@@ -486,8 +513,14 @@ Perfil (`features/profile/` + `features/body/`, 2026-10-18):
   (`_StreakCard`: llama, "5 semanas seguidas" o "Arrancá tu racha", "Esta
   semana: 2 de 4 · Tu mejor racha: 8 semanas", una barrita por semana dorada
   si se cumplió; `GET progress/{id}/streak` vía `streakProvider`, sin red no
-  se muestra; pull-to-refresh la recarga). Niveles y Récords del mockup
-  **ocultos** hasta que tengan backend (decisión de Sergio). Engranaje → Ajustes.
+  se muestra; pull-to-refresh la recarga). Tarjeta **Récords** ("3 PRs en este
+  bloque", o "en total" sin programa) + **PRs recientes** (los 3 últimos) →
+  `/perfil/records` (`RecordsScreen`, mockup "Récords personales": Este
+  bloque / Histórico, "Esta semana" en dorado con la mejora, e1RM y la serie
+  en la unidad en que se cargó). `GET progress/{id}/records` vía
+  `recordsProvider`; lógica pura en `profile/data/records.dart` (tests en
+  `test/records_test.dart`). Niveles del mockup **oculto** hasta que tenga
+  backend. Engranaje → Ajustes.
 - `/perfil/ajustes` (`SettingsScreen`, `features/settings/`): cuenta (nombre,
   email, Cambiar contraseña con Supabase `updateUser` — solo si tiene identidad
   `email`, no con solo Google), unidad de peso (`PATCH auth/me/weight-unit` →

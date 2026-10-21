@@ -107,4 +107,4 @@ final class GeneralChannelProvider
   }
 }
 
-String _$generalChannelHash() => r'2dc4ad7d90086b24b49d8964e6e856518553b639';
+String _$generalChannelHash() => r'5a6a8ee6e51c85a3a534c2ce95b2757a3e0807af';

@@ -10,6 +10,7 @@ import '../../auth/providers/auth_me_provider.dart';
 import '../../body/providers/body_providers.dart';
 import '../data/chat_message.dart';
 import '../providers/chat_providers.dart';
+import '../providers/chat_push.dart';
 import 'chat_widgets.dart';
 import 'feedback_thread_screen.dart';
 
@@ -23,6 +24,8 @@ class ChatScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
     final channel = ref.watch(generalChannelProvider);
+    // Primera vez en el Chat: pedir permiso de notificaciones (una sola vez)
+    unawaited(ref.read(chatPushProvider).askPermissionOnce());
     final coach = ref.watch(authMeProvider).value?.coachName ?? 'Tu coach';
 
     return Scaffold(
@@ -174,9 +177,14 @@ class _ChatViewState extends ConsumerState<_ChatView> {
               ),
             ),
             messageListBuilder: (context, messages) {
-              WidgetsBinding.instance.addPostFrameCallback(
-                (_) => unawaited(_markRead(channel)),
-              );
+              // Solo si el tab Chat se ve: los tabs quedan vivos de fondo
+              // (TickerMode apagado) y si no marcaría leído lo que llega
+              // mientras el atleta está en otro tab (el badge nunca subía)
+              if (TickerMode.valuesOf(context).enabled) {
+                WidgetsBinding.instance.addPostFrameCallback(
+                  (_) => unawaited(_markRead(channel)),
+                );
+              }
               return NotificationListener<ScrollNotification>(
                 onNotification: (n) {
                   // reverse: el "final" de la lista son los más viejos

@@ -328,6 +328,98 @@ final class LocalSetsFamily extends $Family
   String toString() => r'localSetsProvider';
 }
 
+/// Videos de la sesión en el teléfono: "dayExerciseId#setNumber" → true si
+/// ya se subió, false si está en la cola.
+
+@ProviderFor(localVideos)
+final localVideosProvider = LocalVideosFamily._();
+
+/// Videos de la sesión en el teléfono: "dayExerciseId#setNumber" → true si
+/// ya se subió, false si está en la cola.
+
+final class LocalVideosProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Map<String, bool>>,
+          Map<String, bool>,
+          Stream<Map<String, bool>>
+        >
+    with
+        $FutureModifier<Map<String, bool>>,
+        $StreamProvider<Map<String, bool>> {
+  /// Videos de la sesión en el teléfono: "dayExerciseId#setNumber" → true si
+  /// ya se subió, false si está en la cola.
+  LocalVideosProvider._({
+    required LocalVideosFamily super.from,
+    required (String, String) super.argument,
+  }) : super(
+         retry: null,
+         name: r'localVideosProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$localVideosHash();
+
+  @override
+  String toString() {
+    return r'localVideosProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<Map<String, bool>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<Map<String, bool>> create(Ref ref) {
+    final argument = this.argument as (String, String);
+    return localVideos(ref, argument.$1, argument.$2);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is LocalVideosProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$localVideosHash() => r'f78ac9c8667d6b81b2a59791dc16ef0208e6281d';
+
+/// Videos de la sesión en el teléfono: "dayExerciseId#setNumber" → true si
+/// ya se subió, false si está en la cola.
+
+final class LocalVideosFamily extends $Family
+    with
+        $FunctionalFamilyOverride<Stream<Map<String, bool>>, (String, String)> {
+  LocalVideosFamily._()
+    : super(
+        retry: null,
+        name: r'localVideosProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Videos de la sesión en el teléfono: "dayExerciseId#setNumber" → true si
+  /// ya se subió, false si está en la cola.
+
+  LocalVideosProvider call(String assignmentId, String dayId) =>
+      LocalVideosProvider._(argument: (assignmentId, dayId), from: this);
+
+  @override
+  String toString() => r'localVideosProvider';
+}
+
 /// Unidad del día (switch del header). Arranca en la preferida del atleta
 /// (`GET /auth/me`, kg si no viene). keepAlive: se mantiene al salir y volver
 /// a la sesión, y la usa el resumen de Entreno completado.

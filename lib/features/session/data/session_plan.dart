@@ -14,6 +14,8 @@ class SavedSet {
     this.rir,
     required this.synced,
     this.hasVideo = false,
+    this.videoUploading = false,
+    this.setLogId,
   });
 
   final double? weight;
@@ -24,22 +26,33 @@ class SavedSet {
   /// false = guardada en el teléfono, todavía no llegó a la API.
   final bool synced;
 
-  /// Ya tiene video subido (lo dice la API).
+  /// Ya tiene video subido (lo dice la API o la cola del teléfono).
   final bool hasVideo;
+
+  /// Tiene un video en la cola del teléfono, todavía sin subir.
+  final bool videoUploading;
+
+  /// Id del set-log si la serie ya está en la API (para subirle el video).
+  final String? setLogId;
 }
 
 String setKey(String dayExerciseId, int setNumber) =>
     '$dayExerciseId#$setNumber';
 
 /// Lo local gana sobre lo que vino de la API (puede estar más nuevo).
+/// [videos] = cola de videos del teléfono (true = ya subido).
 SavedSet? savedSetFor(
   DayExerciseDto e,
   int setNumber,
-  Map<String, LocalSetEntry> local,
-) {
-  final l = local[setKey(e.id, setNumber)];
+  Map<String, LocalSetEntry> local, [
+  Map<String, bool> videos = const {},
+]) {
+  final key = setKey(e.id, setNumber);
+  final l = local[key];
   final r = e.loggedSets.where((x) => x.setNumber == setNumber).firstOrNull;
-  final hasVideo = r?.videoUrl != null;
+  final queued = videos[key];
+  final hasVideo = r?.videoUrl != null || queued == true;
+  final videoUploading = queued == false;
   if (l != null) {
     return SavedSet(
       weight: l.weight,
@@ -48,6 +61,8 @@ SavedSet? savedSetFor(
       rir: l.rir,
       synced: l.synced,
       hasVideo: hasVideo,
+      videoUploading: videoUploading,
+      setLogId: r?.id,
     );
   }
   if (r == null) return null;
@@ -59,6 +74,8 @@ SavedSet? savedSetFor(
     rir: r.rir,
     synced: true,
     hasVideo: hasVideo,
+    videoUploading: videoUploading,
+    setLogId: r.id,
   );
 }
 

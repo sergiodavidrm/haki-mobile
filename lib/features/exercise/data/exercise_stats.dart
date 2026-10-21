@@ -27,12 +27,6 @@ double? bestE1rmKg(Iterable<LoggedSetDto> sets) {
 double volumeKg(Iterable<LoggedSetDto> sets) =>
     sets.fold(0, (sum, s) => sum + (s.weightKg ?? 0) * (s.reps ?? 0));
 
-/// Peso más alto (kg) de las series. null si ninguna tiene peso.
-double? topWeightKg(Iterable<LoggedSetDto> sets) {
-  final ws = sets.map((s) => s.weightKg).nonNulls.where((w) => w > 0);
-  return ws.isEmpty ? null : ws.reduce((a, b) => a > b ? a : b);
-}
-
 /// "116 lb × 12·12·12·12", "110–116 lb × 12·12·11" si el peso cambió entre
 /// series, o "12·12·12 reps" sin peso.
 String setsSummary(List<LoggedSetDto> sets, WeightUnit unit) {
@@ -57,9 +51,16 @@ String lastTimeLabel(
       : 'Sem. ${lp.weekNumber}';
 }
 
-/// "12 @1" (reps @ RIR) para los chips del historial.
-String setChip(LoggedSetDto s) =>
-    s.rir == null ? '${s.reps ?? '–'}' : '${s.reps ?? '–'} @${s.rir}';
+/// "116 lb × 12 @1" (peso × reps @ RIR) para los chips del historial; sin
+/// peso "12 @1".
+String setChip(LoggedSetDto s, WeightUnit unit) {
+  final w = s.weightKg;
+  final reps = '${s.reps ?? '–'}';
+  final base = w == null || w <= 0
+      ? reps
+      : '${formatWeight(unit.fromKg(w))} ${unit.label} × $reps';
+  return s.rir == null ? base : '$base @${s.rir}';
+}
 
 /// Series de hoy de un ejercicio (lo del teléfono gana sobre la API), como
 /// LoggedSetDto en kg para mezclarlas con el historial.
@@ -96,6 +97,8 @@ class HistoryItem {
     required this.sets,
     this.isToday = false,
     this.inThisProgram = true,
+    this.streamMessageId,
+    this.videoCount = 0,
   });
 
   /// "Semana 3 · hoy", "Semana 2 · 25 sep", "Bloque fuerza · S4 · 2 ago".
@@ -104,7 +107,14 @@ class HistoryItem {
   final List<LoggedSetDto> sets;
   final bool isToday;
   final bool inThisProgram;
+
+  /// Hilo de feedback de esa vez (si subió videos).
+  final String? streamMessageId;
+  final int videoCount;
 }
+
+int _videos(List<LoggedSetDto> sets) =>
+    sets.where((s) => s.videoUrl != null).length;
 
 /// Historial del Detalle: hoy (si ya cargó series) + lo que vino de la API,
 /// sin el registro de este mismo día (el de hoy ya va arriba, más nuevo). Sin
@@ -124,6 +134,7 @@ List<HistoryItem> historyItems({
       : '$block · S$week · ${formatDayMonth(date.toLocal())}';
 
   final lp = exercise.lastPerformance;
+  final todayRemote = history?.where((h) => h.blockDayId == dayId).firstOrNull;
   return [
     if (today.isNotEmpty)
       HistoryItem(
@@ -131,6 +142,9 @@ List<HistoryItem> historyItems({
         date: now,
         sets: today,
         isToday: true,
+        streamMessageId:
+            exercise.streamMessageId ?? todayRemote?.streamMessageId,
+        videoCount: _videos(exercise.loggedSets),
       ),
     if (history != null)
       for (final h in history)
@@ -140,6 +154,8 @@ List<HistoryItem> historyItems({
             date: h.date,
             sets: h.sets,
             inThisProgram: h.assignmentId == assignmentId,
+            streamMessageId: h.streamMessageId,
+            videoCount: _videos(h.sets),
           ),
     if (history == null && lp != null)
       HistoryItem(

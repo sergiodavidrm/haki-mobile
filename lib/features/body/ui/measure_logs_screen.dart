@@ -22,9 +22,8 @@ class MeasureLogsScreen extends ConsumerWidget {
     final c = context.colors;
     final logs = ref.watch(bodyLogsProvider);
     final unit = ref.watch(bodyWeightUnitProvider);
-    final measures = measuresFor(
-      ref.watch(authMeProvider).value?.bodyMeasurements ?? const [],
-    );
+    final measures =
+        ref.watch(authMeProvider).value?.bodyMeasurements ?? const [];
     final rows = measureLogsOf(logs.value ?? const [], measures);
 
     return Scaffold(

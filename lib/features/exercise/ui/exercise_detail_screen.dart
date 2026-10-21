@@ -9,6 +9,7 @@ import '../../../core/widgets/haki_card.dart';
 import '../../../core/widgets/pill_chip.dart';
 import '../../body/data/body_measures.dart';
 import '../../body/ui/body_widgets.dart';
+import '../../chat/ui/feedback_links.dart';
 import '../../session/providers/session_providers.dart';
 import '../data/exercise_stats.dart';
 import '../providers/exercise_providers.dart';
@@ -79,6 +80,10 @@ class ExerciseDetailScreen extends ConsumerWidget {
       now: DateTime.now(),
     );
     final video = e.coachVideoUrl ?? e.techniqueVideoUrl;
+    // El feedback más reciente (mockup: arriba de todo)
+    final withFeedback = items
+        .where((i) => i.streamMessageId != null)
+        .firstOrNull;
 
     return Scaffold(
       body: SafeArea(
@@ -86,6 +91,13 @@ class ExerciseDetailScreen extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
           children: [
             BackHeader(title: e.exerciseName, titleSize: 22),
+            if (withFeedback != null) ...[
+              const SizedBox(height: 12),
+              FeedbackLink(
+                messageId: withFeedback.streamMessageId!,
+                title: 'Feedback de tu video · ${withFeedback.title}',
+              ),
+            ],
             if (video != null) ...[
               const SizedBox(height: 16),
               _VideoCard(url: video),
@@ -118,11 +130,9 @@ class ExerciseDetailScreen extends ConsumerWidget {
                     ? 'Cargando…'
                     : 'Todavía no hiciste este ejercicio.',
                 style: TextStyle(fontSize: 13, color: c.textMuted),
-              ),
-            for (final i in items) ...[
-              _HistoryCard(item: i, unit: unit),
-              const SizedBox(height: 10),
-            ],
+              )
+            else
+              _HistoryList(items: items, unit: unit),
             if (history.hasError)
               Text(
                 'Sin conexión: se muestra solo lo de este programa.',
@@ -396,6 +406,46 @@ class _E1rmCard extends StatelessWidget {
   }
 }
 
+/// Arranca con las 2 más nuevas (hoy y la última vez, que es lo que se mira
+/// para decidir la carga) y "Cargar más" suma de a 5.
+class _HistoryList extends StatefulWidget {
+  const _HistoryList({required this.items, required this.unit});
+
+  final List<HistoryItem> items;
+  final WeightUnit unit;
+
+  @override
+  State<_HistoryList> createState() => _HistoryListState();
+}
+
+class _HistoryListState extends State<_HistoryList> {
+  static const _initial = 2;
+  static const _step = 5;
+  var _shown = _initial;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final items = widget.items;
+    final rest = items.length - _shown;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final i in items.take(_shown)) ...[
+          _HistoryCard(item: i, unit: widget.unit),
+          const SizedBox(height: 10),
+        ],
+        if (rest > 0)
+          TextButton(
+            onPressed: () => setState(() => _shown += _step),
+            style: TextButton.styleFrom(foregroundColor: c.gold),
+            child: Text('Cargar más ($rest)'),
+          ),
+      ],
+    );
+  }
+}
+
 class _HistoryCard extends StatelessWidget {
   const _HistoryCard({required this.item, required this.unit});
 
@@ -405,7 +455,6 @@ class _HistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final top = topWeightKg(item.sets);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
@@ -416,24 +465,13 @@ class _HistoryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  item.title,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: c.text,
-                  ),
-                ),
-              ),
-              if (top != null)
-                Text(
-                  '${formatWeight(unit.fromKg(top))} ${unit.label}',
-                  style: TextStyle(fontSize: 13, color: c.textMuted),
-                ),
-            ],
+          Text(
+            item.title,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: c.text,
+            ),
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -450,7 +488,7 @@ class _HistoryCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    setChip(s),
+                    setChip(s, unit),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -461,6 +499,14 @@ class _HistoryCard extends StatelessWidget {
                 ),
             ],
           ),
+          if (item.streamMessageId != null) ...[
+            const SizedBox(height: 8),
+            FeedbackLink(
+              messageId: item.streamMessageId!,
+              compact: true,
+              videoCount: item.videoCount,
+            ),
+          ],
         ],
       ),
     );

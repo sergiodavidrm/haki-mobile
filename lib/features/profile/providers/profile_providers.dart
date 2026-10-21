@@ -1,7 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../auth/providers/auth_me_provider.dart';
 import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
+import '../data/streak_dto.dart';
 
 part 'profile_providers.g.dart';
 
@@ -22,4 +24,12 @@ Future<ProgramAdherence?> currentAdherence(Ref ref) async {
   return a == null
       ? (done: done, due: null, total: total)
       : (done: a.$1, due: a.$2, total: total);
+}
+
+/// Racha de semanas (tarjeta del Perfil). Necesita red; sin ella la tarjeta
+/// no se muestra.
+@riverpod
+Future<StreakDto> streak(Ref ref) async {
+  final me = await ref.watch(authMeProvider.future);
+  return ref.watch(streakRepositoryProvider).get(me.userId);
 }

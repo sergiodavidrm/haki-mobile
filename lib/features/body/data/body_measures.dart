@@ -1,13 +1,23 @@
 import '../../../core/units/weight_unit.dart';
 import 'body_log_dto.dart';
 
-// Catálogo de medidas corporales (mismo orden y claves que
-// haki-api Domain/BodyMeasurementKeys.cs) + lógica pura de Peso y Medidas.
+// Medidas corporales + lógica pura de Peso y Medidas. Las que pide el coach
+// llegan en /auth/me (estándar o creadas por él); [bodyMeasures] son las 16
+// estándar (claves de la tabla body_measurements de haki-api) con su nombre.
 
 enum MeasureGroup {
   torso('Tronco'),
   limbs('Brazos y piernas'),
-  composition('Composición');
+  composition('Composición'),
+  other('Otras');
+
+  /// `category` de la API (trunk | arms | legs | composition | other).
+  static MeasureGroup parse(String? category) => switch (category) {
+    'trunk' => torso,
+    'arms' || 'legs' => limbs,
+    'composition' => composition,
+    _ => other,
+  };
 
   const MeasureGroup(this.label);
   final String label;
@@ -23,6 +33,18 @@ enum MeasureKind {
 
   /// Grasa visceral (nivel de la balanza, sin unidad).
   level,
+
+  /// Pliegues.
+  mm;
+
+  /// `unit` de la API (cm | kg | percent | mm | level).
+  static MeasureKind parse(String? unit) => switch (unit) {
+    'kg' => mass,
+    'percent' => percent,
+    'level' => level,
+    'mm' => mm,
+    _ => cm,
+  };
 }
 
 class BodyMeasure {
@@ -32,6 +54,25 @@ class BodyMeasure {
     this.group, [
     this.kind = MeasureKind.cm,
   ]);
+
+  /// Elemento de `bodyMeasurements` de /auth/me: `{ key, name, unit,
+  /// category }` (name solo en las del coach). Un String suelto es una clave
+  /// estándar (caché de /auth/me de antes de las medidas personalizadas).
+  /// null si no se reconoce.
+  static BodyMeasure? fromJson(Object? json) {
+    if (json is String) {
+      return bodyMeasures.where((m) => m.key == json).firstOrNull;
+    }
+    if (json is! Map<String, dynamic>) return null;
+    final key = json['key'] as String;
+    final standard = bodyMeasures.where((m) => m.key == key).firstOrNull;
+    return BodyMeasure(
+      key,
+      json['name'] as String? ?? standard?.label ?? key,
+      MeasureGroup.parse(json['category'] as String?),
+      MeasureKind.parse(json['unit'] as String?),
+    );
+  }
 
   final String key;
   final String label;
@@ -43,6 +84,7 @@ class BodyMeasure {
     MeasureKind.percent => '%',
     MeasureKind.mass => weightUnit.label,
     MeasureKind.level => 'nivel',
+    MeasureKind.mm => 'mm',
   };
 
   /// Valor de la API → como se muestra (solo la masa se convierte).
@@ -83,13 +125,6 @@ const bodyMeasures = [
     MeasureKind.level,
   ),
 ];
-
-/// Las medidas que pidió el coach, en el orden del catálogo (claves
-/// desconocidas se ignoran: la app puede ser más vieja que la API).
-List<BodyMeasure> measuresFor(List<String> keys) {
-  final set = keys.toSet();
-  return bodyMeasures.where((m) => set.contains(m.key)).toList();
-}
 
 /// Valor de una medida en una fecha.
 typedef DatedValue = ({DateTime date, double value});

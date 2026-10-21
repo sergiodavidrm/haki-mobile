@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
+import '../../chat/ui/feedback_links.dart';
 import '../../exercise/data/exercise_stats.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../data/session_plan.dart';
@@ -103,6 +104,11 @@ class ExerciseBlock extends StatelessWidget {
     final last = exercise.lastPerformance;
     final lastE1rm = last == null ? null : bestE1rmKg(last.sets);
     final extras = <Widget>[
+      // Hilo de feedback de hoy (si ya subió videos y el coach lo usa)
+      SessionFeedbackLink(
+        dayExerciseId: exercise.id,
+        streamMessageId: exercise.streamMessageId,
+      ),
       if (pendingVideo.isNotEmpty) ...[
         const SizedBox(height: 10),
         Row(

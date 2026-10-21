@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
+import '../../../core/widgets/haki_loader.dart';
 import '../../../core/widgets/haki_logo.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../auth/data/auth_repository.dart';
@@ -63,8 +64,8 @@ class HomeScreen extends ConsumerWidget {
                 ],
                 _ => const [
                   Padding(
-                    padding: EdgeInsets.only(top: 48),
-                    child: Center(child: CircularProgressIndicator()),
+                    padding: EdgeInsets.only(top: 64),
+                    child: Center(child: LoadingView()),
                   ),
                 ],
               },

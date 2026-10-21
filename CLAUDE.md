@@ -15,7 +15,7 @@ Leer también el `CLAUDE.md` de la raíz (`haki/`) para contexto de producto.
 | Auth | Supabase (`supabase_flutter`) — email/password o Google (`google_sign_in` nativo + `signInWithIdToken`) |
 | HTTP | `dio` (cliente en `core/network/api_client.dart`) |
 | Navegación | `go_router` |
-| Chat | Stream Chat (pendiente) |
+| Chat | Stream Chat con `stream_chat_flutter_core` (sin la UI del SDK: pantallas propias con el kit) |
 | Plataformas | Android + iOS (iOS solo compila en Mac) |
 
 Bundle id: `com.hakifit.haki_mobile`.
@@ -242,6 +242,71 @@ pasos: upload a Cloudinary → `PATCH set-logs/{setLogId}/video` con la URL.
    pendiente, el nuevo reemplaza al pendiente en la cola (no se suben los dos).
    Una vez subido, un video nuevo de la misma serie lo pisa en el backend.
 
+**Implementado (2026-10-20, probado en emulador):** tabla drift `LocalVideos`
+(schema 3, una fila por serie) y paso 4 de `SessionSync._pushVideo`, un video
+por vuelta: comprimir a 720p (`video_compress`) → `POST
+set-logs/{id}/video/signature` + upload multipart directo a Cloudinary (Dio
+sin JWT; `secure_url` queda en `uploadedUrl`) → `PATCH set-logs/{id}/video` →
+`done` (el archivo se borra; la fila queda para mostrar la cámara como enviada
+sin recargar). Archivos en `getApplicationSupportDirectory()/videos`
+(`video_files.dart`). El set-log id sale de `LoggedSetDto.id` (serie que vino
+de la API) o de `LocalSets.remoteId` (lo devuelve el upsert; una serie subida
+antes de existir esa columna se reenvía para conseguirlo). La serie tiene que
+estar registrada antes de grabar. 400/404/413 o archivo perdido = se descarta
+el video (no traba la cola). Grabar: `image_picker` (cámara o galería; la
+cámara corta a los 90 s) → **Recortar video** (`VideoTrimScreen`, como
+WhatsApp: `video_player` en loop solo en el tramo, tocar = play/pausa, tira de
+miniaturas con dos manijas de a 1 s, máx. 90 s, mín. 1 s) → la cola guarda
+`trimStartMs/trimEndMs` (schema 4) y el recorte se hace al comprimir
+(`video_compress` `startTime`/`duration` en segundos; **en Android `duration`
+es cuánto cortar del final**, en iOS lo que dura: `compressTrimArgs` en
+`video_trim.dart`, tests en `test/video_trim_test.dart`). `pendingCount` cuenta videos sin subir y el wipe borra los archivos.
+Pendiente: verificar el borrado a los 30 días en Cloudinary.
+
+## Chat (2026-10-20)
+
+Tab `/chat` (`features/chat/`): canal general con el coach. Se usa
+`stream_chat_flutter_core` (conexión + datos) y la UI es propia, igual al
+mockup (`Chat.dc.html`); se descartó `stream_chat_flutter` (UI del SDK) por
+pesado (grabación, galería, encuestas) y porque hay que pisar todo su diseño.
+- `streamClient` (keepAlive, API key pública de `Env`) envuelto en
+  `StreamChatCore` en `app.dart` (desconecta en background, reconecta al
+  volver). `generalChannel` (keepAlive): `GET stream/token` → `connectUser` →
+  `POST stream/channel/general` → `channel.watch()`. Al cerrar sesión
+  `LocalDataGuard` hace `disconnectUser` e invalida el canal.
+- `ChatScreen`: header con el coach (`coachName`), `MessageListCore`
+  (lista invertida, pagina al llegar arriba), separadores Hoy/Ayer/"25 sep",
+  burbujas propias doradas / del coach grises con su inicial, marcar leído al
+  ver, "No se envió · Reintentar". Tarjetas de videos (`VideoCard.of`: mensaje
+  con `exerciseName`) con miniaturas (`cloudinaryThumb`: misma URL en `.jpg`)
+  → `VideoPlayerScreen`; respuesta del coach citando una tarjeta muestra
+  "Ejercicio · Sem N · Día N". Pesos en `bodyWeightUnit`.
+- Lógica pura en `chat/data/chat_message.dart` (tests en
+  `test/chat_message_test.dart`).
+- Feedback por ejercicio (solo si `exerciseFeedbackEnabled` del coach, que
+  viene en `/auth/me`): la tarjeta suma `FeedbackRow` (última respuesta +
+  "N respuestas · Ver feedback", o "Esperando feedback de X"; pide la última
+  respuesta con `getReplies(limit: 1)`) → `FeedbackThreadScreen` (mockup
+  "Hilo": tus videos + nota, respuestas, responder con `parentId`). La ruta
+  se abre con `Navigator.push` envuelta en otro `StreamChannel` (no hereda el
+  del tab). Las respuestas de hilo **no** salen en el chat general.
+- Links al hilo fuera del chat (`chat/ui/feedback_links.dart`,
+  `FeedbackLink`, mismo flag): Detalle de ejercicio (tarjeta turquesa arriba
+  con el feedback más reciente + chip "2 videos · 3 mensajes de feedback" en
+  cada tarjeta del historial), Sesión (cada ejercicio: `SessionFeedbackLink`;
+  si la tarjeta se publicó durante el entreno el id sale de los mensajes del
+  chat, `cardIdFor` por `blockDayExerciseId`) y Sesión pasada (por ejercicio; punteado "Tu
+  video todavía no tiene feedback" si no hay respuestas). Ids:
+  `DayExerciseDto.streamMessageId` (detalle del programa) y
+  `ExerciseHistoryEntryDto.streamMessageId` (historial). Datos con
+  `feedbackSummary(messageId)` (getMessage + última respuesta); sin red no
+  muestran nada.
+- El hilo pagina respuestas viejas al llegar arriba (de a 20).
+- Badge de no leídos en el tab Chat (`AppShell` conecta el chat al entrar y
+  escucha `unreadCountStream` del canal; las respuestas de hilo no suman).
+- Falta: push (FCM + Stream; necesita proyecto de Firebase). Decidido 2026-10-20: **no** hay mensajes por ejercicio sin video
+  (para eso está el chat general).
+
 ## Feedback del coach (hilos)
 
 El feedback por ejercicio vive en el **hilo** de la tarjeta de videos del
@@ -283,7 +348,7 @@ con `CustomPainter` igual al SVG del web, brillo que late).
 
 Navegación: `StatefulShellRoute` con 4 tabs (`AppShell` en `core/widgets/`):
 Hoy `/` · Programa `/programa` · Chat `/chat` · Perfil `/perfil`.
-`AthleteGate` envuelve el shell. Chat es `ComingSoon`; Hoy tiene
+`AthleteGate` envuelve el shell. Chat: ver § Chat; Hoy tiene
 cabecera + saludo (nombre de `user_metadata` de Supabase); Perfil ver abajo.
 
 Kit en `core/widgets/`: `HakiCard` (tone neutral/gold/turquoise, tocable),
@@ -338,8 +403,8 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
   para cargar/corregir. Sin check: se guarda sola al salir de la fila si tiene
   reps. Cámara en **todas** las series: dorada con punto = pedida por el
   coach, tachada = no pedida (al tocarla confirma "Tu entrenador no solicitó
-  video…"), turquesa = `videoUrl` ya subido; hoy muestra "pronto" (videos sin
-  integrar). Override de unidad por ejercicio: si queda igual a la del día se
+  video…"), nube turquesa = en la cola, turquesa con check = subido (tocar
+  = grabar otro que lo reemplaza). Ver § Subida de videos. Override de unidad por ejercicio: si queda igual a la del día se
   borra (vuelve a seguir al switch). Ejercicios sin series y sin la siguiente
   se muestran colapsados; tocar los abre.
   Debajo de cada ejercicio: "Sem. pasada: 116 lb × 12·12·12·12 · e1RM 163.8 lb"
@@ -353,7 +418,10 @@ tabs, `features/exercise/`): video técnico (`videoUrl` del coach o
 hace" (`exerciseDescription`, 3 líneas + Ver más), nota del coach, e1RM (último,
 NUEVO PR si supera a todos los anteriores, tendencia con `BodyLineChart`,
 "+X en el bloque", volumen de hoy) e historial (hoy con borde dorado + `GET
-progress/{clientId}/exercises/{exerciseId}/history`, chips "12 @1"). Sin red:
+progress/{clientId}/exercises/{exerciseId}/history`, chips "116 lb × 12 @1" con el
+peso y la unidad de cada serie; arranca con 2 tarjetas y
+"Cargar más" suma de a 5 — decidido 2026-10-20: el historial sirve para elegir
+la carga de hoy). Sin red:
 hoy + "última vez". Lógica pura en `exercise/data/exercise_stats.dart` (tests en
 `test/exercise_stats_test.dart`). Falta: feedback del coach (hilo, con Chat).
 
@@ -388,8 +456,12 @@ Perfil (`features/profile/` + `features/body/`, 2026-10-18):
   tarjetas Peso (último + sparkline + cambio en 4 sem), Medidas (cintura o la
   primera pedida, cantidad y fecha) y Adherencia (`currentAdherence`: hechos /
   días que ya tocaban del programa en curso, `adherenceOf`; sin calendario
-  muestra hechos / total). Niveles, racha y Récords del mockup **ocultos**
-  hasta que tengan backend (decisión de Sergio). Engranaje → Ajustes.
+  muestra hechos / total). Arriba, tarjeta de **racha de semanas**
+  (`_StreakCard`: llama, "5 semanas seguidas" o "Arrancá tu racha", "Esta
+  semana: 2 de 4 · Tu mejor racha: 8 semanas", una barrita por semana dorada
+  si se cumplió; `GET progress/{id}/streak` vía `streakProvider`, sin red no
+  se muestra; pull-to-refresh la recarga). Niveles y Récords del mockup
+  **ocultos** hasta que tengan backend (decisión de Sergio). Engranaje → Ajustes.
 - `/perfil/ajustes` (`SettingsScreen`, `features/settings/`): cuenta (nombre,
   email, Cambiar contraseña con Supabase `updateUser` — solo si tiene identidad
   `email`, no con solo Google), unidad de peso (`PATCH auth/me/weight-unit` →
@@ -414,14 +486,19 @@ Perfil (`features/profile/` + `features/body/`, 2026-10-18):
   tocar uno → Registrar medidas en esa fecha.
 - `/medidas/registrar?fecha=YYYY-MM-DD` (`LogMeasuresScreen`, sin tabs): fecha
   (hoy por defecto, editable hasta 3 años atrás), medidas agrupadas (Tronco / Brazos y piernas /
-  Composición) con "Anterior"; si el día ya tiene registro arranca cargado. Se
+  Composición / Otras) con "Anterior"; si el día ya tiene registro arranca cargado. Se
   mandan solo las que tienen valor (la API mergea).
 - Datos: `GET body-logs/{clientId}` (`bodyLogs`) y `POST body-logs/me`
-  (`BodyLogSaver`). Necesitan red. Peso y masa muscular en
-  `preferredWeightUnit` (`bodyWeightUnit`); circunferencias siempre en cm.
+  (`BodyLogSaver`). Necesitan red. Las medidas van y vienen en `values`
+  (clave → valor). Peso y medidas de unidad `kg` en `preferredWeightUnit`
+  (`bodyWeightUnit`); el resto en su unidad (cm, mm, %, nivel).
   Diferencias: turquesa si bajó, dorado si subió.
-- Lógica pura en `body/data/body_measures.dart` (catálogo = claves de
-  `BodyMeasurementKeys` de la API, `seriesOf`, `lastTwo`, `inRange`,
+- Medidas personalizadas (2026-10-20): el coach crea las suyas en el web; la
+  app no puede crear. `/auth/me` trae `bodyMeasurements` como objetos `{ key,
+  name, unit, category }` → `BodyMeasure.fromJson` (name null = estándar, el
+  nombre sale de `bodyMeasures`; un String suelto = caché vieja de `/auth/me`).
+- Lógica pura en `body/data/body_measures.dart` (`bodyMeasures` = las 16
+  estándar con su nombre, `seriesOf`, `lastTwo`, `inRange`,
   `changeOf`, `previousBefore`, `measureLogsOf`); tests en `test/body_measures_test.dart`.
 
 Lógica pura de la sesión en `features/session/data/session_plan.dart`
@@ -478,6 +555,19 @@ videos, RPE de la sesión y nota al coach (`WorkoutSession` no tiene esos
 campos).
 Flujo de UI acordado: Sergio ajusta el mockup → se traduce a widgets con el kit
 (no FlutterFlow ni generadores Figma/HTML → Flutter).
+
+Splash y Cargando (2026-10-20, mockup "Splash" y "Cargando"):
+`core/widgets/splash_screen.dart` (`SplashScreen`: isotipo de 136 con el
+brillo que late, "haki" + "FITNESS COACHING" subiendo, slogan abajo) va como
+`SplashOverlay` en el `builder` de `app.dart`: tapa la app 1.6 s mientras
+arranca abajo y se desvanece. Splash nativo de Android = solo fondo `#0D0D0D`
+(`res/values/colors.xml` `splash_background`, `launch_background.xml`,
+`values-v31/styles.xml` con ícono vacío para el splash del sistema de
+Android 12+), así no hay flash blanco ni ícono antes del de Flutter.
+`core/widgets/haki_loader.dart`: `HakiLoader` (arco que gira, ondas, núcleo
+que late; un solo `AnimationController` de 2.4 s) y `LoadingView` ("Cargando
+tu semana…"), en `AthleteGate` (mientras baja `/auth/me`) y en Hoy (mientras
+carga el programa). iOS: falta el fondo del `LaunchScreen.storyboard` (Mac).
 
 Pendiente de marca: fuente Raleway para el wordmark "haki" (el web la usa), el
 dorado del logo del web es `#C9A84C` vs. `gold` `#B8922A` del tema, e ícono de

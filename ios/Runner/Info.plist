@@ -66,5 +66,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Para grabar el video de tus series y mandárselo a tu coach.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Para grabar el video de tus series con sonido.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Para elegir un video de tus series de la galería.</string>
 </dict>
 </plist>

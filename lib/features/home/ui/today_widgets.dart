@@ -97,7 +97,9 @@ class WeekStrip extends StatelessWidget {
   }
 }
 
-/// "Esta semana · 2 de 4 entrenos" (programas sin día de la semana asignado).
+/// "Semana 2 del programa · 2 de 4 entrenos" (programas sin día de la semana
+/// asignado). Es la semana del programa, no la del calendario: la racha del
+/// Perfil cuenta por semana de calendario y por eso pueden no coincidir.
 class WeekProgressCard extends StatelessWidget {
   const WeekProgressCard({super.key, required this.week});
 
@@ -118,7 +120,7 @@ class WeekProgressCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Esta semana',
+                'Semana ${week.weekNumber} del programa',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,

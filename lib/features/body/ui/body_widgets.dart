@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/haki_colors.dart';
+import '../../../core/units/weight_unit.dart';
 import '../data/body_measures.dart';
 
 /// Línea turquesa de una serie (x proporcional a la fecha). [grid] = las 3
-/// líneas horizontales y el punto dorado final del gráfico de Peso; sin grid
+/// líneas horizontales y el punto dorado final con su valor (gráfico de
+/// Peso); sin grid
 /// es el sparkline de la tarjeta del Perfil.
 class BodyLineChart extends StatelessWidget {
   const BodyLineChart({
@@ -34,6 +36,7 @@ class BodyLineChart extends StatelessWidget {
             grid: grid,
             line: c.turquoise,
             gridColor: c.surfaceHigh,
+            labelColor: c.text,
             dot: c.goldBright,
           ),
         ),
@@ -48,6 +51,7 @@ class _LinePainter extends CustomPainter {
     required this.grid,
     required this.line,
     required this.gridColor,
+    required this.labelColor,
     required this.dot,
   });
 
@@ -55,6 +59,7 @@ class _LinePainter extends CustomPainter {
   final bool grid;
   final Color line;
   final Color gridColor;
+  final Color labelColor;
   final Color dot;
 
   @override
@@ -110,11 +115,38 @@ class _LinePainter extends CustomPainter {
     if (grid || points.length == 1) {
       canvas.drawCircle(at(points.last), grid ? 4.5 : 3, Paint()..color = dot);
     }
+    if (grid) {
+      // Valor del último punto, arriba del punto (o abajo si no entra)
+      final last = at(points.last);
+      final tp = TextPainter(
+        text: TextSpan(
+          text: formatWeight(points.last.value),
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: labelColor,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final above = last.dy - 8 - tp.height;
+      tp.paint(
+        canvas,
+        Offset(
+          (last.dx - tp.width / 2).clamp(0, size.width - tp.width),
+          above >= 0 ? above : last.dy + 8,
+        ),
+      );
+    }
   }
 
   @override
   bool shouldRepaint(_LinePainter old) =>
-      old.points != points || old.line != line || old.grid != grid;
+      old.points != points ||
+      old.line != line ||
+      old.grid != grid ||
+      old.labelColor != labelColor;
 }
 
 /// "−0.6" turquesa si bajó, dorado si subió, gris si quedó igual.

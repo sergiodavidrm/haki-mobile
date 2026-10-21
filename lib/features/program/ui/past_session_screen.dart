@@ -7,6 +7,7 @@ import '../../../core/units/weight_unit.dart';
 import '../../../core/widgets/back_header.dart';
 import '../../../core/widgets/haki_card.dart';
 import '../../auth/providers/auth_me_provider.dart';
+import '../../chat/ui/feedback_links.dart';
 import '../../session/data/session_plan.dart';
 import '../../session/data/session_store.dart';
 import '../../session/providers/session_providers.dart';
@@ -229,6 +230,11 @@ class _ExerciseCard extends StatelessWidget {
                 ),
             ],
           ),
+          if (e.streamMessageId != null)
+            FeedbackLink(
+              messageId: e.streamMessageId!,
+              margin: const EdgeInsets.only(top: 10),
+            ),
           const SizedBox(height: 10),
           if (saved.every((s) => s == null))
             Text(

@@ -16,11 +16,12 @@ import '../../body/providers/body_providers.dart';
 import '../../body/ui/body_widgets.dart';
 import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
+import '../data/streak_dto.dart';
 import '../providers/profile_providers.dart';
 
-// Tab Perfil: cuenta (engranaje → Ajustes) + tarjetas de Peso, Medidas y
-// Adherencia. Niveles, racha y Récords del mockup se suman cuando tengan
-// backend.
+// Tab Perfil: cuenta (engranaje → Ajustes) + racha de semanas + tarjetas de
+// Peso, Medidas y Adherencia. Niveles y Récords del mockup se suman cuando
+// tengan backend.
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -37,6 +38,7 @@ class ProfileScreen extends ConsumerWidget {
         child: RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(programSectionsProvider);
+            ref.invalidate(streakProvider);
             // /auth/me trae las medidas que pidió el coach (puede cambiarlas);
             // bodyLogs depende de él, así que también se vuelve a pedir
             ref.invalidate(authMeProvider);
@@ -88,6 +90,7 @@ class ProfileScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 20),
+              const _StreakCard(),
               IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -99,7 +102,7 @@ class ProfileScreen extends ConsumerWidget {
                     Expanded(
                       child: _MeasuresTile(
                         logs: logs,
-                        measures: measuresFor(me?.bodyMeasurements ?? const []),
+                        measures: me?.bodyMeasurements ?? const [],
                         unit: unit,
                       ),
                     ),
@@ -116,6 +119,94 @@ class ProfileScreen extends ConsumerWidget {
                     const Expanded(child: SizedBox()),
                   ],
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Racha de semanas (mockup: llama, "5 semanas seguidas", la mejor racha y
+/// una barrita por semana). Sin red o sin programas no se muestra.
+class _StreakCard extends ConsumerWidget {
+  const _StreakCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final s = ref.watch(streakProvider).value;
+    if (s == null || s.weeks.every((w) => w.state == StreakWeekState.off)) {
+      return const SizedBox.shrink();
+    }
+
+    String weeks(int n) => '$n ${n == 1 ? 'semana' : 'semanas'}';
+    final pending = s.thisWeekPending;
+    final title = s.currentWeeks > 0
+        ? '${weeks(s.currentWeeks)} ${s.currentWeeks == 1 ? 'seguida' : 'seguidas'}'
+        : 'Arrancá tu racha';
+    final subtitle = [
+      if (pending != null)
+        'Esta semana: ${pending.completed} de ${pending.target}',
+      if (s.bestWeeks > 0) 'Tu mejor racha: ${weeks(s.bestWeeks)}',
+    ].join(' · ');
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Semantics(
+        label: '$title. $subtitle',
+        excludeSemantics: true,
+        child: HakiCard(
+          radius: 22,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Icon(
+                Icons.local_fire_department_outlined,
+                size: 30,
+                color: s.currentWeeks > 0 ? c.goldBright : c.textMuted,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: c.text,
+                      ),
+                    ),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(fontSize: 12, color: c.textMuted),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Una barrita por semana: dorada = cumplida
+              Row(
+                children: [
+                  for (final w in s.weeks)
+                    Container(
+                      width: 8,
+                      height: 22,
+                      margin: const EdgeInsets.only(left: 4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(3),
+                        color: w.state == StreakWeekState.met
+                            ? c.goldBright
+                            : c.border,
+                      ),
+                    ),
+                ],
               ),
             ],
           ),

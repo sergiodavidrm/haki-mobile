@@ -14,15 +14,18 @@ BodyLogDto log(
   measures: m,
 );
 
+/// Medidas estándar por clave (lo que antes armaba measuresFor).
+List<BodyMeasure> std(List<String> keys) => [
+  for (final k in keys) BodyMeasure.fromJson(k)!,
+];
+
 void main() {
   test('fromJson: fecha, peso y solo las medidas con valor', () {
     final l = BodyLogDto.fromJson({
       'loggedDate': '2026-09-28',
       'weight': 85.0,
       'weightUnit': 'LB',
-      'waist': 84,
-      'chest': null,
-      'muscleMass': 40.5,
+      'values': {'waist': 84, 'muscleMass': 40.5},
     });
     expect(l.date, DateTime.utc(2026, 9, 28));
     expect(l.weightKg, 85.0);
@@ -30,9 +33,37 @@ void main() {
     expect(l.measures, {'waist': 84.0, 'muscleMass': 40.5});
   });
 
-  test('measuresFor: orden del catálogo e ignora claves desconocidas', () {
-    final m = measuresFor(['bodyFatPercentage', 'nueva', 'chest', 'waist']);
-    expect(m.map((x) => x.key), ['chest', 'waist', 'bodyFatPercentage']);
+  test('BodyMeasure.fromJson: estándar, del coach y caché vieja', () {
+    final std = BodyMeasure.fromJson({
+      'key': 'waist',
+      'name': null,
+      'unit': 'cm',
+      'category': 'trunk',
+    })!;
+    expect(std.label, 'Cintura');
+    expect(std.group, MeasureGroup.torso);
+
+    final custom = BodyMeasure.fromJson({
+      'key': '5f0c…',
+      'name': 'Pliegue tricipital',
+      'unit': 'mm',
+      'category': 'other',
+    })!;
+    expect(custom.label, 'Pliegue tricipital');
+    expect(custom.group, MeasureGroup.other);
+    expect(custom.unitLabel(WeightUnit.kg), 'mm');
+
+    final mass = BodyMeasure.fromJson({
+      'key': 'x',
+      'name': 'Masa magra',
+      'unit': 'kg',
+      'category': 'composition',
+    })!;
+    expect(mass.unitLabel(WeightUnit.lb), 'lb');
+
+    // /auth/me cacheado antes del cambio: lista de claves
+    expect(BodyMeasure.fromJson('chest')!.label, 'Pecho');
+    expect(BodyMeasure.fromJson('nueva'), isNull);
   });
 
   test('seriesOf ordena y salta días sin dato', () {
@@ -70,7 +101,7 @@ void main() {
       log(9, 1, m: {'waist': 86}),
       log(9, 20, m: {'waist': 85, 'hips': 99}),
     ];
-    final ms = measuresFor(['waist', 'hips']);
+    final ms = std(['waist', 'hips']);
     expect(previousBefore(logs, ms, DateTime.utc(2026, 9, 20)), {'waist': 86});
     expect(previousBefore(logs, ms, DateTime.utc(2026, 9, 21)), {
       'waist': 85,
@@ -102,7 +133,7 @@ void main() {
       log(9, 20, m: {'neck': 40}), // medida que el coach no pidió
       log(9, 25, m: {'hips': 99}),
     ];
-    final r = measureLogsOf(logs, measuresFor(['waist', 'hips']));
+    final r = measureLogsOf(logs, std(['waist', 'hips']));
     expect(r.map((l) => l.date.day), [25, 1]);
   });
 }

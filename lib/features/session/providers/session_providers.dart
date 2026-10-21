@@ -64,6 +64,15 @@ Stream<Map<String, LocalSetEntry>> localSets(
       (rows) => {for (final r in rows) setKey(r.dayExerciseId, r.setNumber): r},
     );
 
+/// Videos de la sesión en el teléfono: "dayExerciseId#setNumber" → true si
+/// ya se subió, false si está en la cola.
+@riverpod
+Stream<Map<String, bool>> localVideos(
+  Ref ref,
+  String assignmentId,
+  String dayId,
+) => ref.watch(sessionStoreProvider).watchVideos(assignmentId, dayId);
+
 /// Unidad del día (switch del header). Arranca en la preferida del atleta
 /// (`GET /auth/me`, kg si no viene). keepAlive: se mantiene al salir y volver
 /// a la sesión, y la usa el resumen de Entreno completado.

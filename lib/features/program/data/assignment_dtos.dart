@@ -257,6 +257,7 @@ class DayExerciseDto {
     this.targetSets = const [],
     this.loggedSets = const [],
     this.lastPerformance,
+    this.streamMessageId,
   });
 
   /// BlockDayExerciseId: clave de los logs de este ejercicio en este día.
@@ -286,6 +287,10 @@ class DayExerciseDto {
   /// Series ya guardadas en la API (de este u otro teléfono).
   final List<LoggedSetDto> loggedSets;
 
+  /// Tarjeta de videos de este ejercicio en el chat (raíz del hilo de
+  /// feedback); null si todavía no subió videos.
+  final String? streamMessageId;
+
   bool get requestsVideo => targetSets.any((s) => s.requestVideo);
 
   factory DayExerciseDto.fromJson(Map<String, dynamic> j) => DayExerciseDto(
@@ -311,6 +316,7 @@ class DayExerciseDto {
       for (final s in j['actualSets'] as List? ?? const [])
         LoggedSetDto.fromJson(s as Map<String, dynamic>),
     ],
+    streamMessageId: j['streamMessageId'] as String?,
   );
 }
 
@@ -342,6 +348,7 @@ class TargetSetDto {
 /// Serie registrada en la API. [weightKg] en kg; [weightUnit] = como la cargó.
 class LoggedSetDto {
   const LoggedSetDto({
+    this.id,
     required this.setNumber,
     this.weightKg,
     required this.weightUnit,
@@ -350,6 +357,8 @@ class LoggedSetDto {
     this.videoUrl,
   });
 
+  /// Id del set-log (para subirle el video).
+  final String? id;
   final int setNumber;
   final double? weightKg;
   final String weightUnit;
@@ -360,6 +369,7 @@ class LoggedSetDto {
   final String? videoUrl;
 
   factory LoggedSetDto.fromJson(Map<String, dynamic> j) => LoggedSetDto(
+    id: j['id'] as String?,
     setNumber: j['setNumber'] as int,
     weightKg: (j['weight'] as num?)?.toDouble(),
     weightUnit: j['weightUnit'] as String? ?? 'KG',

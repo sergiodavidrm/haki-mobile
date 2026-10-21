@@ -832,6 +832,17 @@ class $LocalSetsTable extends LocalSets
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _remoteIdMeta = const VerificationMeta(
+    'remoteId',
+  );
+  @override
+  late final GeneratedColumn<String> remoteId = GeneratedColumn<String>(
+    'remote_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     assignmentId,
@@ -844,6 +855,7 @@ class $LocalSetsTable extends LocalSets
     rir,
     updatedAt,
     synced,
+    remoteId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -935,6 +947,12 @@ class $LocalSetsTable extends LocalSets
         synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta),
       );
     }
+    if (data.containsKey('remote_id')) {
+      context.handle(
+        _remoteIdMeta,
+        remoteId.isAcceptableOrUnknown(data['remote_id']!, _remoteIdMeta),
+      );
+    }
     return context;
   }
 
@@ -988,6 +1006,10 @@ class $LocalSetsTable extends LocalSets
         DriftSqlType.bool,
         data['${effectivePrefix}synced'],
       )!,
+      remoteId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_id'],
+      ),
     );
   }
 
@@ -1010,6 +1032,9 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
   final int? rir;
   final DateTime updatedAt;
   final bool synced;
+
+  /// Id del set-log en la API (lo devuelve el upsert; lo usan los videos).
+  final String? remoteId;
   const LocalSet({
     required this.assignmentId,
     required this.dayId,
@@ -1021,6 +1046,7 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
     this.rir,
     required this.updatedAt,
     required this.synced,
+    this.remoteId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1041,6 +1067,9 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
     }
     map['updated_at'] = Variable<DateTime>(updatedAt);
     map['synced'] = Variable<bool>(synced);
+    if (!nullToAbsent || remoteId != null) {
+      map['remote_id'] = Variable<String>(remoteId);
+    }
     return map;
   }
 
@@ -1058,6 +1087,9 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
       rir: rir == null && nullToAbsent ? const Value.absent() : Value(rir),
       updatedAt: Value(updatedAt),
       synced: Value(synced),
+      remoteId: remoteId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteId),
     );
   }
 
@@ -1077,6 +1109,7 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
       rir: serializer.fromJson<int?>(json['rir']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       synced: serializer.fromJson<bool>(json['synced']),
+      remoteId: serializer.fromJson<String?>(json['remoteId']),
     );
   }
   @override
@@ -1093,6 +1126,7 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
       'rir': serializer.toJson<int?>(rir),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'synced': serializer.toJson<bool>(synced),
+      'remoteId': serializer.toJson<String?>(remoteId),
     };
   }
 
@@ -1107,6 +1141,7 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
     Value<int?> rir = const Value.absent(),
     DateTime? updatedAt,
     bool? synced,
+    Value<String?> remoteId = const Value.absent(),
   }) => LocalSet(
     assignmentId: assignmentId ?? this.assignmentId,
     dayId: dayId ?? this.dayId,
@@ -1118,6 +1153,7 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
     rir: rir.present ? rir.value : this.rir,
     updatedAt: updatedAt ?? this.updatedAt,
     synced: synced ?? this.synced,
+    remoteId: remoteId.present ? remoteId.value : this.remoteId,
   );
   LocalSet copyWithCompanion(LocalSetsCompanion data) {
     return LocalSet(
@@ -1137,6 +1173,7 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
       rir: data.rir.present ? data.rir.value : this.rir,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       synced: data.synced.present ? data.synced.value : this.synced,
+      remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
     );
   }
 
@@ -1152,7 +1189,8 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
           ..write('reps: $reps, ')
           ..write('rir: $rir, ')
           ..write('updatedAt: $updatedAt, ')
-          ..write('synced: $synced')
+          ..write('synced: $synced, ')
+          ..write('remoteId: $remoteId')
           ..write(')'))
         .toString();
   }
@@ -1169,6 +1207,7 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
     rir,
     updatedAt,
     synced,
+    remoteId,
   );
   @override
   bool operator ==(Object other) =>
@@ -1183,7 +1222,8 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
           other.reps == this.reps &&
           other.rir == this.rir &&
           other.updatedAt == this.updatedAt &&
-          other.synced == this.synced);
+          other.synced == this.synced &&
+          other.remoteId == this.remoteId);
 }
 
 class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
@@ -1197,6 +1237,7 @@ class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
   final Value<int?> rir;
   final Value<DateTime> updatedAt;
   final Value<bool> synced;
+  final Value<String?> remoteId;
   final Value<int> rowid;
   const LocalSetsCompanion({
     this.assignmentId = const Value.absent(),
@@ -1209,6 +1250,7 @@ class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
     this.rir = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.synced = const Value.absent(),
+    this.remoteId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   LocalSetsCompanion.insert({
@@ -1222,6 +1264,7 @@ class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
     this.rir = const Value.absent(),
     required DateTime updatedAt,
     this.synced = const Value.absent(),
+    this.remoteId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : assignmentId = Value(assignmentId),
        dayId = Value(dayId),
@@ -1240,6 +1283,7 @@ class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
     Expression<int>? rir,
     Expression<DateTime>? updatedAt,
     Expression<bool>? synced,
+    Expression<String>? remoteId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1253,6 +1297,7 @@ class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
       if (rir != null) 'rir': rir,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (synced != null) 'synced': synced,
+      if (remoteId != null) 'remote_id': remoteId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1268,6 +1313,7 @@ class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
     Value<int?>? rir,
     Value<DateTime>? updatedAt,
     Value<bool>? synced,
+    Value<String?>? remoteId,
     Value<int>? rowid,
   }) {
     return LocalSetsCompanion(
@@ -1281,6 +1327,7 @@ class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
       rir: rir ?? this.rir,
       updatedAt: updatedAt ?? this.updatedAt,
       synced: synced ?? this.synced,
+      remoteId: remoteId ?? this.remoteId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1318,6 +1365,9 @@ class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
     if (synced.present) {
       map['synced'] = Variable<bool>(synced.value);
     }
+    if (remoteId.present) {
+      map['remote_id'] = Variable<String>(remoteId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1337,6 +1387,7 @@ class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
           ..write('rir: $rir, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('synced: $synced, ')
+          ..write('remoteId: $remoteId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1605,6 +1656,750 @@ class CachedResponsesCompanion extends UpdateCompanion<CachedResponse> {
   }
 }
 
+class $LocalVideosTable extends LocalVideos
+    with TableInfo<$LocalVideosTable, LocalVideo> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalVideosTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _assignmentIdMeta = const VerificationMeta(
+    'assignmentId',
+  );
+  @override
+  late final GeneratedColumn<String> assignmentId = GeneratedColumn<String>(
+    'assignment_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dayIdMeta = const VerificationMeta('dayId');
+  @override
+  late final GeneratedColumn<String> dayId = GeneratedColumn<String>(
+    'day_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dayExerciseIdMeta = const VerificationMeta(
+    'dayExerciseId',
+  );
+  @override
+  late final GeneratedColumn<String> dayExerciseId = GeneratedColumn<String>(
+    'day_exercise_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _setNumberMeta = const VerificationMeta(
+    'setNumber',
+  );
+  @override
+  late final GeneratedColumn<int> setNumber = GeneratedColumn<int>(
+    'set_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _setLogIdMeta = const VerificationMeta(
+    'setLogId',
+  );
+  @override
+  late final GeneratedColumn<String> setLogId = GeneratedColumn<String>(
+    'set_log_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _filePathMeta = const VerificationMeta(
+    'filePath',
+  );
+  @override
+  late final GeneratedColumn<String> filePath = GeneratedColumn<String>(
+    'file_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _compressedMeta = const VerificationMeta(
+    'compressed',
+  );
+  @override
+  late final GeneratedColumn<bool> compressed = GeneratedColumn<bool>(
+    'compressed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("compressed" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _trimStartMsMeta = const VerificationMeta(
+    'trimStartMs',
+  );
+  @override
+  late final GeneratedColumn<int> trimStartMs = GeneratedColumn<int>(
+    'trim_start_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _trimEndMsMeta = const VerificationMeta(
+    'trimEndMs',
+  );
+  @override
+  late final GeneratedColumn<int> trimEndMs = GeneratedColumn<int>(
+    'trim_end_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _uploadedUrlMeta = const VerificationMeta(
+    'uploadedUrl',
+  );
+  @override
+  late final GeneratedColumn<String> uploadedUrl = GeneratedColumn<String>(
+    'uploaded_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _doneMeta = const VerificationMeta('done');
+  @override
+  late final GeneratedColumn<bool> done = GeneratedColumn<bool>(
+    'done',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("done" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    assignmentId,
+    dayId,
+    dayExerciseId,
+    setNumber,
+    setLogId,
+    filePath,
+    compressed,
+    trimStartMs,
+    trimEndMs,
+    uploadedUrl,
+    done,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_videos';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalVideo> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('assignment_id')) {
+      context.handle(
+        _assignmentIdMeta,
+        assignmentId.isAcceptableOrUnknown(
+          data['assignment_id']!,
+          _assignmentIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_assignmentIdMeta);
+    }
+    if (data.containsKey('day_id')) {
+      context.handle(
+        _dayIdMeta,
+        dayId.isAcceptableOrUnknown(data['day_id']!, _dayIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dayIdMeta);
+    }
+    if (data.containsKey('day_exercise_id')) {
+      context.handle(
+        _dayExerciseIdMeta,
+        dayExerciseId.isAcceptableOrUnknown(
+          data['day_exercise_id']!,
+          _dayExerciseIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_dayExerciseIdMeta);
+    }
+    if (data.containsKey('set_number')) {
+      context.handle(
+        _setNumberMeta,
+        setNumber.isAcceptableOrUnknown(data['set_number']!, _setNumberMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_setNumberMeta);
+    }
+    if (data.containsKey('set_log_id')) {
+      context.handle(
+        _setLogIdMeta,
+        setLogId.isAcceptableOrUnknown(data['set_log_id']!, _setLogIdMeta),
+      );
+    }
+    if (data.containsKey('file_path')) {
+      context.handle(
+        _filePathMeta,
+        filePath.isAcceptableOrUnknown(data['file_path']!, _filePathMeta),
+      );
+    }
+    if (data.containsKey('compressed')) {
+      context.handle(
+        _compressedMeta,
+        compressed.isAcceptableOrUnknown(data['compressed']!, _compressedMeta),
+      );
+    }
+    if (data.containsKey('trim_start_ms')) {
+      context.handle(
+        _trimStartMsMeta,
+        trimStartMs.isAcceptableOrUnknown(
+          data['trim_start_ms']!,
+          _trimStartMsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('trim_end_ms')) {
+      context.handle(
+        _trimEndMsMeta,
+        trimEndMs.isAcceptableOrUnknown(data['trim_end_ms']!, _trimEndMsMeta),
+      );
+    }
+    if (data.containsKey('uploaded_url')) {
+      context.handle(
+        _uploadedUrlMeta,
+        uploadedUrl.isAcceptableOrUnknown(
+          data['uploaded_url']!,
+          _uploadedUrlMeta,
+        ),
+      );
+    }
+    if (data.containsKey('done')) {
+      context.handle(
+        _doneMeta,
+        done.isAcceptableOrUnknown(data['done']!, _doneMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {
+    assignmentId,
+    dayExerciseId,
+    setNumber,
+  };
+  @override
+  LocalVideo map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalVideo(
+      assignmentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}assignment_id'],
+      )!,
+      dayId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}day_id'],
+      )!,
+      dayExerciseId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}day_exercise_id'],
+      )!,
+      setNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}set_number'],
+      )!,
+      setLogId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}set_log_id'],
+      ),
+      filePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}file_path'],
+      ),
+      compressed: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}compressed'],
+      )!,
+      trimStartMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}trim_start_ms'],
+      ),
+      trimEndMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}trim_end_ms'],
+      ),
+      uploadedUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}uploaded_url'],
+      ),
+      done: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}done'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalVideosTable createAlias(String alias) {
+    return $LocalVideosTable(attachedDatabase, alias);
+  }
+}
+
+class LocalVideo extends DataClass implements Insertable<LocalVideo> {
+  final String assignmentId;
+  final String dayId;
+  final String dayExerciseId;
+  final int setNumber;
+
+  /// Id del set-log, si ya se conocía al grabar (serie que vino de la API).
+  final String? setLogId;
+
+  /// Archivo en la carpeta de la app; null cuando ya se subió.
+  final String? filePath;
+  final bool compressed;
+
+  /// Tramo elegido en Recortar video (ms); null = el video entero.
+  final int? trimStartMs;
+  final int? trimEndMs;
+  final String? uploadedUrl;
+  final bool done;
+  final DateTime createdAt;
+  const LocalVideo({
+    required this.assignmentId,
+    required this.dayId,
+    required this.dayExerciseId,
+    required this.setNumber,
+    this.setLogId,
+    this.filePath,
+    required this.compressed,
+    this.trimStartMs,
+    this.trimEndMs,
+    this.uploadedUrl,
+    required this.done,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['assignment_id'] = Variable<String>(assignmentId);
+    map['day_id'] = Variable<String>(dayId);
+    map['day_exercise_id'] = Variable<String>(dayExerciseId);
+    map['set_number'] = Variable<int>(setNumber);
+    if (!nullToAbsent || setLogId != null) {
+      map['set_log_id'] = Variable<String>(setLogId);
+    }
+    if (!nullToAbsent || filePath != null) {
+      map['file_path'] = Variable<String>(filePath);
+    }
+    map['compressed'] = Variable<bool>(compressed);
+    if (!nullToAbsent || trimStartMs != null) {
+      map['trim_start_ms'] = Variable<int>(trimStartMs);
+    }
+    if (!nullToAbsent || trimEndMs != null) {
+      map['trim_end_ms'] = Variable<int>(trimEndMs);
+    }
+    if (!nullToAbsent || uploadedUrl != null) {
+      map['uploaded_url'] = Variable<String>(uploadedUrl);
+    }
+    map['done'] = Variable<bool>(done);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  LocalVideosCompanion toCompanion(bool nullToAbsent) {
+    return LocalVideosCompanion(
+      assignmentId: Value(assignmentId),
+      dayId: Value(dayId),
+      dayExerciseId: Value(dayExerciseId),
+      setNumber: Value(setNumber),
+      setLogId: setLogId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(setLogId),
+      filePath: filePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(filePath),
+      compressed: Value(compressed),
+      trimStartMs: trimStartMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trimStartMs),
+      trimEndMs: trimEndMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trimEndMs),
+      uploadedUrl: uploadedUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(uploadedUrl),
+      done: Value(done),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory LocalVideo.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalVideo(
+      assignmentId: serializer.fromJson<String>(json['assignmentId']),
+      dayId: serializer.fromJson<String>(json['dayId']),
+      dayExerciseId: serializer.fromJson<String>(json['dayExerciseId']),
+      setNumber: serializer.fromJson<int>(json['setNumber']),
+      setLogId: serializer.fromJson<String?>(json['setLogId']),
+      filePath: serializer.fromJson<String?>(json['filePath']),
+      compressed: serializer.fromJson<bool>(json['compressed']),
+      trimStartMs: serializer.fromJson<int?>(json['trimStartMs']),
+      trimEndMs: serializer.fromJson<int?>(json['trimEndMs']),
+      uploadedUrl: serializer.fromJson<String?>(json['uploadedUrl']),
+      done: serializer.fromJson<bool>(json['done']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'assignmentId': serializer.toJson<String>(assignmentId),
+      'dayId': serializer.toJson<String>(dayId),
+      'dayExerciseId': serializer.toJson<String>(dayExerciseId),
+      'setNumber': serializer.toJson<int>(setNumber),
+      'setLogId': serializer.toJson<String?>(setLogId),
+      'filePath': serializer.toJson<String?>(filePath),
+      'compressed': serializer.toJson<bool>(compressed),
+      'trimStartMs': serializer.toJson<int?>(trimStartMs),
+      'trimEndMs': serializer.toJson<int?>(trimEndMs),
+      'uploadedUrl': serializer.toJson<String?>(uploadedUrl),
+      'done': serializer.toJson<bool>(done),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  LocalVideo copyWith({
+    String? assignmentId,
+    String? dayId,
+    String? dayExerciseId,
+    int? setNumber,
+    Value<String?> setLogId = const Value.absent(),
+    Value<String?> filePath = const Value.absent(),
+    bool? compressed,
+    Value<int?> trimStartMs = const Value.absent(),
+    Value<int?> trimEndMs = const Value.absent(),
+    Value<String?> uploadedUrl = const Value.absent(),
+    bool? done,
+    DateTime? createdAt,
+  }) => LocalVideo(
+    assignmentId: assignmentId ?? this.assignmentId,
+    dayId: dayId ?? this.dayId,
+    dayExerciseId: dayExerciseId ?? this.dayExerciseId,
+    setNumber: setNumber ?? this.setNumber,
+    setLogId: setLogId.present ? setLogId.value : this.setLogId,
+    filePath: filePath.present ? filePath.value : this.filePath,
+    compressed: compressed ?? this.compressed,
+    trimStartMs: trimStartMs.present ? trimStartMs.value : this.trimStartMs,
+    trimEndMs: trimEndMs.present ? trimEndMs.value : this.trimEndMs,
+    uploadedUrl: uploadedUrl.present ? uploadedUrl.value : this.uploadedUrl,
+    done: done ?? this.done,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  LocalVideo copyWithCompanion(LocalVideosCompanion data) {
+    return LocalVideo(
+      assignmentId: data.assignmentId.present
+          ? data.assignmentId.value
+          : this.assignmentId,
+      dayId: data.dayId.present ? data.dayId.value : this.dayId,
+      dayExerciseId: data.dayExerciseId.present
+          ? data.dayExerciseId.value
+          : this.dayExerciseId,
+      setNumber: data.setNumber.present ? data.setNumber.value : this.setNumber,
+      setLogId: data.setLogId.present ? data.setLogId.value : this.setLogId,
+      filePath: data.filePath.present ? data.filePath.value : this.filePath,
+      compressed: data.compressed.present
+          ? data.compressed.value
+          : this.compressed,
+      trimStartMs: data.trimStartMs.present
+          ? data.trimStartMs.value
+          : this.trimStartMs,
+      trimEndMs: data.trimEndMs.present ? data.trimEndMs.value : this.trimEndMs,
+      uploadedUrl: data.uploadedUrl.present
+          ? data.uploadedUrl.value
+          : this.uploadedUrl,
+      done: data.done.present ? data.done.value : this.done,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalVideo(')
+          ..write('assignmentId: $assignmentId, ')
+          ..write('dayId: $dayId, ')
+          ..write('dayExerciseId: $dayExerciseId, ')
+          ..write('setNumber: $setNumber, ')
+          ..write('setLogId: $setLogId, ')
+          ..write('filePath: $filePath, ')
+          ..write('compressed: $compressed, ')
+          ..write('trimStartMs: $trimStartMs, ')
+          ..write('trimEndMs: $trimEndMs, ')
+          ..write('uploadedUrl: $uploadedUrl, ')
+          ..write('done: $done, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    assignmentId,
+    dayId,
+    dayExerciseId,
+    setNumber,
+    setLogId,
+    filePath,
+    compressed,
+    trimStartMs,
+    trimEndMs,
+    uploadedUrl,
+    done,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalVideo &&
+          other.assignmentId == this.assignmentId &&
+          other.dayId == this.dayId &&
+          other.dayExerciseId == this.dayExerciseId &&
+          other.setNumber == this.setNumber &&
+          other.setLogId == this.setLogId &&
+          other.filePath == this.filePath &&
+          other.compressed == this.compressed &&
+          other.trimStartMs == this.trimStartMs &&
+          other.trimEndMs == this.trimEndMs &&
+          other.uploadedUrl == this.uploadedUrl &&
+          other.done == this.done &&
+          other.createdAt == this.createdAt);
+}
+
+class LocalVideosCompanion extends UpdateCompanion<LocalVideo> {
+  final Value<String> assignmentId;
+  final Value<String> dayId;
+  final Value<String> dayExerciseId;
+  final Value<int> setNumber;
+  final Value<String?> setLogId;
+  final Value<String?> filePath;
+  final Value<bool> compressed;
+  final Value<int?> trimStartMs;
+  final Value<int?> trimEndMs;
+  final Value<String?> uploadedUrl;
+  final Value<bool> done;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const LocalVideosCompanion({
+    this.assignmentId = const Value.absent(),
+    this.dayId = const Value.absent(),
+    this.dayExerciseId = const Value.absent(),
+    this.setNumber = const Value.absent(),
+    this.setLogId = const Value.absent(),
+    this.filePath = const Value.absent(),
+    this.compressed = const Value.absent(),
+    this.trimStartMs = const Value.absent(),
+    this.trimEndMs = const Value.absent(),
+    this.uploadedUrl = const Value.absent(),
+    this.done = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalVideosCompanion.insert({
+    required String assignmentId,
+    required String dayId,
+    required String dayExerciseId,
+    required int setNumber,
+    this.setLogId = const Value.absent(),
+    this.filePath = const Value.absent(),
+    this.compressed = const Value.absent(),
+    this.trimStartMs = const Value.absent(),
+    this.trimEndMs = const Value.absent(),
+    this.uploadedUrl = const Value.absent(),
+    this.done = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : assignmentId = Value(assignmentId),
+       dayId = Value(dayId),
+       dayExerciseId = Value(dayExerciseId),
+       setNumber = Value(setNumber),
+       createdAt = Value(createdAt);
+  static Insertable<LocalVideo> custom({
+    Expression<String>? assignmentId,
+    Expression<String>? dayId,
+    Expression<String>? dayExerciseId,
+    Expression<int>? setNumber,
+    Expression<String>? setLogId,
+    Expression<String>? filePath,
+    Expression<bool>? compressed,
+    Expression<int>? trimStartMs,
+    Expression<int>? trimEndMs,
+    Expression<String>? uploadedUrl,
+    Expression<bool>? done,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (assignmentId != null) 'assignment_id': assignmentId,
+      if (dayId != null) 'day_id': dayId,
+      if (dayExerciseId != null) 'day_exercise_id': dayExerciseId,
+      if (setNumber != null) 'set_number': setNumber,
+      if (setLogId != null) 'set_log_id': setLogId,
+      if (filePath != null) 'file_path': filePath,
+      if (compressed != null) 'compressed': compressed,
+      if (trimStartMs != null) 'trim_start_ms': trimStartMs,
+      if (trimEndMs != null) 'trim_end_ms': trimEndMs,
+      if (uploadedUrl != null) 'uploaded_url': uploadedUrl,
+      if (done != null) 'done': done,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalVideosCompanion copyWith({
+    Value<String>? assignmentId,
+    Value<String>? dayId,
+    Value<String>? dayExerciseId,
+    Value<int>? setNumber,
+    Value<String?>? setLogId,
+    Value<String?>? filePath,
+    Value<bool>? compressed,
+    Value<int?>? trimStartMs,
+    Value<int?>? trimEndMs,
+    Value<String?>? uploadedUrl,
+    Value<bool>? done,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return LocalVideosCompanion(
+      assignmentId: assignmentId ?? this.assignmentId,
+      dayId: dayId ?? this.dayId,
+      dayExerciseId: dayExerciseId ?? this.dayExerciseId,
+      setNumber: setNumber ?? this.setNumber,
+      setLogId: setLogId ?? this.setLogId,
+      filePath: filePath ?? this.filePath,
+      compressed: compressed ?? this.compressed,
+      trimStartMs: trimStartMs ?? this.trimStartMs,
+      trimEndMs: trimEndMs ?? this.trimEndMs,
+      uploadedUrl: uploadedUrl ?? this.uploadedUrl,
+      done: done ?? this.done,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (assignmentId.present) {
+      map['assignment_id'] = Variable<String>(assignmentId.value);
+    }
+    if (dayId.present) {
+      map['day_id'] = Variable<String>(dayId.value);
+    }
+    if (dayExerciseId.present) {
+      map['day_exercise_id'] = Variable<String>(dayExerciseId.value);
+    }
+    if (setNumber.present) {
+      map['set_number'] = Variable<int>(setNumber.value);
+    }
+    if (setLogId.present) {
+      map['set_log_id'] = Variable<String>(setLogId.value);
+    }
+    if (filePath.present) {
+      map['file_path'] = Variable<String>(filePath.value);
+    }
+    if (compressed.present) {
+      map['compressed'] = Variable<bool>(compressed.value);
+    }
+    if (trimStartMs.present) {
+      map['trim_start_ms'] = Variable<int>(trimStartMs.value);
+    }
+    if (trimEndMs.present) {
+      map['trim_end_ms'] = Variable<int>(trimEndMs.value);
+    }
+    if (uploadedUrl.present) {
+      map['uploaded_url'] = Variable<String>(uploadedUrl.value);
+    }
+    if (done.present) {
+      map['done'] = Variable<bool>(done.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalVideosCompanion(')
+          ..write('assignmentId: $assignmentId, ')
+          ..write('dayId: $dayId, ')
+          ..write('dayExerciseId: $dayExerciseId, ')
+          ..write('setNumber: $setNumber, ')
+          ..write('setLogId: $setLogId, ')
+          ..write('filePath: $filePath, ')
+          ..write('compressed: $compressed, ')
+          ..write('trimStartMs: $trimStartMs, ')
+          ..write('trimEndMs: $trimEndMs, ')
+          ..write('uploadedUrl: $uploadedUrl, ')
+          ..write('done: $done, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1615,6 +2410,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CachedResponsesTable cachedResponses = $CachedResponsesTable(
     this,
   );
+  late final $LocalVideosTable localVideos = $LocalVideosTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1624,6 +2420,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     localExerciseLogs,
     localSets,
     cachedResponses,
+    localVideos,
   ];
 }
 
@@ -2060,6 +2857,7 @@ typedef $$LocalSetsTableCreateCompanionBuilder = LocalSetsCompanion Function({
   Value<int?> rir,
   required DateTime updatedAt,
   Value<bool> synced,
+  Value<String?> remoteId,
   Value<int> rowid,
 });
 typedef $$LocalSetsTableUpdateCompanionBuilder = LocalSetsCompanion Function({
@@ -2073,6 +2871,7 @@ typedef $$LocalSetsTableUpdateCompanionBuilder = LocalSetsCompanion Function({
   Value<int?> rir,
   Value<DateTime> updatedAt,
   Value<bool> synced,
+  Value<String?> remoteId,
   Value<int> rowid,
 });
 
@@ -2132,6 +2931,11 @@ class $$LocalSetsTableFilterComposer
 
   ColumnFilters<bool> get synced => $composableBuilder(
     column: $table.synced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get remoteId => $composableBuilder(
+    column: $table.remoteId,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2194,6 +2998,11 @@ class $$LocalSetsTableOrderingComposer
     column: $table.synced,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get remoteId => $composableBuilder(
+    column: $table.remoteId,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$LocalSetsTableAnnotationComposer
@@ -2240,6 +3049,9 @@ class $$LocalSetsTableAnnotationComposer
 
   GeneratedColumn<bool> get synced =>
       $composableBuilder(column: $table.synced, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteId =>
+      $composableBuilder(column: $table.remoteId, builder: (column) => column);
 }
 
 class $$LocalSetsTableTableManager
@@ -2280,6 +3092,7 @@ class $$LocalSetsTableTableManager
                 Value<int?> rir = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<bool> synced = const Value.absent(),
+                Value<String?> remoteId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalSetsCompanion(
                 assignmentId: assignmentId,
@@ -2292,6 +3105,7 @@ class $$LocalSetsTableTableManager
                 rir: rir,
                 updatedAt: updatedAt,
                 synced: synced,
+                remoteId: remoteId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2306,6 +3120,7 @@ class $$LocalSetsTableTableManager
                 Value<int?> rir = const Value.absent(),
                 required DateTime updatedAt,
                 Value<bool> synced = const Value.absent(),
+                Value<String?> remoteId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalSetsCompanion.insert(
                 assignmentId: assignmentId,
@@ -2318,6 +3133,7 @@ class $$LocalSetsTableTableManager
                 rir: rir,
                 updatedAt: updatedAt,
                 synced: synced,
+                remoteId: remoteId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -2528,6 +3344,358 @@ typedef $$CachedResponsesTableProcessedTableManager =
       CachedResponse,
       PrefetchHooks Function()
     >;
+typedef $$LocalVideosTableCreateCompanionBuilder =
+    LocalVideosCompanion Function({
+      required String assignmentId,
+      required String dayId,
+      required String dayExerciseId,
+      required int setNumber,
+      Value<String?> setLogId,
+      Value<String?> filePath,
+      Value<bool> compressed,
+      Value<int?> trimStartMs,
+      Value<int?> trimEndMs,
+      Value<String?> uploadedUrl,
+      Value<bool> done,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$LocalVideosTableUpdateCompanionBuilder =
+    LocalVideosCompanion Function({
+      Value<String> assignmentId,
+      Value<String> dayId,
+      Value<String> dayExerciseId,
+      Value<int> setNumber,
+      Value<String?> setLogId,
+      Value<String?> filePath,
+      Value<bool> compressed,
+      Value<int?> trimStartMs,
+      Value<int?> trimEndMs,
+      Value<String?> uploadedUrl,
+      Value<bool> done,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$LocalVideosTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalVideosTable> {
+  $$LocalVideosTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get assignmentId => $composableBuilder(
+    column: $table.assignmentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dayId => $composableBuilder(
+    column: $table.dayId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dayExerciseId => $composableBuilder(
+    column: $table.dayExerciseId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get setNumber => $composableBuilder(
+    column: $table.setNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get setLogId => $composableBuilder(
+    column: $table.setLogId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filePath => $composableBuilder(
+    column: $table.filePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get compressed => $composableBuilder(
+    column: $table.compressed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get trimStartMs => $composableBuilder(
+    column: $table.trimStartMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get trimEndMs => $composableBuilder(
+    column: $table.trimEndMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get uploadedUrl => $composableBuilder(
+    column: $table.uploadedUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get done => $composableBuilder(
+    column: $table.done,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalVideosTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalVideosTable> {
+  $$LocalVideosTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get assignmentId => $composableBuilder(
+    column: $table.assignmentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dayId => $composableBuilder(
+    column: $table.dayId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dayExerciseId => $composableBuilder(
+    column: $table.dayExerciseId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get setNumber => $composableBuilder(
+    column: $table.setNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get setLogId => $composableBuilder(
+    column: $table.setLogId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filePath => $composableBuilder(
+    column: $table.filePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get compressed => $composableBuilder(
+    column: $table.compressed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get trimStartMs => $composableBuilder(
+    column: $table.trimStartMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get trimEndMs => $composableBuilder(
+    column: $table.trimEndMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get uploadedUrl => $composableBuilder(
+    column: $table.uploadedUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get done => $composableBuilder(
+    column: $table.done,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalVideosTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalVideosTable> {
+  $$LocalVideosTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get assignmentId => $composableBuilder(
+    column: $table.assignmentId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get dayId =>
+      $composableBuilder(column: $table.dayId, builder: (column) => column);
+
+  GeneratedColumn<String> get dayExerciseId => $composableBuilder(
+    column: $table.dayExerciseId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get setNumber =>
+      $composableBuilder(column: $table.setNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get setLogId =>
+      $composableBuilder(column: $table.setLogId, builder: (column) => column);
+
+  GeneratedColumn<String> get filePath =>
+      $composableBuilder(column: $table.filePath, builder: (column) => column);
+
+  GeneratedColumn<bool> get compressed => $composableBuilder(
+    column: $table.compressed,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get trimStartMs => $composableBuilder(
+    column: $table.trimStartMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get trimEndMs =>
+      $composableBuilder(column: $table.trimEndMs, builder: (column) => column);
+
+  GeneratedColumn<String> get uploadedUrl => $composableBuilder(
+    column: $table.uploadedUrl,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get done =>
+      $composableBuilder(column: $table.done, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$LocalVideosTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalVideosTable,
+          LocalVideo,
+          $$LocalVideosTableFilterComposer,
+          $$LocalVideosTableOrderingComposer,
+          $$LocalVideosTableAnnotationComposer,
+          $$LocalVideosTableCreateCompanionBuilder,
+          $$LocalVideosTableUpdateCompanionBuilder,
+          (
+            LocalVideo,
+            BaseReferences<_$AppDatabase, $LocalVideosTable, LocalVideo>,
+          ),
+          LocalVideo,
+          PrefetchHooks Function()
+        > {
+  $$LocalVideosTableTableManager(_$AppDatabase db, $LocalVideosTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalVideosTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalVideosTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalVideosTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> assignmentId = const Value.absent(),
+                Value<String> dayId = const Value.absent(),
+                Value<String> dayExerciseId = const Value.absent(),
+                Value<int> setNumber = const Value.absent(),
+                Value<String?> setLogId = const Value.absent(),
+                Value<String?> filePath = const Value.absent(),
+                Value<bool> compressed = const Value.absent(),
+                Value<int?> trimStartMs = const Value.absent(),
+                Value<int?> trimEndMs = const Value.absent(),
+                Value<String?> uploadedUrl = const Value.absent(),
+                Value<bool> done = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalVideosCompanion(
+                assignmentId: assignmentId,
+                dayId: dayId,
+                dayExerciseId: dayExerciseId,
+                setNumber: setNumber,
+                setLogId: setLogId,
+                filePath: filePath,
+                compressed: compressed,
+                trimStartMs: trimStartMs,
+                trimEndMs: trimEndMs,
+                uploadedUrl: uploadedUrl,
+                done: done,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String assignmentId,
+                required String dayId,
+                required String dayExerciseId,
+                required int setNumber,
+                Value<String?> setLogId = const Value.absent(),
+                Value<String?> filePath = const Value.absent(),
+                Value<bool> compressed = const Value.absent(),
+                Value<int?> trimStartMs = const Value.absent(),
+                Value<int?> trimEndMs = const Value.absent(),
+                Value<String?> uploadedUrl = const Value.absent(),
+                Value<bool> done = const Value.absent(),
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => LocalVideosCompanion.insert(
+                assignmentId: assignmentId,
+                dayId: dayId,
+                dayExerciseId: dayExerciseId,
+                setNumber: setNumber,
+                setLogId: setLogId,
+                filePath: filePath,
+                compressed: compressed,
+                trimStartMs: trimStartMs,
+                trimEndMs: trimEndMs,
+                uploadedUrl: uploadedUrl,
+                done: done,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$LocalVideosTable, LocalVideo>(table),
+                  BaseReferences<_$AppDatabase, $LocalVideosTable, LocalVideo>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalVideosTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalVideosTable,
+      LocalVideo,
+      $$LocalVideosTableFilterComposer,
+      $$LocalVideosTableOrderingComposer,
+      $$LocalVideosTableAnnotationComposer,
+      $$LocalVideosTableCreateCompanionBuilder,
+      $$LocalVideosTableUpdateCompanionBuilder,
+      (
+        LocalVideo,
+        BaseReferences<_$AppDatabase, $LocalVideosTable, LocalVideo>,
+      ),
+      LocalVideo,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2540,6 +3708,8 @@ class $AppDatabaseManager {
       $$LocalSetsTableTableManager(_db, _db.localSets);
   $$CachedResponsesTableTableManager get cachedResponses =>
       $$CachedResponsesTableTableManager(_db, _db.cachedResponses);
+  $$LocalVideosTableTableManager get localVideos =>
+      $$LocalVideosTableTableManager(_db, _db.localVideos);
 }
 
 // **************************************************************************

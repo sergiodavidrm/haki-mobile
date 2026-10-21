@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/haki_colors.dart';
+import 'core/widgets/splash_screen.dart';
+import 'features/chat/providers/chat_providers.dart';
 import 'features/program/providers/program_refresher.dart';
 import 'features/session/data/session_sync.dart';
 import 'features/session/providers/local_data_guard.dart';
@@ -24,6 +27,12 @@ class HakiApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(HakiColors.obsidian),
       routerConfig: ref.watch(appRouterProvider),
+      // Conexión de Stream: se corta en background y vuelve al abrir la app.
+      // El splash va arriba de todo mientras la app arranca abajo.
+      builder: (_, child) => StreamChatCore(
+        client: ref.watch(streamClientProvider),
+        child: SplashOverlay(child: child!),
+      ),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
@@ -12,9 +13,12 @@ import '../../exercise/data/exercise_stats.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../data/session_plan.dart';
 import '../data/session_store.dart';
+import '../data/video_files.dart';
+import '../data/video_trim.dart';
 import '../providers/rest_timer.dart';
 import '../providers/session_providers.dart';
 import 'exercise_block.dart';
+import 'video_trim_screen.dart';
 import 'rest_timer_widgets.dart';
 
 // Sesión de entreno: registrar series. Todo se guarda primero en el teléfono
@@ -87,8 +91,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final session = ref.watch(localSessionProvider(_a, _d)).value;
     final dayUnit = ref.watch(dayWeightUnitProvider(_d));
     final overrides = ref.watch(exerciseUnitOverridesProvider(_d));
+    final videos = ref.watch(localVideosProvider(_a, _d)).value ?? const {};
 
-    SavedSet? savedFor(DayExerciseDto e, int n) => savedSetFor(e, n, local);
+    SavedSet? savedFor(DayExerciseDto e, int n) =>
+        savedSetFor(e, n, local, videos);
     final groups = groupSupersets(s.day.exercises);
     // La primera serie pendiente de la sesión: se resalta como "Siguiente"
     final next = workOrder(groups)
@@ -122,7 +128,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
               ),
         onOpenDetail: () => context.push(Routes.exercise(_a, _d, e.id)),
         nextSetNumber: next?.exercise.id == e.id ? next!.setNumber : null,
-        onVideo: (n, requested) => _uploadVideo(n, requested),
+        onVideo: (n, requested) =>
+            _uploadVideo(e, n, savedFor(e, n), requested),
         unit: unit,
         isUnitOverridden:
             overrides.containsKey(e.id) && overrides[e.id] != dayUnit,
@@ -259,9 +266,23 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     );
   }
 
-  /// Serie sin video pedido: se confirma antes de subir.
-  Future<void> _uploadVideo(int setNumber, bool requested) async {
-    if (!requested) {
+  /// Grabar o elegir el video de una serie y dejarlo en la cola. La serie
+  /// tiene que estar registrada (el video se cuelga de su set-log). Serie sin
+  /// video pedido: se confirma antes.
+  Future<void> _uploadVideo(
+    DayExerciseDto e,
+    int setNumber,
+    SavedSet? saved,
+    bool requested,
+  ) async {
+    if (saved == null) {
+      _snack('Registrá la serie antes de subir el video.');
+      return;
+    }
+    if (saved.videoUploading) {
+      _snack('El video se está subiendo. Si grabás otro, lo reemplaza.');
+    }
+    if (!requested && !saved.hasVideo && !saved.videoUploading) {
       final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -283,18 +304,60 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       );
       if (ok != true || !mounted) return;
     }
-    _videoNotReady();
+    if (!mounted) return;
+
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (saved.hasVideo)
+              const ListTile(
+                title: Text('Ya enviaste un video de esta serie'),
+                subtitle: Text('El nuevo lo reemplaza.'),
+              ),
+            ListTile(
+              leading: const Icon(Icons.videocam_outlined),
+              title: const Text('Grabar'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.video_library_outlined),
+              title: const Text('Elegir de la galería'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (source == null) return;
+
+    final path = await pickSetVideo(source);
+    if (path == null || !mounted) return;
+    final range = await Navigator.of(context).push<TrimRange>(
+      MaterialPageRoute(builder: (_) => VideoTrimScreen(path: path)),
+    );
+    if (range == null || !mounted) return;
+    await ref
+        .read(sessionStoreProvider)
+        .addVideo(
+          assignmentId: _a,
+          dayId: _d,
+          dayExerciseId: e.id,
+          setNumber: setNumber,
+          sourcePath: path,
+          setLogId: saved.setLogId,
+          trimStartMs: range.startMs,
+          trimEndMs: range.endMs,
+        );
+    _snack('Video en la cola: se sube solo, aunque cierres la app.');
   }
 
-  // TODO: grabar/elegir video y subirlo con la cola (Cloudinary sin integrar).
-  void _videoNotReady() {
+  void _snack(String text) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(
-          content: Text('Subir videos va a estar disponible pronto'),
-        ),
-      );
+      ..showSnackBar(SnackBar(content: Text(text)));
   }
 
   /// El timer es manual: solo se le pasa qué se terminó y qué viene, para

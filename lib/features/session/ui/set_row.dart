@@ -314,6 +314,7 @@ class _SetRowState extends State<SetRow> {
                 setNumber: widget.setNumber,
                 requested: t?.requestVideo ?? false,
                 sent: widget.saved?.hasVideo ?? false,
+                uploading: widget.saved?.videoUploading ?? false,
                 onTap: () => widget.onVideo(t?.requestVideo ?? false),
               ),
             ),
@@ -345,11 +346,7 @@ class _SetRowState extends State<SetRow> {
 
 /// Valor ya guardado (texto) o "–" si la serie no se cargó.
 class _Value extends StatelessWidget {
-  const _Value({
-    required this.width,
-    required this.text,
-    required this.empty,
-  });
+  const _Value({required this.width, required this.text, required this.empty});
 
   final double width;
   final String? text;
@@ -376,25 +373,34 @@ class _Value extends StatelessWidget {
 }
 
 /// Cámara de cada serie. Pedido por el coach = dorada con punto; no pedido =
-/// tachada (igual se puede subir, con confirmación); enviado = turquesa con
-/// check.
+/// tachada (igual se puede subir, con confirmación); en la cola = nube
+/// turquesa; enviado = turquesa con check.
 class _CameraButton extends StatelessWidget {
   const _CameraButton({
     required this.setNumber,
     required this.requested,
     required this.sent,
+    required this.uploading,
     required this.onTap,
   });
 
   final int setNumber;
   final bool requested;
   final bool sent;
+  final bool uploading;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final (bg, side, fg, icon) = sent
+    final (bg, side, fg, icon) = uploading
+        ? (
+            c.turquoiseSurface,
+            BorderSide(color: c.turquoise, width: 1.5),
+            c.turquoise,
+            Icons.cloud_upload_outlined,
+          )
+        : sent
         ? (
             c.turquoiseSurface,
             BorderSide.none,
@@ -417,8 +423,10 @@ class _CameraButton extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: sent
-          ? 'Ver video enviado de la serie $setNumber'
+      label: uploading
+          ? 'Video de la serie $setNumber subiéndose'
+          : sent
+          ? 'Video de la serie $setNumber enviado, tocar para reemplazarlo'
           : requested
           ? 'Subir video de la serie $setNumber, pedido por tu coach'
           : 'Subir video de la serie $setNumber (tu coach no lo pidió)',
@@ -446,7 +454,7 @@ class _CameraButton extends StatelessWidget {
                 ),
               ),
             ),
-            if (sent || requested)
+            if (!uploading && (sent || requested))
               Positioned(
                 top: sent ? 0 : 1,
                 right: sent ? 0 : 1,

@@ -22,8 +22,8 @@ import '../../features/settings/ui/settings_screen.dart';
 import '../../features/session/ui/rest_timer_screen.dart';
 import '../../features/session/ui/session_screen.dart';
 import '../../features/session/ui/workout_complete_screen.dart';
+import '../../features/chat/ui/chat_screen.dart';
 import '../widgets/app_shell.dart';
-import '../widgets/coming_soon.dart';
 
 part 'app_router.g.dart';
 
@@ -172,13 +172,7 @@ GoRouter appRouter(Ref ref) {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(
-                path: Routes.chat,
-                builder: (_, _) => const ComingSoon(
-                  title: 'Chat',
-                  message: 'Acá vas a hablar con tu coach.',
-                ),
-              ),
+              GoRoute(path: Routes.chat, builder: (_, _) => const ChatScreen()),
             ],
           ),
           StatefulShellBranch(

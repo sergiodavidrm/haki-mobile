@@ -51,7 +51,8 @@ class _LogMeasuresScreenState extends ConsumerState<LogMeasuresScreen> {
     final unit = ref.read(bodyWeightUnitProvider);
     final logs = ref.read(bodyLogsProvider).value ?? const [];
     final day = logs.where((l) => l.date == _date).firstOrNull;
-    for (final m in bodyMeasures) {
+    for (final m
+        in ref.read(authMeProvider).value?.bodyMeasurements ?? const []) {
       final v = day?.measures[m.key];
       _input(m.key).text = v == null ? '' : formatMeasure(m.display(v, unit));
     }
@@ -94,9 +95,8 @@ class _LogMeasuresScreenState extends ConsumerState<LogMeasuresScreen> {
     final c = context.colors;
     final unit = ref.watch(bodyWeightUnitProvider);
     final saving = ref.watch(bodyLogSaverProvider).isLoading;
-    final measures = measuresFor(
-      ref.watch(authMeProvider).value?.bodyMeasurements ?? const [],
-    );
+    final measures =
+        ref.watch(authMeProvider).value?.bodyMeasurements ?? const [];
     final previous = previousBefore(
       ref.watch(bodyLogsProvider).value ?? const [],
       measures,

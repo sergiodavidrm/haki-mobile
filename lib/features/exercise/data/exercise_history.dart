@@ -16,6 +16,7 @@ class ExerciseHistoryEntryDto {
     required this.blockDayId,
     required this.date,
     required this.sets,
+    this.streamMessageId,
   });
 
   final String assignmentId;
@@ -24,6 +25,9 @@ class ExerciseHistoryEntryDto {
   final String blockDayId;
   final DateTime date;
   final List<LoggedSetDto> sets;
+
+  /// Hilo de feedback de esa vez (tarjeta de videos en el chat).
+  final String? streamMessageId;
 
   factory ExerciseHistoryEntryDto.fromJson(Map<String, dynamic> j) =>
       ExerciseHistoryEntryDto(
@@ -36,6 +40,7 @@ class ExerciseHistoryEntryDto {
           for (final s in j['sets'] as List? ?? const [])
             LoggedSetDto.fromJson(s as Map<String, dynamic>),
         ],
+        streamMessageId: j['streamMessageId'] as String?,
       );
 }
 

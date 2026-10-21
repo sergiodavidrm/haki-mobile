@@ -24,7 +24,7 @@ class MeasuresScreen extends ConsumerWidget {
     final me = ref.watch(authMeProvider).value;
     final logs = ref.watch(bodyLogsProvider);
     final unit = ref.watch(bodyWeightUnitProvider);
-    final measures = measuresFor(me?.bodyMeasurements ?? const []);
+    final measures = me?.bodyMeasurements ?? const <BodyMeasure>[];
 
     final rows = [
       for (final m in measures)

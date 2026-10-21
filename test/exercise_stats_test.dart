@@ -20,11 +20,10 @@ LastPerformanceDto last(String a, int week) => LastPerformanceDto(
 );
 
 void main() {
-  test('e1RM, volumen y peso máximo', () {
+  test('e1RM y volumen', () {
     final sets = [set(1, 100, 5), set(2, 90, 10), set(3, null, 12)];
     expect(bestE1rmKg(sets), closeTo(120, 1e-9)); // 90 × (1 + 10/30)
     expect(volumeKg(sets), 1400);
-    expect(topWeightKg(sets), 100);
     expect(bestE1rmKg([set(1, null, 10)]), isNull);
   });
 
@@ -59,9 +58,11 @@ void main() {
     );
   });
 
-  test('setChip', () {
-    expect(setChip(set(1, 50, 12, 1)), '12 @1');
-    expect(setChip(set(1, 50, 12)), '12');
+  test('setChip: peso × reps @RIR, sin peso y en lb', () {
+    expect(setChip(set(1, 50, 12, 1), WeightUnit.kg), '50 kg × 12 @1');
+    expect(setChip(set(1, 50, 12), WeightUnit.kg), '50 kg × 12');
+    expect(setChip(set(1, null, 15, 2), WeightUnit.kg), '15 @2');
+    expect(setChip(set(1, 45.359237, 8), WeightUnit.lb), '100 lb × 8');
   });
 
   test('isNewPr: supera a todas las anteriores', () {

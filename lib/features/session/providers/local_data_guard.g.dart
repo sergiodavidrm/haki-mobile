@@ -60,4 +60,4 @@ final class LocalDataGuardProvider extends $FunctionalProvider<void, void, void>
   }
 }
 
-String _$localDataGuardHash() => r'4fb9cd3483b811d1ea5211daa039dc7b0cfc3654';
+String _$localDataGuardHash() => r'1b84026586aa039e9b34c83020a6becc9bf6a8a0';

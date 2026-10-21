@@ -9,6 +9,7 @@ import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../../core/widgets/back_header.dart';
 import '../../../core/widgets/haki_card.dart';
+import '../../auth/providers/auth_me_provider.dart';
 import '../../program/data/program_schedule.dart';
 import '../data/body_measures.dart';
 import '../providers/body_providers.dart';
@@ -35,9 +36,10 @@ class _BodySeriesScreenState extends ConsumerState<BodySeriesScreen> {
     final logs = ref.watch(bodyLogsProvider);
     final unit = ref.watch(bodyWeightUnitProvider);
     final today = dateOnly(DateTime.now());
-    final measure = bodyMeasures
-        .where((m) => m.key == widget.measureKey)
-        .firstOrNull;
+    final measure = [
+      ...?ref.watch(authMeProvider).value?.bodyMeasurements,
+      ...bodyMeasures,
+    ].where((m) => m.key == widget.measureKey).firstOrNull;
     final isWeight = measure == null;
     final unitLabel = measure?.unitLabel(unit) ?? unit.label;
 

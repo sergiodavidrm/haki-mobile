@@ -21,7 +21,7 @@ class BodyLogRepository {
   }
 
   /// Upsert del día [date]: lo que no se manda queda como estaba (la API
-  /// mergea). [weight] y la masa muscular van en [unit]; la API pasa a kg.
+  /// mergea). [weight] y las medidas en kg van en [unit]; la API pasa a kg.
   Future<void> save({
     required DateTime date,
     required WeightUnit unit,
@@ -36,7 +36,7 @@ class BodyLogRepository {
         'loggedDate': d,
         'weight': ?weight,
         'weightUnit': unit.api,
-        ...measures,
+        'values': measures,
       },
     );
   }

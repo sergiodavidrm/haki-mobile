@@ -1,7 +1,8 @@
 import '../../../core/units/weight_unit.dart';
+import '../../body/data/body_measures.dart';
 
 // GET /auth/me → { exists, userId, role, preferredWeightUnit, coachName,
-// bodyMeasurements }. role viene del enum de Postgres ("CLIENT" | "COACH" |
+// exerciseFeedbackEnabled, bodyMeasurements }. role viene del enum de Postgres ("CLIENT" | "COACH" |
 // "ADMIN") o null: comparar sin distinguir mayúsculas. Los últimos tres solo
 // para atletas.
 class AuthMeDto {
@@ -11,6 +12,7 @@ class AuthMeDto {
     this.role,
     this.preferredWeightUnit,
     this.coachName,
+    this.exerciseFeedbackEnabled = false,
     this.bodyMeasurements = const [],
   });
 
@@ -22,8 +24,13 @@ class AuthMeDto {
   final WeightUnit? preferredWeightUnit;
   final String? coachName;
 
-  /// Claves de las medidas que pidió el coach (`BodyMeasurementKeys` de la API).
-  final List<String> bodyMeasurements;
+  /// El coach da feedback por ejercicio en el hilo de cada tarjeta de videos
+  /// (si no, responde en el chat general citándola).
+  final bool exerciseFeedbackEnabled;
+
+  /// Medidas que pidió el coach (estándar o creadas por él), en el orden del
+  /// catálogo.
+  final List<BodyMeasure> bodyMeasurements;
 
   bool get isAthlete => exists && role?.toLowerCase() == 'client';
 
@@ -35,9 +42,10 @@ class AuthMeDto {
         ? null
         : WeightUnit.parse(json['preferredWeightUnit'] as String),
     coachName: json['coachName'] as String?,
+    exerciseFeedbackEnabled: json['exerciseFeedbackEnabled'] as bool? ?? false,
     bodyMeasurements: [
-      for (final k in json['bodyMeasurements'] as List? ?? const [])
-        k as String,
+      for (final j in json['bodyMeasurements'] as List? ?? const [])
+        ?BodyMeasure.fromJson(j),
     ],
   );
 }

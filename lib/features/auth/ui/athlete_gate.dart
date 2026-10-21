@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/haki_colors.dart';
+import '../../../core/widgets/haki_loader.dart';
 import '../data/auth_repository.dart';
 import '../providers/auth_me_provider.dart';
 
@@ -29,7 +30,7 @@ class AthleteGate extends ConsumerWidget {
           text: 'No se pudo conectar. Revisá tu conexión e intentá de nuevo.',
           onRetry: () => ref.invalidate(authMeProvider),
         ),
-      _ => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      _ => const Scaffold(body: Center(child: LoadingView())),
     };
   }
 }

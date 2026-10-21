@@ -1,5 +1,4 @@
 import '../../../core/units/weight_unit.dart';
-import 'body_measures.dart';
 
 // Un registro de GET body-logs/{clientId} (uno por día). Peso y masa muscular
 // vienen en kg; weightUnit = unidad en que se ingresó el peso.
@@ -16,7 +15,7 @@ class BodyLogDto {
   final double? weightKg;
   final WeightUnit weightUnit;
 
-  /// Clave de [bodyMeasures] → valor (cm, %, kg o nivel). Solo las que tienen dato.
+  /// Clave de medida → valor (cm, mm, %, kg o nivel). Solo las que tienen dato.
   final Map<String, double> measures;
 
   factory BodyLogDto.fromJson(Map<String, dynamic> json) => BodyLogDto(
@@ -24,8 +23,8 @@ class BodyLogDto {
     weightKg: (json['weight'] as num?)?.toDouble(),
     weightUnit: WeightUnit.parse(json['weightUnit'] as String?),
     measures: {
-      for (final m in bodyMeasures)
-        if (json[m.key] != null) m.key: (json[m.key] as num).toDouble(),
+      for (final e in (json['values'] as Map? ?? const {}).entries)
+        e.key as String: (e.value as num).toDouble(),
     },
   );
 }

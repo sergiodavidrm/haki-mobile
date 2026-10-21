@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../auth/data/auth_repository.dart';
+import '../../chat/providers/chat_providers.dart';
+import '../data/video_files.dart';
 import 'rest_timer.dart';
 import 'session_providers.dart';
 
@@ -28,6 +30,10 @@ void localDataGuard(Ref ref) {
     if (owner == userId) return;
     if (owner != null) {
       await db.wipe();
+      // El chat del usuario anterior
+      await ref.read(streamClientProvider).disconnectUser();
+      ref.invalidate(generalChannelProvider);
+      await deleteAllVideoFiles();
       ref.invalidate(dayWeightUnitProvider);
       ref.invalidate(exerciseUnitOverridesProvider);
       ref.read(restTimerProvider.notifier).reset();

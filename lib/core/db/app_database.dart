@@ -51,6 +51,38 @@ class LocalSets extends Table {
   DateTimeColumn get updatedAt => dateTime()();
   BoolColumn get synced => boolean().withDefault(const Constant(false))();
 
+  /// Id del set-log en la API (lo devuelve el upsert; lo usan los videos).
+  TextColumn get remoteId => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {assignmentId, dayExerciseId, setNumber};
+}
+
+/// Cola de videos de series (ver CLAUDE.md § Subida de videos). Una fila por
+/// serie: grabar de nuevo pisa la fila. Pasos: recortar y comprimir → subir a Cloudinary
+/// (guarda [uploadedUrl]) → PATCH a la API (marca [done] y borra el archivo).
+/// Las filas [done] quedan para que la Sesión muestre la cámara como enviada
+/// sin recargar el programa.
+class LocalVideos extends Table {
+  TextColumn get assignmentId => text()();
+  TextColumn get dayId => text()();
+  TextColumn get dayExerciseId => text()();
+  IntColumn get setNumber => integer()();
+
+  /// Id del set-log, si ya se conocía al grabar (serie que vino de la API).
+  TextColumn get setLogId => text().nullable()();
+
+  /// Archivo en la carpeta de la app; null cuando ya se subió.
+  TextColumn get filePath => text().nullable()();
+  BoolColumn get compressed => boolean().withDefault(const Constant(false))();
+
+  /// Tramo elegido en Recortar video (ms); null = el video entero.
+  IntColumn get trimStartMs => integer().nullable()();
+  IntColumn get trimEndMs => integer().nullable()();
+  TextColumn get uploadedUrl => text().nullable()();
+  BoolColumn get done => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime()();
+
   @override
   Set<Column> get primaryKey => {assignmentId, dayExerciseId, setNumber};
 }
@@ -67,24 +99,39 @@ class CachedResponses extends Table {
 }
 
 @DriftDatabase(
-  tables: [LocalSessions, LocalExerciseLogs, LocalSets, CachedResponses],
+  tables: [
+    LocalSessions,
+    LocalExerciseLogs,
+    LocalSets,
+    CachedResponses,
+    LocalVideos,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
     : super(executor ?? driftDatabase(name: 'haki'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
       if (from < 2) await m.createTable(cachedResponses);
+      if (from < 3) {
+        await m.addColumn(localSets, localSets.remoteId);
+        await m.createTable(localVideos);
+      }
+      if (from == 3) {
+        await m.addColumn(localVideos, localVideos.trimStartMs);
+        await m.addColumn(localVideos, localVideos.trimEndMs);
+      }
     },
   );
 
   /// Borra todo lo local (cerrar sesión / entra otro usuario).
   Future<void> wipe() => transaction(() async {
+    await delete(localVideos).go();
     await delete(localSets).go();
     await delete(localExerciseLogs).go();
     await delete(localSessions).go();

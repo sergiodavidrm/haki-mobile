@@ -12,6 +12,7 @@ import '../../auth/providers/auth_me_provider.dart';
 import '../data/body_measures.dart';
 import '../providers/body_providers.dart';
 import 'body_widgets.dart';
+import '../../../l10n/l10n.dart';
 
 // Medidas que eligió el coach: último valor de cada una y la diferencia con
 // su registro anterior. Tocar una abre su historial; abajo, los registros
@@ -41,9 +42,9 @@ class MeasuresScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: BackHeader(title: 'Medidas', titleSize: 22),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: BackHeader(title: context.l10n.measuresTitle, titleSize: 22),
             ),
             Expanded(
               child: switch (logs) {
@@ -60,7 +61,7 @@ class MeasuresScreen extends ConsumerWidget {
                     children: [
                       if (measures.isEmpty)
                         Text(
-                          'Tu coach todavía no eligió medidas para tu seguimiento.',
+                          context.l10n.measuresNoneChosen,
                           style: TextStyle(color: c.textMuted),
                         )
                       else ...[
@@ -70,8 +71,8 @@ class MeasuresScreen extends ConsumerWidget {
                         ],
                         Text(
                           lastDate == null
-                              ? 'Todavía no registraste medidas'
-                              : 'Último registro · ${formatDayMonth(lastDate)}',
+                              ? context.l10n.measuresNoneYet
+                              : context.l10n.lastEntry(formatDayMonth(lastDate)),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -184,7 +185,7 @@ class MeasuresScreen extends ConsumerWidget {
                               padding: EdgeInsets.zero,
                               minimumSize: const Size(0, 44),
                             ),
-                            child: const Text('Ver registros anteriores'),
+                            child: Text(context.l10n.measuresSeePrevious),
                           ),
                         ),
                       ],
@@ -192,7 +193,7 @@ class MeasuresScreen extends ConsumerWidget {
                   ),
                 ),
                 AsyncError() => _Message(
-                  'No pudimos cargar tus medidas. Revisá tu conexión.',
+                  context.l10n.measuresLoadError,
                 ),
                 _ => const Center(child: CircularProgressIndicator()),
               },
@@ -202,7 +203,7 @@ class MeasuresScreen extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 child: FilledButton(
                   onPressed: () => context.push(Routes.logMeasures()),
-                  child: const Text('Registrar medidas'),
+                  child: Text(context.l10n.measuresLog),
                 ),
               ),
           ],
@@ -242,7 +243,7 @@ class _CoachNote extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              '$first eligió estas medidas para tu seguimiento.',
+              context.l10n.measuresChosenBy(first),
               style: TextStyle(fontSize: 13, height: 1.4, color: c.text),
             ),
           ),

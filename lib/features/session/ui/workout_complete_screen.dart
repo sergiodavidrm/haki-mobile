@@ -9,6 +9,7 @@ import '../../../core/widgets/haki_card.dart';
 import '../../program/providers/program_providers.dart';
 import '../data/session_plan.dart';
 import '../providers/session_providers.dart';
+import '../../../l10n/l10n.dart';
 
 // Resumen al finalizar el entreno. Del mockup quedan afuera hasta que haya
 // backend: +XP, nuevo PR, subida de videos, RPE de la sesión y nota al coach.
@@ -49,7 +50,7 @@ class WorkoutCompleteScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Entreno completado',
+                context.l10n.workoutCompleted,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 28,
@@ -61,7 +62,7 @@ class WorkoutCompleteScreen extends ConsumerWidget {
               if (day != null) ...[
                 const SizedBox(height: 8),
                 Text(
-                  '${day.day.title} · Semana ${day.week.weekNumber}',
+                  '${day.day.title} · ${context.l10n.weekN(day.week.weekNumber)}',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14, color: c.textMuted),
                 ),
@@ -70,7 +71,7 @@ class WorkoutCompleteScreen extends ConsumerWidget {
               switch (summary) {
                 AsyncData(:final value) => _Stats(summary: value),
                 AsyncError() => Text(
-                  'No se pudo calcular el resumen.',
+                  context.l10n.summaryError,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: c.textMuted),
                 ),
@@ -87,7 +88,7 @@ class WorkoutCompleteScreen extends ConsumerWidget {
                   ref.invalidate(programSectionsProvider);
                   context.go(Routes.home);
                 },
-                child: const Text('Listo'),
+                child: Text(context.l10n.commonDone),
               ),
             ],
           ),
@@ -114,7 +115,7 @@ class _Stats extends StatelessWidget {
       children: [
         Expanded(
           child: _Stat(
-            label: 'Duración',
+            label: context.l10n.restDuration,
             value: s.duration == null ? '—' : '${s.duration!.inMinutes}',
             suffix: s.duration == null ? null : ' min',
           ),
@@ -122,7 +123,7 @@ class _Stats extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: _Stat(
-            label: 'Series',
+            label: context.l10n.statSets,
             value: '${s.setsDone}',
             suffix: '/${s.setsTotal}',
           ),
@@ -130,7 +131,7 @@ class _Stats extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: _Stat(
-            label: 'Volumen',
+            label: context.l10n.statVolume,
             value: s.volume == 0 ? '—' : volume,
             suffix: s.volume == 0 ? null : ' $volumeUnit',
           ),

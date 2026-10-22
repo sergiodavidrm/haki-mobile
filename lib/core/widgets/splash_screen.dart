@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/haki_colors.dart';
 import 'haki_logo.dart';
+import '../../l10n/l10n.dart';
 
 /// Splash del mockup: isotipo grande con brillo que late, "haki" + "FITNESS
 /// COACHING" subiendo y el slogan abajo (con un poco de demora). El nativo
@@ -103,7 +104,7 @@ class _SplashScreenState extends State<SplashScreen>
             bottom: 72,
             child: _rising(
               Text(
-                'Voluntad sobre límites.',
+                context.l10n.slogan,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,

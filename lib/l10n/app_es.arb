@@ -1,0 +1,1053 @@
+{
+  "@@locale": "es",
+  "commonCancel": "Cancelar",
+  "commonSave": "Guardar",
+  "commonSaving": "Guardando…",
+  "errorOfflineRetry": "Sin conexión. Probá de nuevo.",
+  "settingsTitle": "Ajustes",
+  "settingsAccount": "Cuenta",
+  "settingsChangePassword": "Cambiar contraseña",
+  "settingsTraining": "Entreno",
+  "settingsWeightUnit": "Unidad de peso",
+  "settingsWeightUnitHint": "Con la que arranca cada sesión",
+  "settingsRestVibration": "Vibrar al terminar el descanso",
+  "settingsAppearance": "Apariencia",
+  "settingsTheme": "Tema",
+  "settingsSystem": "Sistema",
+  "settingsThemeLight": "Claro",
+  "settingsThemeDark": "Oscuro",
+  "settingsLanguage": "Idioma",
+  "settingsSignOut": "Cerrar sesión",
+  "passwordMinLength": "Usá al menos 6 caracteres.",
+  "passwordsDontMatch": "Las contraseñas no coinciden.",
+  "passwordUpdated": "Contraseña actualizada",
+  "passwordNew": "Nueva contraseña",
+  "passwordRepeat": "Repetí la contraseña",
+  "passwordSame": "Tiene que ser distinta a la actual.",
+  "passwordWeak": "Es muy débil. Probá con una más larga.",
+  "passwordReauth": "Por seguridad, cerrá sesión, volvé a entrar y probá de nuevo.",
+  "passwordChangeFailed": "No pudimos cambiarla. Probá de nuevo.",
+  "signOutPendingTitle": "Tenés entrenos sin subir",
+  "signOutPendingBody": "Hay series guardadas en el teléfono que todavía no llegaron a tu coach. Si cerrás sesión ahora se pierden. Conectate a internet y esperá a que se suban.",
+  "signOutAnyway": "Cerrar igual",
+  "commonOffline": "Sin conexión",
+  "commonToday": "Hoy",
+  "commonNext": "Siguiente",
+  "commonBack": "Volver",
+  "errorGeneric": "Algo salió mal. Probá de nuevo.",
+  "slogan": "Voluntad sobre límites.",
+  "loadingTitle": "Cargando tu semana…",
+  "loadingSubtitle": "Sincronizando tu programa con tu coach",
+  "tabToday": "Hoy",
+  "tabProgram": "Programa",
+  "tabChat": "Chat",
+  "tabProfile": "Perfil",
+  "homeGreeting": "Hola, {name}",
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeLoadErrorTitle": "No pudimos cargar tu programa",
+  "homeLoadErrorBody": "Revisá tu conexión y deslizá hacia abajo para reintentar.",
+  "homeYourProgram": "Tu programa",
+  "homeNoProgramTitle": "Todavía no tenés un programa",
+  "homeNoProgramBody": "Cuando tu coach te asigne uno, aparece acá.",
+  "homeUpcoming": "Próximo",
+  "homeStartsOn": "Empieza el {date}.",
+  "@homeStartsOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "homeRestLabel": "Hoy · Descanso",
+  "homeRestTitle": "Día de descanso",
+  "homeRestNext": "Próximo: {title} · {date}",
+  "@homeRestNext": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "homeRestPreparing": "Tu coach está preparando lo que sigue.",
+  "weekOfTotal": "Semana {week} de {total}",
+  "@weekOfTotal": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "weekOfProgram": "Semana {week} del programa",
+  "@weekOfProgram": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "homeWeekDoneTitle": "Semana completa",
+  "homeWeekDoneBody": "Hiciste todos los entrenos de esta semana. La que viene sigue el programa.",
+  "homeProgramDoneLabel": "Programa terminado",
+  "homeProgramDoneBody": "Completaste el bloque. Tu coach te va a asignar el próximo.",
+  "homeYourProfile": "Tu perfil",
+  "homeDayPreparing": "Tu coach lo está preparando.",
+  "stripDone": "entreno hecho",
+  "stripPlanned": "entreno",
+  "stripNone": "sin entreno",
+  "workoutsDoneOf": "{done} de {total} entrenos",
+  "@workoutsDoneOf": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "exercisesCount": "{count, plural, =1{1 ejercicio} other{{count} ejercicios}}",
+  "@exercisesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "supersetsCount": "{count, plural, =1{1 superserie} other{{count} superseries}}",
+  "@supersetsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "videosRequestedCount": "{count, plural, =1{1 video pedido} other{{count} videos pedidos}}",
+  "@videosRequestedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutCompleted": "Entreno completado",
+  "workoutContinue": "Continuar entreno",
+  "workoutStart": "Empezar entreno",
+  "programsMine": "Mis programas",
+  "programsLoadError": "No pudimos cargar tus programas",
+  "programsYours": "Tus programas",
+  "programsNoneTitle": "Todavía no tenés programas",
+  "programInProgress": "En curso",
+  "programsUpcoming": "{count, plural, =1{Próximo} other{Próximos}}",
+  "@programsUpcoming": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "programsPast": "Anteriores",
+  "weeksCount": "{count, plural, =1{1 semana} other{{count} semanas}}",
+  "@weeksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weekN": "Semana {week}",
+  "@weekN": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "programSince": "Desde {date}",
+  "@programSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "commonNoDates": "sin fechas",
+  "commonNoDate": "Sin fecha",
+  "programStartsOn": "empieza el {date}",
+  "@programStartsOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "assignDates": "Asignar fechas",
+  "changeDates": "Cambiar fechas",
+  "programAdherence": "adherencia",
+  "programCurrentBlock": "Bloque actual",
+  "programFinished": "Terminado",
+  "programsAll": "Todos mis programas",
+  "programWeekPreparing": "Tu coach está preparando esta semana.",
+  "programDayPreparing": "Tu coach lo está preparando",
+  "dayDone": "Hecho",
+  "minutesShort": "{minutes} min",
+  "@minutesShort": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "commonOptional": "opcional",
+  "programLoadError": "No pudimos cargar el programa. Revisá tu conexión.",
+  "datesSaved": "Fechas guardadas",
+  "datesSave": "Guardar fechas",
+  "datesSkip": "Ahora no · entrenar sin fechas",
+  "datesStepStart": "1 · ¿Cuándo empezás?",
+  "datesStartsOn": "Empieza el",
+  "datesEndsOn": "termina el {date}",
+  "@datesEndsOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "datesMoveHint": "Cambiar el inicio mueve en qué semana del programa estás.",
+  "datesStepDays": "2 · ¿Qué día hacés cada entreno?",
+  "datesRepeatHint": "Se repite igual todas las semanas del bloque.",
+  "datesNoWorkouts": "Tu coach todavía no armó los entrenos de este programa.",
+  "datesTooMany": "Este programa tiene más de 7 entrenos por semana: pedile a tu coach que asigne las fechas.",
+  "monthPrev": "Mes anterior",
+  "monthNext": "Mes siguiente",
+  "datesDayOn": "{title} el {weekday}",
+  "@datesDayOn": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "datesFirstOccurrence": "1.º: ",
+  "sessionTitle": "Sesión",
+  "sessionLoadError": "No pudimos cargar la sesión. Revisá tu conexión.",
+  "sessionDayGone": "Este día ya no está en el programa.",
+  "sessionCompleted": "Completada",
+  "sessionNoSets": "Sin series registradas",
+  "sessionYourNote": "Tu nota",
+  "sessionViewSetVideo": "Ver video de la serie {set}",
+  "@sessionViewSetVideo": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionVideosSoon": "Ver videos va a estar disponible pronto",
+  "dayN": "Día {day}",
+  "@dayN": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionOpenError": "No se pudo abrir la sesión.",
+  "sessionDoneSeeSummary": "Entreno completado · ver resumen",
+  "sessionFinish": "Finalizar entreno",
+  "videoLogSetFirst": "Registrá la serie antes de subir el video.",
+  "videoUploadingReplace": "El video se está subiendo. Si grabás otro, lo reemplaza.",
+  "videoUploadQuestion": "¿Subir video?",
+  "videoNotRequested": "Tu entrenador no solicitó video para esta serie. ¿Deseás subirlo?",
+  "videoUpload": "Subir video",
+  "videoAlreadySent": "Ya enviaste un video de esta serie",
+  "videoReplaces": "El nuevo lo reemplaza.",
+  "videoRecord": "Grabar",
+  "videoPickGallery": "Elegir de la galería",
+  "videoQueued": "Video en la cola: se sube solo, aunque cierres la app.",
+  "restSetDone": "Serie {set} hecha",
+  "@restSetDone": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "supersetN": "Superserie {letter}",
+  "@supersetN": {
+    "placeholders": {
+      "letter": {
+        "type": "String"
+      }
+    }
+  },
+  "restSupersetMid": "{badge} hecha · seguí sin pausa",
+  "@restSupersetMid": {
+    "placeholders": {
+      "badge": {
+        "type": "String"
+      }
+    }
+  },
+  "restBadgesDone": "{count, plural, =1{{badges} hecha} other{{badges} hechas}}",
+  "@restBadgesDone": {
+    "placeholders": {
+      "badges": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "restBeforeRepeat": "{done} · descansá antes de repetir",
+  "@restBeforeRepeat": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      }
+    }
+  },
+  "finishQuestion": "¿Finalizar el entreno?",
+  "finishMissingSets": "{count, plural, =1{Te falta registrar 1 serie.} other{Te faltan registrar {count} series.}}",
+  "@finishMissingSets": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "finishKeepTraining": "Seguir entrenando",
+  "finish": "Finalizar",
+  "sessionJustStarted": "recién empezado",
+  "sessionTrainingFor": "entrenando hace {minutes} min",
+  "@sessionTrainingFor": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "countOf": "{done} de {total}",
+  "@countOf": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionPendingSync": "{count, plural, =1{1 serie guardada en el teléfono · se sube al tener señal} other{{count} series guardadas en el teléfono · se suben al tener señal}}",
+  "@sessionPendingSync": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionUnitHint": "Tocá la unidad de un ejercicio para cambiarla solo en ese.",
+  "sessionDayUnit": "Unidad de peso del día",
+  "supersetNoRest": "Sin pausa entre {items}",
+  "@supersetNoRest": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "tapToOpen": "Tocá para abrir",
+  "commonAnd": "y",
+  "restAgain": "Otra vez",
+  "restPause": "Pausar",
+  "restResume": "Seguir",
+  "restStart": "Iniciar",
+  "restMinimize": "Minimizar timer",
+  "restTitle": "Descanso",
+  "restGo": "¡A darle!",
+  "restPaused": "En pausa",
+  "restOf": "de {total}",
+  "@restOf": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "restDuration": "Duración",
+  "restDurationHint": "Se recuerda la última que usaste",
+  "restMinus15": "Restar 15 segundos",
+  "restPlus15": "Sumar 15 segundos",
+  "restReset": "Reiniciar",
+  "restSkip": "Saltar descanso",
+  "restOfDuration": "Descanso de {time}",
+  "@restOfDuration": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "setN": "Serie {set}",
+  "@setN": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "restTimer": "Timer de descanso",
+  "restOpenTimer": "Abrir timer de descanso",
+  "restThen": "Luego: {exercise} · serie {set}",
+  "@restThen": {
+    "placeholders": {
+      "exercise": {
+        "type": "String"
+      },
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "restResetRest": "Reiniciar descanso",
+  "restPauseRest": "Pausar descanso",
+  "restResumeRest": "Seguir descanso",
+  "restCloseTimer": "Cerrar timer",
+  "setHeader": "SERIE",
+  "targetHeaderShort": "OBJ.",
+  "targetHeader": "OBJETIVO",
+  "repsHeader": "REPS",
+  "setWeightLabel": "Peso de la serie {set} en {unit}",
+  "@setWeightLabel": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "setRepsLabel": "Repeticiones de la serie {set}",
+  "@setRepsLabel": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "setRirLabel": "RIR de la serie {set}",
+  "@setRirLabel": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "setLog": "Cargar serie {set}",
+  "@setLog": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "setEdit": "Editar serie {set}",
+  "@setEdit": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "setVideoUploading": "Video de la serie {set} subiéndose",
+  "@setVideoUploading": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "setVideoSent": "Video de la serie {set} enviado, tocar para reemplazarlo",
+  "@setVideoSent": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "setVideoRequested": "Subir video de la serie {set}, pedido por tu coach",
+  "@setVideoRequested": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "setVideoNotRequested": "Subir video de la serie {set} (tu coach no lo pidió)",
+  "@setVideoNotRequested": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryError": "No se pudo calcular el resumen.",
+  "commonDone": "Listo",
+  "statSets": "Series",
+  "statVolume": "Volumen",
+  "videoRequestedSets": "{count, plural, =1{Tu coach pidió video de la serie {sets}. Tocá la cámara para grabar o subir.} other{Tu coach pidió video de las series {sets}. Tocá la cámara para grabar o subir.}}",
+  "@videoRequestedSets": {
+    "placeholders": {
+      "sets": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exerciseComplete": "Ejercicio completo",
+  "noSetsPrescribed": "Sin series prescritas",
+  "setsCount": "{count, plural, =1{1 serie} other{{count} series}}",
+  "@setsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "repsShort": "reps",
+  "setsDoneOf": "{done} de {total} series hechas",
+  "@setsDoneOf": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "exerciseUnitLabel": "Unidad de este ejercicio: {unit}. Tocá para cambiar a {other}",
+  "@exerciseUnitLabel": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      },
+      "other": {
+        "type": "String"
+      }
+    }
+  },
+  "trimTitle": "Recortar video",
+  "trimOpenError": "No se pudo abrir el video.",
+  "trimMax": "Máximo {seconds} segundos",
+  "@trimMax": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "trimUse": "Usar video",
+  "notifRestDoneQuietChannel": "Fin del descanso (sin vibrar)",
+  "notifRestDoneChannel": "Fin del descanso",
+  "notifRestDoneChannelDesc": "Aviso con sonido cuando termina el descanso",
+  "notifBackToWorkout": "Tocá para volver al entreno",
+  "notifRestRunningChannel": "Descanso en curso",
+  "notifRestRunningChannelDesc": "Cuenta regresiva del descanso entre series",
+  "notifRestOver": "Terminó el descanso",
+  "notifRestPaused": "Descanso en pausa",
+  "notifNextSet": "Sigue: {exercise} · serie {set}",
+  "@notifNextSet": {
+    "placeholders": {
+      "exercise": {
+        "type": "String"
+      },
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "exerciseTitle": "Ejercicio",
+  "exerciseGone": "Este ejercicio ya no está en el día.",
+  "exerciseVideoFeedback": "Feedback de tu video · {title}",
+  "@exerciseVideoFeedback": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "exerciseHistory": "Historial",
+  "commonLoading": "Cargando…",
+  "exerciseNeverDone": "Todavía no hiciste este ejercicio.",
+  "exerciseOfflineHistory": "Sin conexión: se muestra solo lo de este programa.",
+  "exercisePlayTechnique": "Reproducir video técnico",
+  "exerciseTechniqueVideo": "Video técnico",
+  "exerciseHowTo": "Cómo se hace",
+  "seeLess": "Ver menos",
+  "seeMore": "Ver más",
+  "exerciseCoachNote": "NOTA DE TU COACH",
+  "exerciseE1rmEstimated": "e1RM ESTIMADO",
+  "exerciseNewPr": "NUEVO PR",
+  "exerciseTrend": "Tendencia de e1RM: de {from} a {to} en {count} sesiones",
+  "@exerciseTrend": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exerciseInBlock": "{delta} en el bloque",
+  "@exerciseInBlock": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "exerciseVolumeToday": "Volumen hoy {volume}",
+  "@exerciseVolumeToday": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "loadMore": "Cargar más ({count})",
+  "@loadMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weekLastShort": "Sem. pasada",
+  "weekShortN": "Sem. {week}",
+  "@weekShortN": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "weekLetter": "S{week}",
+  "@weekLetter": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "lastTime": "Última vez",
+  "coachLabel": "Coach: {name}",
+  "@coachLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "streakWeeksInARow": "{count, plural, =1{1 semana seguida} other{{count} semanas seguidas}}",
+  "@streakWeeksInARow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakStart": "Arrancá tu racha",
+  "streakThisWeek": "Esta semana: {done} de {target}",
+  "@streakThisWeek": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "streakBest": "Tu mejor racha: {weeks}",
+  "@streakBest": {
+    "placeholders": {
+      "weeks": {
+        "type": "String"
+      }
+    }
+  },
+  "recordsTitle": "Récords",
+  "recordsBestMarks": "Tus mejores marcas",
+  "recordsInTotal": "en total",
+  "recordsInBlock": "en este bloque",
+  "recordsRecent": "PRs recientes",
+  "bodyWeight": "Peso corporal",
+  "bodyLogWeight": "Registrá tu peso",
+  "bodyIn4Weeks": "en 4 sem",
+  "measuresTitle": "Medidas",
+  "measuresCount": "{count, plural, =1{1 medida} other{{count} medidas}}",
+  "@measuresCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "measuresNoLogs": "sin registros",
+  "adherenceTitle": "Adherencia",
+  "adherenceNoProgram": "Sin programa en curso",
+  "adherenceDoneOf": "{done} de {due} entrenos en el programa",
+  "@adherenceDoneOf": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "due": {
+        "type": "int"
+      }
+    }
+  },
+  "ofTotal": "de {total}",
+  "@ofTotal": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "adherenceWorkoutsDone": "entrenos hechos",
+  "recordsPersonal": "Récords personales",
+  "recordsThisBlock": "Este bloque",
+  "recordsAllTime": "Histórico",
+  "recordsHint": "Mejor e1RM estimado por ejercicio, calculado de tus series registradas.",
+  "recordsThisWeek": "ESTA SEMANA",
+  "recordsInThisBlockUpper": "EN ESTE BLOQUE",
+  "recordsPreviousUpper": "ANTERIORES",
+  "recordsEmpty": "Seguí registrando tus series: cada vez que superás tu mejor marca aparece acá.",
+  "recordsLoadError": "No se pudieron cargar tus récords. Revisá tu conexión.",
+  "commonYesterday": "ayer",
+  "measureGroupTorso": "Tronco",
+  "measureGroupLimbs": "Brazos y piernas",
+  "measureGroupComposition": "Composición",
+  "measureGroupOther": "Otras",
+  "measureUnitLevel": "nivel",
+  "range4Weeks": "4 sem",
+  "range3Months": "3 meses",
+  "rangeAll": "Todo",
+  "measureNeck": "Cuello",
+  "measureChest": "Pecho",
+  "measureLeftArm": "Brazo izquierdo",
+  "measureRightArm": "Brazo derecho",
+  "measureLeftForearm": "Antebrazo izquierdo",
+  "measureRightForearm": "Antebrazo derecho",
+  "measureWaist": "Cintura",
+  "measureAbdomen": "Abdomen",
+  "measureHips": "Cadera",
+  "measureLeftThigh": "Muslo izquierdo",
+  "measureRightThigh": "Muslo derecho",
+  "measureLeftCalf": "Pantorrilla izquierda",
+  "measureRightCalf": "Pantorrilla derecha",
+  "measureBodyFat": "Grasa corporal",
+  "measureMuscleMass": "Masa muscular",
+  "measureVisceralFat": "Grasa visceral",
+  "bodyNoWeightYet": "Todavía no registraste tu peso.",
+  "bodyNoMeasureYet": "Todavía no registraste esta medida.",
+  "bodyWeightShort": "Peso",
+  "bodyLoadError": "No pudimos cargar tus datos. Revisá tu conexión.",
+  "bodyLogWeightButton": "Registrar peso",
+  "measuresLog": "Registrar medidas",
+  "lastEntry": "Último registro · {date}",
+  "@lastEntry": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rangeIn4Weeks": "en 4 semanas",
+  "rangeIn3Months": "en 3 meses",
+  "rangeSinceStart": "desde el inicio",
+  "bodyTwoEntriesHint": "Con dos registros en este rango vas a ver el gráfico.",
+  "bodyTrend": "{title} de {from} a {to}",
+  "@bodyTrend": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyLast": "Último: {value}",
+  "@bodyLast": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "measuresNoneChosen": "Tu coach todavía no eligió medidas para tu seguimiento.",
+  "measuresNoneYet": "Todavía no registraste medidas",
+  "measuresSeePrevious": "Ver registros anteriores",
+  "measuresLoadError": "No pudimos cargar tus medidas. Revisá tu conexión.",
+  "measuresChosenBy": "{coach} eligió estas medidas para tu seguimiento.",
+  "@measuresChosenBy": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
+  "measuresBlankHint": "Podés dejar en blanco las que no midas hoy.",
+  "measuresPrevious": "Anterior: {value}",
+  "@measuresPrevious": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "measuresLogs": "Registros de medidas",
+  "measuresNoneYetDot": "Todavía no registraste medidas.",
+  "yourCoach": "Tu coach",
+  "chatOpenError": "No se pudo abrir el chat.\nRevisá tu conexión.",
+  "commonRetry": "Reintentar",
+  "chatMessagesError": "No se pudieron cargar los mensajes.",
+  "chatEmpty": "Escribile a {coach}. Los videos de tus series también aparecen acá.",
+  "@chatEmpty": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
+  "chatMessageHint": "Mensaje…",
+  "feedbackWaiting": "Esperando feedback de {coach}",
+  "@feedbackWaiting": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
+  "you": "Vos",
+  "repliesCount": "{count, plural, =1{1 respuesta} other{{count} respuestas}}",
+  "@repliesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedbackSee": "Ver feedback",
+  "feedbackYourVideosUpper": "TUS VIDEOS",
+  "feedbackRepliesError": "No se pudieron cargar las respuestas.",
+  "feedbackNotReviewed": "Tu coach todavía no lo revisó",
+  "feedbackTellCoach": "Si querés contarle algo del ejercicio, escribilo acá.",
+  "feedbackReplyTo": "Responder a {coach}…",
+  "@feedbackReplyTo": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
+  "feedbackYourVideos": "Feedback de tus videos",
+  "videosCount": "{count, plural, =1{1 video} other{{count} videos}}",
+  "@videosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedbackNoneYet": "sin feedback todavía",
+  "feedbackMessagesCount": "{count, plural, =1{1 mensaje de feedback} other{{count} mensajes de feedback}}",
+  "@feedbackMessagesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedbackVideoNone": "Tu video todavía no tiene feedback",
+  "messagesCount": "{count, plural, =1{1 mensaje} other{{count} mensajes}}",
+  "@messagesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedbackSeeThread": "Ver hilo",
+  "see": "Ver",
+  "chatNotSent": "No se envió · Reintentar",
+  "chatSend": "Enviar",
+  "notifChatChannel": "Mensajes de tu coach",
+  "notifChatChannelDesc": "Chat y feedback de tu coach",
+  "notifVideosOf": "Videos de {exercise}",
+  "@notifVideosOf": {
+    "placeholders": {
+      "exercise": {
+        "type": "String"
+      }
+    }
+  },
+  "notifSentMessage": "Te mandó un mensaje",
+  "notifFeedbackFrom": "Feedback de {name}",
+  "@notifFeedbackFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "videoLoadError": "No se pudo cargar el video.",
+  "authEmail": "Email",
+  "authInvalidEmail": "Ingresá un email válido",
+  "authPassword": "Contraseña",
+  "authEnterPassword": "Ingresá tu contraseña",
+  "authSignIn": "Entrar",
+  "authContinueGoogle": "Continuar con Google",
+  "gateCoach": "Esta app es para atletas. Como coach, entrá desde hakifit.com.",
+  "gateNoCoach": "Tu cuenta no está asociada a ningún coach. Pedile a tu coach que te invite y entrá con el mismo email de la invitación.",
+  "gateConnectError": "No se pudo conectar. Revisá tu conexión e intentá de nuevo.",
+  "authWrongCredentials": "Email o contraseña incorrectos",
+  "authConfirmEmail": "Confirmá tu email antes de entrar",
+  "authGoogleError": "No se pudo entrar con Google. Intentá de nuevo.",
+  "authGenericError": "No se pudo iniciar sesión. Revisá tu conexión e intentá de nuevo.",
+  "sessionProgramNotCurrent": "El programa ya no está en curso.",
+  "commonClose": "Cerrar",
+  "commonYes": "Sí",
+  "commonNo": "No",
+  "commonSending": "Enviando…",
+  "questionnaireTitle": "Cuestionario",
+  "questionnaireAnswer": "Responder",
+  "questionnairePendingSince": "Pendiente desde {date} · 1 min",
+  "@questionnairePendingSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "questionnaireSentOn": "Enviado {date} · pendiente",
+  "@questionnaireSentOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "questionnaireIntro": "{coach} lo usa para ajustar tu próxima semana. Toma 1 minuto.",
+  "@questionnaireIntro": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
+  "questionnaireWorst": "Peor",
+  "questionnaireBest": "Mejor",
+  "questionnaireDetailHint": "Contale más: dónde, cuándo, en qué ejercicio…",
+  "questionnaireTextHint": "Escribí tu respuesta",
+  "questionnaireSend": "Enviar",
+  "questionnaireSendTo": "Enviar a {coach}",
+  "@questionnaireSendTo": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
+  "questionnaireSent": "¡Listo! Tu coach ya tiene tus respuestas.",
+  "questionnaireNotFound": "Este cuestionario ya fue respondido o tu coach lo quitó.",
+  "notifQuestionnaireChannel": "Cuestionarios",
+  "notifQuestionnaireChannelDesc": "Aviso cuando tu coach te envía un cuestionario",
+  "notifQuestionnaireBody": "Tu coach te mandó el cuestionario de la semana. Toma 1 minuto.",
+  "ofTotalShort": "{done} de {total}",
+  "@ofTotalShort": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "adherenceSets": "Series de tus entrenos",
+  "adherencePrevious": "Bloque anterior",
+  "adherenceNoPrevious": "Es tu primer bloque",
+  "adherenceByWeek": "Por semana",
+  "adherenceProgramWorkouts": "Entrenos del programa",
+  "adherenceMissed": "Sin completar",
+  "adherenceNotLogged": "no registrado",
+  "adherenceCurrentBlock": "BLOQUE ACTUAL",
+  "adherenceDoneUntilToday": "{done} de {due} entrenos hasta hoy",
+  "@adherenceDoneUntilToday": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "due": {
+        "type": "int"
+      }
+    }
+  },
+  "adherenceDoneOfTotal": "{done} de {total} entrenos hechos",
+  "@adherenceDoneOfTotal": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "adherenceLegendDone": "Hecho",
+  "adherenceLegendMissed": "No se hizo",
+  "adherenceLegendPending": "Pendiente",
+  "adherenceSetsFooter": "{done} de {total} · {workouts, plural, =0{sin entrenos todavía} =1{en el que hiciste} other{en los {workouts} que hiciste}}",
+  "@adherenceSetsFooter": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "workouts": {
+        "type": "int"
+      }
+    }
+  }
+}

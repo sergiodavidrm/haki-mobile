@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../core/theme/haki_colors.dart';
+import '../../../l10n/l10n.dart';
 
 /// Video de una serie a pantalla completa (desde Cloudinary). Tocar =
 /// play/pausa.
@@ -57,7 +58,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         child: _failed
             ? Center(
                 child: Text(
-                  'No se pudo cargar el video.',
+                  context.l10n.videoLoadError,
                   style: TextStyle(color: c.textMuted),
                 ),
               )

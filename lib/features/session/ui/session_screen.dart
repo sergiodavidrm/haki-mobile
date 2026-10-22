@@ -20,6 +20,7 @@ import '../providers/session_providers.dart';
 import 'exercise_block.dart';
 import 'video_trim_screen.dart';
 import 'rest_timer_widgets.dart';
+import '../../../l10n/l10n.dart';
 
 // Sesión de entreno: registrar series. Todo se guarda primero en el teléfono
 // (drift) y SessionSync lo sube; funciona sin señal.
@@ -74,7 +75,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Text(
-                'No se pudo abrir la sesión.\n$error',
+                '${context.l10n.sessionOpenError}\n$error',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: c.textMuted),
               ),
@@ -239,7 +240,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                     side: BorderSide(color: context.colors.turquoiseBorder),
                   ),
                   icon: const Icon(Icons.check_circle),
-                  label: const Text('Entreno completado · ver resumen'),
+                  label: Text(context.l10n.sessionDoneSeeSummary),
                 )
               else
                 OutlinedButton(
@@ -256,7 +257,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  child: const Text('Finalizar entreno'),
+                  child: Text(context.l10n.sessionFinish),
                 ),
             ],
           ),
@@ -276,28 +277,26 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     bool requested,
   ) async {
     if (saved == null) {
-      _snack('Registrá la serie antes de subir el video.');
+      _snack(context.l10n.videoLogSetFirst);
       return;
     }
     if (saved.videoUploading) {
-      _snack('El video se está subiendo. Si grabás otro, lo reemplaza.');
+      _snack(context.l10n.videoUploadingReplace);
     }
     if (!requested && !saved.hasVideo && !saved.videoUploading) {
       final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('¿Subir video?'),
-          content: const Text(
-            'Tu entrenador no solicitó video para esta serie. ¿Deseás subirlo?',
-          ),
+          title: Text(ctx.l10n.videoUploadQuestion),
+          content: Text(ctx.l10n.videoNotRequested),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancelar'),
+              child: Text(ctx.l10n.commonCancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Subir video'),
+              child: Text(ctx.l10n.videoUpload),
             ),
           ],
         ),
@@ -313,18 +312,18 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (saved.hasVideo)
-              const ListTile(
-                title: Text('Ya enviaste un video de esta serie'),
-                subtitle: Text('El nuevo lo reemplaza.'),
+              ListTile(
+                title: Text(ctx.l10n.videoAlreadySent),
+                subtitle: Text(ctx.l10n.videoReplaces),
               ),
             ListTile(
               leading: const Icon(Icons.videocam_outlined),
-              title: const Text('Grabar'),
+              title: Text(ctx.l10n.videoRecord),
               onTap: () => Navigator.pop(ctx, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.video_library_outlined),
-              title: const Text('Elegir de la galería'),
+              title: Text(ctx.l10n.videoPickGallery),
               onTap: () => Navigator.pop(ctx, ImageSource.gallery),
             ),
           ],
@@ -351,7 +350,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           trimStartMs: range.startMs,
           trimEndMs: range.endMs,
         );
-    _snack('Video en la cola: se sube solo, aunque cierres la app.');
+    if (mounted) _snack(context.l10n.videoQueued);
   }
 
   void _snack(String text) {
@@ -375,21 +374,19 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final String subtitle;
     if (g.letter == null) {
       title = e.exerciseName;
-      subtitle = 'Serie $setNumber hecha';
+      subtitle = context.l10n.restSetDone(setNumber);
     } else if (!rest) {
       // A mitad de ronda: lo que sigue va sin pausa
-      title = 'Superserie ${g.letter}';
-      subtitle = '${g.badgeOf(e)} hecha · seguí sin pausa';
+      title = context.l10n.supersetN(g.letter!);
+      subtitle = context.l10n.restSupersetMid(g.badgeOf(e) ?? e.exerciseName);
     } else {
       final badges = [
         for (final x in g.exercises)
           if (setCountOf(x) >= setNumber) g.badgeOf(x)!,
       ];
-      final done = badges.length == 1
-          ? '${badges.single} hecha'
-          : '${badges.sublist(0, badges.length - 1).join(', ')} y ${badges.last} hechas';
-      title = 'Superserie ${g.letter}';
-      subtitle = '$done · descansá antes de repetir';
+      final done = context.l10n.restBadgesDone(_joinAnd(badges), badges.length);
+      title = context.l10n.supersetN(g.letter!);
+      subtitle = context.l10n.restBeforeRepeat(done);
     }
     ref
         .read(restTimerProvider.notifier)
@@ -428,20 +425,16 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('¿Finalizar el entreno?'),
-          content: Text(
-            missingSets == 1
-                ? 'Te falta registrar 1 serie.'
-                : 'Te faltan registrar $missingSets series.',
-          ),
+          title: Text(ctx.l10n.finishQuestion),
+          content: Text(ctx.l10n.finishMissingSets(missingSets)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Seguir entrenando'),
+              child: Text(ctx.l10n.finishKeepTraining),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Finalizar'),
+              child: Text(ctx.l10n.finish),
             ),
           ],
         ),
@@ -483,9 +476,11 @@ class _Header extends StatelessWidget {
         ? null
         : DateTime.now().difference(startedAt!).inMinutes;
     final subtitle = [
-      'Semana $week',
+      context.l10n.weekN(week),
       if (minutes != null)
-        minutes < 1 ? 'recién empezado' : 'entrenando hace $minutes min',
+        minutes < 1
+            ? context.l10n.sessionJustStarted
+            : context.l10n.sessionTrainingFor(minutes),
     ].join(' · ');
 
     return Container(
@@ -499,7 +494,7 @@ class _Header extends StatelessWidget {
           Row(
             children: [
               IconButton(
-                tooltip: 'Volver',
+                tooltip: context.l10n.commonBack,
                 onPressed: () => context.pop(),
                 icon: const Icon(Icons.chevron_left, size: 28),
               ),
@@ -546,7 +541,7 @@ class _Header extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  '$done de $total',
+                  context.l10n.countOf(done, total),
                   style: TextStyle(
                     fontSize: 12,
                     color: c.textMuted,
@@ -562,8 +557,8 @@ class _Header extends StatelessWidget {
             padding: const EdgeInsets.only(left: 12, top: 8),
             child: Text(
               pendingSync > 0
-                  ? '$pendingSync ${pendingSync == 1 ? 'serie guardada' : 'series guardadas'} en el teléfono · se suben al tener señal'
-                  : 'Tocá la unidad de un ejercicio para cambiarla solo en ese.',
+                  ? context.l10n.sessionPendingSync(pendingSync)
+                  : context.l10n.sessionUnitHint,
               style: TextStyle(
                 fontSize: 11,
                 color: pendingSync > 0 ? c.goldBright : c.textMuted,
@@ -588,7 +583,7 @@ class _UnitSegment extends StatelessWidget {
     final c = context.colors;
     return Semantics(
       container: true,
-      label: 'Unidad de peso del día',
+      label: context.l10n.sessionDayUnit,
       child: Container(
         padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
@@ -662,7 +657,7 @@ class _SupersetCard extends StatelessWidget {
 
     return Semantics(
       container: true,
-      label: 'Superserie $letter',
+      label: context.l10n.supersetN(letter),
       child: HakiCard(
         tone: HakiCardTone.turquoise,
         radius: 22,
@@ -679,7 +674,7 @@ class _SupersetCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Superserie $letter',
+                        context.l10n.supersetN(letter),
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -687,7 +682,7 @@ class _SupersetCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Sin pausa entre ${_joinAnd(badges)}',
+                        context.l10n.supersetNoRest(_joinAnd(badges)),
                         style: TextStyle(fontSize: 12, color: c.turquoiseMuted),
                       ),
                     ],
@@ -735,7 +730,7 @@ class _CollapsedGroup extends StatelessWidget {
     final single = g.letter == null;
     final title = single
         ? g.exercises.single.exerciseName
-        : 'Superserie ${g.letter}';
+        : context.l10n.supersetN(g.letter!);
     final subtitle = single
         ? exerciseSummary(g.exercises.single)
         : g.exercises
@@ -744,7 +739,7 @@ class _CollapsedGroup extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: '$title. $subtitle. Tocá para abrir',
+      label: '$title. $subtitle. ${context.l10n.tapToOpen}',
       excludeSemantics: true,
       child: HakiCard(
         tone: single ? HakiCardTone.neutral : HakiCardTone.turquoise,
@@ -818,4 +813,4 @@ class _LetterTile extends StatelessWidget {
 
 String _joinAnd(List<String> items) => items.length == 1
     ? items.single
-    : '${items.sublist(0, items.length - 1).join(', ')} y ${items.last}';
+    : '${items.sublist(0, items.length - 1).join(', ')} ${l10n.commonAnd} ${items.last}';

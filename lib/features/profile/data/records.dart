@@ -5,6 +5,7 @@ import '../../../core/format/dates.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../program/data/program_schedule.dart';
+import '../../../l10n/l10n.dart';
 
 part 'records.g.dart';
 
@@ -100,8 +101,8 @@ recordSections(
 /// "hoy", "ayer" o "25 sep".
 String recordDateLabel(DateTime date, DateTime today) {
   final d = dateOnly(date).difference(dateOnly(today)).inDays;
-  if (d == 0) return 'hoy';
-  if (d == -1) return 'ayer';
+  if (d == 0) return l10n.commonToday.toLowerCase();
+  if (d == -1) return l10n.commonYesterday;
   return formatDayMonth(date);
 }
 

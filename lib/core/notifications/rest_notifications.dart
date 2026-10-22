@@ -7,6 +7,7 @@ import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'local_notifications.dart';
+import '../../l10n/l10n.dart';
 
 part 'rest_notifications.g.dart';
 
@@ -25,18 +26,18 @@ class RestNotifications {
   static const _doneId = 1002;
 
   // Android fija la vibración por canal: uno para cada opción de Ajustes
-  static const _doneNoVibration = NotificationDetails(
+  static NotificationDetails get _doneNoVibration => NotificationDetails(
     android: AndroidNotificationDetails(
       'rest_timer_done_quiet',
-      'Fin del descanso (sin vibrar)',
-      channelDescription: 'Aviso con sonido cuando termina el descanso',
+      l10n.notifRestDoneQuietChannel,
+      channelDescription: l10n.notifRestDoneChannelDesc,
       importance: Importance.max,
       priority: Priority.high,
       playSound: true,
       enableVibration: false,
       category: AndroidNotificationCategory.alarm,
     ),
-    iOS: DarwinNotificationDetails(
+    iOS: const DarwinNotificationDetails(
       presentAlert: true,
       presentBanner: true,
       presentSound: true,
@@ -44,18 +45,18 @@ class RestNotifications {
     ),
   );
 
-  static const _done = NotificationDetails(
+  static NotificationDetails get _done => NotificationDetails(
     android: AndroidNotificationDetails(
       'rest_timer_done',
-      'Fin del descanso',
-      channelDescription: 'Aviso con sonido cuando termina el descanso',
+      l10n.notifRestDoneChannel,
+      channelDescription: l10n.notifRestDoneChannelDesc,
       importance: Importance.max,
       priority: Priority.high,
       playSound: true,
       enableVibration: true,
       category: AndroidNotificationCategory.alarm,
     ),
-    iOS: DarwinNotificationDetails(
+    iOS: const DarwinNotificationDetails(
       presentAlert: true,
       presentBanner: true,
       presentSound: true,
@@ -105,13 +106,13 @@ class RestNotifications {
         final left = endsAt.difference(DateTime.now()).inMilliseconds;
         await _plugin.show(
           id: _runningId,
-          title: 'Descanso',
-          body: title ?? 'Tocá para volver al entreno',
+          title: l10n.restTitle,
+          body: title ?? l10n.notifBackToWorkout,
           notificationDetails: NotificationDetails(
             android: AndroidNotificationDetails(
               'rest_timer_running',
-              'Descanso en curso',
-              channelDescription: 'Cuenta regresiva del descanso entre series',
+              l10n.notifRestRunningChannel,
+              channelDescription: l10n.notifRestRunningChannelDesc,
               importance: Importance.low,
               priority: Priority.low,
               playSound: false,
@@ -131,10 +132,10 @@ class RestNotifications {
 
       await _plugin.zonedSchedule(
         id: _doneId,
-        title: '¡A darle!',
+        title: l10n.restGo,
         body: title == null
-            ? 'Terminó el descanso'
-            : 'Terminó el descanso · $title',
+            ? l10n.notifRestOver
+            : '${l10n.notifRestOver} · $title',
         scheduledDate: tz.TZDateTime.from(endsAt.toUtc(), tz.UTC),
         notificationDetails: vibrate ? _done : _doneNoVibration,
         androidScheduleMode: await _scheduleMode(),
@@ -171,13 +172,13 @@ class RestNotifications {
           '${leftSeconds ~/ 60}:${(leftSeconds % 60).toString().padLeft(2, '0')}';
       await _plugin.show(
         id: _runningId,
-        title: 'Descanso en pausa · $clock',
-        body: title ?? 'Tocá para volver al entreno',
-        notificationDetails: const NotificationDetails(
+        title: '${l10n.notifRestPaused} · $clock',
+        body: title ?? l10n.notifBackToWorkout,
+        notificationDetails: NotificationDetails(
           android: AndroidNotificationDetails(
             'rest_timer_running',
-            'Descanso en curso',
-            channelDescription: 'Cuenta regresiva del descanso entre series',
+            l10n.notifRestRunningChannel,
+            channelDescription: l10n.notifRestRunningChannelDesc,
             importance: Importance.low,
             priority: Priority.low,
             playSound: false,

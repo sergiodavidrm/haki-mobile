@@ -140,9 +140,33 @@ Paleta **Obsidian/Gold/Turquoise** (UI dark del atleta):
 - Preferir estilos del tema (`inputDecorationTheme`, `filledButtonTheme`…)
   antes que estilos inline.
 
-## Idioma
+## Idioma (es / en, 2026-10-21)
 
-UI en español por defecto.
+Flutter gen-l10n (`l10n.yaml`): textos en `lib/l10n/app_es.arb` (plantilla,
+con los `@metadatos` de placeholders) y `app_en.arb` (~360 claves, mismas en
+los dos; `flutter gen-l10n` falla si falta alguna). Los `app_localizations*.dart`
+son generados (se regeneran al compilar; se commitean).
+
+- **Idioma:** Ajustes → Apariencia → Idioma: Sistema / ES / EN
+  (`AppLanguageSetting`, shared_preferences `app_language`). Sistema = inglés si
+  el teléfono está en inglés, cualquier otro → español (`resolveLocale`). `main`
+  lo lee antes del primer frame.
+- **En widgets:** `context.l10n.clave` (se reconstruye al cambiar el idioma).
+  `const Text('...')` → `Text(context.l10n.x)` (sin const).
+- **Sin BuildContext** (formatos, mappers, notificaciones, errores): `l10n.clave`
+  de `lib/l10n/l10n.dart`, que usa el idioma activo (`setAppLocale`, lo fija
+  `MaterialApp.localeResolutionCallback`). El handler de push en segundo plano
+  (otro isolate) lee la preferencia y llama `setAppLocale` antes de armar la
+  notificación.
+- **Plurales** con ICU: `{count, plural, =1{1 serie} other{{count} series}}`.
+- **Fechas:** `core/format/dates.dart` con `intl` según el idioma (`main` y
+  `test/flutter_test_config.dart` llaman `initializeDateFormatting`); en
+  español sin punto y "sep" (no "sept").
+- **No se traduce** lo que escribe el coach (ejercicios, programas, notas,
+  chat, medidas personalizadas). Las 16 medidas estándar sí: `BodyMeasure.label`
+  = `name` del coach o la traducción por clave.
+- Tests de widgets: `MaterialApp` con `localizationsDelegates:
+  AppLocalizations.localizationsDelegates` (ver `program_screen_test.dart`).
 
 ## Unidades de peso (switch kg/lb)
 
@@ -349,6 +373,31 @@ pesado (grabación, galería, encuestas) y porque hay que pisar todo su diseño.
   desde Mac) y push del backend (no-chat). Decidido 2026-10-20: **no** hay mensajes por ejercicio sin video
   (para eso está el chat general).
 
+## Cuestionarios (2026-10-21)
+
+Los arma el coach en el web; reglas y backend en `../haki-api/CLAUDE.md`
+§ Cuestionarios. Mockup: "Hoy" (tarjeta, tweak `cuestionariosPendientes`) y
+"Cuestionario" del canvas Haki Mobile.
+
+- `GET questionnaires/me` (con `ApiCache`, se ve sin señal) → pendientes con
+  sus preguntas + `schedule` de semanales. `myQuestionnairesProvider`;
+  `questionnaireSyncProvider` (arranca en `app.dart`) recarga al volver a
+  primer plano y reprograma los avisos.
+- **Hoy:** una `PendingQuestionnaireCard` por pendiente, debajo de la tarjeta
+  del entreno, el más viejo primero. Quedan hasta que se envían (no vencen).
+- **Responder** (`/cuestionario/:responseId`, pantalla completa): Escala 1–5
+  ("Peor"/"Mejor" fijos), Sí/No con detalle si la pregunta lo pide, Texto. El
+  botón "Enviar a {coach}" se habilita con todas las obligatorias. Al enviar:
+  `POST questionnaires/me/responses/{id}`, `expire(wait: true)` del caché y
+  vuelve a Hoy sin la tarjeta.
+- **Aviso de las 20:00** (`core/notifications/questionnaire_reminders.dart`):
+  notificación local (el backend no manda push), las próximas 4 semanas de
+  cada semanal, ids 3000+, reprogramadas cada vez que llegan los
+  cuestionarios. Sin payload: tocarla abre la app en Hoy. El permiso se pide
+  una vez (misma clave `push_permission_asked` que el chat). Usa la hora del
+  teléfono; el backend crea el envío a las 20:00 de la zona del coach (iguales
+  en Costa Rica).
+
 ## Feedback del coach (hilos)
 
 El feedback por ejercicio vive en el **hilo** de la tarjeta de videos del
@@ -509,7 +558,12 @@ Perfil (`features/profile/` + `features/body/`, 2026-10-18):
   tarjetas Peso (último + sparkline + cambio en 4 sem), Medidas (cintura o la
   primera pedida, cantidad y fecha) y Adherencia (`currentAdherence`: hechos /
   días que ya tocaban del programa en curso, `adherenceOf`; sin calendario
-  muestra hechos / total). Arriba, tarjeta de **racha de semanas**
+  muestra hechos / total; tocarla abre **Adherencia**, `/perfil/adherencia`:
+  anillo con el % (cumplir el programa), "Series de tus entrenos" (solo de
+  los entrenos hechos, "85 de 85 · en los 5 que hiciste"), % del bloque anterior, una fila por
+  semana — hecho / no se hizo / hoy / pendiente — y "Sin completar" → Sesión
+  pasada; todo de `adherenceReport` sobre el detalle con las sesiones del
+  teléfono, sin red). Arriba, tarjeta de **racha de semanas**
   (`_StreakCard`: llama, "5 semanas seguidas" o "Arrancá tu racha", "Esta
   semana: 2 de 4 · Tu mejor racha: 8 semanas", una barrita por semana dorada
   si se cumplió; `GET progress/{id}/streak` vía `streakProvider`, sin red no

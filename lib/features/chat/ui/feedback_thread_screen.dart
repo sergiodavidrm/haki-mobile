@@ -8,6 +8,7 @@ import '../../../core/theme/haki_colors.dart';
 import '../../body/providers/body_providers.dart';
 import '../data/chat_message.dart';
 import 'chat_widgets.dart';
+import '../../../l10n/l10n.dart';
 
 // Feedback por ejercicio (coach con exerciseFeedbackEnabled): el hilo de la
 // tarjeta de videos. Igual al mockup "Hilo": tus videos + nota arriba, las
@@ -67,7 +68,7 @@ class _FeedbackRowState extends State<FeedbackRow> {
               Icon(Icons.schedule, size: 14, color: c.textMuted),
               const SizedBox(width: 8),
               Text(
-                'Esperando feedback de ${widget.coachName}',
+                context.l10n.feedbackWaiting(widget.coachName),
                 style: TextStyle(fontSize: 12, color: c.textMuted),
               ),
             ],
@@ -94,7 +95,7 @@ class _FeedbackRowState extends State<FeedbackRow> {
                 child: Row(
                   children: [
                     Text(
-                      '${last.user?.id == me ? 'Vos' : (last.user?.name ?? widget.coachName)}: ',
+                      '${last.user?.id == me ? context.l10n.you : (last.user?.name ?? widget.coachName)}: ',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -122,7 +123,7 @@ class _FeedbackRowState extends State<FeedbackRow> {
                   children: [
                     Expanded(
                       child: Text(
-                        '$count ${count == 1 ? 'respuesta' : 'respuestas'} · Ver feedback',
+                        '${context.l10n.repliesCount(count)} · ${context.l10n.feedbackSee}',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -188,8 +189,8 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
     final title = card?.exerciseName ?? 'Feedback';
     final subtitle = [
       'Feedback',
-      if (card?.weekNumber != null) 'Semana ${card!.weekNumber}',
-      if (card?.dayNumber != null) 'Día ${card!.dayNumber}',
+      if (card?.weekNumber != null) context.l10n.weekN(card!.weekNumber!),
+      if (card?.dayNumber != null) context.l10n.dayN(card!.dayNumber!),
       shortDate(sent),
     ].join(' · ');
 
@@ -208,7 +209,7 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
             children: [
               Expanded(
                 child: Text(
-                  'TUS VIDEOS',
+                  context.l10n.feedbackYourVideosUpper,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -237,7 +238,7 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
                   VideoThumb(
                     video: v,
                     label: v.label(unit),
-                    title: '${card.exerciseName} · Serie ${v.setNumber}',
+                    title: '${card.exerciseName} · ${context.l10n.setN(v.setNumber)}',
                   ),
               ],
             ),
@@ -250,7 +251,7 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
               TextSpan(
                 children: [
                   TextSpan(
-                    text: 'Tu nota: ',
+                    text: '${context.l10n.sessionYourNote}: ',
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: c.goldBright,
@@ -273,7 +274,7 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
     Widget reply(Message m) {
       final mine = m.user?.id == me;
       final at = m.createdAt.toLocal();
-      final who = mine ? 'Vos' : (m.user?.name ?? widget.coachName);
+      final who = mine ? context.l10n.you : (m.user?.name ?? widget.coachName);
       final head = Text.rich(
         TextSpan(
           children: [
@@ -324,7 +325,7 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    tooltip: 'Volver',
+                    tooltip: context.l10n.commonBack,
                     onPressed: () => Navigator.of(context).pop(),
                     icon: Icon(Icons.chevron_left, size: 28, color: c.text),
                   ),
@@ -360,7 +361,7 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
                     const Center(child: CircularProgressIndicator()),
                 errorBuilder: (_, _) => Center(
                   child: Text(
-                    'No se pudieron cargar las respuestas.',
+                    context.l10n.feedbackRepliesError,
                     style: TextStyle(color: c.textMuted),
                   ),
                 ),
@@ -372,7 +373,7 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
                     Icon(Icons.schedule, size: 28, color: c.turquoise),
                     const SizedBox(height: 8),
                     Text(
-                      'Tu coach todavía no lo revisó',
+                      context.l10n.feedbackNotReviewed,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 15,
@@ -382,7 +383,7 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Si querés contarle algo del ejercicio, escribilo acá.',
+                      context.l10n.feedbackTellCoach,
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 13, color: c.textMuted),
                     ),
@@ -422,7 +423,7 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
                                       horizontal: 10,
                                     ),
                                     child: Text(
-                                      '$total ${total == 1 ? 'respuesta' : 'respuestas'}',
+                                      context.l10n.repliesCount(total),
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: c.textMuted,
@@ -442,7 +443,7 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
               ),
             ),
             ChatComposer(
-              hint: 'Responder a ${widget.coachName}…',
+              hint: context.l10n.feedbackReplyTo(widget.coachName),
               onSend: (text) => channel.sendMessage(
                 Message(text: text, parentId: widget.parent.id),
               ),

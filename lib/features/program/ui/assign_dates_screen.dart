@@ -12,6 +12,7 @@ import '../data/assign_dates.dart';
 import '../data/assignment_dtos.dart';
 import '../data/program_schedule.dart';
 import '../providers/program_providers.dart';
+import '../../../l10n/l10n.dart';
 
 // Asignar (o cambiar) fechas: día de inicio + qué día de la semana se hace
 // cada entreno. Opcional: "Ahora no" deja el programa sin fechas.
@@ -43,7 +44,7 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     if (ok) {
-      messenger.showSnackBar(const SnackBar(content: Text('Fechas guardadas')));
+      messenger.showSnackBar(SnackBar(content: Text(context.l10n.datesSaved)));
       context.pop();
     } else {
       final error = ref.read(scheduleSaverProvider).error;
@@ -62,6 +63,7 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
     final p = detail.value;
     if (p != null) _init(p);
     final canSave = p != null && _weekDays!.isNotEmpty && !saving;
+    final l = context.l10n;
 
     return Scaffold(
       body: SafeArea(
@@ -69,8 +71,8 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           children: [
             BackHeader(
-              title: p?.hasDates == true ? 'Cambiar fechas' : 'Asignar fechas',
-              subtitle: p == null ? null : '${p.blockName} · opcional',
+              title: p?.hasDates == true ? l.changeDates : l.assignDates,
+              subtitle: p == null ? null : '${p.blockName} · ${l.commonOptional}',
               titleSize: 24,
             ),
             const SizedBox(height: 16),
@@ -78,7 +80,7 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
               ..._form(p)
             else if (detail.hasError)
               Text(
-                'No pudimos cargar el programa. Revisá tu conexión.',
+                l.programLoadError,
                 style: TextStyle(color: c.textMuted),
               )
             else
@@ -113,7 +115,7 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
                             color: c.onAccent,
                           ),
                         )
-                      : const Text('Guardar fechas'),
+                      : Text(l.datesSave),
                 ),
                 TextButton(
                   onPressed: saving ? null : () => context.pop(),
@@ -122,9 +124,7 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
                     minimumSize: const Size.fromHeight(44),
                   ),
                   child: Text(
-                    p?.hasDates == true
-                        ? 'Cancelar'
-                        : 'Ahora no · entrenar sin fechas',
+                    p?.hasDates == true ? l.commonCancel : l.datesSkip,
                   ),
                 ),
               ],
@@ -147,6 +147,7 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
     final titles = trainingDaysOf(p);
     final moved =
         p.startDate != null && start != p.startDate && dayCountsOf(p).$1 > 0;
+    final l = context.l10n;
 
     return [
       HakiCard(
@@ -156,7 +157,7 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
           children: [
             Row(
               children: [
-                const Expanded(child: SectionLabel('1 · ¿Cuándo empezás?')),
+                Expanded(child: SectionLabel(l.datesStepStart)),
                 _MonthNav(
                   month: _month!,
                   canBack: _month!.isAfter(
@@ -178,7 +179,7 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
               TextSpan(
                 style: TextStyle(fontSize: 13, color: c.textSecondary),
                 children: [
-                  const TextSpan(text: 'Empieza el '),
+                  TextSpan(text: '${l.datesStartsOn} '),
                   TextSpan(
                     text: formatShortDate(start),
                     style: TextStyle(
@@ -186,14 +187,14 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
                       color: c.goldBright,
                     ),
                   ),
-                  TextSpan(text: ' · termina el ${formatShortDate(end)}'),
+                  TextSpan(text: ' · ${l.datesEndsOn(formatShortDate(end))}'),
                 ],
               ),
             ),
             if (moved) ...[
               const SizedBox(height: 8),
               Text(
-                'Cambiar el inicio mueve en qué semana del programa estás.',
+                l.datesMoveHint,
                 style: TextStyle(fontSize: 12, color: c.textMuted),
               ),
             ],
@@ -201,18 +202,18 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
         ),
       ),
       const SizedBox(height: 20),
-      const SectionLabel('2 · ¿Qué día hacés cada entreno?'),
+      SectionLabel(l.datesStepDays),
       const SizedBox(height: 6),
       Text(
-        'Se repite igual todas las semanas del bloque.',
+        l.datesRepeatHint,
         style: TextStyle(fontSize: 13, height: 1.45, color: c.textMuted),
       ),
       const SizedBox(height: 10),
       if (_weekDays!.isEmpty)
         Text(
           titles.isEmpty
-              ? 'Tu coach todavía no armó los entrenos de este programa.'
-              : 'Este programa tiene más de 7 entrenos por semana: pedile a tu coach que asigne las fechas.',
+              ? l.datesNoWorkouts
+              : l.datesTooMany,
           style: TextStyle(fontSize: 14, color: c.textSecondary),
         )
       else
@@ -258,7 +259,7 @@ class _MonthNav extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        arrow(Icons.chevron_left, 'Mes anterior', -1, canBack),
+        arrow(Icons.chevron_left, context.l10n.monthPrev, -1, canBack),
         Text(
           formatMonthYear(month),
           style: TextStyle(
@@ -267,7 +268,7 @@ class _MonthNav extends StatelessWidget {
             color: c.text,
           ),
         ),
-        arrow(Icons.chevron_right, 'Mes siguiente', 1, true),
+        arrow(Icons.chevron_right, context.l10n.monthNext, 1, true),
       ],
     );
   }
@@ -293,10 +294,10 @@ class _Calendar extends StatelessWidget {
     final offset = month.weekday - 1;
     final days = DateTime.utc(month.year, month.month + 1, 0).day;
     final cells = <Widget>[
-      for (final l in 'LMXJVSD'.split(''))
+      for (var wd = 1; wd <= 7; wd++)
         Center(
           child: Text(
-            l,
+            weekdayLetter(wd),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -368,15 +369,6 @@ class _DayWeekdayCard extends StatelessWidget {
   final DateTime first;
   final ValueChanged<int> onPick;
 
-  static const _names = [
-    'lunes',
-    'martes',
-    'miércoles',
-    'jueves',
-    'viernes',
-    'sábado',
-    'domingo',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -405,7 +397,7 @@ class _DayWeekdayCard extends StatelessWidget {
                 TextSpan(
                   style: TextStyle(fontSize: 12, color: c.textMuted),
                   children: [
-                    const TextSpan(text: '1.º: '),
+                    TextSpan(text: context.l10n.datesFirstOccurrence),
                     TextSpan(
                       text: formatShortDate(first),
                       style: TextStyle(
@@ -428,7 +420,7 @@ class _DayWeekdayCard extends StatelessWidget {
                     inMutuallyExclusiveGroup: true,
                     checked: wd == weekDay,
                     button: true,
-                    label: '$title el ${_names[wd - 1]}',
+                    label: context.l10n.datesDayOn(title, weekdayName(wd)),
                     excludeSemantics: true,
                     child: Material(
                       color: wd == weekDay
@@ -447,7 +439,7 @@ class _DayWeekdayCard extends StatelessWidget {
                           height: 36,
                           child: Center(
                             child: Text(
-                              'LMXJVSD'[wd - 1],
+                              weekdayLetter(wd),
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,

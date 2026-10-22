@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/chat/providers/chat_providers.dart';
 import '../theme/haki_colors.dart';
+import '../../l10n/l10n.dart';
 
 /// Scaffold con la barra inferior de los 4 tabs (Hoy · Programa · Chat · Perfil).
 /// Cada tab es una rama de StatefulShellRoute: conserva su estado y su pila.
@@ -28,13 +29,13 @@ class AppShell extends ConsumerWidget {
           onDestinationSelected: (i) =>
               shell.goBranch(i, initialLocation: i == shell.currentIndex),
           destinations: [
-            const NavigationDestination(
-              icon: Icon(Icons.calendar_today_outlined),
-              label: 'Hoy',
+            NavigationDestination(
+              icon: const Icon(Icons.calendar_today_outlined),
+              label: context.l10n.tabToday,
             ),
-            const NavigationDestination(
-              icon: Icon(Icons.fitness_center),
-              label: 'Programa',
+            NavigationDestination(
+              icon: const Icon(Icons.fitness_center),
+              label: context.l10n.tabProgram,
             ),
             NavigationDestination(
               icon: StreamBuilder<int>(
@@ -51,11 +52,11 @@ class AppShell extends ConsumerWidget {
                   );
                 },
               ),
-              label: 'Chat',
+              label: context.l10n.tabChat,
             ),
-            const NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              label: 'Perfil',
+            NavigationDestination(
+              icon: const Icon(Icons.person_outline),
+              label: context.l10n.tabProfile,
             ),
           ],
         ),

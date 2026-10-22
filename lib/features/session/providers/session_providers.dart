@@ -6,6 +6,7 @@ import '../../program/data/assignment_dtos.dart';
 import '../../program/providers/program_providers.dart';
 import '../data/session_plan.dart';
 import '../data/session_store.dart';
+import '../../../l10n/l10n.dart';
 
 part 'session_providers.g.dart';
 
@@ -30,14 +31,14 @@ Future<SessionDay> sessionDay(
 ) async {
   final program = await ref.watch(currentProgramDetailProvider.future);
   if (program == null || program.assignmentId != assignmentId) {
-    throw StateError('El programa ya no está en curso');
+    throw StateError(l10n.sessionProgramNotCurrent);
   }
   for (final w in program.weeks) {
     for (final d in w.days) {
       if (d.id == dayId) return SessionDay(program: program, week: w, day: d);
     }
   }
-  throw StateError('El día ya no existe en el programa');
+  throw StateError(l10n.sessionDayGone);
 }
 
 @riverpod

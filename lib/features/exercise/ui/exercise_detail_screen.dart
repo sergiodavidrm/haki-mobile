@@ -13,6 +13,7 @@ import '../../chat/ui/feedback_links.dart';
 import '../../session/providers/session_providers.dart';
 import '../data/exercise_stats.dart';
 import '../providers/exercise_providers.dart';
+import '../../../l10n/l10n.dart';
 
 // Detalle de ejercicio (desde el nombre en la Sesión): video técnico, cómo se
 // hace, nota del coach, e1RM con tendencia y PR, e historial de todas las veces
@@ -48,11 +49,11 @@ class ExerciseDetailScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const BackHeader(title: 'Ejercicio', titleSize: 22),
+                BackHeader(title: context.l10n.exerciseTitle, titleSize: 22),
                 const SizedBox(height: 16),
                 if (day != null)
                   Text(
-                    'Este ejercicio ya no está en el día.',
+                    context.l10n.exerciseGone,
                     style: TextStyle(color: c.textMuted),
                   )
                 else
@@ -95,7 +96,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
               const SizedBox(height: 12),
               FeedbackLink(
                 messageId: withFeedback.streamMessageId!,
-                title: 'Feedback de tu video · ${withFeedback.title}',
+                title: context.l10n.exerciseVideoFeedback(withFeedback.title),
               ),
             ],
             if (video != null) ...[
@@ -116,7 +117,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
             ],
             const SizedBox(height: 20),
             Text(
-              'Historial',
+              context.l10n.exerciseHistory,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -127,15 +128,15 @@ class ExerciseDetailScreen extends ConsumerWidget {
             if (items.isEmpty)
               Text(
                 history.isLoading
-                    ? 'Cargando…'
-                    : 'Todavía no hiciste este ejercicio.',
+                    ? context.l10n.commonLoading
+                    : context.l10n.exerciseNeverDone,
                 style: TextStyle(fontSize: 13, color: c.textMuted),
               )
             else
               _HistoryList(items: items, unit: unit),
             if (history.hasError)
               Text(
-                'Sin conexión: se muestra solo lo de este programa.',
+                context.l10n.exerciseOfflineHistory,
                 style: TextStyle(fontSize: 12, color: c.textMuted),
               ),
           ],
@@ -155,7 +156,7 @@ class _VideoCard extends StatelessWidget {
     final c = context.colors;
     return Semantics(
       button: true,
-      label: 'Reproducir video técnico',
+      label: context.l10n.exercisePlayTechnique,
       child: HakiCard(
         padding: const EdgeInsets.symmetric(vertical: 28),
         onTap: () async {
@@ -165,7 +166,7 @@ class _VideoCard extends StatelessWidget {
               await launchUrl(uri, mode: LaunchMode.externalApplication);
           if (!ok && context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('No se pudo abrir el video.')),
+              SnackBar(content: Text(context.l10n.trimOpenError)),
             );
           }
         },
@@ -183,7 +184,7 @@ class _VideoCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'Video técnico',
+              context.l10n.exerciseTechniqueVideo,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -226,7 +227,7 @@ class _HowToState extends State<_HowTo> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Cómo se hace',
+                context.l10n.exerciseHowTo,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -248,7 +249,7 @@ class _HowToState extends State<_HowTo> {
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(0, 36),
                   ),
-                  child: Text(_open ? 'Ver menos' : 'Ver más'),
+                  child: Text(_open ? context.l10n.seeLess : context.l10n.seeMore),
                 ),
             ],
           );
@@ -274,7 +275,7 @@ class _CoachNoteCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'NOTA DE TU COACH',
+            context.l10n.exerciseCoachNote,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -331,7 +332,7 @@ class _E1rmCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'e1RM ESTIMADO',
+                      context.l10n.exerciseE1rmEstimated,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -364,8 +365,8 @@ class _E1rmCard extends StatelessWidget {
                 ),
               ),
               if (pr)
-                const PillChip(
-                  'NUEVO PR',
+                PillChip(
+                  context.l10n.exerciseNewPr,
                   tone: PillTone.gold,
                   icon: Icons.emoji_events_outlined,
                 ),
@@ -377,8 +378,11 @@ class _E1rmCard extends StatelessWidget {
               points: points,
               height: 72,
               semanticLabel:
-                  'Tendencia de e1RM: de ${formatWeight(points.first.value)} a '
-                  '${formatWeight(latest)} ${unit.label} en ${points.length} sesiones',
+                  context.l10n.exerciseTrend(
+                    formatWeight(points.first.value),
+                    '${formatWeight(latest)} ${unit.label}',
+                    points.length,
+                  ),
             ),
           ],
           const SizedBox(height: 10),
@@ -389,13 +393,13 @@ class _E1rmCard extends StatelessWidget {
               children: [
                 if (inProgram.length >= 2)
                   Text(
-                    '${formatDelta(inProgram.last - inProgram.first)} ${unit.label} en el bloque',
+                    context.l10n.exerciseInBlock('${formatDelta(inProgram.last - inProgram.first)} ${unit.label}'),
                   )
                 else
                   const SizedBox(),
                 if (today != null)
                   Text(
-                    'Volumen hoy ${formatWeight(unit.fromKg(volumeKg(today.sets)))} ${unit.label}',
+                    context.l10n.exerciseVolumeToday('${formatWeight(unit.fromKg(volumeKg(today.sets)))} ${unit.label}'),
                   ),
               ],
             ),
@@ -439,7 +443,7 @@ class _HistoryListState extends State<_HistoryList> {
           TextButton(
             onPressed: () => setState(() => _shown += _step),
             style: TextButton.styleFrom(foregroundColor: c.gold),
-            child: Text('Cargar más ($rest)'),
+            child: Text(context.l10n.loadMore(rest)),
           ),
       ],
     );

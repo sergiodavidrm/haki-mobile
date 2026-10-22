@@ -20,6 +20,7 @@ import '../../program/providers/program_providers.dart';
 import '../data/records.dart';
 import '../data/streak_dto.dart';
 import '../providers/profile_providers.dart';
+import '../../../l10n/l10n.dart';
 
 // Tab Perfil: cuenta (engranaje → Ajustes) + racha de semanas + tarjetas de
 // Peso, Medidas, Adherencia y Récords + PRs recientes. Niveles del mockup se
@@ -56,11 +57,7 @@ class ProfileScreen extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  UserAvatar(
-                    name: name,
-                    size: 60,
-                    highlighted: true,
-                  ),
+                  UserAvatar(name: name, size: 60, highlighted: true),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -76,14 +73,16 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                         if (me?.coachName ?? auth.email case final sub?)
                           Text(
-                            me?.coachName != null ? 'Coach: $sub' : sub,
+                            me?.coachName != null
+                                ? context.l10n.coachLabel(sub)
+                                : sub,
                             style: TextStyle(fontSize: 13, color: c.textMuted),
                           ),
                       ],
                     ),
                   ),
                   IconButton.outlined(
-                    tooltip: 'Ajustes',
+                    tooltip: context.l10n.settingsTitle,
                     onPressed: () => context.push(Routes.settings),
                     icon: Icon(Icons.settings_outlined, color: c.textSecondary),
                     style: IconButton.styleFrom(
@@ -147,15 +146,14 @@ class _StreakCard extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    String weeks(int n) => '$n ${n == 1 ? 'semana' : 'semanas'}';
+    final l = context.l10n;
     final pending = s.thisWeekPending;
     final title = s.currentWeeks > 0
-        ? '${weeks(s.currentWeeks)} ${s.currentWeeks == 1 ? 'seguida' : 'seguidas'}'
-        : 'Arrancá tu racha';
+        ? l.streakWeeksInARow(s.currentWeeks)
+        : l.streakStart;
     final subtitle = [
-      if (pending != null)
-        'Esta semana: ${pending.completed} de ${pending.target}',
-      if (s.bestWeeks > 0) 'Tu mejor racha: ${weeks(s.bestWeeks)}',
+      if (pending != null) l.streakThisWeek(pending.completed, pending.target),
+      if (s.bestWeeks > 0) l.streakBest(l.weeksCount(s.bestWeeks)),
     ].join(' · ');
 
     return Padding(
@@ -234,9 +232,9 @@ class _RecordsTile extends ConsumerWidget {
     void open() => context.push(Routes.records);
     if (records == null) {
       return _Tile(
-        title: 'Récords',
+        title: context.l10n.recordsTitle,
         value: '—',
-        footer: const Text('Tus mejores marcas'),
+        footer: Text(context.l10n.recordsBestMarks),
         onTap: open,
       );
     }
@@ -245,10 +243,14 @@ class _RecordsTile extends ConsumerWidget {
         .where((r) => current == null || r.assignmentId == current)
         .length;
     return _Tile(
-      title: 'Récords',
+      title: context.l10n.recordsTitle,
       value: '$prs',
       valueSuffix: prs == 1 ? ' PR' : ' PRs',
-      footer: Text(current == null ? 'en total' : 'en este bloque'),
+      footer: Text(
+        current == null
+            ? context.l10n.recordsInTotal
+            : context.l10n.recordsInBlock,
+      ),
       onTap: open,
     );
   }
@@ -273,7 +275,7 @@ class _RecentPrs extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'PRs recientes',
+            context.l10n.recordsRecent,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -430,18 +432,18 @@ class _WeightTile extends StatelessWidget {
     );
     final change = changeOf(recent);
     return _Tile(
-      title: 'Peso corporal',
+      title: context.l10n.bodyWeight,
       value: series.isEmpty ? '–' : formatWeight(series.last.value),
       valueSuffix: series.isEmpty ? null : ' ${unit.label}',
       middle: recent.length < 2
           ? null
           : BodyLineChart(points: recent, height: 26, grid: false),
       footer: switch ((series.isEmpty, change)) {
-        (true, _) => const Text('Registrá tu peso'),
+        (true, _) => Text(context.l10n.bodyLogWeight),
         (_, final double ch) => Row(
           children: [
             DeltaText(ch, suffix: ' ${unit.label}', size: 12),
-            const Text(' en 4 sem'),
+            Text(' ${context.l10n.bodyIn4Weeks}'),
           ],
         ),
         _ => Text(formatDayMonth(series.last.date)),
@@ -475,7 +477,7 @@ class _MeasuresTile extends StatelessWidget {
         .fold<DateTime?>(null, (a, b) => a == null || b.isAfter(a) ? b : a);
     final n = measures.length;
     return _Tile(
-      title: 'Medidas',
+      title: context.l10n.measuresTitle,
       value: last == null
           ? '–'
           : formatMeasure(main!.display(last.value, unit)),
@@ -484,8 +486,8 @@ class _MeasuresTile extends StatelessWidget {
           : ' ${main!.unitLabel(unit)} ${main.label.toLowerCase()}',
       footer: Text(
         lastDate == null
-            ? '$n ${n == 1 ? 'medida' : 'medidas'} · sin registros'
-            : '$n ${n == 1 ? 'medida' : 'medidas'} · ${formatDayMonth(lastDate)}',
+            ? '${context.l10n.measuresCount(n)} · ${context.l10n.measuresNoLogs}'
+            : '${context.l10n.measuresCount(n)} · ${formatDayMonth(lastDate)}',
       ),
       onTap: () => context.push(Routes.measures),
     );
@@ -499,24 +501,24 @@ class _AdherenceTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final a = ref.watch(currentAdherenceProvider).value;
     return switch (a) {
-      null => const _Tile(
-        title: 'Adherencia',
+      null => _Tile(
+        title: context.l10n.adherenceTitle,
         value: '–',
-        footer: Text('Sin programa en curso'),
+        footer: Text(context.l10n.adherenceNoProgram),
       ),
       (done: final done, due: final int due, total: _) when due > 0 => _Tile(
-        title: 'Adherencia',
+        title: context.l10n.adherenceTitle,
         value: '${(100 * done / due).round().clamp(0, 100)}',
         valueSuffix: '%',
-        footer: Text('$done de $due entrenos en el programa'),
-        onTap: () => context.go(Routes.program),
+        footer: Text(context.l10n.adherenceDoneOf(done, due)),
+        onTap: () => context.push(Routes.adherence),
       ),
       (done: final done, due: _, total: final total) => _Tile(
-        title: 'Adherencia',
+        title: context.l10n.adherenceTitle,
         value: '$done',
-        valueSuffix: ' de $total',
-        footer: const Text('entrenos hechos'),
-        onTap: () => context.go(Routes.program),
+        valueSuffix: ' ${context.l10n.ofTotal(total)}',
+        footer: Text(context.l10n.adherenceWorkoutsDone),
+        onTap: () => context.push(Routes.adherence),
       ),
     };
   }

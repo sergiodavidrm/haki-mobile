@@ -1,0 +1,7 @@
+# Textos de la app (Flutter gen-l10n). Plantilla: español; en.arb debe tener
+# las mismas claves (flutter gen-l10n falla si falta alguna).
+arb-dir: lib/l10n
+template-arb-file: app_es.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false

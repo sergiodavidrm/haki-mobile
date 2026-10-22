@@ -13,6 +13,7 @@ import '../providers/chat_providers.dart';
 import '../providers/chat_push.dart';
 import 'chat_widgets.dart';
 import 'feedback_thread_screen.dart';
+import '../../../l10n/l10n.dart';
 
 // Tab Chat: canal general con el coach (Stream). Mensajes de texto, tarjetas
 // de videos de los ejercicios (las publica la API) y respuestas del coach
@@ -26,7 +27,7 @@ class ChatScreen extends ConsumerWidget {
     final channel = ref.watch(generalChannelProvider);
     // Primera vez en el Chat: pedir permiso de notificaciones (una sola vez)
     unawaited(ref.read(chatPushProvider).askPermissionOnce());
-    final coach = ref.watch(authMeProvider).value?.coachName ?? 'Tu coach';
+    final coach = ref.watch(authMeProvider).value?.coachName ?? context.l10n.yourCoach;
 
     return Scaffold(
       body: SafeArea(
@@ -46,7 +47,7 @@ class ChatScreen extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'No se pudo abrir el chat.\nRevisá tu conexión.',
+                          context.l10n.chatOpenError,
                           textAlign: TextAlign.center,
                           style: TextStyle(color: c.textMuted),
                         ),
@@ -55,7 +56,7 @@ class ChatScreen extends ConsumerWidget {
                           onPressed: () =>
                               ref.invalidate(generalChannelProvider),
                           style: TextButton.styleFrom(foregroundColor: c.gold),
-                          child: const Text('Reintentar'),
+                          child: Text(context.l10n.commonRetry),
                         ),
                       ],
                     ),
@@ -100,7 +101,7 @@ class _Header extends StatelessWidget {
                 ),
               ),
               Text(
-                'Tu coach',
+                context.l10n.yourCoach,
                 style: TextStyle(fontSize: 12, color: c.textMuted),
               ),
             ],
@@ -161,7 +162,7 @@ class _ChatViewState extends ConsumerState<_ChatView> {
                 const Center(child: CircularProgressIndicator()),
             errorBuilder: (_, _) => Center(
               child: Text(
-                'No se pudieron cargar los mensajes.',
+                context.l10n.chatMessagesError,
                 style: TextStyle(color: c.textMuted),
               ),
             ),
@@ -169,8 +170,7 @@ class _ChatViewState extends ConsumerState<_ChatView> {
               child: Padding(
                 padding: const EdgeInsets.all(32),
                 child: Text(
-                  'Escribile a ${widget.coachName}. Los videos de tus series '
-                  'también aparecen acá.',
+                  context.l10n.chatEmpty(widget.coachName),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: c.textMuted, height: 1.4),
                 ),
@@ -223,7 +223,7 @@ class _ChatViewState extends ConsumerState<_ChatView> {
           ),
         ),
         ChatComposer(
-          hint: 'Mensaje…',
+          hint: context.l10n.chatMessageHint,
           onSend: (text) => channel.sendMessage(Message(text: text)),
         ),
       ],

@@ -32,7 +32,7 @@ void main() {
     );
     final card = VideoCard.of(m)!;
     expect(card.exerciseName, 'Jalón vertical');
-    expect(card.dayLabel, 'Sem 2 · Día 3');
+    expect(card.dayLabel, 'Sem. 2 · Día 3');
     expect(card.note, 'Me costó la pausa');
     expect(card.videos.map((v) => v.setNumber), [3, 4]);
     expect(card.videos.first.label(WeightUnit.lb), '116 lb × 12 · RIR 1');

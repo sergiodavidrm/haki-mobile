@@ -10,6 +10,7 @@ import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 import '../../../core/config/env.dart';
 import '../../../core/notifications/local_notifications.dart';
 import 'chat_message.dart';
+import '../../../l10n/l10n.dart';
 
 // Push del chat con Stream v3: Stream manda a Firebase mensajes SOLO de datos
 // (ids del mensaje y del canal, sin título ni texto), así que la notificación
@@ -22,10 +23,10 @@ const _credsKey = 'stream_user';
 const _storage = FlutterSecureStorage();
 
 /// Canal de Android de los mensajes del chat.
-const chatChannel = AndroidNotificationChannel(
+AndroidNotificationChannel get chatChannel => AndroidNotificationChannel(
   'chat_messages',
-  'Mensajes de tu coach',
-  description: 'Chat y feedback de tu coach',
+  l10n.notifChatChannel,
+  description: l10n.notifChatChannelDesc,
   importance: Importance.high,
 );
 
@@ -39,6 +40,8 @@ Future<void> clearStreamCredentials() => _storage.delete(key: _credsKey);
 @pragma('vm:entry-point')
 Future<void> chatPushBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
+  // Otro isolate: el idioma de la app hay que leerlo de nuevo
+  setAppLocale(localeFor(await loadAppLanguage()) ?? deviceLocale);
   await showChatNotification(message.data);
 }
 
@@ -71,19 +74,19 @@ Future<void> showChatNotification(
     final msg = (await c.getMessage(id)).message;
     if (msg.user?.id == me) return; // lo mandó el atleta (sus tarjetas)
 
-    final name = msg.user?.name ?? 'Tu coach';
+    final name = msg.user?.name ?? l10n.yourCoach;
     final card = VideoCard.of(msg);
     final text = (msg.text ?? '').trim();
     final body = text.isNotEmpty
         ? text
         : card != null
-        ? 'Videos de ${card.exerciseName}'
-        : 'Te mandó un mensaje';
+        ? l10n.notifVideosOf(card.exerciseName)
+        : l10n.notifSentMessage;
 
     await ensureLocalNotifications();
     await localNotifications.show(
       id: msg.id.hashCode,
-      title: msg.parentId != null ? 'Feedback de $name' : name,
+      title: msg.parentId != null ? l10n.notifFeedbackFrom(name) : name,
       body: body,
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(

@@ -12,17 +12,19 @@ import '../../auth/data/auth_repository.dart';
 import '../../auth/providers/auth_me_provider.dart';
 import '../../session/data/session_store.dart';
 import '../providers/settings_providers.dart';
+import '../../../l10n/l10n.dart';
 
-// Ajustes: cuenta (cambiar contraseña), unidad de peso, vibración del timer y
-// cerrar sesión. Del mockup faltan (sin backend o sin integración): subir
-// videos solo con Wi-Fi, notificaciones, Google Fit, idioma, ayuda, términos
-// y la versión de la app.
+// Ajustes: cuenta (cambiar contraseña), unidad de peso, vibración del timer,
+// tema, idioma y cerrar sesión. Del mockup faltan (sin backend o sin
+// integración): subir videos solo con Wi-Fi, notificaciones, Google Fit,
+// ayuda, términos y la versión de la app.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
+    final l = context.l10n;
     final auth = ref.watch(authRepositoryProvider);
     final unit =
         ref.watch(authMeProvider).value?.preferredWeightUnit ?? WeightUnit.kg;
@@ -34,26 +36,26 @@ class SettingsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           children: [
-            const BackHeader(title: 'Ajustes', titleSize: 22),
+            BackHeader(title: l.settingsTitle, titleSize: 22),
             const SizedBox(height: 12),
-            const _Section('Cuenta'),
+            _Section(l.settingsAccount),
             _Group(
               children: [
                 _Row(title: ref.watch(displayNameProvider), subtitle: auth.email),
                 if (auth.hasPassword)
                   _Row(
-                    title: 'Cambiar contraseña',
+                    title: l.settingsChangePassword,
                     onTap: () => _showPasswordSheet(context),
                     trailing: Icon(Icons.chevron_right, color: c.textMuted),
                   ),
               ],
             ),
-            const _Section('Entreno'),
+            _Section(l.settingsTraining),
             _Group(
               children: [
                 _Row(
-                  title: 'Unidad de peso',
-                  subtitle: 'Con la que arranca cada sesión',
+                  title: l.settingsWeightUnit,
+                  subtitle: l.settingsWeightUnitHint,
                   trailing: SegmentedButton<WeightUnit>(
                     segments: [
                       for (final u in WeightUnit.values)
@@ -78,7 +80,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ),
                 _Row(
-                  title: 'Vibrar al terminar el descanso',
+                  title: l.settingsRestVibration,
                   trailing: Switch(
                     value: vibrate,
                     activeTrackColor: c.turquoise,
@@ -87,30 +89,65 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            const _Section('Apariencia'),
+            _Section(l.settingsAppearance),
             _Group(
               children: [
                 _Row(
-                  title: 'Tema',
+                  title: l.settingsTheme,
                   trailing: SegmentedButton<ThemeMode>(
-                    segments: const [
+                    segments: [
                       ButtonSegment(
                         value: ThemeMode.system,
-                        label: Text('Sistema'),
+                        label: Text(l.settingsSystem),
                       ),
                       ButtonSegment(
                         value: ThemeMode.light,
-                        label: Text('Claro'),
+                        label: Text(l.settingsThemeLight),
                       ),
                       ButtonSegment(
                         value: ThemeMode.dark,
-                        label: Text('Oscuro'),
+                        label: Text(l.settingsThemeDark),
                       ),
                     ],
                     selected: {ref.watch(appThemeModeProvider)},
                     showSelectedIcon: false,
                     onSelectionChanged: (s) =>
                         ref.read(appThemeModeProvider.notifier).set(s.first),
+                    style: SegmentedButton.styleFrom(
+                      selectedBackgroundColor: c.gold,
+                      selectedForegroundColor: c.onAccent,
+                      foregroundColor: c.textMuted,
+                      side: BorderSide(color: c.border),
+                      textStyle: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
+                ),
+                _Row(
+                  title: l.settingsLanguage,
+                  trailing: SegmentedButton<AppLanguage>(
+                    segments: [
+                      ButtonSegment(
+                        value: AppLanguage.system,
+                        label: Text(l.settingsSystem),
+                      ),
+                      const ButtonSegment(
+                        value: AppLanguage.es,
+                        label: Text('ES'),
+                      ),
+                      const ButtonSegment(
+                        value: AppLanguage.en,
+                        label: Text('EN'),
+                      ),
+                    ],
+                    selected: {ref.watch(appLanguageSettingProvider)},
+                    showSelectedIcon: false,
+                    onSelectionChanged: (s) => ref
+                        .read(appLanguageSettingProvider.notifier)
+                        .set(s.first),
                     style: SegmentedButton.styleFrom(
                       selectedBackgroundColor: c.gold,
                       selectedForegroundColor: c.onAccent,
@@ -137,7 +174,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
               onPressed: () => _signOut(context, ref),
-              child: const Text('Cerrar sesión'),
+              child: Text(l.settingsSignOut),
             ),
           ],
         ),
@@ -280,10 +317,10 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
   Future<void> _save() async {
     final p = _password.text;
     if (p.length < 6) {
-      return setState(() => _error = 'Usá al menos 6 caracteres.');
+      return setState(() => _error = context.l10n.passwordMinLength);
     }
     if (p != _confirm.text) {
-      return setState(() => _error = 'Las contraseñas no coinciden.');
+      return setState(() => _error = context.l10n.passwordsDontMatch);
     }
     setState(() => _error = null);
     final ok = await ref.read(passwordChangerProvider.notifier).change(p);
@@ -292,7 +329,7 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
       Navigator.pop(context);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Contraseña actualizada')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.passwordUpdated)));
     } else {
       setState(
         () => _error = _passwordError(ref.read(passwordChangerProvider).error),
@@ -303,6 +340,7 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final l = context.l10n;
     final saving = ref.watch(passwordChangerProvider).isLoading;
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -316,7 +354,7 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Cambiar contraseña',
+            l.settingsChangePassword,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -329,7 +367,7 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
             obscureText: true,
             autofocus: true,
             textInputAction: TextInputAction.next,
-            decoration: const InputDecoration(labelText: 'Nueva contraseña'),
+            decoration: InputDecoration(labelText: l.passwordNew),
           ),
           const SizedBox(height: 12),
           TextField(
@@ -337,9 +375,7 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
             obscureText: true,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _save(),
-            decoration: const InputDecoration(
-              labelText: 'Repetí la contraseña',
-            ),
+            decoration: InputDecoration(labelText: l.passwordRepeat),
           ),
           if (_error != null) ...[
             const SizedBox(height: 10),
@@ -348,7 +384,7 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
           const SizedBox(height: 16),
           FilledButton(
             onPressed: saving ? null : _save,
-            child: Text(saving ? 'Guardando…' : 'Guardar'),
+            child: Text(saving ? l.commonSaving : l.commonSave),
           ),
         ],
       ),
@@ -356,18 +392,17 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
   }
 }
 
-/// Errores de Supabase al cambiar la contraseña, en español.
+/// Errores de Supabase al cambiar la contraseña, traducidos.
 String _passwordError(Object? error) {
   if (error is AuthException) {
     return switch (error.code) {
-      'same_password' => 'Tiene que ser distinta a la actual.',
-      'weak_password' => 'Es muy débil. Probá con una más larga.',
-      'reauthentication_needed' =>
-        'Por seguridad, cerrá sesión, volvé a entrar y probá de nuevo.',
-      _ => 'No pudimos cambiarla. Probá de nuevo.',
+      'same_password' => l10n.passwordSame,
+      'weak_password' => l10n.passwordWeak,
+      'reauthentication_needed' => l10n.passwordReauth,
+      _ => l10n.passwordChangeFailed,
     };
   }
-  return 'Sin conexión. Probá de nuevo.';
+  return l10n.errorOfflineRetry;
 }
 
 /// Cerrar sesión borra los datos del teléfono (LocalDataGuard): si queda algo
@@ -378,20 +413,16 @@ Future<void> _signOut(BuildContext context, WidgetRef ref) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Tenés entrenos sin subir'),
-        content: const Text(
-          'Hay series guardadas en el teléfono que todavía no llegaron a tu '
-          'coach. Si cerrás sesión ahora se pierden. Conectate a internet y '
-          'esperá a que se suban.',
-        ),
+        title: Text(ctx.l10n.signOutPendingTitle),
+        content: Text(ctx.l10n.signOutPendingBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
+            child: Text(ctx.l10n.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Cerrar igual'),
+            child: Text(ctx.l10n.signOutAnyway),
           ),
         ],
       ),

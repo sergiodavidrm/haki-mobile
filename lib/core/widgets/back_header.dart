@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../theme/haki_colors.dart';
+import '../../l10n/l10n.dart';
 
 /// Encabezado de pantalla secundaria: volver + título (+ subtítulo).
 class BackHeader extends StatelessWidget {
@@ -26,7 +27,7 @@ class BackHeader extends StatelessWidget {
         Transform.translate(
           offset: const Offset(-10, 0),
           child: IconButton(
-            tooltip: 'Volver',
+            tooltip: context.l10n.commonBack,
             onPressed: () => context.pop(),
             icon: Icon(Icons.chevron_left, size: 28, color: c.text),
           ),

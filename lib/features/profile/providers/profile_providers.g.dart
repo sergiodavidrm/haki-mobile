@@ -50,6 +50,64 @@ final class CurrentAdherenceProvider
 
 String _$currentAdherenceHash() => r'3977fe80a627503b5799da773e1262e2d6406b05';
 
+/// Pantalla Adherencia: el programa en curso + el anterior (para comparar).
+/// null si no hay programa en curso.
+
+@ProviderFor(adherenceDetail)
+final adherenceDetailProvider = AdherenceDetailProvider._();
+
+/// Pantalla Adherencia: el programa en curso + el anterior (para comparar).
+/// null si no hay programa en curso.
+
+final class AdherenceDetailProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<
+            ({AssignmentSummaryDto? previous, AdherenceReport report})?
+          >,
+          ({AssignmentSummaryDto? previous, AdherenceReport report})?,
+          FutureOr<({AssignmentSummaryDto? previous, AdherenceReport report})?>
+        >
+    with
+        $FutureModifier<
+          ({AssignmentSummaryDto? previous, AdherenceReport report})?
+        >,
+        $FutureProvider<
+          ({AssignmentSummaryDto? previous, AdherenceReport report})?
+        > {
+  /// Pantalla Adherencia: el programa en curso + el anterior (para comparar).
+  /// null si no hay programa en curso.
+  AdherenceDetailProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'adherenceDetailProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$adherenceDetailHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<
+    ({AssignmentSummaryDto? previous, AdherenceReport report})?
+  >
+  $createElement($ProviderPointer pointer) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<({AssignmentSummaryDto? previous, AdherenceReport report})?> create(
+    Ref ref,
+  ) {
+    return adherenceDetail(ref);
+  }
+}
+
+String _$adherenceDetailHash() => r'e6df76ba121efe2ef85598627ebe1d2a544cb77e';
+
 /// Racha de semanas (tarjeta del Perfil). Necesita red; sin ella la tarjeta
 /// no se muestra.
 

@@ -5,6 +5,7 @@ import '../../../core/theme/haki_colors.dart';
 import '../../../core/widgets/back_header.dart';
 import '../data/records.dart';
 import '../providers/profile_providers.dart';
+import '../../../l10n/l10n.dart';
 
 // Récords personales (mockup "Récords personales"): mejor e1RM por ejercicio.
 // Arriba los PRs de esta semana (dorado, con la mejora); abajo los del
@@ -49,19 +50,19 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
             children: [
-              const BackHeader(title: 'Récords personales', titleSize: 22),
+              BackHeader(title: context.l10n.recordsPersonal, titleSize: 22),
               const SizedBox(height: 12),
               if (current != null) ...[
                 Wrap(
                   spacing: 8,
                   children: [
                     _RangeChip(
-                      label: 'Este bloque',
+                      label: context.l10n.recordsThisBlock,
                       selected: blockOnly,
                       onTap: () => setState(() => _blockOnly = true),
                     ),
                     _RangeChip(
-                      label: 'Histórico',
+                      label: context.l10n.recordsAllTime,
                       selected: !blockOnly,
                       onTap: () => setState(() => _blockOnly = false),
                     ),
@@ -70,8 +71,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                 const SizedBox(height: 12),
               ],
               Text(
-                'Mejor e1RM estimado por ejercicio, calculado de tus series '
-                'registradas.',
+                context.l10n.recordsHint,
                 style: TextStyle(
                   fontSize: 12,
                   height: 1.45,
@@ -89,12 +89,16 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                   );
                   return [
                     if (s.thisWeek.isNotEmpty) ...[
-                      section('ESTA SEMANA'),
+                      section(context.l10n.recordsThisWeek),
                       for (final r in s.thisWeek)
                         _RecordRow(record: r, today: today, highlight: true),
                     ],
                     if (s.rest.isNotEmpty) ...[
-                      section(blockOnly ? 'EN ESTE BLOQUE' : 'ANTERIORES'),
+                      section(
+                        blockOnly
+                            ? context.l10n.recordsInThisBlockUpper
+                            : context.l10n.recordsPreviousUpper,
+                      ),
                       for (final r in s.rest)
                         _RecordRow(record: r, today: today),
                     ],
@@ -107,8 +111,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                           border: Border.all(color: c.border),
                         ),
                         child: Text(
-                          'Seguí registrando tus series: cada vez que superás '
-                          'tu mejor marca aparece acá.',
+                          context.l10n.recordsEmpty,
                           style: TextStyle(
                             fontSize: 13,
                             height: 1.45,
@@ -120,7 +123,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                 }(),
                 AsyncError() => [
                   Text(
-                    'No se pudieron cargar tus récords. Revisá tu conexión.',
+                    context.l10n.recordsLoadError,
                     style: TextStyle(fontSize: 13, color: c.textMuted),
                   ),
                 ],

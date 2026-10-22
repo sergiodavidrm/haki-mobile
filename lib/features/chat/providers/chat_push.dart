@@ -15,6 +15,7 @@ import '../../auth/providers/auth_me_provider.dart';
 import '../data/chat_notifications.dart';
 import '../ui/feedback_thread_screen.dart';
 import 'chat_providers.dart';
+import '../../../l10n/l10n.dart';
 
 part 'chat_push.g.dart';
 
@@ -137,7 +138,7 @@ class ChatPush {
       final parent = (await channel.client.getMessage(parentId)).message;
       final context = router.routerDelegate.navigatorKey.currentContext;
       if (context == null || !context.mounted) return;
-      final coach = _ref.read(authMeProvider).value?.coachName ?? 'Tu coach';
+      final coach = _ref.read(authMeProvider).value?.coachName ?? l10n.yourCoach;
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => StreamChannel(

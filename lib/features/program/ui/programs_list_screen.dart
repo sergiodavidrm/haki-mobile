@@ -15,6 +15,7 @@ import '../../home/ui/today_widgets.dart';
 import '../data/assignment_dtos.dart';
 import '../data/program_schedule.dart';
 import '../providers/program_providers.dart';
+import '../../../l10n/l10n.dart';
 
 // Mis programas: EN CURSO / PRÓXIMO / ANTERIORES. Con [asTab] es la raíz del
 // tab Programa (cuando no hay programa en curso): sin botón de volver.
@@ -41,7 +42,7 @@ class ProgramsListScreen extends ConsumerWidget {
             children: [
               if (asTab)
                 Text(
-                  'Mis programas',
+                  context.l10n.programsMine,
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -49,15 +50,15 @@ class ProgramsListScreen extends ConsumerWidget {
                   ),
                 )
               else
-                const BackHeader(title: 'Mis programas'),
+                BackHeader(title: context.l10n.programsMine),
               const SizedBox(height: 14),
               ...switch (sections) {
                 AsyncData(:final value) => _content(context, value),
-                AsyncError() => const [
+                AsyncError() => [
                   TodayInfoCard(
-                    label: 'Sin conexión',
-                    title: 'No pudimos cargar tus programas',
-                    body: 'Revisá tu conexión y deslizá hacia abajo para reintentar.',
+                    label: context.l10n.commonOffline,
+                    title: context.l10n.programsLoadError,
+                    body: context.l10n.homeLoadErrorBody,
                   ),
                 ],
                 _ => const [
@@ -76,18 +77,18 @@ class ProgramsListScreen extends ConsumerWidget {
 
   List<Widget> _content(BuildContext context, ProgramSections s) {
     if (s.count == 0) {
-      return const [
+      return [
         TodayInfoCard(
-          label: 'Tus programas',
-          title: 'Todavía no tenés programas',
-          body: 'Cuando tu coach te asigne uno, aparece acá.',
+          label: context.l10n.programsYours,
+          title: context.l10n.programsNoneTitle,
+          body: context.l10n.homeNoProgramBody,
         ),
       ];
     }
     const gap = SizedBox(height: 10);
     return [
       if (s.current != null) ...[
-        const SectionLabel('En curso'),
+        SectionLabel(context.l10n.programInProgress),
         gap,
         _CurrentCard(
           program: s.current!,
@@ -96,7 +97,7 @@ class ProgramsListScreen extends ConsumerWidget {
         const SizedBox(height: 20),
       ],
       if (s.upcoming.isNotEmpty) ...[
-        SectionLabel(s.upcoming.length == 1 ? 'Próximo' : 'Próximos'),
+        SectionLabel(context.l10n.programsUpcoming(s.upcoming.length)),
         gap,
         for (final a in s.upcoming) ...[
           _UpcomingCard(
@@ -112,7 +113,7 @@ class ProgramsListScreen extends ConsumerWidget {
         const SizedBox(height: 10),
       ],
       if (s.past.isNotEmpty) ...[
-        const SectionLabel('Anteriores'),
+        SectionLabel(context.l10n.programsPast),
         gap,
         for (var i = 0; i < s.past.length; i++)
           _PastRow(
@@ -126,7 +127,7 @@ class ProgramsListScreen extends ConsumerWidget {
   }
 }
 
-String _weeks(int n) => '$n ${n == 1 ? 'semana' : 'semanas'}';
+String _weeks(int n) => l10n.weeksCount(n);
 
 class _CurrentCard extends StatelessWidget {
   const _CurrentCard({required this.program, required this.onTap});
@@ -142,9 +143,10 @@ class _CurrentCard extends StatelessWidget {
     final week = p.hasDates
         ? weekNumberFor(p.startDate!, DateTime.now()).clamp(1, total)
         : (p.completedWeeks + 1).clamp(1, total);
+    final l = context.l10n;
     final subtitle = p.hasDates
-        ? 'Desde ${formatDayMonth(p.startDate!)} · semana $week de ${p.totalWeeks}'
-        : 'Sin fechas · ${p.completedDays} de ${p.totalDays} entrenos';
+        ? '${l.programSince(formatDayMonth(p.startDate!))} · ${l.weekOfTotal(week, p.totalWeeks)}'
+        : '${l.commonNoDates} · ${l.workoutsDoneOf(p.completedDays, p.totalDays)}';
 
     return HakiCard(
       tone: HakiCardTone.gold,
@@ -235,8 +237,8 @@ class _UpcomingCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 p.hasDates
-                    ? '${_weeks(p.totalWeeks)} · empieza el ${formatShortDate(p.startDate!)}'
-                    : '${_weeks(p.totalWeeks)} · sin fechas',
+                    ? '${_weeks(p.totalWeeks)} · ${context.l10n.programStartsOn(formatShortDate(p.startDate!))}'
+                    : '${_weeks(p.totalWeeks)} · ${context.l10n.commonNoDates}',
                 style: TextStyle(fontSize: 12, color: c.textMuted),
               ),
             ],
@@ -247,7 +249,7 @@ class _UpcomingCard extends StatelessWidget {
           Icon(Icons.chevron_right, color: c.textMuted)
         else
           Text(
-            'Asignar fechas',
+            context.l10n.assignDates,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -377,7 +379,7 @@ class _PastRow extends StatelessWidget {
                         children: [
                           TextSpan(text: _weeks(p.totalWeeks)),
                           if (pct != null) ...[
-                            const TextSpan(text: ' · adherencia '),
+                            TextSpan(text: ' · ${context.l10n.programAdherence} '),
                             TextSpan(
                               text: '$pct%',
                               style: TextStyle(

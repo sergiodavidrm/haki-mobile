@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../data/auth_repository.dart';
+import '../../../l10n/l10n.dart';
 
 part 'login_controller.g.dart';
 
@@ -31,9 +32,9 @@ class LoginController extends _$LoginController {
 
 String loginErrorMessage(Object error) {
   if (error is AuthException) {
-    if (error.code == 'invalid_credentials') return 'Email o contraseña incorrectos';
-    if (error.code == 'email_not_confirmed') return 'Confirmá tu email antes de entrar';
+    if (error.code == 'invalid_credentials') return l10n.authWrongCredentials;
+    if (error.code == 'email_not_confirmed') return l10n.authConfirmEmail;
   }
-  if (error is GoogleSignInException) return 'No se pudo entrar con Google. Intentá de nuevo.';
-  return 'No se pudo iniciar sesión. Revisá tu conexión e intentá de nuevo.';
+  if (error is GoogleSignInException) return l10n.authGoogleError;
+  return l10n.authGenericError;
 }

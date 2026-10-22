@@ -14,6 +14,7 @@ import '../data/program_schedule.dart';
 import '../providers/program_providers.dart';
 import 'program_widgets.dart';
 import 'programs_list_screen.dart';
+import '../../../l10n/l10n.dart';
 
 // Tab Programa: semanas y días del bloque. Sin [assignmentId] muestra el
 // programa en curso; con uno (desde "Mis programas") muestra ese, y solo el
@@ -70,7 +71,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
               if (widget.assignmentId == null)
                 _TabHeader(onHistory: () => context.push(Routes.programs))
               else
-                const BackHeader(title: 'Programa'),
+                BackHeader(title: context.l10n.tabProgram),
               const SizedBox(height: 18),
               ...switch (sections) {
                 AsyncData(:final value) => _body(value, id),
@@ -111,19 +112,17 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
     final weekDto = p.weeks.where((w) => w.weekNumber == selected).firstOrNull;
     final canSchedule = !finished && p.status == 'active';
 
+    final l = context.l10n;
+    final since = p.hasDates
+        ? l.programSince(formatDayMonth(p.startDate!)).toLowerCase()
+        : l.commonNoDates;
     final label = switch ((isCurrent, finished)) {
-      (true, _) =>
-        p.hasDates
-            ? 'Bloque actual · desde ${formatDayMonth(p.startDate!)}'
-            : 'Bloque actual · sin fechas',
+      (true, _) => '${l.programCurrentBlock} · $since',
       (_, true) =>
         p.startDate != null && p.endDate != null
-            ? 'Terminado · ${formatDayMonth(p.startDate!)} – ${formatDayMonth(p.endDate!)}'
-            : 'Terminado',
-      _ =>
-        p.hasDates
-            ? 'Próximo · desde ${formatDayMonth(p.startDate!)}'
-            : 'Próximo · sin fechas',
+            ? '${l.programFinished} · ${formatDayMonth(p.startDate!)} – ${formatDayMonth(p.endDate!)}'
+            : l.programFinished,
+      _ => '${l.homeUpcoming} · $since',
     };
 
     return [
@@ -133,7 +132,7 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
         week: week,
         finished: finished,
         datesLink: canSchedule
-            ? (p.hasDates ? 'Cambiar fechas' : 'Asignar fechas')
+            ? (p.hasDates ? l.changeDates : l.assignDates)
             : null,
         onDates: () => context.push(Routes.assignDates(id)),
       ),
@@ -176,10 +175,10 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
     ];
   }
 
-  Widget _offline() => const TodayInfoCard(
-    label: 'Sin conexión',
-    title: 'No pudimos cargar tu programa',
-    body: 'Revisá tu conexión y deslizá hacia abajo para reintentar.',
+  Widget _offline() => TodayInfoCard(
+    label: context.l10n.commonOffline,
+    title: context.l10n.homeLoadErrorTitle,
+    body: context.l10n.homeLoadErrorBody,
   );
 
   Widget _loading() => const Padding(
@@ -200,7 +199,7 @@ class _TabHeader extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            'Programa',
+            context.l10n.tabProgram,
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w800,
@@ -212,7 +211,7 @@ class _TabHeader extends StatelessWidget {
           color: c.surfaceHigh,
           shape: CircleBorder(side: BorderSide(color: c.border)),
           child: IconButton(
-            tooltip: 'Todos mis programas',
+            tooltip: context.l10n.programsAll,
             onPressed: onHistory,
             icon: Icon(Icons.history, size: 20, color: c.textSecondary),
           ),
@@ -231,7 +230,7 @@ class _WeekPreparing extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Text(
-          'Tu coach está preparando esta semana.',
+          context.l10n.programWeekPreparing,
           style: TextStyle(fontSize: 14, color: c.textMuted),
         ),
       ),

@@ -9,6 +9,7 @@ import 'package:video_player/video_player.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../data/video_files.dart';
 import '../data/video_trim.dart';
+import '../../../l10n/l10n.dart';
 
 // Recortar el video de una serie antes de mandarlo a la cola (como WhatsApp):
 // se ve y se reproduce en loop solo el tramo elegido; al mover una manija el
@@ -116,13 +117,13 @@ class _VideoTrimScreenState extends State<VideoTrimScreen> {
       backgroundColor: c.background,
       appBar: AppBar(
         backgroundColor: c.background,
-        title: const Text('Recortar video'),
+        title: Text(context.l10n.trimTitle),
       ),
       body: SafeArea(
         child: _failed
             ? Center(
                 child: Text(
-                  'No se pudo abrir el video.',
+                  context.l10n.trimOpenError,
                   style: TextStyle(color: c.textMuted),
                 ),
               )
@@ -153,7 +154,7 @@ class _VideoTrimScreenState extends State<VideoTrimScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
                       child: Text(
-                        'Máximo $maxVideoSeconds segundos',
+                        context.l10n.trimMax(maxVideoSeconds),
                         style: TextStyle(fontSize: 12, color: c.textMuted),
                       ),
                     ),
@@ -172,14 +173,14 @@ class _VideoTrimScreenState extends State<VideoTrimScreen> {
                                 borderRadius: BorderRadius.circular(16),
                               ),
                             ),
-                            child: const Text('Cancelar'),
+                            child: Text(context.l10n.commonCancel),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: FilledButton(
                             onPressed: () => Navigator.pop(context, _range),
-                            child: const Text('Usar video'),
+                            child: Text(context.l10n.trimUse),
                           ),
                         ),
                       ],

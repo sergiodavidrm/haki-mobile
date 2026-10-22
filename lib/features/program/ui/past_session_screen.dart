@@ -15,6 +15,7 @@ import '../../session/ui/set_row.dart';
 import '../data/assignment_dtos.dart';
 import '../data/program_schedule.dart';
 import '../providers/program_providers.dart';
+import '../../../l10n/l10n.dart';
 
 // Sesión pasada (solo lectura): lo que se registró en un día completado.
 // Del mockup falta el feedback del coach por ejercicio (hilos de Stream) y
@@ -58,7 +59,7 @@ class PastSessionScreen extends ConsumerWidget {
                 border: Border(bottom: BorderSide(color: c.surfaceHigh)),
               ),
               child: BackHeader(
-                title: day?.title ?? 'Sesión',
+                title: day?.title ?? context.l10n.sessionTitle,
                 subtitle: day == null ? null : _subtitle(p!, week!, day),
                 titleSize: 20,
                 trailing: day == null ? null : _StatusPill(day: day),
@@ -89,8 +90,8 @@ class PastSessionScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(16),
                   child: Text(
                     program.hasError
-                        ? 'No pudimos cargar la sesión. Revisá tu conexión.'
-                        : 'Este día ya no está en el programa.',
+                        ? context.l10n.sessionLoadError
+                        : context.l10n.sessionDayGone,
                     style: TextStyle(color: c.textMuted),
                   ),
                 ),
@@ -109,9 +110,9 @@ class PastSessionScreen extends ConsumerWidget {
         : dateOfDay(p, w.weekNumber, d.dayNumber);
     final duration = durationOf(d);
     return [
-      'Semana ${w.weekNumber}',
+      l10n.weekN(w.weekNumber),
       if (date != null) capitalize(formatShortDate(date)),
-      if (duration != null) '${duration.inMinutes} min',
+      if (duration != null) l10n.minutesShort(duration.inMinutes),
     ].join(' · ');
   }
 }
@@ -141,7 +142,7 @@ class _StatusPill extends StatelessWidget {
             const SizedBox(width: 4),
           ],
           Text(
-            done ? 'Completada' : 'En curso',
+            done ? context.l10n.sessionCompleted : context.l10n.programInProgress,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -238,7 +239,7 @@ class _ExerciseCard extends StatelessWidget {
           const SizedBox(height: 10),
           if (saved.every((s) => s == null))
             Text(
-              'Sin series registradas',
+              context.l10n.sessionNoSets,
               style: TextStyle(fontSize: 13, color: c.textMuted),
             )
           else ...[
@@ -269,7 +270,7 @@ class _ExerciseCard extends StatelessWidget {
                   ),
                   children: [
                     TextSpan(
-                      text: 'Tu nota: ',
+                      text: '${context.l10n.sessionYourNote}: ',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: c.textMuted,
@@ -400,7 +401,7 @@ class _VideoButton extends StatelessWidget {
     final c = context.colors;
     return Semantics(
       button: true,
-      label: 'Ver video de la serie $setNumber',
+      label: context.l10n.sessionViewSetVideo(setNumber),
       excludeSemantics: true,
       child: Material(
         color: c.turquoiseSurface,
@@ -408,9 +409,7 @@ class _VideoButton extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
           onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Ver videos va a estar disponible pronto'),
-            ),
+            SnackBar(content: Text(context.l10n.sessionVideosSoon)),
           ),
           child: SizedBox(
             width: 36,

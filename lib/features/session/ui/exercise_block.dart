@@ -7,6 +7,7 @@ import '../../exercise/data/exercise_stats.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../data/session_plan.dart';
 import 'set_row.dart';
+import '../../../l10n/l10n.dart';
 
 typedef SaveSet = void Function(
   int setNumber,
@@ -117,8 +118,7 @@ class ExerciseBlock extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Tu coach pidió video de la ${pendingVideo.length == 1 ? 'serie' : 'series'} '
-                '${_joinNumbers(pendingVideo)}. Tocá la cámara para grabar o subir.',
+                context.l10n.videoRequestedSets(_joinNumbers(pendingVideo), pendingVideo.length),
                 style: TextStyle(fontSize: 12, color: c.goldBright),
               ),
             ),
@@ -189,7 +189,7 @@ class ExerciseBlock extends StatelessWidget {
               if (done) ...[
                 const SizedBox(width: 8),
                 Semantics(
-                  label: 'Ejercicio completo',
+                  label: context.l10n.exerciseComplete,
                   child: Container(
                     width: 32,
                     height: 32,
@@ -298,20 +298,20 @@ class ExerciseBlock extends StatelessWidget {
 /// "4 series · 10–12 reps · RIR 1" (el RIR solo si es igual en todas).
 String exerciseSummary(DayExerciseDto e) {
   final sets = e.targetSets;
-  if (sets.isEmpty) return 'Sin series prescritas';
+  if (sets.isEmpty) return l10n.noSetsPrescribed;
   final reps = sets.map((s) => s.reps).nonNulls.toList()..sort();
   final rirs = sets.map((s) => s.rir).toSet();
   return [
-    '${sets.length} ${sets.length == 1 ? 'serie' : 'series'}',
+    l10n.setsCount(sets.length),
     if (reps.isNotEmpty)
-      '${reps.first == reps.last ? reps.first : '${reps.first}–${reps.last}'} reps',
+      '${reps.first == reps.last ? reps.first : '${reps.first}–${reps.last}'} ${l10n.repsShort}',
     if (rirs.length == 1 && rirs.single != null) 'RIR ${rirs.single}',
   ].join(' · ');
 }
 
 String _joinNumbers(List<int> n) => n.length == 1
     ? '${n.single}'
-    : '${n.sublist(0, n.length - 1).join(', ')} y ${n.last}';
+    : '${n.sublist(0, n.length - 1).join(', ')} ${l10n.commonAnd} ${n.last}';
 
 /// Cuadro gris con la mancuerna (ejercicio suelto, abierto o colapsado).
 class ExerciseIconTile extends StatelessWidget {
@@ -404,7 +404,7 @@ class _ProgressPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Semantics(
-      label: '$done de $total series hechas',
+      label: context.l10n.setsDoneOf(done, total),
       excludeSemantics: true,
       child: Container(
         height: 22,
@@ -447,7 +447,7 @@ class _UnitButton extends StatelessWidget {
     return Semantics(
       button: true,
       label:
-          'Unidad de este ejercicio: ${unit.label}. Tocá para cambiar a ${unit.other.label}',
+          context.l10n.exerciseUnitLabel(unit.label, unit.other.label),
       excludeSemantics: true,
       child: InkWell(
         onTap: onTap,

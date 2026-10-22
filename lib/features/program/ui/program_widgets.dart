@@ -8,6 +8,7 @@ import '../../../core/widgets/section_label.dart';
 import '../../../core/widgets/segmented_progress.dart';
 import '../data/assignment_dtos.dart';
 import '../data/program_schedule.dart';
+import '../../../l10n/l10n.dart';
 
 /// Tarjeta del bloque: rótulo + link de fechas, nombre, semana y entrenos,
 /// barra por semanas.
@@ -85,12 +86,12 @@ class BlockCard extends StatelessWidget {
             children: [
               Text(
                 finished
-                    ? '$weeks ${weeks == 1 ? 'semana' : 'semanas'}'
-                    : 'Semana $week de $weeks',
+                    ? context.l10n.weeksCount(weeks)
+                    : context.l10n.weekOfTotal(week, weeks),
                 style: TextStyle(fontSize: 13, color: c.textSecondary),
               ),
               Text(
-                '$done de $total entrenos',
+                context.l10n.workoutsDoneOf(done, total),
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -178,7 +179,7 @@ class _WeekTab extends StatelessWidget {
     return Semantics(
       selected: selected,
       button: true,
-      label: 'Semana $week',
+      label: context.l10n.weekN(week),
       excludeSemantics: true,
       child: Material(
         color: selected ? c.goldSurface : Colors.transparent,
@@ -243,7 +244,7 @@ class DayRowTile extends StatelessWidget {
               Expanded(
                 child: _Texts(
                   title: day.title,
-                  subtitle: 'Tu coach lo está preparando',
+                  subtitle: context.l10n.programDayPreparing,
                   titleColor: c.textSecondary,
                   subtitleColor: c.textMuted,
                 ),
@@ -266,7 +267,7 @@ class DayRowTile extends StatelessWidget {
           Expanded(
             child: _Texts(
               title: day.title,
-              subtitle: _subtitle(),
+              subtitle: _subtitle(context.l10n),
               titleColor: c.text,
               subtitleColor: next
                   ? c.goldBright.withValues(alpha: .75)
@@ -284,27 +285,27 @@ class DayRowTile extends StatelessWidget {
     );
   }
 
-  String _subtitle() {
+  String _subtitle(AppLocalizations l) {
     final d = row.day;
     final date = row.date == null
         ? null
         : capitalize(formatShortDate(row.date!));
     final when = switch (row.kind) {
-      DayRowKind.done => dated ? date : 'Hecho',
-      DayRowKind.next => row.isToday ? 'Hoy' : (date ?? 'Siguiente'),
-      DayRowKind.inProgress => 'En curso',
-      _ => date ?? (dated ? null : 'Sin fecha'),
+      DayRowKind.done => dated ? date : l.dayDone,
+      DayRowKind.next => row.isToday ? l.commonToday : (date ?? l.commonNext),
+      DayRowKind.inProgress => l.programInProgress,
+      _ => date ?? (dated ? null : l.commonNoDate),
     };
     final n = d.exercises.length;
     final duration = row.kind == DayRowKind.done ? durationOf(d) : null;
     final ss = d.supersetCount;
     return [
       ?when,
-      '$n ${n == 1 ? 'ejercicio' : 'ejercicios'}',
+      l.exercisesCount(n),
       if (duration != null)
-        '${duration.inMinutes} min'
+        l.minutesShort(duration.inMinutes)
       else if (ss > 0)
-        '$ss ${ss == 1 ? 'superserie' : 'superseries'}',
+        l.supersetsCount(ss),
     ].join(' · ');
   }
 }
@@ -398,7 +399,7 @@ class AllProgramsLink extends StatelessWidget {
         child: Row(
           children: [
             Text(
-              'Todos mis programas',
+              context.l10n.programsAll,
               style: TextStyle(fontSize: 14, color: c.textSecondary),
             ),
             Text(

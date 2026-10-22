@@ -8,6 +8,7 @@ import '../../../core/widgets/section_label.dart';
 import '../../../core/widgets/segmented_progress.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../../program/data/program_schedule.dart';
+import '../../../l10n/l10n.dart';
 
 /// Tira L–D de la semana (programas con fechas por día). Punto = hay entreno;
 /// relleno turquesa = hecho; dorado = hoy.
@@ -26,9 +27,9 @@ class WeekStrip extends StatelessWidget {
           Semantics(
             label:
                 '${formatShortDate(d.date)}: ${switch (d.kind) {
-                  StripDayKind.done => 'entreno hecho',
-                  StripDayKind.planned => 'entreno',
-                  StripDayKind.none => 'sin entreno',
+                  StripDayKind.done => context.l10n.stripDone,
+                  StripDayKind.planned => context.l10n.stripPlanned,
+                  StripDayKind.none => context.l10n.stripNone,
                 }}',
             excludeSemantics: true,
             child: SizedBox(
@@ -120,7 +121,7 @@ class WeekProgressCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Semana ${week.weekNumber} del programa',
+                context.l10n.weekOfProgram(week.weekNumber),
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -128,7 +129,7 @@ class WeekProgressCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '$done de ${week.days.length} entrenos',
+                context.l10n.workoutsDoneOf(done, week.days.length),
                 style: TextStyle(fontSize: 13, color: c.textMuted),
               ),
             ],
@@ -158,8 +159,9 @@ class TrainingDayCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final day = plan.day;
+    final l = context.l10n;
     final label =
-        '${plan.isScheduledToday ? 'Hoy' : 'Siguiente'} · Semana ${plan.week.weekNumber} de ${program.totalWeeks}';
+        '${plan.isScheduledToday ? l.commonToday : l.commonNext} · ${l.weekOfTotal(plan.week.weekNumber, program.totalWeeks)}';
 
     return HakiCard(
       radius: 24,
@@ -186,7 +188,7 @@ class TrainingDayCard extends StatelessWidget {
           const SizedBox(height: 14),
           if (day.exercises.isEmpty)
             Text(
-              'Tu coach lo está preparando.',
+              l.homeDayPreparing,
               style: TextStyle(fontSize: 14, color: c.textSecondary),
             )
           else ...[
@@ -195,16 +197,16 @@ class TrainingDayCard extends StatelessWidget {
               runSpacing: 8,
               children: [
                 PillChip(
-                  '${day.exercises.length} ${day.exercises.length == 1 ? 'ejercicio' : 'ejercicios'}',
+                  l.exercisesCount(day.exercises.length),
                 ),
                 if (day.supersetCount > 0)
                   PillChip(
-                    '${day.supersetCount} ${day.supersetCount == 1 ? 'superserie' : 'superseries'}',
+                    l.supersetsCount(day.supersetCount),
                     tone: PillTone.turquoise,
                   ),
                 if (day.videoRequestCount > 0)
                   PillChip(
-                    '${day.videoRequestCount} ${day.videoRequestCount == 1 ? 'video pedido' : 'videos pedidos'}',
+                    l.videosRequestedCount(day.videoRequestCount),
                     tone: PillTone.gold,
                     icon: Icons.videocam_outlined,
                   ),
@@ -217,7 +219,7 @@ class TrainingDayCard extends StatelessWidget {
                   Icon(Icons.check_circle, color: c.turquoise, size: 22),
                   const SizedBox(width: 8),
                   Text(
-                    'Entreno completado',
+                    l.workoutCompleted,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -229,12 +231,12 @@ class TrainingDayCard extends StatelessWidget {
               SessionStatus.inProgress => FilledButton.icon(
                 onPressed: onStart,
                 icon: const Icon(Icons.play_arrow_rounded),
-                label: const Text('Continuar entreno'),
+                label: Text(l.workoutContinue),
               ),
               SessionStatus.pending => FilledButton.icon(
                 onPressed: onStart,
                 icon: const Icon(Icons.play_arrow_rounded),
-                label: const Text('Empezar entreno'),
+                label: Text(l.workoutStart),
               ),
             },
           ],

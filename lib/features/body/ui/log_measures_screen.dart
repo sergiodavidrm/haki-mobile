@@ -11,6 +11,7 @@ import '../../auth/providers/auth_me_provider.dart';
 import '../../program/data/program_schedule.dart';
 import '../data/body_measures.dart';
 import '../providers/body_providers.dart';
+import '../../../l10n/l10n.dart';
 
 // Registrar medidas (pantalla completa): fecha (hoy por defecto) y las medidas
 // del coach agrupadas. Se mandan solo las que tienen valor; la API mergea con
@@ -114,12 +115,12 @@ class _LogMeasuresScreenState extends ConsumerState<LogMeasuresScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    tooltip: 'Cancelar',
+                    tooltip: context.l10n.commonCancel,
                     onPressed: () => context.pop(),
                     icon: Icon(Icons.close, color: c.text),
                   ),
                   Text(
-                    'Registrar medidas',
+                    context.l10n.measuresLog,
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
@@ -144,7 +145,7 @@ class _LogMeasuresScreenState extends ConsumerState<LogMeasuresScreen> {
                       ),
                       label: Text(
                         isToday
-                            ? 'Hoy · ${formatDayMonth(_date)}'
+                            ? '${context.l10n.commonToday} · ${formatDayMonth(_date)}'
                             : capitalize(formatShortDate(_date)),
                       ),
                       labelStyle: TextStyle(
@@ -159,7 +160,7 @@ class _LogMeasuresScreenState extends ConsumerState<LogMeasuresScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Podés dejar en blanco las que no midas hoy.',
+                    context.l10n.measuresBlankHint,
                     style: TextStyle(
                       fontSize: 13,
                       height: 1.45,
@@ -204,7 +205,7 @@ class _LogMeasuresScreenState extends ConsumerState<LogMeasuresScreen> {
                   onPressed: saving || _values(measures).isEmpty
                       ? null
                       : () => _save(measures),
-                  child: Text(saving ? 'Guardando…' : 'Guardar'),
+                  child: Text(saving ? context.l10n.commonSaving : context.l10n.commonSave),
                 ),
               ),
             ),
@@ -255,7 +256,7 @@ class _MeasureField extends StatelessWidget {
                 ),
                 if (previous != null)
                   Text(
-                    'Anterior: $previous',
+                    context.l10n.measuresPrevious(previous!),
                     style: TextStyle(fontSize: 12, color: c.textMuted),
                   ),
               ],

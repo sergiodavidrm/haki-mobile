@@ -7,6 +7,7 @@ import 'package:haki_mobile/features/program/data/assignment_dtos.dart';
 import 'package:haki_mobile/features/program/data/program_schedule.dart';
 import 'package:haki_mobile/features/program/providers/program_providers.dart';
 import 'package:haki_mobile/features/program/ui/program_screen.dart';
+import 'package:haki_mobile/l10n/l10n.dart';
 
 Future<void> pump(WidgetTester tester, ProgramSections sections) async {
   await tester.pumpWidget(
@@ -14,6 +15,9 @@ Future<void> pump(WidgetTester tester, ProgramSections sections) async {
       overrides: [programSectionsProvider.overrideWith((_) async => sections)],
       child: MaterialApp(
         theme: buildAppTheme(HakiColors.obsidian),
+        locale: const Locale('es'),
+        supportedLocales: supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
         home: const ProgramScreen(),
       ),
     ),

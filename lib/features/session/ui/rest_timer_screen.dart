@@ -7,6 +7,7 @@ import '../../../core/widgets/haki_card.dart';
 import '../../../core/widgets/section_label.dart';
 import '../providers/rest_timer.dart';
 import 'rest_timer_widgets.dart';
+import '../../../l10n/l10n.dart';
 
 /// Timer de descanso a pantalla completa. Bajar (chevron) vuelve a la Sesión
 /// y el timer sigue corriendo en la barra flotante.
@@ -27,13 +28,14 @@ class RestTimerScreen extends ConsumerWidget {
           builder: (context, now) {
             final left = t.leftAt(now);
             final done = t.doneAt(now);
+            final l = context.l10n;
             final toggleLabel = done
-                ? 'Otra vez'
+                ? l.restAgain
                 : t.running
-                ? 'Pausar'
+                ? l.restPause
                 : t.paused
-                ? 'Seguir'
-                : 'Iniciar';
+                ? l.restResume
+                : l.restStart;
 
             // Pantallas bajas: scrollea en vez de desbordar
             return CustomScrollView(
@@ -47,12 +49,12 @@ class RestTimerScreen extends ConsumerWidget {
                         Row(
                           children: [
                             IconButton(
-                              tooltip: 'Minimizar timer',
+                              tooltip: l.restMinimize,
                               onPressed: () => context.pop(),
                               icon: const Icon(Icons.expand_more, size: 26),
                             ),
-                            const Expanded(
-                              child: Center(child: SectionLabel('Descanso')),
+                            Expanded(
+                              child: Center(child: SectionLabel(l.restTitle)),
                             ),
                             const SizedBox(width: 48),
                           ],
@@ -101,7 +103,7 @@ class RestTimerScreen extends ConsumerWidget {
                               const SizedBox(height: 8),
                               if (done)
                                 Text(
-                                  '¡A darle!',
+                                  l.restGo,
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
@@ -109,10 +111,10 @@ class RestTimerScreen extends ConsumerWidget {
                                   ),
                                 )
                               else if (t.paused)
-                                SectionLabel('En pausa', color: c.goldBright)
+                                SectionLabel(l.restPaused, color: c.goldBright)
                               else
                                 Text(
-                                  'de ${formatClock(t.totalSeconds)}',
+                                  l.restOf(formatClock(t.totalSeconds)),
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: c.textMuted,
@@ -126,14 +128,14 @@ class RestTimerScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Duración',
+                              l.restDuration,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: c.textMuted,
                               ),
                             ),
                             Text(
-                              'Se recuerda la última que usaste',
+                              l.restDurationHint,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: c.textMuted,
@@ -162,7 +164,7 @@ class RestTimerScreen extends ConsumerWidget {
                             Expanded(
                               child: _BigButton(
                                 label: '−15 s',
-                                semantics: 'Restar 15 segundos',
+                                semantics: l.restMinus15,
                                 onPressed: () => timer.adjust(-15),
                               ),
                             ),
@@ -185,7 +187,7 @@ class RestTimerScreen extends ConsumerWidget {
                             Expanded(
                               child: _BigButton(
                                 label: '+15 s',
-                                semantics: 'Sumar 15 segundos',
+                                semantics: l.restPlus15,
                                 onPressed: () => timer.adjust(15),
                               ),
                             ),
@@ -204,7 +206,7 @@ class RestTimerScreen extends ConsumerWidget {
                               style: TextButton.styleFrom(
                                 foregroundColor: c.textMuted,
                               ),
-                              child: const Text('Reiniciar'),
+                              child: Text(l.restReset),
                             ),
                             TextButton.icon(
                               onPressed: () {
@@ -220,7 +222,7 @@ class RestTimerScreen extends ConsumerWidget {
                               ),
                               iconAlignment: IconAlignment.end,
                               icon: const Icon(Icons.skip_next, size: 20),
-                              label: const Text('Saltar descanso'),
+                              label: Text(l.restSkip),
                             ),
                           ],
                         ),
@@ -255,7 +257,7 @@ class _Preset extends StatelessWidget {
       inMutuallyExclusiveGroup: true,
       checked: selected,
       button: true,
-      label: 'Descanso de ${formatClock(seconds)}',
+      label: context.l10n.restOfDuration(formatClock(seconds)),
       excludeSemantics: true,
       child: Material(
         color: selected ? c.goldSurface : Colors.transparent,
@@ -365,7 +367,7 @@ class _NextCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SectionLabel('Siguiente'),
+                SectionLabel(context.l10n.commonNext),
                 const SizedBox(height: 2),
                 Text(
                   next.exerciseName,
@@ -378,7 +380,7 @@ class _NextCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   [
-                    'Serie ${next.setNumber}',
+                    context.l10n.setN(next.setNumber),
                     if (next.target != null) next.target!,
                   ].join(' · '),
                   style: TextStyle(fontSize: 13, color: c.turquoise),

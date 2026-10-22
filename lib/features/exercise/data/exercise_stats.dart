@@ -6,6 +6,7 @@ import '../../program/data/assignment_dtos.dart';
 import '../../session/data/session_plan.dart';
 import '../../session/data/session_store.dart';
 import 'exercise_history.dart';
+import '../../../l10n/l10n.dart';
 
 // Lógica pura de rendimiento por ejercicio: "última vez" en la Sesión y el
 // Detalle de ejercicio. Pesos de la API en kg; e1RM = peso × (1 + reps/30),
@@ -32,7 +33,7 @@ double volumeKg(Iterable<LoggedSetDto> sets) =>
 String setsSummary(List<LoggedSetDto> sets, WeightUnit unit) {
   final reps = sets.map((s) => s.reps).nonNulls.join('·');
   final kgs = sets.map((s) => s.weightKg).nonNulls.where((w) => w > 0);
-  if (kgs.isEmpty) return '$reps reps';
+  if (kgs.isEmpty) return '$reps ${l10n.repsShort}';
   final lo = formatWeight(unit.fromKg(kgs.reduce(min)));
   final hi = formatWeight(unit.fromKg(kgs.reduce(max)));
   return '${lo == hi ? hi : '$lo–$hi'} ${unit.label} × $reps';
@@ -47,8 +48,8 @@ String lastTimeLabel(
 }) {
   if (lp.assignmentId != assignmentId) return formatDayMonth(lp.date.toLocal());
   return lp.weekNumber == weekNumber - 1
-      ? 'Sem. pasada'
-      : 'Sem. ${lp.weekNumber}';
+      ? l10n.weekLastShort
+      : l10n.weekShortN(lp.weekNumber);
 }
 
 /// "116 lb × 12 @1" (peso × reps @ RIR) para los chips del historial; sin
@@ -130,15 +131,15 @@ List<HistoryItem> historyItems({
 }) {
   String title(String a, String block, int week, DateTime date) =>
       a == assignmentId
-      ? 'Semana $week · ${formatDayMonth(date.toLocal())}'
-      : '$block · S$week · ${formatDayMonth(date.toLocal())}';
+      ? '${l10n.weekN(week)} · ${formatDayMonth(date.toLocal())}'
+      : '$block · ${l10n.weekLetter(week)} · ${formatDayMonth(date.toLocal())}';
 
   final lp = exercise.lastPerformance;
   final todayRemote = history?.where((h) => h.blockDayId == dayId).firstOrNull;
   return [
     if (today.isNotEmpty)
       HistoryItem(
-        title: 'Semana $weekNumber · hoy',
+        title: '${l10n.weekN(weekNumber)} · ${l10n.commonToday.toLowerCase()}',
         date: now,
         sets: today,
         isToday: true,
@@ -160,8 +161,8 @@ List<HistoryItem> historyItems({
     if (history == null && lp != null)
       HistoryItem(
         title: lp.assignmentId == assignmentId
-            ? 'Semana ${lp.weekNumber} · ${formatDayMonth(lp.date.toLocal())}'
-            : 'Última vez · ${formatDayMonth(lp.date.toLocal())}',
+            ? '${l10n.weekN(lp.weekNumber)} · ${formatDayMonth(lp.date.toLocal())}'
+            : '${l10n.lastTime} · ${formatDayMonth(lp.date.toLocal())}',
         date: lp.date,
         sets: lp.sets,
         inThisProgram: lp.assignmentId == assignmentId,

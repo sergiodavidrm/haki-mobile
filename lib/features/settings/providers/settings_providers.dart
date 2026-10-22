@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/units/weight_unit.dart';
+import '../../../l10n/l10n.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../auth/providers/auth_me_provider.dart';
 
@@ -55,6 +56,22 @@ class AppThemeMode extends _$AppThemeMode {
   void set(ThemeMode mode) {
     state = mode;
     unawaited(SharedPreferencesAsync().setString(_themeKey, mode.name));
+  }
+}
+
+/// Idioma con el que arrancó la app (main lo lee antes de runApp).
+AppLanguage startupLanguage = AppLanguage.system;
+
+/// Ajustes → Idioma: Sistema (default), Español o English. Preferencia del
+/// teléfono (shared_preferences `app_language`).
+@Riverpod(keepAlive: true)
+class AppLanguageSetting extends _$AppLanguageSetting {
+  @override
+  AppLanguage build() => startupLanguage;
+
+  void set(AppLanguage language) {
+    state = language;
+    unawaited(saveAppLanguage(language));
   }
 }
 

@@ -1,15 +1,17 @@
 import '../../../core/units/weight_unit.dart';
 import 'body_log_dto.dart';
+import '../../../l10n/l10n.dart';
 
 // Medidas corporales + lógica pura de Peso y Medidas. Las que pide el coach
 // llegan en /auth/me (estándar o creadas por él); [bodyMeasures] son las 16
-// estándar (claves de la tabla body_measurements de haki-api) con su nombre.
+// estándar (claves de la tabla body_measurements de haki-api). El nombre de
+// las estándar sale de l10n por clave; las del coach traen el suyo.
 
 enum MeasureGroup {
-  torso('Tronco'),
-  limbs('Brazos y piernas'),
-  composition('Composición'),
-  other('Otras');
+  torso,
+  limbs,
+  composition,
+  other;
 
   /// `category` de la API (trunk | arms | legs | composition | other).
   static MeasureGroup parse(String? category) => switch (category) {
@@ -19,8 +21,12 @@ enum MeasureGroup {
     _ => other,
   };
 
-  const MeasureGroup(this.label);
-  final String label;
+  String get label => switch (this) {
+    torso => l10n.measureGroupTorso,
+    limbs => l10n.measureGroupLimbs,
+    composition => l10n.measureGroupComposition,
+    other => l10n.measureGroupOther,
+  };
 }
 
 enum MeasureKind {
@@ -50,7 +56,7 @@ enum MeasureKind {
 class BodyMeasure {
   const BodyMeasure(
     this.key,
-    this.label,
+    this.name,
     this.group, [
     this.kind = MeasureKind.cm,
   ]);
@@ -64,26 +70,29 @@ class BodyMeasure {
       return bodyMeasures.where((m) => m.key == json).firstOrNull;
     }
     if (json is! Map<String, dynamic>) return null;
-    final key = json['key'] as String;
-    final standard = bodyMeasures.where((m) => m.key == key).firstOrNull;
     return BodyMeasure(
-      key,
-      json['name'] as String? ?? standard?.label ?? key,
+      json['key'] as String,
+      json['name'] as String?,
       MeasureGroup.parse(json['category'] as String?),
       MeasureKind.parse(json['unit'] as String?),
     );
   }
 
   final String key;
-  final String label;
+
+  /// Nombre que le puso el coach; null en las estándar.
+  final String? name;
   final MeasureGroup group;
   final MeasureKind kind;
+
+  /// Nombre a mostrar: el del coach o el de la estándar en el idioma activo.
+  String get label => name ?? _standardLabel(key) ?? key;
 
   String unitLabel(WeightUnit weightUnit) => switch (kind) {
     MeasureKind.cm => 'cm',
     MeasureKind.percent => '%',
     MeasureKind.mass => weightUnit.label,
-    MeasureKind.level => 'nivel',
+    MeasureKind.level => l10n.measureUnitLevel,
     MeasureKind.mm => 'mm',
   };
 
@@ -92,35 +101,55 @@ class BodyMeasure {
       kind == MeasureKind.mass ? u.fromKg(apiValue) : apiValue;
 }
 
+String? _standardLabel(String key) => switch (key) {
+  'neck' => l10n.measureNeck,
+  'chest' => l10n.measureChest,
+  'leftArm' => l10n.measureLeftArm,
+  'rightArm' => l10n.measureRightArm,
+  'leftForearm' => l10n.measureLeftForearm,
+  'rightForearm' => l10n.measureRightForearm,
+  'waist' => l10n.measureWaist,
+  'abdomen' => l10n.measureAbdomen,
+  'hips' => l10n.measureHips,
+  'leftThigh' => l10n.measureLeftThigh,
+  'rightThigh' => l10n.measureRightThigh,
+  'leftCalf' => l10n.measureLeftCalf,
+  'rightCalf' => l10n.measureRightCalf,
+  'bodyFatPercentage' => l10n.measureBodyFat,
+  'muscleMass' => l10n.measureMuscleMass,
+  'visceralFat' => l10n.measureVisceralFat,
+  _ => null,
+};
+
 const bodyMeasures = [
-  BodyMeasure('neck', 'Cuello', MeasureGroup.torso),
-  BodyMeasure('chest', 'Pecho', MeasureGroup.torso),
-  BodyMeasure('leftArm', 'Brazo izquierdo', MeasureGroup.limbs),
-  BodyMeasure('rightArm', 'Brazo derecho', MeasureGroup.limbs),
-  BodyMeasure('leftForearm', 'Antebrazo izquierdo', MeasureGroup.limbs),
-  BodyMeasure('rightForearm', 'Antebrazo derecho', MeasureGroup.limbs),
-  BodyMeasure('waist', 'Cintura', MeasureGroup.torso),
-  BodyMeasure('abdomen', 'Abdomen', MeasureGroup.torso),
-  BodyMeasure('hips', 'Cadera', MeasureGroup.torso),
-  BodyMeasure('leftThigh', 'Muslo izquierdo', MeasureGroup.limbs),
-  BodyMeasure('rightThigh', 'Muslo derecho', MeasureGroup.limbs),
-  BodyMeasure('leftCalf', 'Pantorrilla izquierda', MeasureGroup.limbs),
-  BodyMeasure('rightCalf', 'Pantorrilla derecha', MeasureGroup.limbs),
+  BodyMeasure('neck', null, MeasureGroup.torso),
+  BodyMeasure('chest', null, MeasureGroup.torso),
+  BodyMeasure('leftArm', null, MeasureGroup.limbs),
+  BodyMeasure('rightArm', null, MeasureGroup.limbs),
+  BodyMeasure('leftForearm', null, MeasureGroup.limbs),
+  BodyMeasure('rightForearm', null, MeasureGroup.limbs),
+  BodyMeasure('waist', null, MeasureGroup.torso),
+  BodyMeasure('abdomen', null, MeasureGroup.torso),
+  BodyMeasure('hips', null, MeasureGroup.torso),
+  BodyMeasure('leftThigh', null, MeasureGroup.limbs),
+  BodyMeasure('rightThigh', null, MeasureGroup.limbs),
+  BodyMeasure('leftCalf', null, MeasureGroup.limbs),
+  BodyMeasure('rightCalf', null, MeasureGroup.limbs),
   BodyMeasure(
     'bodyFatPercentage',
-    'Grasa corporal',
+    null,
     MeasureGroup.composition,
     MeasureKind.percent,
   ),
   BodyMeasure(
     'muscleMass',
-    'Masa muscular',
+    null,
     MeasureGroup.composition,
     MeasureKind.mass,
   ),
   BodyMeasure(
     'visceralFat',
-    'Grasa visceral',
+    null,
     MeasureGroup.composition,
     MeasureKind.level,
   ),
@@ -151,13 +180,18 @@ List<DatedValue> seriesOf(List<BodyLogDto> logs, String? key) {
 }
 
 enum WeightRange {
-  weeks4('4 sem', 28),
-  months3('3 meses', 91),
-  all('Todo', null);
+  weeks4(28),
+  months3(91),
+  all(null);
 
-  const WeightRange(this.label, this.days);
-  final String label;
+  const WeightRange(this.days);
   final int? days;
+
+  String get label => switch (this) {
+    weeks4 => l10n.range4Weeks,
+    months3 => l10n.range3Months,
+    all => l10n.rangeAll,
+  };
 }
 
 /// Puntos dentro del rango (hasta hoy inclusive).

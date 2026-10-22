@@ -132,6 +132,69 @@ abstract class _$AppThemeMode extends $Notifier<ThemeMode> {
   }
 }
 
+/// Ajustes → Idioma: Sistema (default), Español o English. Preferencia del
+/// teléfono (shared_preferences `app_language`).
+
+@ProviderFor(AppLanguageSetting)
+final appLanguageSettingProvider = AppLanguageSettingProvider._();
+
+/// Ajustes → Idioma: Sistema (default), Español o English. Preferencia del
+/// teléfono (shared_preferences `app_language`).
+final class AppLanguageSettingProvider
+    extends $NotifierProvider<AppLanguageSetting, AppLanguage> {
+  /// Ajustes → Idioma: Sistema (default), Español o English. Preferencia del
+  /// teléfono (shared_preferences `app_language`).
+  AppLanguageSettingProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appLanguageSettingProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$appLanguageSettingHash();
+
+  @$internal
+  @override
+  AppLanguageSetting create() => AppLanguageSetting();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AppLanguage value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AppLanguage>(value),
+    );
+  }
+}
+
+String _$appLanguageSettingHash() =>
+    r'c85a1d18c41ddaef2b2c5daf3a9793df7bdfafee';
+
+/// Ajustes → Idioma: Sistema (default), Español o English. Preferencia del
+/// teléfono (shared_preferences `app_language`).
+
+abstract class _$AppLanguageSetting extends $Notifier<AppLanguage> {
+  AppLanguage build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AppLanguage, AppLanguage>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AppLanguage, AppLanguage>,
+              AppLanguage,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// Ajustes → Unidad de peso: PATCH auth/me/weight-unit y refresca /auth/me
 /// (Sesión y peso corporal la leen de ahí). El estado es el guardado en curso.
 

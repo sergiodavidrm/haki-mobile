@@ -1,8 +1,10 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../auth/providers/auth_me_provider.dart';
+import '../../program/data/assignment_dtos.dart';
 import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
+import '../data/adherence.dart';
 import '../data/records.dart';
 import '../data/streak_dto.dart';
 
@@ -25,6 +27,23 @@ Future<ProgramAdherence?> currentAdherence(Ref ref) async {
   return a == null
       ? (done: done, due: null, total: total)
       : (done: a.$1, due: a.$2, total: total);
+}
+
+/// Pantalla Adherencia: el programa en curso + el anterior (para comparar).
+/// null si no hay programa en curso.
+@riverpod
+Future<({AdherenceReport report, AssignmentSummaryDto? previous})?>
+adherenceDetail(Ref ref) async {
+  final sections = await ref.watch(programSectionsProvider.future);
+  final current = sections.current;
+  if (current == null) return null;
+  final p = await ref.watch(
+    programWithLocalProvider(current.assignmentId).future,
+  );
+  return (
+    report: adherenceReport(p, dateOnly(DateTime.now())),
+    previous: sections.past.where((x) => x.totalDays > 0).firstOrNull,
+  );
 }
 
 /// Racha de semanas (tarjeta del Perfil). Necesita red; sin ella la tarjeta

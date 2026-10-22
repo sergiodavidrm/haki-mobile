@@ -14,6 +14,7 @@ import '../../features/body/ui/measure_logs_screen.dart';
 import '../../features/exercise/ui/exercise_detail_screen.dart';
 import '../../features/home/ui/home_screen.dart';
 import '../../features/profile/ui/profile_screen.dart';
+import '../../features/profile/ui/adherence_screen.dart';
 import '../../features/profile/ui/records_screen.dart';
 import '../../features/program/ui/assign_dates_screen.dart';
 import '../../features/program/ui/past_session_screen.dart';
@@ -24,6 +25,7 @@ import '../../features/session/ui/rest_timer_screen.dart';
 import '../../features/session/ui/session_screen.dart';
 import '../../features/session/ui/workout_complete_screen.dart';
 import '../../features/chat/ui/chat_screen.dart';
+import '../../features/questionnaire/ui/questionnaire_screen.dart';
 import '../widgets/app_shell.dart';
 
 part 'app_router.g.dart';
@@ -63,6 +65,7 @@ abstract final class Routes {
   static const measures = '/perfil/medidas';
   static const settings = '/perfil/ajustes';
   static const records = '/perfil/records';
+  static const adherence = '/perfil/adherencia';
   static const measureLogs = '/perfil/medidas/registros';
 
   /// Historial y gráfico de una medida (clave de BodyMeasurementKeys).
@@ -74,6 +77,9 @@ abstract final class Routes {
       ? '/medidas/registrar'
       : '/medidas/registrar?fecha=${date.toIso8601String().substring(0, 10)}';
   static String assignDates(String assignmentId) => '/fechas/$assignmentId';
+
+  /// Responder un cuestionario pendiente ([responseId] = id del envío).
+  static String questionnaire(String responseId) => '/cuestionario/$responseId';
 }
 
 // Rutas + guard de auth (equivalente a app.routes.ts + authGuard del web).
@@ -125,6 +131,12 @@ GoRouter appRouter(Ref ref) {
             final f? => DateTime.tryParse('${f}T00:00:00Z'),
             null => null,
           },
+        ),
+      ),
+      GoRoute(
+        path: '/cuestionario/:responseId',
+        builder: (_, state) => QuestionnaireScreen(
+          responseId: state.pathParameters['responseId']!,
         ),
       ),
       GoRoute(
@@ -194,6 +206,10 @@ GoRouter appRouter(Ref ref) {
                   GoRoute(
                     path: 'records',
                     builder: (_, _) => const RecordsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'adherencia',
+                    builder: (_, _) => const AdherenceScreen(),
                   ),
                   GoRoute(
                     path: 'medidas',

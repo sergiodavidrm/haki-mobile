@@ -1,3 +1,4 @@
+import '../../../l10n/l10n.dart';
 // DTOs de block-assignments (haki-api: ClientAssignmentSummaryDto y
 // BlockAssignmentDetailDto). Solo los campos que usa la app; se agregan a
 // medida que los necesiten Programa / Sesión.
@@ -201,7 +202,9 @@ class DayDto {
   /// "Día 3 · Espalda y bíceps" (o solo "Día 3" si el coach no le puso nombre).
   String get title {
     final n = name?.trim();
-    return n == null || n.isEmpty ? 'Día $dayNumber' : 'Día $dayNumber · $n';
+    return n == null || n.isEmpty
+        ? l10n.dayN(dayNumber)
+        : '${l10n.dayN(dayNumber)} · $n';
   }
 
   DayDto withStatus(

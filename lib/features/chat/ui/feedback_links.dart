@@ -10,6 +10,7 @@ import '../data/chat_message.dart';
 import '../providers/chat_providers.dart';
 import '../providers/feedback_providers.dart';
 import 'feedback_thread_screen.dart';
+import '../../../l10n/l10n.dart';
 
 // Links al hilo de feedback fuera del chat (mockup: Detalle de ejercicio y
 // Sesión pasada). Solo si el coach usa feedback por ejercicio; sin red o
@@ -23,7 +24,7 @@ Future<void> openFeedbackThread(
 ) async {
   final channel = await ref.read(generalChannelProvider.future);
   if (!context.mounted) return;
-  final coach = ref.read(authMeProvider).value?.coachName ?? 'Tu coach';
+  final coach = ref.read(authMeProvider).value?.coachName ?? context.l10n.yourCoach;
   await Navigator.of(context).push(
     MaterialPageRoute<void>(
       builder: (_) => StreamChannel(
@@ -43,7 +44,7 @@ class FeedbackLink extends ConsumerWidget {
   const FeedbackLink({
     super.key,
     required this.messageId,
-    this.title = 'Feedback de tus videos',
+    this.title,
     this.compact = false,
     this.videoCount = 0,
     this.margin = EdgeInsets.zero,
@@ -53,7 +54,8 @@ class FeedbackLink extends ConsumerWidget {
 
   /// Espacio alrededor, solo cuando se muestra (sin feedback no ocupa lugar).
   final EdgeInsets margin;
-  final String title;
+  /// null = 'Feedback de tus videos'.
+  final String? title;
   final bool compact;
   final int videoCount;
 
@@ -71,20 +73,19 @@ class FeedbackLink extends ConsumerWidget {
     final summary = ref.watch(feedbackSummaryProvider(messageId)).value;
     if (summary == null) return null;
 
-    final coach = me?.coachName ?? 'Tu coach';
+    final l = context.l10n;
+    final title = this.title ?? l.feedbackYourVideos;
+    final coach = me?.coachName ?? l.yourCoach;
     final count = summary.count;
     void open() => unawaited(openFeedbackThread(context, ref, summary.parent));
 
     if (compact) {
       final videos = videoCount == 0
           ? null
-          : '$videoCount ${videoCount == 1 ? 'video' : 'videos'}';
+          : l.videosCount(videoCount);
       final text = count == 0
-          ? [videos, 'sin feedback todavía'].nonNulls.join(' · ')
-          : [
-              videos,
-              '$count ${count == 1 ? 'mensaje' : 'mensajes'} de feedback',
-            ].nonNulls.join(' · ');
+          ? [videos, l.feedbackNoneYet].nonNulls.join(' · ')
+          : [videos, l.feedbackMessagesCount(count)].nonNulls.join(' · ');
       return Align(
         alignment: Alignment.centerLeft,
         child: Material(
@@ -140,7 +141,7 @@ class FeedbackLink extends ConsumerWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Tu video todavía no tiene feedback',
+                    l.feedbackVideoNone,
                     style: TextStyle(fontSize: 12, color: c.textMuted),
                   ),
                 ),
@@ -158,12 +159,12 @@ class FeedbackLink extends ConsumerWidget {
     final subtitle = [
       ?who,
       if (last != null) shortDate(last.createdAt.toLocal()),
-      '$count ${count == 1 ? 'mensaje' : 'mensajes'}',
+      l.messagesCount(count),
     ].join(' · ');
 
     return Semantics(
       button: true,
-      label: '$title: $subtitle. Ver hilo',
+      label: '$title: $subtitle. ${l.feedbackSeeThread}',
       excludeSemantics: true,
       child: Material(
         color: c.turquoiseSurface,
@@ -214,7 +215,7 @@ class FeedbackLink extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  'Ver',
+                  l.see,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,

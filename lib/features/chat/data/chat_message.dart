@@ -1,6 +1,8 @@
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
 import '../../../core/units/weight_unit.dart';
+import '../../../core/format/dates.dart';
+import '../../../l10n/l10n.dart';
 
 // Lógica pura de los mensajes del chat (sin Flutter): tarjetas de videos,
 // separadores de fecha y miniaturas de Cloudinary.
@@ -25,7 +27,7 @@ class CardVideo {
   String label(WeightUnit unit) {
     final w = weightKg;
     final base = w == null || w <= 0
-        ? '${reps ?? '–'} reps'
+        ? '${reps ?? '–'} ${l10n.repsShort}'
         : '${formatWeight(unit.fromKg(w))} ${unit.label} × ${reps ?? '–'}';
     return rir == null ? base : '$base · RIR $rir';
   }
@@ -51,7 +53,7 @@ class VideoCard {
   /// "Sem 2 · Día 3"
   String? get dayLabel => weekNumber == null || dayNumber == null
       ? null
-      : 'Sem $weekNumber · Día $dayNumber';
+      : '${l10n.weekShortN(weekNumber!)} · ${l10n.dayN(dayNumber!)}';
 
   /// null si el mensaje no es una tarjeta.
   static VideoCard? of(Message m) {
@@ -91,34 +93,19 @@ String? cloudinaryThumb(String videoUrl) {
   return uri.replace(path: '$base.jpg').toString();
 }
 
-const _months = [
-  'ene',
-  'feb',
-  'mar',
-  'abr',
-  'may',
-  'jun',
-  'jul',
-  'ago',
-  'sep',
-  'oct',
-  'nov',
-  'dic',
-];
-
 /// Separador de día: "Hoy", "Ayer" o "25 sep" (con año si no es este).
 String daySeparator(DateTime d, DateTime now) {
   final day = DateTime(d.year, d.month, d.day);
   final today = DateTime(now.year, now.month, now.day);
   final diff = today.difference(day).inDays;
-  if (diff == 0) return 'Hoy';
-  if (diff == 1) return 'Ayer';
-  final s = '${d.day} ${_months[d.month - 1]}';
+  if (diff == 0) return l10n.commonToday;
+  if (diff == 1) return capitalize(l10n.commonYesterday);
+  final s = formatDayMonth(d);
   return d.year == now.year ? s : '$s ${d.year}';
 }
 
 /// "26 sep"
-String shortDate(DateTime d) => '${d.day} ${_months[d.month - 1]}';
+String shortDate(DateTime d) => formatDayMonth(d);
 
 bool sameDay(DateTime a, DateTime b) =>
     a.year == b.year && a.month == b.month && a.day == b.day;

@@ -10,6 +10,7 @@ import '../../../core/widgets/haki_card.dart';
 import '../../auth/providers/auth_me_provider.dart';
 import '../data/body_measures.dart';
 import '../providers/body_providers.dart';
+import '../../../l10n/l10n.dart';
 
 // Registros anteriores: un registro por día con alguna de las medidas que
 // pidió el coach, del más nuevo al más viejo. Tocar uno abre Registrar
@@ -31,16 +32,16 @@ class MeasureLogsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: BackHeader(title: 'Registros de medidas', titleSize: 22),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: BackHeader(title: context.l10n.measuresLogs, titleSize: 22),
             ),
             Expanded(
               child: switch (logs) {
                 AsyncData() when rows.isEmpty => Padding(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    'Todavía no registraste medidas.',
+                    context.l10n.measuresNoneYetDot,
                     style: TextStyle(color: c.textMuted),
                   ),
                 ),
@@ -103,7 +104,7 @@ class MeasureLogsScreen extends ConsumerWidget {
                 AsyncError() => Padding(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    'No pudimos cargar tus medidas. Revisá tu conexión.',
+                    context.l10n.measuresLoadError,
                     style: TextStyle(color: c.textMuted),
                   ),
                 ),

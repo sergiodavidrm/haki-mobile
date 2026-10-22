@@ -14,6 +14,7 @@ import '../../program/data/program_schedule.dart';
 import '../data/body_measures.dart';
 import '../providers/body_providers.dart';
 import 'body_widgets.dart';
+import '../../../l10n/l10n.dart';
 
 // Historial de una medida: peso corporal ([measureKey] null) o una de las
 // medidas (cintura, % grasa…). Último valor, cambio en el rango, gráfico,
@@ -62,7 +63,7 @@ class _BodySeriesScreenState extends ConsumerState<BodySeriesScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: BackHeader(
-                title: measure?.label ?? 'Peso corporal',
+                title: measure?.label ?? context.l10n.bodyWeight,
                 titleSize: 22,
               ),
             ),
@@ -70,8 +71,8 @@ class _BodySeriesScreenState extends ConsumerState<BodySeriesScreen> {
               child: switch (logs) {
                 AsyncData() when all.isEmpty => _Empty(
                   text: isWeight
-                      ? 'Todavía no registraste tu peso.'
-                      : 'Todavía no registraste esta medida.',
+                      ? context.l10n.bodyNoWeightYet
+                      : context.l10n.bodyNoMeasureYet,
                 ),
                 AsyncData() => RefreshIndicator(
                   onRefresh: () => ref.refresh(bodyLogsProvider.future),
@@ -93,7 +94,7 @@ class _BodySeriesScreenState extends ConsumerState<BodySeriesScreen> {
                       _ChartCard(
                         points: shown,
                         unitLabel: unitLabel,
-                        title: measure?.label ?? 'Peso',
+                        title: measure?.label ?? context.l10n.bodyWeightShort,
                       ),
                       const SizedBox(height: 18),
                       _History(
@@ -104,7 +105,7 @@ class _BodySeriesScreenState extends ConsumerState<BodySeriesScreen> {
                   ),
                 ),
                 AsyncError() => _Empty(
-                  text: 'No pudimos cargar tus datos. Revisá tu conexión.',
+                  text: context.l10n.bodyLoadError,
                 ),
                 _ => const Center(child: CircularProgressIndicator()),
               },
@@ -115,7 +116,7 @@ class _BodySeriesScreenState extends ConsumerState<BodySeriesScreen> {
                 onPressed: () => isWeight
                     ? showWeightSheet(context)
                     : context.push(Routes.logMeasures()),
-                child: Text(isWeight ? 'Registrar peso' : 'Registrar medidas'),
+                child: Text(isWeight ? context.l10n.bodyLogWeightButton : context.l10n.measuresLog),
               ),
             ),
           ],
@@ -173,7 +174,7 @@ class _Summary extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'Último registro · ${formatDayMonth(last.date)}',
+                context.l10n.lastEntry(formatDayMonth(last.date)),
                 style: TextStyle(fontSize: 13, color: c.textMuted),
               ),
             ],
@@ -185,9 +186,9 @@ class _Summary extends StatelessWidget {
             children: [
               DeltaText(change, suffix: ' $unitLabel', size: 15),
               Text(switch (range) {
-                WeightRange.weeks4 => 'en 4 semanas',
-                WeightRange.months3 => 'en 3 meses',
-                WeightRange.all => 'desde el inicio',
+                WeightRange.weeks4 => context.l10n.rangeIn4Weeks,
+                WeightRange.months3 => context.l10n.rangeIn3Months,
+                WeightRange.all => context.l10n.rangeSinceStart,
               }, style: TextStyle(fontSize: 12, color: c.textMuted)),
             ],
           ),
@@ -246,7 +247,7 @@ class _ChartCard extends StatelessWidget {
     if (points.length < 2) {
       return HakiCard(
         child: Text(
-          'Con dos registros en este rango vas a ver el gráfico.',
+          context.l10n.bodyTwoEntriesHint,
           style: TextStyle(fontSize: 13, color: c.textMuted),
         ),
       );
@@ -262,8 +263,11 @@ class _ChartCard extends StatelessWidget {
           BodyLineChart(
             points: points,
             semanticLabel:
-                '$title de ${formatWeight(points.first.value)} a '
-                '${formatWeight(points.last.value)} $unitLabel',
+                context.l10n.bodyTrend(
+                  title,
+                  formatWeight(points.first.value),
+                  '${formatWeight(points.last.value)} $unitLabel',
+                ),
           ),
           const SizedBox(height: 6),
           Row(
@@ -296,7 +300,7 @@ class _History extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Historial',
+          context.l10n.exerciseHistory,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -437,7 +441,7 @@ class _WeightSheetState extends ConsumerState<_WeightSheet> {
             children: [
               Expanded(
                 child: Text(
-                  'Registrar peso',
+                  context.l10n.bodyLogWeightButton,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -446,7 +450,7 @@ class _WeightSheetState extends ConsumerState<_WeightSheet> {
                 ),
               ),
               Text(
-                'Hoy · ${formatDayMonth(DateTime.now())}',
+                '${context.l10n.commonToday} · ${formatDayMonth(DateTime.now())}',
                 style: TextStyle(fontSize: 13, color: c.textMuted),
               ),
             ],
@@ -474,7 +478,7 @@ class _WeightSheetState extends ConsumerState<_WeightSheet> {
           if (last != null) ...[
             const SizedBox(height: 10),
             Text(
-              'Último: ${formatWeight(unit.fromKg(last.value))} ${unit.label}'
+              '${context.l10n.bodyLast('${formatWeight(unit.fromKg(last.value))} ${unit.label}')}'
               ' · ${formatDayMonth(last.date)}',
               style: TextStyle(fontSize: 13, color: c.textMuted),
             ),
@@ -486,7 +490,7 @@ class _WeightSheetState extends ConsumerState<_WeightSheet> {
               onPressed: saving || parseMeasure(_input.text) == null
                   ? null
                   : _save,
-              child: Text(saving ? 'Guardando…' : 'Guardar'),
+              child: Text(saving ? context.l10n.commonSaving : context.l10n.commonSave),
             ),
           ),
         ],

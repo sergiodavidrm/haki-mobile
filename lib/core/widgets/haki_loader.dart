@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../theme/haki_colors.dart';
+import '../../l10n/l10n.dart';
 
 /// Indicador de carga del mockup ("Cargando"): arco dorado que gira sobre un
 /// anillo gris, tres ondas que se expanden (dos doradas, una turquesa) y un
@@ -138,14 +139,10 @@ class _LoaderPainter extends CustomPainter {
 
 /// Pantalla "Cargando tu semana…" (mientras se baja /auth/me y el programa).
 class LoadingView extends StatelessWidget {
-  const LoadingView({
-    super.key,
-    this.title = 'Cargando tu semana…',
-    this.subtitle = 'Sincronizando tu programa con tu coach',
-  });
+  const LoadingView({super.key, this.title, this.subtitle});
 
-  final String title;
-  final String subtitle;
+  final String? title;
+  final String? subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +153,7 @@ class LoadingView extends StatelessWidget {
         const HakiLoader(),
         const SizedBox(height: 44),
         Text(
-          title,
+          title ?? context.l10n.loadingTitle,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 16,
@@ -166,7 +163,7 @@ class LoadingView extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          subtitle,
+          subtitle ?? context.l10n.loadingSubtitle,
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 13, color: c.textMuted),
         ),

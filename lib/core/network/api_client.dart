@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../config/env.dart';
 import '../supabase/supabase_providers.dart';
+import '../../l10n/l10n.dart';
 
 part 'api_client.g.dart';
 
@@ -38,7 +39,7 @@ String apiErrorMessage(Object error) {
     if (data is Map && data['detail'] is String) {
       return data['detail'] as String;
     }
-    if (error.response == null) return 'Sin conexión. Probá de nuevo.';
+    if (error.response == null) return l10n.errorOfflineRetry;
   }
-  return 'Algo salió mal. Probá de nuevo.';
+  return l10n.errorGeneric;
 }

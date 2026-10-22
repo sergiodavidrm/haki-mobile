@@ -12,8 +12,11 @@ import '../../../core/widgets/user_avatar.dart';
 import '../../auth/providers/auth_me_provider.dart';
 import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
+import '../../questionnaire/providers/questionnaire_providers.dart';
+import '../../questionnaire/ui/pending_questionnaire_card.dart';
 import '../providers/today_provider.dart';
 import 'today_widgets.dart';
+import '../../../l10n/l10n.dart';
 
 // Pantalla Hoy: qué toca entrenar hoy según el programa en curso.
 class HomeScreen extends ConsumerWidget {
@@ -22,8 +25,12 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
+    final l = context.l10n;
     final name = ref.watch(displayNameProvider);
     final today = ref.watch(todayProvider);
+    // Pendientes sin responder: quedan en Hoy hasta que los envía (no vencen)
+    final pending =
+        ref.watch(myQuestionnairesProvider).value?.pending ?? const [];
 
     return Scaffold(
       body: SafeArea(
@@ -32,6 +39,7 @@ class HomeScreen extends ConsumerWidget {
             ref.read(apiCacheProvider).expire(wait: true);
             ref.invalidate(programSectionsProvider);
             ref.invalidate(programDetailProvider);
+            ref.invalidate(myQuestionnairesProvider);
             return ref.read(todayProvider.future);
           },
           child: ListView(
@@ -42,7 +50,7 @@ class HomeScreen extends ConsumerWidget {
               _Header(name: name),
               const SizedBox(height: 20),
               Text(
-                'Hola, ${name.split(' ').first}',
+                l.homeGreeting(name.split(' ').first),
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
@@ -60,9 +68,9 @@ class HomeScreen extends ConsumerWidget {
                 AsyncData(:final value) => _content(context, value),
                 AsyncError() => [
                   TodayInfoCard(
-                    label: 'Sin conexión',
-                    title: 'No pudimos cargar tu programa',
-                    body: 'Revisá tu conexión y deslizá hacia abajo para reintentar.',
+                    label: l.commonOffline,
+                    title: l.homeLoadErrorTitle,
+                    body: l.homeLoadErrorBody,
                   ),
                 ],
                 _ => const [
@@ -72,6 +80,11 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ],
               },
+              // Debajo de la tarjeta del entreno, el más viejo primero
+              for (final q in pending) ...[
+                const SizedBox(height: 12),
+                PendingQuestionnaireCard(questionnaire: q),
+              ],
             ],
           ),
         ),
@@ -81,23 +94,24 @@ class HomeScreen extends ConsumerWidget {
 
   List<Widget> _content(BuildContext context, TodayState state) {
     const gap = SizedBox(height: 20);
+    final l = context.l10n;
     switch (state) {
       case NoProgram():
-        return const [
+        return [
           TodayInfoCard(
-            label: 'Tu programa',
-            title: 'Todavía no tenés un programa',
-            body: 'Cuando tu coach te asigne uno, aparece acá.',
+            label: l.homeYourProgram,
+            title: l.homeNoProgramTitle,
+            body: l.homeNoProgramBody,
           ),
         ];
       case OnlyUpcoming(:final next):
         return [
           TodayInfoCard(
-            label: 'Próximo',
+            label: l.homeUpcoming,
             title: next.blockName,
             body: next.startDate == null
                 ? null
-                : 'Empieza el ${formatShortDate(next.startDate!)}.',
+                : l.homeStartsOn(formatShortDate(next.startDate!)),
           ),
         ];
       case WithProgram(:final program, :final plan):
@@ -121,22 +135,21 @@ class HomeScreen extends ConsumerWidget {
                   _openSession(context, program.assignmentId, plan.day.id),
             ),
             RestDay(:final next, :final nextDate) => TodayInfoCard(
-              label: 'Hoy · Descanso',
-              title: 'Día de descanso',
+              label: l.homeRestLabel,
+              title: l.homeRestTitle,
               body: next != null
-                  ? 'Próximo: ${next.title} · ${formatShortDate(nextDate!)}'
-                  : 'Tu coach está preparando lo que sigue.',
+                  ? l.homeRestNext(next.title, formatShortDate(nextDate!))
+                  : l.homeRestPreparing,
             ),
             WeekDone(:final week) => TodayInfoCard(
-              label: 'Semana ${week.weekNumber} de ${program.totalWeeks}',
-              title: 'Semana completa',
-              body: 'Hiciste todos los entrenos de esta semana. La que viene sigue el programa.',
+              label: l.weekOfTotal(week.weekNumber, program.totalWeeks),
+              title: l.homeWeekDoneTitle,
+              body: l.homeWeekDoneBody,
             ),
             ProgramFinished() => TodayInfoCard(
-              label: 'Programa terminado',
+              label: l.homeProgramDoneLabel,
               title: program.blockName,
-              body:
-                  'Completaste el bloque. Tu coach te va a asignar el próximo.',
+              body: l.homeProgramDoneBody,
             ),
           },
         ];
@@ -178,7 +191,7 @@ class _Header extends StatelessWidget {
         const Spacer(),
         Semantics(
           button: true,
-          label: 'Tu perfil',
+          label: context.l10n.homeYourProfile,
           child: GestureDetector(
             onTap: () => context.go(Routes.profile),
             child: UserAvatar(name: name),

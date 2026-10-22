@@ -5,6 +5,7 @@ import '../../../core/theme/haki_colors.dart';
 import '../../../core/widgets/haki_loader.dart';
 import '../data/auth_repository.dart';
 import '../providers/auth_me_provider.dart';
+import '../../../l10n/l10n.dart';
 
 // Deja pasar solo a atletas. Con Google cualquiera puede crear una sesión en
 // Supabase (Google sin invitación, o un coach): sin usuario CLIENT en haki-api
@@ -22,12 +23,11 @@ class AthleteGate extends ConsumerWidget {
       AsyncData(:final value) when value.isAthlete => child,
       AsyncData(:final value) => _Message(
           text: value.exists
-              ? 'Esta app es para atletas. Como coach, entrá desde hakifit.com.'
-              : 'Tu cuenta no está asociada a ningún coach. Pedile a tu coach que te '
-                  'invite y entrá con el mismo email de la invitación.',
+              ? context.l10n.gateCoach
+              : context.l10n.gateNoCoach,
         ),
       AsyncError() => _Message(
-          text: 'No se pudo conectar. Revisá tu conexión e intentá de nuevo.',
+          text: context.l10n.gateConnectError,
           onRetry: () => ref.invalidate(authMeProvider),
         ),
       _ => const Scaffold(body: Center(child: LoadingView())),
@@ -55,12 +55,12 @@ class _Message extends ConsumerWidget {
               Text(text, textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
               const SizedBox(height: 24),
               if (onRetry != null) ...[
-                FilledButton(onPressed: onRetry, child: const Text('Reintentar')),
+                FilledButton(onPressed: onRetry, child: Text(context.l10n.commonRetry)),
                 const SizedBox(height: 12),
               ],
               OutlinedButton(
                 onPressed: () => ref.read(authRepositoryProvider).signOut(),
-                child: const Text('Cerrar sesión'),
+                child: Text(context.l10n.settingsSignOut),
               ),
             ],
           ),

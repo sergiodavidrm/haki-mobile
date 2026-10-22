@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/notifications/rest_notifications.dart';
 import '../../settings/providers/settings_providers.dart';
+import '../../../l10n/l10n.dart';
 
 part 'rest_timer.g.dart';
 
@@ -185,7 +186,7 @@ class RestTimer extends _$RestTimer {
     final next = state.info?.next;
     return next == null
         ? null
-        : 'Sigue: ${next.exerciseName} · serie ${next.setNumber}';
+        : l10n.notifNextSet(next.exerciseName, next.setNumber);
   }
 
   void _notifyPaused() => unawaited(

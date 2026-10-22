@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../providers/rest_timer.dart';
+import '../../../l10n/l10n.dart';
 
 /// 90 → "1:30"
 String formatClock(int seconds) =>
@@ -70,7 +71,7 @@ class RestTimerButton extends StatelessWidget {
       color: c.surfaceHigh,
       shape: CircleBorder(side: BorderSide(color: c.border)),
       child: IconButton(
-        tooltip: 'Timer de descanso',
+        tooltip: context.l10n.restTimer,
         onPressed: () => context.push(Routes.rest),
         icon: Icon(Icons.timer_outlined, color: c.goldBright, size: 22),
       ),
@@ -126,7 +127,7 @@ class RestTimerBar extends ConsumerWidget {
                     Expanded(
                       child: Semantics(
                         button: true,
-                        label: 'Abrir timer de descanso',
+                        label: context.l10n.restOpenTimer,
                         child: InkWell(
                           onTap: () => context.push(Routes.rest),
                           child: Row(
@@ -138,7 +139,7 @@ class RestTimerBar extends ConsumerWidget {
                               ),
                               const SizedBox(width: 10),
                               Text(
-                                done ? '¡A darle!' : formatClock(left),
+                                done ? context.l10n.restGo : formatClock(left),
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
@@ -152,7 +153,7 @@ class RestTimerBar extends ConsumerWidget {
                               if (next != null)
                                 Expanded(
                                   child: Text(
-                                    'Luego: ${next.badge ?? next.exerciseName} · serie ${next.setNumber}',
+                                    context.l10n.restThen(next.badge ?? next.exerciseName, next.setNumber),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
@@ -167,22 +168,22 @@ class RestTimerBar extends ConsumerWidget {
                       ),
                     ),
                     _BarButton(
-                      tooltip: 'Reiniciar descanso',
+                      tooltip: context.l10n.restResetRest,
                       icon: Icons.replay,
                       onPressed: timer.restart,
                     ),
                     const SizedBox(width: 8),
                     _BarButton(
                       tooltip: t.running && !done
-                          ? 'Pausar descanso'
-                          : 'Seguir descanso',
+                          ? context.l10n.restPauseRest
+                          : context.l10n.restResumeRest,
                       icon: t.running && !done ? Icons.pause : Icons.play_arrow,
                       primary: true,
                       onPressed: timer.toggle,
                     ),
                     const SizedBox(width: 8),
                     _BarButton(
-                      tooltip: 'Cerrar timer',
+                      tooltip: context.l10n.restCloseTimer,
                       icon: Icons.close,
                       onPressed: timer.dismiss,
                     ),

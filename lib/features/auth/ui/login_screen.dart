@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/widgets/haki_logo.dart';
 import '../providers/login_controller.dart';
+import '../../../l10n/l10n.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -35,6 +36,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final c = context.colors;
     final state = ref.watch(loginControllerProvider);
     final loading = state.isLoading;
+    final l = context.l10n;
 
     return Scaffold(
       body: SafeArea(
@@ -48,7 +50,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 children: [
                   const HakiLogo(),
                   const SizedBox(height: 10),
-                  Text('Voluntad sobre límites.',
+                  Text(l.slogan,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: c.textMuted, fontStyle: FontStyle.italic)),
                   const SizedBox(height: 40),
@@ -58,9 +60,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     keyboardType: TextInputType.emailAddress,
                     autofillHints: const [AutofillHints.email],
                     textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(labelText: 'Email'),
+                    decoration: InputDecoration(labelText: l.authEmail),
                     validator: (v) =>
-                        (v == null || !v.contains('@')) ? 'Ingresá un email válido' : null,
+                        (v == null || !v.contains('@')) ? l.authInvalidEmail : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -70,8 +72,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     autofillHints: const [AutofillHints.password],
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) => _submit(),
-                    decoration: const InputDecoration(labelText: 'Contraseña'),
-                    validator: (v) => (v == null || v.isEmpty) ? 'Ingresá tu contraseña' : null,
+                    decoration: InputDecoration(labelText: l.authPassword),
+                    validator: (v) => (v == null || v.isEmpty) ? l.authEnterPassword : null,
                   ),
                   if (state.hasError) ...[
                     const SizedBox(height: 12),
@@ -83,7 +85,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: loading
                         ? const SizedBox(
                             width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Text('Entrar'),
+                        : Text(l.authSignIn),
                   ),
                   const SizedBox(height: 20),
                   Row(children: [
@@ -101,7 +103,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         : () => ref.read(loginControllerProvider.notifier).signInWithGoogle(),
                     icon: const Text('G',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-                    label: const Text('Continuar con Google'),
+                    label: Text(l.authContinueGoogle),
                   ),
                 ],
               ),

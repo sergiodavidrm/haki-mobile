@@ -5,6 +5,7 @@ import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../data/session_plan.dart';
+import '../../../l10n/l10n.dart';
 
 /// Anchos de columna compartidos con el encabezado de la tabla.
 /// [normal] = ejercicio suelto; [compact] = dentro de una superserie.
@@ -61,11 +62,11 @@ class SetTableHeader extends StatelessWidget {
           height: 24,
           child: Row(
             children: [
-              cell(compact ? '#' : 'SERIE', cols.set),
+              cell(compact ? '#' : context.l10n.setHeader, cols.set),
               const SizedBox(width: SetCols.gap),
               Expanded(
                 child: Text(
-                  compact ? 'OBJ.' : 'OBJETIVO',
+                  compact ? context.l10n.targetHeaderShort : context.l10n.targetHeader,
                   style: style,
                   maxLines: 1,
                   overflow: TextOverflow.clip,
@@ -74,7 +75,7 @@ class SetTableHeader extends StatelessWidget {
               const SizedBox(width: SetCols.gap),
               cell(unit.api, cols.weight),
               const SizedBox(width: SetCols.gap),
-              cell('REPS', cols.reps),
+              cell(context.l10n.repsHeader, cols.reps),
               const SizedBox(width: SetCols.gap),
               cell('RIR', cols.rir),
               const SizedBox(width: SetCols.gap),
@@ -225,19 +226,19 @@ class _SetRowState extends State<SetRow> {
         width: cols.weight,
         hint: targetWeight,
         decimal: true,
-        label: 'Peso de la serie ${widget.setNumber} en ${_rowUnit.label}',
+        label: context.l10n.setWeightLabel(widget.setNumber, _rowUnit.label),
       );
       reps = _Input(
         controller: _reps,
         width: cols.reps,
         hint: t?.reps?.toString(),
-        label: 'Repeticiones de la serie ${widget.setNumber}',
+        label: context.l10n.setRepsLabel(widget.setNumber),
       );
       rir = _Input(
         controller: _rir,
         width: cols.rir,
         hint: t?.rir?.toString(),
-        label: 'RIR de la serie ${widget.setNumber}',
+        label: context.l10n.setRirLabel(widget.setNumber),
         action: TextInputAction.done,
       );
     } else {
@@ -332,8 +333,8 @@ class _SetRowState extends State<SetRow> {
           : Semantics(
               button: true,
               label: widget.saved == null
-                  ? 'Cargar serie ${widget.setNumber}'
-                  : 'Editar serie ${widget.setNumber}',
+                  ? context.l10n.setLog(widget.setNumber)
+                  : context.l10n.setEdit(widget.setNumber),
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: _startEditing,
@@ -424,12 +425,12 @@ class _CameraButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: uploading
-          ? 'Video de la serie $setNumber subiéndose'
+          ? context.l10n.setVideoUploading(setNumber)
           : sent
-          ? 'Video de la serie $setNumber enviado, tocar para reemplazarlo'
+          ? context.l10n.setVideoSent(setNumber)
           : requested
-          ? 'Subir video de la serie $setNumber, pedido por tu coach'
-          : 'Subir video de la serie $setNumber (tu coach no lo pidió)',
+          ? context.l10n.setVideoRequested(setNumber)
+          : context.l10n.setVideoNotRequested(setNumber),
       excludeSemantics: true,
       child: SizedBox(
         width: 44,

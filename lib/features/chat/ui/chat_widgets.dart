@@ -4,6 +4,7 @@ import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
 import '../data/chat_message.dart';
 import 'video_player_screen.dart';
+import '../../../l10n/l10n.dart';
 
 // Piezas del chat (igual al mockup): avatar del coach, separador de día,
 // burbujas, tarjeta de videos y caja de texto.
@@ -116,7 +117,7 @@ class TextBubble extends StatelessWidget {
           GestureDetector(
             onTap: onRetry,
             child: Text(
-              'No se envió · Reintentar',
+              context.l10n.chatNotSent,
               style: TextStyle(fontSize: 11, color: c.goldBright),
             ),
           )
@@ -247,7 +248,7 @@ class VideoCardBubble extends StatelessWidget {
                     VideoThumb(
                       video: v,
                       label: v.label(unit),
-                      title: '${card.exerciseName} · Serie ${v.setNumber}',
+                      title: '${card.exerciseName} · ${context.l10n.setN(v.setNumber)}',
                     ),
                 ],
               ),
@@ -286,7 +287,7 @@ class VideoThumb extends StatelessWidget {
     final thumb = cloudinaryThumb(video.url);
     return Semantics(
       button: true,
-      label: 'Ver video de la serie ${video.setNumber}',
+      label: context.l10n.sessionViewSetVideo(video.setNumber),
       excludeSemantics: true,
       child: GestureDetector(
         onTap: () => Navigator.of(context).push(
@@ -428,7 +429,7 @@ class _ChatComposerState extends State<ChatComposer> {
             width: 44,
             height: 44,
             child: IconButton.filled(
-              tooltip: 'Enviar',
+              tooltip: context.l10n.chatSend,
               onPressed: _send,
               style: IconButton.styleFrom(
                 backgroundColor: c.gold,

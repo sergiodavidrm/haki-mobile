@@ -31,6 +31,8 @@ class HomeScreen extends ConsumerWidget {
     // Pendientes sin responder: quedan en Hoy hasta que los envía (no vencen)
     final pending =
         ref.watch(myQuestionnairesProvider).value?.pending ?? const [];
+    // El coach lo archivó o eliminó: aviso hasta que se cierra el acceso
+    final accessEndsAt = ref.watch(authMeProvider).value?.accessEndsAt;
 
     return Scaffold(
       body: SafeArea(
@@ -64,6 +66,10 @@ class HomeScreen extends ConsumerWidget {
                 style: TextStyle(fontSize: 14, color: c.textMuted),
               ),
               const SizedBox(height: 20),
+              if (accessEndsAt != null) ...[
+                _AccessEndingCard(endsAt: accessEndsAt),
+                const SizedBox(height: 14),
+              ],
               ...switch (today) {
                 AsyncData(:final value) => _content(context, value),
                 AsyncError() => [
@@ -131,8 +137,14 @@ class HomeScreen extends ConsumerWidget {
             TrainingDay() => TrainingDayCard(
               program: program,
               plan: plan,
-              onStart: () =>
-                  _openSession(context, program.assignmentId, plan.day.id),
+              onStart: () => _openOverProgram(
+                context,
+                Routes.session(program.assignmentId, plan.day.id),
+              ),
+              onOpenDone: () => _openOverProgram(
+                context,
+                Routes.pastSession(program.assignmentId, plan.day.id),
+              ),
             ),
             RestDay(:final next, :final nextDate) => TodayInfoCard(
               label: l.homeRestLabel,
@@ -157,14 +169,45 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-/// La Sesión se abre encima del tab Programa: al volver se ve el programa en
-/// la semana actual, no Hoy.
-void _openSession(BuildContext context, String assignmentId, String dayId) {
+/// La Sesión (y la Sesión pasada) se abre encima del tab Programa: al volver
+/// se ve el programa en la semana actual, no Hoy.
+void _openOverProgram(BuildContext context, String route) {
   final router = GoRouter.of(context);
   router.go(Routes.programAtCurrentWeek());
-  WidgetsBinding.instance.addPostFrameCallback(
-    (_) => router.push(Routes.session(assignmentId, dayId)),
-  );
+  WidgetsBinding.instance.addPostFrameCallback((_) => router.push(route));
+}
+
+/// Aviso de la semana de gracia: el coach terminó el plan.
+class _AccessEndingCard extends StatelessWidget {
+  const _AccessEndingCard({required this.endsAt});
+
+  final DateTime endsAt;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: c.goldSurface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: c.goldBorder),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline, size: 20, color: c.goldBright),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              context.l10n.homeAccessEnds(formatShortDate(endsAt)),
+              style: TextStyle(fontSize: 13, height: 1.4, color: c.text),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _Header extends StatelessWidget {

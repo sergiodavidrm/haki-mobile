@@ -518,6 +518,12 @@ abstract class AppLocalizations {
   /// **'Entreno completado'**
   String get workoutCompleted;
 
+  /// No description provided for @workoutViewUploadVideos.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver entreno · subir videos'**
+  String get workoutViewUploadVideos;
+
   /// No description provided for @workoutContinue.
   ///
   /// In es, this message translates to:
@@ -811,12 +817,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ver video de la serie {set}'**
   String sessionViewSetVideo(int set);
-
-  /// No description provided for @sessionVideosSoon.
-  ///
-  /// In es, this message translates to:
-  /// **'Ver videos va a estar disponible pronto'**
-  String get sessionVideosSoon;
 
   /// No description provided for @dayN.
   ///
@@ -2455,6 +2455,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{done} de {total} · {workouts, plural, =0{sin entrenos todavía} =1{en el que hiciste} other{en los {workouts} que hiciste}}'**
   String adherenceSetsFooter(int done, int total, int workouts);
+
+  /// No description provided for @gateAccessEnded.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu coach terminó tu plan y tu acceso a Haki venció. Si creés que es un error, escribile.'**
+  String get gateAccessEnded;
+
+  /// No description provided for @homeAccessEnds.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu coach terminó tu plan. Podés seguir usando Haki hasta el {date}.'**
+  String homeAccessEnds(String date);
 }
 
 class _AppLocalizationsDelegate

@@ -108,6 +108,12 @@ por keystore: debug de cada PC y release). Supabase vincula Google al usuario
 existente si el email coincide y está confirmado (la invitación lo confirma) →
 mismo `userId` en haki-api.
 
+**Coach archivó o eliminó al atleta (2026-10-22):** `/auth/me` trae
+`accessEndsAt` (7 días después). Mientras tanto Hoy muestra un aviso
+(`_AccessEndingCard`); pasada la fecha `AthleteGate` muestra "Tu coach terminó
+tu plan…" + cerrar sesión (compara con la hora del teléfono, sirve offline con
+la caché de `/auth/me`).
+
 **`AthleteGate`** (envuelve las rutas protegidas): con Google cualquiera crea
 sesión en Supabase, así que se chequea `GET /auth/me`; si no es `Client`
 (Google sin invitación, o un coach) muestra un mensaje + cerrar sesión. Queda
@@ -545,8 +551,12 @@ Tab Programa (`features/program/ui/`, 2026-10-17):
   intercambia); `PUT schedule` vía `ScheduleSaver`, error = `detail` de la API
   (`apiErrorMessage`).
 - `/programa/sesion/:a/:d` (`PastSessionScreen`): series registradas en la
-  unidad en que se cargaron, objetivo, nota del atleta, cámara si hay video.
-  Falta: hilo de feedback del coach y ver videos.
+  unidad en que se cargaron, objetivo, nota del atleta y **cámara en cada
+  serie registrada** (2026-10-22: se pueden subir videos después del gym;
+  mismo flujo y cola que la Sesión, `queueSetVideo` en
+  `session/ui/set_video_flow.dart`, botón `SetCameraButton`). En Hoy, un día
+  completado muestra "Ver entreno · subir videos" → esta pantalla. Falta ver
+  (reproducir) los videos.
 - Lógica pura: `currentWeekOf`, `dateOfDay`, `weekRows`, `durationOf`,
   `dayCountsOf` (`program_schedule.dart`) y `assign_dates.dart`; tests en
   `test/program_tab_test.dart` y `test/assign_dates_test.dart`.

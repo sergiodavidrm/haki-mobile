@@ -311,7 +311,7 @@ class _SetRowState extends State<SetRow> {
           SizedBox(
             width: cols.action,
             child: Center(
-              child: _CameraButton(
+              child: SetCameraButton(
                 setNumber: widget.setNumber,
                 requested: t?.requestVideo ?? false,
                 sent: widget.saved?.hasVideo ?? false,
@@ -376,8 +376,11 @@ class _Value extends StatelessWidget {
 /// Cámara de cada serie. Pedido por el coach = dorada con punto; no pedido =
 /// tachada (igual se puede subir, con confirmación); en la cola = nube
 /// turquesa; enviado = turquesa con check.
-class _CameraButton extends StatelessWidget {
-  const _CameraButton({
+/// Cámara de una serie (Sesión y Sesión pasada): dorada = pedida por el coach,
+/// tachada = no pedida, nube = en la cola, turquesa = subido.
+class SetCameraButton extends StatelessWidget {
+  const SetCameraButton({
+    super.key,
     required this.setNumber,
     required this.requested,
     required this.sent,

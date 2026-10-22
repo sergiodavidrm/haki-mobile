@@ -15,6 +15,7 @@ class AuthMeDto {
     this.coachName,
     this.exerciseFeedbackEnabled = false,
     this.bodyMeasurements = const [],
+    this.accessEndsAt,
   });
 
   final bool exists;
@@ -36,7 +37,14 @@ class AuthMeDto {
   /// catálogo.
   final List<BodyMeasure> bodyMeasurements;
 
+  /// El coach lo archivó o eliminó: puede usar la app hasta esta fecha
+  /// (7 días después). null = sin límite.
+  final DateTime? accessEndsAt;
+
   bool get isAthlete => exists && role?.toLowerCase() == 'client';
+
+  bool accessEnded(DateTime now) =>
+      accessEndsAt != null && now.isAfter(accessEndsAt!);
 
   factory AuthMeDto.fromJson(Map<String, dynamic> json) => AuthMeDto(
     exists: json['exists'] as bool? ?? false,
@@ -52,5 +60,8 @@ class AuthMeDto {
       for (final j in json['bodyMeasurements'] as List? ?? const [])
         ?BodyMeasure.fromJson(j),
     ],
+    accessEndsAt: json['accessEndsAt'] == null
+        ? null
+        : DateTime.tryParse(json['accessEndsAt'] as String)?.toLocal(),
   );
 }

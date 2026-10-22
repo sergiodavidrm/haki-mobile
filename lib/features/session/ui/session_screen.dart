@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
@@ -13,12 +12,10 @@ import '../../exercise/data/exercise_stats.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../data/session_plan.dart';
 import '../data/session_store.dart';
-import '../data/video_files.dart';
-import '../data/video_trim.dart';
 import '../providers/rest_timer.dart';
 import '../providers/session_providers.dart';
 import 'exercise_block.dart';
-import 'video_trim_screen.dart';
+import 'set_video_flow.dart';
 import 'rest_timer_widgets.dart';
 import '../../../l10n/l10n.dart';
 
@@ -267,97 +264,21 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     );
   }
 
-  /// Grabar o elegir el video de una serie y dejarlo en la cola. La serie
-  /// tiene que estar registrada (el video se cuelga de su set-log). Serie sin
-  /// video pedido: se confirma antes.
   Future<void> _uploadVideo(
     DayExerciseDto e,
     int setNumber,
     SavedSet? saved,
     bool requested,
-  ) async {
-    if (saved == null) {
-      _snack(context.l10n.videoLogSetFirst);
-      return;
-    }
-    if (saved.videoUploading) {
-      _snack(context.l10n.videoUploadingReplace);
-    }
-    if (!requested && !saved.hasVideo && !saved.videoUploading) {
-      final ok = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(ctx.l10n.videoUploadQuestion),
-          content: Text(ctx.l10n.videoNotRequested),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(ctx.l10n.commonCancel),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(ctx.l10n.videoUpload),
-            ),
-          ],
-        ),
-      );
-      if (ok != true || !mounted) return;
-    }
-    if (!mounted) return;
-
-    final source = await showModalBottomSheet<ImageSource>(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (saved.hasVideo)
-              ListTile(
-                title: Text(ctx.l10n.videoAlreadySent),
-                subtitle: Text(ctx.l10n.videoReplaces),
-              ),
-            ListTile(
-              leading: const Icon(Icons.videocam_outlined),
-              title: Text(ctx.l10n.videoRecord),
-              onTap: () => Navigator.pop(ctx, ImageSource.camera),
-            ),
-            ListTile(
-              leading: const Icon(Icons.video_library_outlined),
-              title: Text(ctx.l10n.videoPickGallery),
-              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (source == null) return;
-
-    final path = await pickSetVideo(source);
-    if (path == null || !mounted) return;
-    final range = await Navigator.of(context).push<TrimRange>(
-      MaterialPageRoute(builder: (_) => VideoTrimScreen(path: path)),
-    );
-    if (range == null || !mounted) return;
-    await ref
-        .read(sessionStoreProvider)
-        .addVideo(
-          assignmentId: _a,
-          dayId: _d,
-          dayExerciseId: e.id,
-          setNumber: setNumber,
-          sourcePath: path,
-          setLogId: saved.setLogId,
-          trimStartMs: range.startMs,
-          trimEndMs: range.endMs,
-        );
-    if (mounted) _snack(context.l10n.videoQueued);
-  }
-
-  void _snack(String text) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(text)));
-  }
+  ) => queueSetVideo(
+    context: context,
+    ref: ref,
+    assignmentId: _a,
+    dayId: _d,
+    dayExerciseId: e.id,
+    setNumber: setNumber,
+    saved: saved,
+    requested: requested,
+  );
 
   /// El timer es manual: solo se le pasa qué se terminó y qué viene, para
   /// mostrarlo cuando el atleta lo arranque.

@@ -261,6 +261,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get workoutCompleted => 'Entreno completado';
 
   @override
+  String get workoutViewUploadVideos => 'Ver entreno · subir videos';
+
+  @override
   String get workoutContinue => 'Continuar entreno';
 
   @override
@@ -441,9 +444,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String sessionViewSetVideo(int set) {
     return 'Ver video de la serie $set';
   }
-
-  @override
-  String get sessionVideosSoon => 'Ver videos va a estar disponible pronto';
 
   @override
   String dayN(int day) {
@@ -1493,5 +1493,14 @@ class AppLocalizationsEs extends AppLocalizations {
       zero: 'sin entrenos todavía',
     );
     return '$done de $total · $_temp0';
+  }
+
+  @override
+  String get gateAccessEnded =>
+      'Tu coach terminó tu plan y tu acceso a Haki venció. Si creés que es un error, escribile.';
+
+  @override
+  String homeAccessEnds(String date) {
+    return 'Tu coach terminó tu plan. Podés seguir usando Haki hasta el $date.';
   }
 }

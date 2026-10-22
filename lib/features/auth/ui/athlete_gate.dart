@@ -20,6 +20,10 @@ class AthleteGate extends ConsumerWidget {
     final me = ref.watch(authMeProvider);
 
     return switch (me) {
+      // Archivado o eliminado por el coach y ya pasó la semana de gracia
+      AsyncData(:final value)
+          when value.isAthlete && value.accessEnded(DateTime.now()) =>
+        _Message(text: context.l10n.gateAccessEnded),
       AsyncData(:final value) when value.isAthlete => child,
       AsyncData(:final value) => _Message(
           text: value.exists

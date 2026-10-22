@@ -149,11 +149,15 @@ class TrainingDayCard extends StatelessWidget {
     required this.program,
     required this.plan,
     required this.onStart,
+    required this.onOpenDone,
   });
 
   final AssignmentDetailDto program;
   final TrainingDay plan;
   final VoidCallback onStart;
+
+  /// Día ya completado → Sesión pasada (ver lo hecho y subir videos).
+  final VoidCallback onOpenDone;
 
   @override
   Widget build(BuildContext context) {
@@ -214,17 +218,33 @@ class TrainingDayCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             switch (day.sessionStatus) {
-              SessionStatus.completed => Row(
+              SessionStatus.completed => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(Icons.check_circle, color: c.turquoise, size: 22),
-                  const SizedBox(width: 8),
-                  Text(
-                    l.workoutCompleted,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: c.turquoise,
+                  Row(
+                    children: [
+                      Icon(Icons.check_circle, color: c.turquoise, size: 22),
+                      const SizedBox(width: 8),
+                      Text(
+                        l.workoutCompleted,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: c.turquoise,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: onOpenDone,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(46),
+                      foregroundColor: c.turquoise,
+                      side: BorderSide(color: c.turquoiseBorder),
                     ),
+                    icon: const Icon(Icons.videocam_outlined, size: 18),
+                    label: Text(l.workoutViewUploadVideos),
                   ),
                 ],
               ),

@@ -70,6 +70,7 @@
   "supersetsCount": "{count, plural, =1{1 superset} other{{count} supersets}}",
   "videosRequestedCount": "{count, plural, =1{1 video requested} other{{count} videos requested}}",
   "workoutCompleted": "Workout completed",
+  "workoutViewUploadVideos": "View workout · upload videos",
   "workoutContinue": "Continue workout",
   "workoutStart": "Start workout",
   "programsMine": "My programs",
@@ -119,7 +120,6 @@
   "sessionNoSets": "No sets logged",
   "sessionYourNote": "Your note",
   "sessionViewSetVideo": "View video of set {set}",
-  "sessionVideosSoon": "Viewing videos will be available soon",
   "dayN": "Day {day}",
   "sessionOpenError": "Couldn't open the session.",
   "sessionDoneSeeSummary": "Workout completed · see summary",
@@ -392,5 +392,7 @@
   "adherenceLegendDone": "Done",
   "adherenceLegendMissed": "Missed",
   "adherenceLegendPending": "Pending",
-  "adherenceSetsFooter": "{done} of {total} · {workouts, plural, =0{no workouts yet} =1{in the one you did} other{in the {workouts} you did}}"
+  "adherenceSetsFooter": "{done} of {total} · {workouts, plural, =0{no workouts yet} =1{in the one you did} other{in the {workouts} you did}}",
+  "gateAccessEnded": "Your coach ended your plan and your access to Haki has expired. If you think this is a mistake, contact them.",
+  "homeAccessEnds": "Your coach ended your plan. You can keep using Haki until {date}."
 }

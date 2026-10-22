@@ -142,6 +142,7 @@
     }
   },
   "workoutCompleted": "Entreno completado",
+  "workoutViewUploadVideos": "Ver entreno · subir videos",
   "workoutContinue": "Continuar entreno",
   "workoutStart": "Empezar entreno",
   "programsMine": "Mis programas",
@@ -257,7 +258,6 @@
       }
     }
   },
-  "sessionVideosSoon": "Ver videos va a estar disponible pronto",
   "dayN": "Día {day}",
   "@dayN": {
     "placeholders": {
@@ -1047,6 +1047,15 @@
       },
       "workouts": {
         "type": "int"
+      }
+    }
+  },
+  "gateAccessEnded": "Tu coach terminó tu plan y tu acceso a Haki venció. Si creés que es un error, escribile.",
+  "homeAccessEnds": "Tu coach terminó tu plan. Podés seguir usando Haki hasta el {date}.",
+  "@homeAccessEnds": {
+    "placeholders": {
+      "date": {
+        "type": "String"
       }
     }
   }

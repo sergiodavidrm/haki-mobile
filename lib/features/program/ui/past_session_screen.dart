@@ -12,14 +12,15 @@ import '../../session/data/session_plan.dart';
 import '../../session/data/session_store.dart';
 import '../../session/providers/session_providers.dart';
 import '../../session/ui/set_row.dart';
+import '../../session/ui/set_video_flow.dart';
 import '../data/assignment_dtos.dart';
 import '../data/program_schedule.dart';
 import '../providers/program_providers.dart';
 import '../../../l10n/l10n.dart';
 
-// Sesión pasada (solo lectura): lo que se registró en un día completado.
-// Del mockup falta el feedback del coach por ejercicio (hilos de Stream) y
-// ver los videos (sin integrar).
+// Sesión pasada: lo que se registró en un día completado. Las series son de
+// solo lectura, pero se pueden subir videos (muchos los suben después del gym):
+// misma cámara y cola que la Sesión. Falta reproducir los videos acá.
 class PastSessionScreen extends ConsumerWidget {
   const PastSessionScreen({
     super.key,
@@ -36,6 +37,8 @@ class PastSessionScreen extends ConsumerWidget {
     final program = ref.watch(programWithLocalProvider(assignmentId));
     final local =
         ref.watch(localSetsProvider(assignmentId, dayId)).value ?? const {};
+    final videos =
+        ref.watch(localVideosProvider(assignmentId, dayId)).value ?? const {};
     final fallbackUnit =
         ref.watch(authMeProvider).value?.preferredWeightUnit ?? WeightUnit.kg;
 
@@ -78,7 +81,18 @@ class PastSessionScreen extends ConsumerWidget {
                             exercise: e,
                             badge: g.badgeOf(e),
                             local: local,
+                            videos: videos,
                             fallbackUnit: fallbackUnit,
+                            onVideo: (n, saved, requested) => queueSetVideo(
+                              context: context,
+                              ref: ref,
+                              assignmentId: assignmentId,
+                              dayId: dayId,
+                              dayExerciseId: e.id,
+                              setNumber: n,
+                              saved: saved,
+                              requested: requested,
+                            ),
                           ),
                         ),
                   ],
@@ -160,20 +174,26 @@ class _ExerciseCard extends StatelessWidget {
     required this.exercise,
     required this.badge,
     required this.local,
+    required this.videos,
     required this.fallbackUnit,
+    required this.onVideo,
   });
 
   final DayExerciseDto exercise;
   final String? badge;
   final Map<String, LocalSetEntry> local;
+  final Map<String, bool> videos;
   final WeightUnit fallbackUnit;
+  final void Function(int setNumber, SavedSet? saved, bool requested) onVideo;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final e = exercise;
     final count = setCountOf(e);
-    final saved = [for (var n = 1; n <= count; n++) savedSetFor(e, n, local)];
+    final saved = [
+      for (var n = 1; n <= count; n++) savedSetFor(e, n, local, videos),
+    ];
     // Se muestra en la unidad en que la cargó (la de su primera serie)
     final unit = saved.nonNulls.firstOrNull?.unit ?? fallbackUnit;
     double? inUnit(SavedSet? s) => s?.weight == null
@@ -251,6 +271,7 @@ class _ExerciseCard extends StatelessWidget {
                 saved: saved[n - 1],
                 weight: inUnit(saved[n - 1]),
                 unit: unit,
+                onVideo: (requested) => onVideo(n, saved[n - 1], requested),
               ),
           ],
           if (note != null && note.isNotEmpty) ...[
@@ -296,6 +317,7 @@ class _PastSetRow extends StatelessWidget {
     required this.saved,
     required this.weight,
     required this.unit,
+    required this.onVideo,
   });
 
   final int setNumber;
@@ -305,6 +327,9 @@ class _PastSetRow extends StatelessWidget {
   /// Peso ya convertido a [unit].
   final double? weight;
   final WeightUnit unit;
+
+  /// [requested] = el coach pidió video de esta serie.
+  final void Function(bool requested) onVideo;
 
   @override
   Widget build(BuildContext context) {
@@ -381,42 +406,20 @@ class _PastSetRow extends StatelessWidget {
           const SizedBox(width: SetCols.gap),
           SizedBox(
             width: cols.action,
-            child: saved?.hasVideo == true
-                ? Center(child: _VideoButton(setNumber: setNumber))
-                : null,
+            // Solo series registradas: el video se cuelga de su set-log
+            child: saved == null
+                ? null
+                : Center(
+                    child: SetCameraButton(
+                      setNumber: setNumber,
+                      requested: t?.requestVideo ?? false,
+                      sent: saved!.hasVideo,
+                      uploading: saved!.videoUploading,
+                      onTap: () => onVideo(t?.requestVideo ?? false),
+                    ),
+                  ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _VideoButton extends StatelessWidget {
-  const _VideoButton({required this.setNumber});
-
-  final int setNumber;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return Semantics(
-      button: true,
-      label: context.l10n.sessionViewSetVideo(setNumber),
-      excludeSemantics: true,
-      child: Material(
-        color: c.turquoiseSurface,
-        borderRadius: BorderRadius.circular(10),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(10),
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.sessionVideosSoon)),
-          ),
-          child: SizedBox(
-            width: 36,
-            height: 36,
-            child: Icon(Icons.videocam_outlined, size: 18, color: c.turquoise),
-          ),
-        ),
       ),
     );
   }

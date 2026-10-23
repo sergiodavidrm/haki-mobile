@@ -394,5 +394,10 @@
   "adherenceLegendPending": "Pending",
   "adherenceSetsFooter": "{done} of {total} · {workouts, plural, =0{no workouts yet} =1{in the one you did} other{in the {workouts} you did}}",
   "gateAccessEnded": "Your coach ended your plan and your access to Haki has expired. If you think this is a mistake, contact them.",
-  "homeAccessEnds": "Your coach ended your plan. You can keep using Haki until {date}."
+  "homeAccessEnds": "Your coach ended your plan. You can keep using Haki until {date}.",
+  "coachExperience": "{count, plural, =0{Less than 1 year of experience} =1{1 year of experience} other{{count} years of experience}}",
+  "coachAbout": "About me",
+  "coachCertifications": "Certifications",
+  "coachWrite": "Message {name}",
+  "coachProfileEmpty": "{name} hasn't filled in their profile yet."
 }

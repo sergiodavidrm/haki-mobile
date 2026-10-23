@@ -1058,5 +1058,31 @@
         "type": "String"
       }
     }
+  },
+  "coachExperience": "{count, plural, =0{Menos de 1 año de experiencia} =1{1 año de experiencia} other{{count} años de experiencia}}",
+  "@coachExperience": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coachAbout": "Sobre mí",
+  "coachCertifications": "Certificaciones",
+  "coachWrite": "Escribirle a {name}",
+  "@coachWrite": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "coachProfileEmpty": "{name} todavía no completó su perfil.",
+  "@coachProfileEmpty": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

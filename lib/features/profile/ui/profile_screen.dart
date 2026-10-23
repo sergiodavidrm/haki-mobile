@@ -125,6 +125,11 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
               const _RecentPrs(),
+              if (me?.coachName != null)
+                _CoachCard(
+                  name: me!.coach?.fullName ?? me.coachName!,
+                  years: me.coach?.experienceYears(DateTime.now()),
+                ),
             ],
           ),
         ),
@@ -335,6 +340,58 @@ class _RecentPrs extends ConsumerWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// Tarjeta "Tu coach" (abajo de todo): iniciales, nombre y experiencia → pantalla Tu coach.
+class _CoachCard extends StatelessWidget {
+  const _CoachCard({required this.name, this.years});
+
+  final String name;
+  final int? years;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final l = context.l10n;
+    return Padding(
+      padding: const EdgeInsets.only(top: 18),
+      child: HakiCard(
+        radius: 18,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        onTap: () => context.push(Routes.coach),
+        child: Row(
+          children: [
+            UserAvatar(name: name, size: 40, highlighted: true),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: c.text,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    [
+                      l.yourCoach,
+                      if (years != null) l.coachExperience(years!),
+                    ].join(' · '),
+                    style: TextStyle(fontSize: 12, color: c.textMuted),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: c.textMuted),
+          ],
+        ),
       ),
     );
   }

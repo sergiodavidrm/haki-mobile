@@ -16,6 +16,7 @@ import '../../features/home/ui/home_screen.dart';
 import '../../features/profile/ui/profile_screen.dart';
 import '../../features/profile/ui/adherence_screen.dart';
 import '../../features/profile/ui/records_screen.dart';
+import '../../features/profile/ui/coach_screen.dart';
 import '../../features/program/ui/assign_dates_screen.dart';
 import '../../features/program/ui/past_session_screen.dart';
 import '../../features/program/ui/program_screen.dart';
@@ -65,6 +66,8 @@ abstract final class Routes {
   static const measures = '/perfil/medidas';
   static const settings = '/perfil/ajustes';
   static const records = '/perfil/records';
+  static const coach = '/perfil/coach';
+  static const chatCoach = '/chat/coach';
   static const adherence = '/perfil/adherencia';
   static const measureLogs = '/perfil/medidas/registros';
 
@@ -186,7 +189,16 @@ GoRouter appRouter(Ref ref) {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: Routes.chat, builder: (_, _) => const ChatScreen()),
+              GoRoute(
+                path: Routes.chat,
+                builder: (_, _) => const ChatScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'coach',
+                    builder: (_, _) => const CoachScreen(),
+                  ),
+                ],
+              ),
             ],
           ),
           StatefulShellBranch(
@@ -206,6 +218,10 @@ GoRouter appRouter(Ref ref) {
                   GoRoute(
                     path: 'records',
                     builder: (_, _) => const RecordsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'coach',
+                    builder: (_, _) => const CoachScreen(),
                   ),
                   GoRoute(
                     path: 'adherencia',

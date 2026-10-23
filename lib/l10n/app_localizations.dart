@@ -2467,6 +2467,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tu coach terminó tu plan. Podés seguir usando Haki hasta el {date}.'**
   String homeAccessEnds(String date);
+
+  /// No description provided for @coachExperience.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =0{Menos de 1 año de experiencia} =1{1 año de experiencia} other{{count} años de experiencia}}'**
+  String coachExperience(int count);
+
+  /// No description provided for @coachAbout.
+  ///
+  /// In es, this message translates to:
+  /// **'Sobre mí'**
+  String get coachAbout;
+
+  /// No description provided for @coachCertifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Certificaciones'**
+  String get coachCertifications;
+
+  /// No description provided for @coachWrite.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribirle a {name}'**
+  String coachWrite(String name);
+
+  /// No description provided for @coachProfileEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'{name} todavía no completó su perfil.'**
+  String coachProfileEmpty(String name);
 }
 
 class _AppLocalizationsDelegate

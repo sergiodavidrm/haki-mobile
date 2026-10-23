@@ -412,6 +412,16 @@ respuestas del atleta van con `parent_id` = ese id. Si el coach tiene
 `exerciseFeedbackEnabled` apagado, no hay hilo: responde citando la tarjeta
 en el chat general (`quoted_message_id`).
 
+## Tu coach (2026-10-23)
+
+Pantalla `features/profile/ui/coach_screen.dart` (rutas `/perfil/coach` desde
+la tarjeta al final del Perfil y `/chat/coach` tocando el header del Chat):
+iniciales, nombre, "N años de experiencia" (año actual − `coachingSince`),
+"Sobre mí", certificaciones (solo texto) y "Escribirle a …" → Chat. Sale de
+`/auth/me` → `coach` (`CoachProfileDto`), así que anda offline con la caché.
+Sin datos: "… todavía no completó su perfil." Sin foto del coach ni
+especialidades (decisión de Sergio).
+
 ## Decisiones de arquitectura (para lo que viene)
 
 - **Offline-first para el entreno:** registrar series tiene que funcionar sin

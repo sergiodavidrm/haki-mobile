@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../auth/providers/auth_me_provider.dart';
@@ -27,7 +29,8 @@ class ChatScreen extends ConsumerWidget {
     final channel = ref.watch(generalChannelProvider);
     // Primera vez en el Chat: pedir permiso de notificaciones (una sola vez)
     unawaited(ref.read(chatPushProvider).askPermissionOnce());
-    final coach = ref.watch(authMeProvider).value?.coachName ?? context.l10n.yourCoach;
+    final coach =
+        ref.watch(authMeProvider).value?.coachName ?? context.l10n.yourCoach;
 
     return Scaffold(
       body: SafeArea(
@@ -80,33 +83,39 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: c.border)),
-      ),
-      child: Row(
-        children: [
-          CoachAvatar(name: coachName, size: 40),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                coachName,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: c.text,
+    // Tocar el coach abre "Tu coach"
+    return InkWell(
+      onTap: () => context.push(Routes.chatCoach),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: c.border)),
+        ),
+        child: Row(
+          children: [
+            CoachAvatar(name: coachName, size: 40),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  coachName,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: c.text,
+                  ),
                 ),
-              ),
-              Text(
-                context.l10n.yourCoach,
-                style: TextStyle(fontSize: 12, color: c.textMuted),
-              ),
-            ],
-          ),
-        ],
+                Text(
+                  context.l10n.yourCoach,
+                  style: TextStyle(fontSize: 12, color: c.textMuted),
+                ),
+              ],
+            ),
+            const Spacer(),
+            Icon(Icons.chevron_right, color: c.textMuted),
+          ],
+        ),
       ),
     );
   }

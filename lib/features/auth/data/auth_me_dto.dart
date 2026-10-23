@@ -1,8 +1,9 @@
 import '../../../core/units/weight_unit.dart';
 import '../../body/data/body_measures.dart';
+import '../../profile/data/coach_profile_dto.dart';
 
 // GET /auth/me → { exists, userId, role, fullName, preferredWeightUnit, coachName,
-// exerciseFeedbackEnabled, bodyMeasurements }. role viene del enum de Postgres ("CLIENT" | "COACH" |
+// exerciseFeedbackEnabled, bodyMeasurements, accessEndsAt, coach }. role viene del enum de Postgres ("CLIENT" | "COACH" |
 // "ADMIN") o null: comparar sin distinguir mayúsculas. Los últimos tres solo
 // para atletas.
 class AuthMeDto {
@@ -16,6 +17,7 @@ class AuthMeDto {
     this.exerciseFeedbackEnabled = false,
     this.bodyMeasurements = const [],
     this.accessEndsAt,
+    this.coach,
   });
 
   final bool exists;
@@ -41,6 +43,10 @@ class AuthMeDto {
   /// (7 días después). null = sin límite.
   final DateTime? accessEndsAt;
 
+  /// Pantalla "Tu coach": experiencia, bio y certificaciones (null = API vieja
+  /// o no es atleta).
+  final CoachProfileDto? coach;
+
   bool get isAthlete => exists && role?.toLowerCase() == 'client';
 
   bool accessEnded(DateTime now) =>
@@ -63,5 +69,8 @@ class AuthMeDto {
     accessEndsAt: json['accessEndsAt'] == null
         ? null
         : DateTime.tryParse(json['accessEndsAt'] as String)?.toLocal(),
+    coach: json['coach'] == null
+        ? null
+        : CoachProfileDto.fromJson(json['coach'] as Map<String, dynamic>),
   );
 }

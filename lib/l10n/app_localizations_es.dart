@@ -1503,4 +1503,32 @@ class AppLocalizationsEs extends AppLocalizations {
   String homeAccessEnds(String date) {
     return 'Tu coach terminó tu plan. Podés seguir usando Haki hasta el $date.';
   }
+
+  @override
+  String coachExperience(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count años de experiencia',
+      one: '1 año de experiencia',
+      zero: 'Menos de 1 año de experiencia',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get coachAbout => 'Sobre mí';
+
+  @override
+  String get coachCertifications => 'Certificaciones';
+
+  @override
+  String coachWrite(String name) {
+    return 'Escribirle a $name';
+  }
+
+  @override
+  String coachProfileEmpty(String name) {
+    return '$name todavía no completó su perfil.';
+  }
 }

@@ -7,6 +7,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/ui/athlete_gate.dart';
 import '../../features/auth/ui/login_screen.dart';
+import '../../features/auth/ui/signup_code_screen.dart';
+import '../../features/auth/ui/signup_screen.dart';
 import '../../features/body/ui/log_measures_screen.dart';
 import '../../features/body/ui/measures_screen.dart';
 import '../../features/body/ui/body_series_screen.dart';
@@ -34,6 +36,13 @@ part 'app_router.g.dart';
 abstract final class Routes {
   static const home = '/';
   static const login = '/login';
+  static const signUp = '/registro';
+  static String signUpCode(String email) =>
+      '/registro/codigo?email=${Uri.encodeQueryComponent(email)}';
+
+  /// Rutas que se ven sin sesión.
+  static bool isPublic(String location) =>
+      location == login || location.startsWith(signUp);
   static const program = '/programa';
   static const chat = '/chat';
   static const profile = '/perfil';
@@ -97,13 +106,26 @@ GoRouter appRouter(Ref ref) {
     initialLocation: Routes.home,
     refreshListenable: refresh,
     redirect: (context, state) {
-      final atLogin = state.matchedLocation == Routes.login;
-      if (!auth.isLoggedIn) return atLogin ? null : Routes.login;
-      if (atLogin) return Routes.home;
+      final public = Routes.isPublic(state.matchedLocation);
+      if (!auth.isLoggedIn) return public ? null : Routes.login;
+      // Al confirmar el código aparece la sesión: a Hoy (AthleteGate muestra
+      // la invitación)
+      if (public) return Routes.home;
       return null;
     },
     routes: [
       GoRoute(path: Routes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(
+        path: Routes.signUp,
+        builder: (_, _) => const SignUpScreen(),
+        routes: [
+          GoRoute(
+            path: 'codigo',
+            builder: (_, state) =>
+                SignUpCodeScreen(email: state.uri.queryParameters['email'] ?? ''),
+          ),
+        ],
+      ),
       // Pantalla completa, sin la barra de tabs
       GoRoute(
         path: '/sesion/:assignmentId/:dayId',

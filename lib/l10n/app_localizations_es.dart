@@ -1339,10 +1339,6 @@ class AppLocalizationsEs extends AppLocalizations {
       'Esta app es para atletas. Como coach, entrá desde hakifit.com.';
 
   @override
-  String get gateNoCoach =>
-      'Tu cuenta no está asociada a ningún coach. Pedile a tu coach que te invite y entrá con el mismo email de la invitación.';
-
-  @override
   String get gateConnectError =>
       'No se pudo conectar. Revisá tu conexión e intentá de nuevo.';
 
@@ -1531,4 +1527,126 @@ class AppLocalizationsEs extends AppLocalizations {
   String coachProfileEmpty(String name) {
     return '$name todavía no completó su perfil.';
   }
+
+  @override
+  String get authFirstTime => '¿Primera vez?';
+
+  @override
+  String get authCreateAccount => 'Creá tu cuenta';
+
+  @override
+  String get authEnterCode => 'Ingresar el código del email';
+
+  @override
+  String get signupTitle => 'Creá tu cuenta';
+
+  @override
+  String get signupSubtitle =>
+      'Usá el mismo correo al que te llegó la invitación de tu coach.';
+
+  @override
+  String get signupRepeatPassword => 'Repetí la contraseña';
+
+  @override
+  String get signupPasswordsDontMatch => 'Las contraseñas no coinciden';
+
+  @override
+  String get signupRuleLength => 'Al menos 8 caracteres';
+
+  @override
+  String get signupRuleLetter => 'Una letra';
+
+  @override
+  String get signupRuleDigit => 'Un número';
+
+  @override
+  String get signupRuleNotEmail => 'Que no sea tu correo';
+
+  @override
+  String get signupSubmit => 'Crear cuenta';
+
+  @override
+  String get signupHaveAccount => '¿Ya tenés cuenta?';
+
+  @override
+  String get signupSignIn => 'Iniciá sesión';
+
+  @override
+  String get signupWeakPassword => 'La contraseña no cumple los requisitos';
+
+  @override
+  String get signupError =>
+      'No se pudo crear la cuenta. Revisá tu conexión e intentá de nuevo.';
+
+  @override
+  String get codeTitle => 'Revisá tu correo';
+
+  @override
+  String codeSubtitle(String email) {
+    return 'Te mandamos un código de 6 dígitos a $email. Escribilo acá para confirmar que el correo es tuyo.';
+  }
+
+  @override
+  String get codeLabel => 'Código';
+
+  @override
+  String get codeExpires => 'El código vence en 1 hora.';
+
+  @override
+  String get codeConfirm => 'Confirmar';
+
+  @override
+  String get codeResend => 'Reenviar código';
+
+  @override
+  String codeResendIn(int seconds) {
+    return 'Reenviar código en $seconds s';
+  }
+
+  @override
+  String get codeResent => 'Te mandamos un código nuevo.';
+
+  @override
+  String get codeInvalid => 'El código no es válido o ya venció.';
+
+  @override
+  String get codeHelp =>
+      '¿No llegó? Revisá la carpeta de spam. Si escribiste mal el correo, volvé atrás y corregilo.';
+
+  @override
+  String get inviteTitle => 'Tenés una invitación';
+
+  @override
+  String get inviteSubtitle =>
+      'Al aceptarla, tu coach te arma el programa y te acompaña desde acá.';
+
+  @override
+  String get inviteCoach => 'Coach';
+
+  @override
+  String get inviteFor => 'Invitación para';
+
+  @override
+  String get inviteAccept => 'Aceptar invitación';
+
+  @override
+  String get inviteNotMine => 'No es mi coach · Cerrar sesión';
+
+  @override
+  String get inviteNoneTitle => 'No encontramos tu invitación';
+
+  @override
+  String inviteNoneBody(String email) {
+    return 'Entraste como $email y no hay ninguna invitación para ese correo.';
+  }
+
+  @override
+  String get inviteNoneHint =>
+      'Haki es por invitación: entrá con el correo al que te escribió tu coach, o pedile que te invite con este.';
+
+  @override
+  String get inviteOtherAccount => 'Entrar con otra cuenta';
+
+  @override
+  String get inviteSearchAgain => 'Ya me invitó · Volver a buscar';
 }

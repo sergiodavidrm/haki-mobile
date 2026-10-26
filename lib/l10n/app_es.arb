@@ -937,7 +937,6 @@
   "authSignIn": "Entrar",
   "authContinueGoogle": "Continuar con Google",
   "gateCoach": "Esta app es para atletas. Como coach, entrá desde hakifit.com.",
-  "gateNoCoach": "Tu cuenta no está asociada a ningún coach. Pedile a tu coach que te invite y entrá con el mismo email de la invitación.",
   "gateConnectError": "No se pudo conectar. Revisá tu conexión e intentá de nuevo.",
   "authWrongCredentials": "Email o contraseña incorrectos",
   "authConfirmEmail": "Confirmá tu email antes de entrar",
@@ -1084,5 +1083,63 @@
         "type": "String"
       }
     }
-  }
+  },
+  "authFirstTime": "¿Primera vez?",
+  "authCreateAccount": "Creá tu cuenta",
+  "authEnterCode": "Ingresar el código del email",
+  "signupTitle": "Creá tu cuenta",
+  "signupSubtitle": "Usá el mismo correo al que te llegó la invitación de tu coach.",
+  "signupRepeatPassword": "Repetí la contraseña",
+  "signupPasswordsDontMatch": "Las contraseñas no coinciden",
+  "signupRuleLength": "Al menos 8 caracteres",
+  "signupRuleLetter": "Una letra",
+  "signupRuleDigit": "Un número",
+  "signupRuleNotEmail": "Que no sea tu correo",
+  "signupSubmit": "Crear cuenta",
+  "signupHaveAccount": "¿Ya tenés cuenta?",
+  "signupSignIn": "Iniciá sesión",
+  "signupWeakPassword": "La contraseña no cumple los requisitos",
+  "signupError": "No se pudo crear la cuenta. Revisá tu conexión e intentá de nuevo.",
+  "codeTitle": "Revisá tu correo",
+  "codeSubtitle": "Te mandamos un código de 6 dígitos a {email}. Escribilo acá para confirmar que el correo es tuyo.",
+  "@codeSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "codeLabel": "Código",
+  "codeExpires": "El código vence en 1 hora.",
+  "codeConfirm": "Confirmar",
+  "codeResend": "Reenviar código",
+  "codeResendIn": "Reenviar código en {seconds} s",
+  "@codeResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "codeResent": "Te mandamos un código nuevo.",
+  "codeInvalid": "El código no es válido o ya venció.",
+  "codeHelp": "¿No llegó? Revisá la carpeta de spam. Si escribiste mal el correo, volvé atrás y corregilo.",
+  "inviteTitle": "Tenés una invitación",
+  "inviteSubtitle": "Al aceptarla, tu coach te arma el programa y te acompaña desde acá.",
+  "inviteCoach": "Coach",
+  "inviteFor": "Invitación para",
+  "inviteAccept": "Aceptar invitación",
+  "inviteNotMine": "No es mi coach · Cerrar sesión",
+  "inviteNoneTitle": "No encontramos tu invitación",
+  "inviteNoneBody": "Entraste como {email} y no hay ninguna invitación para ese correo.",
+  "@inviteNoneBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteNoneHint": "Haki es por invitación: entrá con el correo al que te escribió tu coach, o pedile que te invite con este.",
+  "inviteOtherAccount": "Entrar con otra cuenta",
+  "inviteSearchAgain": "Ya me invitó · Volver a buscar"
 }

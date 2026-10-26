@@ -30,6 +30,9 @@ class LoginController extends _$LoginController {
   }
 }
 
+bool isEmailNotConfirmed(Object error) =>
+    error is AuthException && error.code == 'email_not_confirmed';
+
 String loginErrorMessage(Object error) {
   if (error is AuthException) {
     if (error.code == 'invalid_credentials') return l10n.authWrongCredentials;

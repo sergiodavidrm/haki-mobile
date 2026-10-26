@@ -2204,12 +2204,6 @@ abstract class AppLocalizations {
   /// **'Esta app es para atletas. Como coach, entrá desde hakifit.com.'**
   String get gateCoach;
 
-  /// No description provided for @gateNoCoach.
-  ///
-  /// In es, this message translates to:
-  /// **'Tu cuenta no está asociada a ningún coach. Pedile a tu coach que te invite y entrá con el mismo email de la invitación.'**
-  String get gateNoCoach;
-
   /// No description provided for @gateConnectError.
   ///
   /// In es, this message translates to:
@@ -2497,6 +2491,228 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{name} todavía no completó su perfil.'**
   String coachProfileEmpty(String name);
+
+  /// No description provided for @authFirstTime.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Primera vez?'**
+  String get authFirstTime;
+
+  /// No description provided for @authCreateAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Creá tu cuenta'**
+  String get authCreateAccount;
+
+  /// No description provided for @authEnterCode.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresar el código del email'**
+  String get authEnterCode;
+
+  /// No description provided for @signupTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Creá tu cuenta'**
+  String get signupTitle;
+
+  /// No description provided for @signupSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Usá el mismo correo al que te llegó la invitación de tu coach.'**
+  String get signupSubtitle;
+
+  /// No description provided for @signupRepeatPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'Repetí la contraseña'**
+  String get signupRepeatPassword;
+
+  /// No description provided for @signupPasswordsDontMatch.
+  ///
+  /// In es, this message translates to:
+  /// **'Las contraseñas no coinciden'**
+  String get signupPasswordsDontMatch;
+
+  /// No description provided for @signupRuleLength.
+  ///
+  /// In es, this message translates to:
+  /// **'Al menos 8 caracteres'**
+  String get signupRuleLength;
+
+  /// No description provided for @signupRuleLetter.
+  ///
+  /// In es, this message translates to:
+  /// **'Una letra'**
+  String get signupRuleLetter;
+
+  /// No description provided for @signupRuleDigit.
+  ///
+  /// In es, this message translates to:
+  /// **'Un número'**
+  String get signupRuleDigit;
+
+  /// No description provided for @signupRuleNotEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Que no sea tu correo'**
+  String get signupRuleNotEmail;
+
+  /// No description provided for @signupSubmit.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear cuenta'**
+  String get signupSubmit;
+
+  /// No description provided for @signupHaveAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Ya tenés cuenta?'**
+  String get signupHaveAccount;
+
+  /// No description provided for @signupSignIn.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciá sesión'**
+  String get signupSignIn;
+
+  /// No description provided for @signupWeakPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'La contraseña no cumple los requisitos'**
+  String get signupWeakPassword;
+
+  /// No description provided for @signupError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo crear la cuenta. Revisá tu conexión e intentá de nuevo.'**
+  String get signupError;
+
+  /// No description provided for @codeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Revisá tu correo'**
+  String get codeTitle;
+
+  /// No description provided for @codeSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Te mandamos un código de 6 dígitos a {email}. Escribilo acá para confirmar que el correo es tuyo.'**
+  String codeSubtitle(String email);
+
+  /// No description provided for @codeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Código'**
+  String get codeLabel;
+
+  /// No description provided for @codeExpires.
+  ///
+  /// In es, this message translates to:
+  /// **'El código vence en 1 hora.'**
+  String get codeExpires;
+
+  /// No description provided for @codeConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar'**
+  String get codeConfirm;
+
+  /// No description provided for @codeResend.
+  ///
+  /// In es, this message translates to:
+  /// **'Reenviar código'**
+  String get codeResend;
+
+  /// No description provided for @codeResendIn.
+  ///
+  /// In es, this message translates to:
+  /// **'Reenviar código en {seconds} s'**
+  String codeResendIn(int seconds);
+
+  /// No description provided for @codeResent.
+  ///
+  /// In es, this message translates to:
+  /// **'Te mandamos un código nuevo.'**
+  String get codeResent;
+
+  /// No description provided for @codeInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'El código no es válido o ya venció.'**
+  String get codeInvalid;
+
+  /// No description provided for @codeHelp.
+  ///
+  /// In es, this message translates to:
+  /// **'¿No llegó? Revisá la carpeta de spam. Si escribiste mal el correo, volvé atrás y corregilo.'**
+  String get codeHelp;
+
+  /// No description provided for @inviteTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tenés una invitación'**
+  String get inviteTitle;
+
+  /// No description provided for @inviteSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Al aceptarla, tu coach te arma el programa y te acompaña desde acá.'**
+  String get inviteSubtitle;
+
+  /// No description provided for @inviteCoach.
+  ///
+  /// In es, this message translates to:
+  /// **'Coach'**
+  String get inviteCoach;
+
+  /// No description provided for @inviteFor.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitación para'**
+  String get inviteFor;
+
+  /// No description provided for @inviteAccept.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptar invitación'**
+  String get inviteAccept;
+
+  /// No description provided for @inviteNotMine.
+  ///
+  /// In es, this message translates to:
+  /// **'No es mi coach · Cerrar sesión'**
+  String get inviteNotMine;
+
+  /// No description provided for @inviteNoneTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No encontramos tu invitación'**
+  String get inviteNoneTitle;
+
+  /// No description provided for @inviteNoneBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Entraste como {email} y no hay ninguna invitación para ese correo.'**
+  String inviteNoneBody(String email);
+
+  /// No description provided for @inviteNoneHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Haki es por invitación: entrá con el correo al que te escribió tu coach, o pedile que te invite con este.'**
+  String get inviteNoneHint;
+
+  /// No description provided for @inviteOtherAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrar con otra cuenta'**
+  String get inviteOtherAccount;
+
+  /// No description provided for @inviteSearchAgain.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya me invitó · Volver a buscar'**
+  String get inviteSearchAgain;
 }
 
 class _AppLocalizationsDelegate

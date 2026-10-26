@@ -5,11 +5,12 @@ import '../../../core/theme/haki_colors.dart';
 import '../../../core/widgets/haki_loader.dart';
 import '../data/auth_repository.dart';
 import '../providers/auth_me_provider.dart';
+import 'invitation_screen.dart';
 import '../../../l10n/l10n.dart';
 
-// Deja pasar solo a atletas. Con Google cualquiera puede crear una sesión en
-// Supabase (Google sin invitación, o un coach): sin usuario CLIENT en haki-api
-// no hay nada que mostrar.
+// Deja pasar solo a atletas. Cualquiera puede crear una sesión en Supabase
+// (Google o Crear cuenta): sin usuario en haki-api se busca una invitación
+// para su email (InvitationGate); un coach ve un mensaje.
 class AthleteGate extends ConsumerWidget {
   const AthleteGate({super.key, required this.child});
 
@@ -25,11 +26,8 @@ class AthleteGate extends ConsumerWidget {
           when value.isAthlete && value.accessEnded(DateTime.now()) =>
         _Message(text: context.l10n.gateAccessEnded),
       AsyncData(:final value) when value.isAthlete => child,
-      AsyncData(:final value) => _Message(
-          text: value.exists
-              ? context.l10n.gateCoach
-              : context.l10n.gateNoCoach,
-        ),
+      AsyncData(:final value) when !value.exists => const InvitationGate(),
+      AsyncData() => _Message(text: context.l10n.gateCoach),
       AsyncError() => _Message(
           text: context.l10n.gateConnectError,
           onRetry: () => ref.invalidate(authMeProvider),

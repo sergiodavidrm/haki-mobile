@@ -1341,10 +1341,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'This app is for athletes. As a coach, sign in at hakifit.com.';
 
   @override
-  String get gateNoCoach =>
-      'Your account isn\'t linked to any coach. Ask your coach to invite you and sign in with the same email as the invitation.';
-
-  @override
   String get gateConnectError =>
       'Couldn\'t connect. Check your connection and try again.';
 
@@ -1533,4 +1529,127 @@ class AppLocalizationsEn extends AppLocalizations {
   String coachProfileEmpty(String name) {
     return '$name hasn\'t filled in their profile yet.';
   }
+
+  @override
+  String get authFirstTime => 'First time?';
+
+  @override
+  String get authCreateAccount => 'Create your account';
+
+  @override
+  String get authEnterCode => 'Enter the code from the email';
+
+  @override
+  String get signupTitle => 'Create your account';
+
+  @override
+  String get signupSubtitle =>
+      'Use the same email your coach sent the invitation to.';
+
+  @override
+  String get signupRepeatPassword => 'Repeat the password';
+
+  @override
+  String get signupPasswordsDontMatch => 'Passwords don\'t match';
+
+  @override
+  String get signupRuleLength => 'At least 8 characters';
+
+  @override
+  String get signupRuleLetter => 'A letter';
+
+  @override
+  String get signupRuleDigit => 'A number';
+
+  @override
+  String get signupRuleNotEmail => 'Not your email';
+
+  @override
+  String get signupSubmit => 'Create account';
+
+  @override
+  String get signupHaveAccount => 'Already have an account?';
+
+  @override
+  String get signupSignIn => 'Sign in';
+
+  @override
+  String get signupWeakPassword =>
+      'The password doesn\'t meet the requirements';
+
+  @override
+  String get signupError =>
+      'Couldn\'t create the account. Check your connection and try again.';
+
+  @override
+  String get codeTitle => 'Check your email';
+
+  @override
+  String codeSubtitle(String email) {
+    return 'We sent a 6-digit code to $email. Enter it here to confirm the email is yours.';
+  }
+
+  @override
+  String get codeLabel => 'Code';
+
+  @override
+  String get codeExpires => 'The code expires in 1 hour.';
+
+  @override
+  String get codeConfirm => 'Confirm';
+
+  @override
+  String get codeResend => 'Resend code';
+
+  @override
+  String codeResendIn(int seconds) {
+    return 'Resend code in $seconds s';
+  }
+
+  @override
+  String get codeResent => 'We sent you a new code.';
+
+  @override
+  String get codeInvalid => 'The code is invalid or has expired.';
+
+  @override
+  String get codeHelp =>
+      'Didn\'t get it? Check your spam folder. If you mistyped the email, go back and fix it.';
+
+  @override
+  String get inviteTitle => 'You have an invitation';
+
+  @override
+  String get inviteSubtitle =>
+      'Once you accept, your coach builds your program and supports you from here.';
+
+  @override
+  String get inviteCoach => 'Coach';
+
+  @override
+  String get inviteFor => 'Invitation for';
+
+  @override
+  String get inviteAccept => 'Accept invitation';
+
+  @override
+  String get inviteNotMine => 'Not my coach · Sign out';
+
+  @override
+  String get inviteNoneTitle => 'We couldn\'t find your invitation';
+
+  @override
+  String inviteNoneBody(String email) {
+    return 'You\'re signed in as $email and there\'s no invitation for that email.';
+  }
+
+  @override
+  String get inviteNoneHint =>
+      'Haki is invite-only: sign in with the email your coach wrote to, or ask them to invite this one.';
+
+  @override
+  String get inviteOtherAccount => 'Sign in with another account';
+
+  @override
+  String get inviteSearchAgain => 'I was invited · Search again';
 }

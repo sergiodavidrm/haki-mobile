@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
+import '../data/auth_repository.dart';
 import '../../../core/widgets/haki_logo.dart';
 import '../providers/login_controller.dart';
 import '../../../l10n/l10n.dart';
@@ -29,6 +33,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
     ref.read(loginControllerProvider.notifier).signIn(_email.text, _password.text);
+  }
+
+  /// Manda un código nuevo y abre la pantalla para ingresarlo.
+  void _enterCode() {
+    final email = _email.text.trim();
+    ref.read(authRepositoryProvider).resendSignupCode(email).ignore();
+    context.push(Routes.signUpCode(email));
   }
 
   @override
@@ -78,6 +89,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   if (state.hasError) ...[
                     const SizedBox(height: 12),
                     Text(loginErrorMessage(state.error!), style: TextStyle(color: c.danger)),
+                    // Creó la cuenta pero no llegó a poner el código
+                    if (isEmailNotConfirmed(state.error!))
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: _enterCode,
+                          child: Text(l.authEnterCode),
+                        ),
+                      ),
                   ],
                   const SizedBox(height: 24),
                   FilledButton(
@@ -104,6 +124,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     icon: const Text('G',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                     label: Text(l.authContinueGoogle),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(l.authFirstTime, style: TextStyle(color: c.textMuted)),
+                      TextButton(
+                        onPressed: loading ? null : () => context.push(Routes.signUp),
+                        child: Text(l.authCreateAccount),
+                      ),
+                    ],
                   ),
                 ],
               ),

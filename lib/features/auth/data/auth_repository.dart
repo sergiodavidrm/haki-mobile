@@ -7,9 +7,11 @@ import '../../../core/supabase/supabase_providers.dart';
 
 part 'auth_repository.g.dart';
 
-// Los atletas entran con email/password (los crea la invitación del coach) o con
-// Google. Google con el mismo email (ya confirmado por la invitación) queda
-// vinculado por Supabase al mismo usuario → mismo userId en haki-api.
+// Los atletas entran con email/password (cuenta creada en la app y confirmada
+// con el código del email) o con Google. Google con el mismo email (ya
+// confirmado) queda vinculado por Supabase al mismo usuario → mismo userId en
+// haki-api. La invitación del coach se acepta después, con la sesión
+// (InvitationRepository).
 class AuthRepository {
   AuthRepository(this._auth);
 
@@ -43,6 +45,24 @@ class AuthRepository {
 
   Future<void> signIn(String email, String password) =>
       _auth.signInWithPassword(email: email.trim(), password: password);
+
+  /// Crea la cuenta. Con "Confirm email" de Supabase no hay sesión hasta
+  /// confirmar con el código de 6 dígitos que llega por email (plantilla
+  /// "Confirm signup" con `{{ .Token }}`). Si el email ya tiene cuenta,
+  /// Supabase no da error (para no revelar qué emails existen) y no manda nada.
+  Future<void> signUp(String email, String password) =>
+      _auth.signUp(email: email.trim(), password: password);
+
+  /// Confirma el email con el código; deja la sesión iniciada (el router
+  /// redirige solo).
+  Future<void> verifySignupCode(String email, String code) => _auth.verifyOTP(
+    type: OtpType.signup,
+    email: email.trim(),
+    token: code.trim(),
+  );
+
+  Future<void> resendSignupCode(String email) =>
+      _auth.resend(type: OtpType.signup, email: email.trim());
 
   /// Login nativo (selector de cuentas del sistema) → id token → Supabase.
   /// Devuelve false si el usuario cerró el selector.

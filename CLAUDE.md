@@ -105,8 +105,8 @@ widget nunca llama a `dio` directo.
 en iOS, `GOOGLE_IOS_CLIENT_ID`. En Google Cloud hay que crear un OAuth client
 **Android** con el package `com.hakifit.haki_mobile` + SHA-1 de la firma (uno
 por keystore: debug de cada PC y release). Supabase vincula Google al usuario
-existente si el email coincide y está confirmado (la invitación lo confirma) →
-mismo `userId` en haki-api.
+existente si el email coincide y está confirmado (con el código o con Google)
+→ mismo `userId` en haki-api.
 
 **Coach archivó o eliminó al atleta (2026-10-22):** `/auth/me` trae
 `accessEndsAt` (7 días después). Mientras tanto Hoy muestra un aviso
@@ -114,10 +114,27 @@ mismo `userId` en haki-api.
 tu plan…" + cerrar sesión (compara con la hora del teléfono, sirve offline con
 la caché de `/auth/me`).
 
-**`AthleteGate`** (envuelve las rutas protegidas): con Google cualquiera crea
-sesión en Supabase, así que se chequea `GET /auth/me`; si no es `Client`
-(Google sin invitación, o un coach) muestra un mensaje + cerrar sesión. Queda
-un usuario huérfano en `auth.users` en ese caso (aceptado).
+**`AthleteGate`** (envuelve las rutas protegidas): cualquiera crea sesión en
+Supabase (Google o Crear cuenta), así que se chequea `GET /auth/me`. Si no
+existe en haki-api → `InvitationGate` (`auth/ui/invitation_screen.dart`):
+`GET invitations/me` → "Tenés una invitación" (coach, años de experiencia,
+email) + **Aceptar** (`POST invitations/{id}/accept`, después
+`expire(wait: true)` + recarga `/auth/me` → entra a la app) o "No
+encontramos tu invitación" (entrar con otra cuenta / volver a buscar). Un
+coach ve un mensaje + cerrar sesión. Queda un usuario huérfano en
+`auth.users` si nunca acepta (aceptado).
+
+**Crear cuenta (2026-10-25):** Login → "¿Primera vez? Creá tu cuenta" →
+`/registro` (email, contraseña con requisitos en vivo: `PasswordChecks` en
+`auth/data/password_policy.dart`, misma regla que Supabase y el web; repetir)
+→ `signUp` (sin sesión: Supabase tiene "Confirm email") → `/registro/codigo`
+(6 dígitos del email, confirma solo al completarlos, `verifyOTP` tipo
+`signup`, reenviar cada 60 s). Al confirmar aparece la sesión y el router
+manda a Hoy → `AthleteGate` → invitación. Si en el Login da
+`email_not_confirmed` (creó la cuenta y no puso el código): botón "Ingresar
+el código del email" (reenvía y abre esa pantalla). Si el email ya tenía
+cuenta, Supabase no avisa ni manda código (para no revelar emails): la
+pantalla dice "¿Ya tenés cuenta? Iniciá sesión".
 
 **Auth/navegación:** el login no navega; `appRouterProvider` escucha
 `onAuthStateChange` y el `redirect` manda a `/login` o `/` según haya sesión.
@@ -450,8 +467,18 @@ especialidades (decisión de Sergio).
 Esqueleto base: env por ambiente, tema con tokens, router con guard de auth,
 cliente `dio` con JWT, login email/password y Google con Supabase,
 `AthleteGate` (compara `role` sin distinguir mayúsculas: la API devuelve
-`"CLIENT"`), login con el logo (`HakiLogo` en `core/widgets/`, isotipo dibujado
-con `CustomPainter` igual al SVG del web, brillo que late).
+`"CLIENT"`), login con el logo (`HakiLogo` en `core/widgets/`).
+
+**Logo J2 (2026-10-25):** `HakiLogoMark` (`core/widgets/haki_logo.dart`) dibuja
+el isotipo con `HakiMarkPainter` (anillos atravesados por una pesa, viewBox
+100, misma geometría que el web y `branding/make_logo.py`). Colores fijos en
+`core/theme/haki_logo_colors.dart` (`HakiLogoColors.dark` / `.light` según el
+brillo del tema). Los anillos van en una capa (`saveLayer`) que los discos y
+el núcleo recortan con `BlendMode.clear`: se separan de la pesa sobre
+cualquier fondo; la barra solo se recorta alrededor del núcleo. `pulse` =
+brillo suave + núcleo que late; `draw` = los anillos se dibujan al aparecer
+(splash). `HakiLoader` = el isotipo sin el anillo exterior + arco dorado que
+gira + tres ondas desde el núcleo + núcleo con halo que late.
 
 Navegación: `StatefulShellRoute` con 4 tabs (`AppShell` en `core/widgets/`):
 Hoy `/` · Programa `/programa` · Chat `/chat` · Perfil `/perfil`.
@@ -702,7 +729,14 @@ que late; un solo `AnimationController` de 2.4 s) y `LoadingView` ("Cargando
 tu semana…"), en `AthleteGate` (mientras baja `/auth/me`) y en Hoy (mientras
 carga el programa). iOS: falta el fondo del `LaunchScreen.storyboard` (Mac).
 
-Pendiente de marca: fuente Raleway para el wordmark "haki" (el web la usa), el
-dorado del logo del web es `#C9A84C` vs. `gold` `#B8922A` del tema, e ícono de
-la app + splash nativo (necesita el logo en PNG 1024×1024;
-`flutter_launcher_icons` + `flutter_native_splash`).
+**Ícono de la app (2026-10-25, logo J2):** isotipo sobre obsidiana, PNG
+generados con `../branding/make_logo.py` (`assets/icon/icon.png` completo e
+`icon-foreground.png` transparente para el adaptativo de Android, ya con el
+margen de la zona segura) → `dart run flutter_launcher_icons` (config en
+`flutter_launcher_icons.yaml`, inset 0). **Ojo:** la herramienta pisa
+`ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS` con `AppIcon`
+en `ios/Runner.xcodeproj/project.pbxproj` (bug): descartar ese cambio con
+`git checkout` después de correrla.
+
+Pendiente de marca: fuente Raleway para el wordmark "haki" (el web la usa) y
+el dorado del logo del web es `#C9A84C` vs. `gold` `#B8922A` del tema.

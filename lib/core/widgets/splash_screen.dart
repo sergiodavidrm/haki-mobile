@@ -66,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const HakiLogoMark(size: 136),
+                const HakiLogoMark(size: 136, draw: true),
                 const SizedBox(height: 28),
                 _rising(
                   Column(

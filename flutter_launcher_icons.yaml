@@ -1,0 +1,12 @@
+# Ícono de la app: `dart run flutter_launcher_icons` (PNG generados con
+# ../branding/make_logo.py). Android usa el ícono adaptativo (fondo obsidiana +
+# isotipo) y el PNG completo para versiones viejas; iOS el completo sin alfa.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"
+  remove_alpha_ios: true
+  adaptive_icon_background: "#0D0D0D"
+  adaptive_icon_foreground: "assets/icon/icon-foreground.png"
+  # El PNG ya trae el margen de la zona segura (66 % central)
+  adaptive_icon_foreground_inset: 0

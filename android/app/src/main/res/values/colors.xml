@@ -4,4 +4,6 @@
     <color name="splash_background">#0D0D0D</color>
     <!-- Acento de las notificaciones (dorado) -->
     <color name="notification_color">#B8922A</color>
+    <!-- Fondo del ícono adaptativo (flutter_launcher_icons) -->
+    <color name="ic_launcher_background">#0D0D0D</color>
 </resources>

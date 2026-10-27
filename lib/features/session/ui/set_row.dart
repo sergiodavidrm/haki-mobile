@@ -197,14 +197,14 @@ class _SetRowState extends State<SetRow> {
 
   void _onFocusChange(bool hasFocus) {
     if (hasFocus) return;
-    // Cualquier cambio en peso, reps o RIR se guarda. Reps vacías = las del
-    // objetivo: se ven como hint y el atleta las da por cargadas (escribía
-    // solo el peso y la serie no se guardaba). RIR vacío queda vacío.
+    // Cualquier cambio en peso, reps o RIR se guarda tal cual: lo que no
+    // escribió queda vacío (antes exigía reps y un atleta que solo cargaba el
+    // peso no guardaba nada).
     if (_dirty) {
       widget.onSave(
         _parseWeight(_weight.text),
         _rowUnit,
-        _parseInt(_reps.text) ?? widget.target?.reps,
+        _parseInt(_reps.text),
         _parseInt(_rir.text),
       );
     }

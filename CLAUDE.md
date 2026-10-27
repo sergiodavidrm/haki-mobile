@@ -546,9 +546,12 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
   = "–", la primera pendiente de la sesión (`workOrder`) queda con inputs
   abiertos (sin resaltar: a Sergio no lo convenció); tocar otra fila la abre
   para cargar/corregir. Sin check: se guarda sola al salir de la fila si
-  cambió peso, reps o RIR (2026-10-26); reps vacías = las del objetivo, RIR
-  vacío queda vacío (antes exigía reps escritas y un atleta que solo cargaba
-  el peso no guardaba nada). Inputs **sin placeholder** (el hint parecía un
+  cambió peso, reps o RIR (2026-10-26), tal cual: lo que no escribió queda
+  vacío, reps incluidas (decisión de Sergio; antes exigía reps escritas y un
+  atleta que solo cargaba el peso no guardaba nada). Una serie sin reps no
+  cuenta para adherencia, récords, e1RM ni volumen. Idea para más adelante
+  (no hecha): precargar las reps del objetivo como texto real al abrir la
+  fila (visible y corregible; peso y RIR no), nunca completarlas en silencio. Inputs **sin placeholder** (el hint parecía un
   valor cargado); el objetivo va con unidad: "12 reps", "60 kg × 12",
   "60 kg", RIR abajo, y lo que el coach no puso no aparece. Cámara en **todas** las series: dorada con punto = pedida por el
   coach, tachada = no pedida (al tocarla confirma "Tu entrenador no solicitó

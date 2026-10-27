@@ -24,6 +24,7 @@ import '../../features/program/ui/past_session_screen.dart';
 import '../../features/program/ui/program_screen.dart';
 import '../../features/program/ui/programs_list_screen.dart';
 import '../../features/settings/ui/settings_screen.dart';
+import '../../features/settings/ui/personal_info_screen.dart';
 import '../../features/session/ui/rest_timer_screen.dart';
 import '../../features/session/ui/session_screen.dart';
 import '../../features/session/ui/workout_complete_screen.dart';
@@ -74,6 +75,7 @@ abstract final class Routes {
   static const weight = '/perfil/peso';
   static const measures = '/perfil/medidas';
   static const settings = '/perfil/ajustes';
+  static const personalInfo = '/perfil/ajustes/datos';
   static const records = '/perfil/records';
   static const coach = '/perfil/coach';
   static const chatCoach = '/chat/coach';
@@ -121,8 +123,9 @@ GoRouter appRouter(Ref ref) {
         routes: [
           GoRoute(
             path: 'codigo',
-            builder: (_, state) =>
-                SignUpCodeScreen(email: state.uri.queryParameters['email'] ?? ''),
+            builder: (_, state) => SignUpCodeScreen(
+              email: state.uri.queryParameters['email'] ?? '',
+            ),
           ),
         ],
       ),
@@ -236,6 +239,12 @@ GoRouter appRouter(Ref ref) {
                   GoRoute(
                     path: 'ajustes',
                     builder: (_, _) => const SettingsScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'datos',
+                        builder: (_, _) => const PersonalInfoScreen(),
+                      ),
+                    ],
                   ),
                   GoRoute(
                     path: 'records',

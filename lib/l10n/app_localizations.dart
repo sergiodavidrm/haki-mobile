@@ -2713,6 +2713,186 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ya me invitó · Volver a buscar'**
   String get inviteSearchAgain;
+
+  /// No description provided for @personalTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis datos'**
+  String get personalTitle;
+
+  /// No description provided for @personalIntro.
+  ///
+  /// In es, this message translates to:
+  /// **'{coach} los ve para armar tu programa.'**
+  String personalIntro(String coach);
+
+  /// No description provided for @personalIntroNoCoach.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu coach los ve para armar tu programa.'**
+  String get personalIntroNoCoach;
+
+  /// No description provided for @personalSection.
+  ///
+  /// In es, this message translates to:
+  /// **'DATOS PERSONALES'**
+  String get personalSection;
+
+  /// No description provided for @personalName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre'**
+  String get personalName;
+
+  /// No description provided for @personalNameRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribí tu nombre'**
+  String get personalNameRequired;
+
+  /// No description provided for @personalEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Correo'**
+  String get personalEmail;
+
+  /// No description provided for @personalEmailHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Es tu usuario para entrar. No se cambia desde acá.'**
+  String get personalEmailHint;
+
+  /// No description provided for @personalGender.
+  ///
+  /// In es, this message translates to:
+  /// **'Género'**
+  String get personalGender;
+
+  /// No description provided for @genderMale.
+  ///
+  /// In es, this message translates to:
+  /// **'Hombre'**
+  String get genderMale;
+
+  /// No description provided for @genderFemale.
+  ///
+  /// In es, this message translates to:
+  /// **'Mujer'**
+  String get genderFemale;
+
+  /// No description provided for @genderOther.
+  ///
+  /// In es, this message translates to:
+  /// **'Otro'**
+  String get genderOther;
+
+  /// No description provided for @personalHeight.
+  ///
+  /// In es, this message translates to:
+  /// **'Estatura'**
+  String get personalHeight;
+
+  /// No description provided for @personalHeightInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Revisá la estatura (50–260 cm)'**
+  String get personalHeightInvalid;
+
+  /// No description provided for @personalInjuriesSection.
+  ///
+  /// In es, this message translates to:
+  /// **'LESIONES Y MOLESTIAS'**
+  String get personalInjuriesSection;
+
+  /// No description provided for @personalInjuries.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Algo que tu coach tenga que saber?'**
+  String get personalInjuries;
+
+  /// No description provided for @personalInjuriesHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Una lesión, una molestia o algo que no podés hacer. Lo ve en tu perfil.'**
+  String get personalInjuriesHint;
+
+  /// No description provided for @personalGoalSection.
+  ///
+  /// In es, this message translates to:
+  /// **'OBJETIVO'**
+  String get personalGoalSection;
+
+  /// No description provided for @personalGoalNone.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu coach todavía no cargó tu objetivo.'**
+  String get personalGoalNone;
+
+  /// No description provided for @personalGoalHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Lo define tu coach. ¿Querés cambiarlo?'**
+  String get personalGoalHint;
+
+  /// No description provided for @personalGoalWrite.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribile'**
+  String get personalGoalWrite;
+
+  /// No description provided for @personalWeightSection.
+  ///
+  /// In es, this message translates to:
+  /// **'PESO'**
+  String get personalWeightSection;
+
+  /// No description provided for @personalWeightHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Se registra en Peso corporal'**
+  String get personalWeightHint;
+
+  /// No description provided for @personalSaved.
+  ///
+  /// In es, this message translates to:
+  /// **'Datos guardados'**
+  String get personalSaved;
+
+  /// No description provided for @goalFatLoss.
+  ///
+  /// In es, this message translates to:
+  /// **'Pérdida de grasa'**
+  String get goalFatLoss;
+
+  /// No description provided for @goalMuscleGain.
+  ///
+  /// In es, this message translates to:
+  /// **'Ganancia muscular'**
+  String get goalMuscleGain;
+
+  /// No description provided for @goalStrength.
+  ///
+  /// In es, this message translates to:
+  /// **'Fuerza'**
+  String get goalStrength;
+
+  /// No description provided for @goalEndurance.
+  ///
+  /// In es, this message translates to:
+  /// **'Resistencia'**
+  String get goalEndurance;
+
+  /// No description provided for @goalRecomposition.
+  ///
+  /// In es, this message translates to:
+  /// **'Recomposición corporal'**
+  String get goalRecomposition;
+
+  /// No description provided for @goalGeneralHealth.
+  ///
+  /// In es, this message translates to:
+  /// **'Salud general'**
+  String get goalGeneralHealth;
 }
 
 class _AppLocalizationsDelegate

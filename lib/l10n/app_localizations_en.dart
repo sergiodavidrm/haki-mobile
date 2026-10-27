@@ -1652,4 +1652,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inviteSearchAgain => 'I was invited · Search again';
+
+  @override
+  String get personalTitle => 'My details';
+
+  @override
+  String personalIntro(String coach) {
+    return '$coach uses them to build your program.';
+  }
+
+  @override
+  String get personalIntroNoCoach =>
+      'Your coach uses them to build your program.';
+
+  @override
+  String get personalSection => 'PERSONAL DETAILS';
+
+  @override
+  String get personalName => 'Name';
+
+  @override
+  String get personalNameRequired => 'Enter your name';
+
+  @override
+  String get personalEmail => 'Email';
+
+  @override
+  String get personalEmailHint =>
+      'It is your sign-in user. It can\'t be changed here.';
+
+  @override
+  String get personalGender => 'Gender';
+
+  @override
+  String get genderMale => 'Male';
+
+  @override
+  String get genderFemale => 'Female';
+
+  @override
+  String get genderOther => 'Other';
+
+  @override
+  String get personalHeight => 'Height';
+
+  @override
+  String get personalHeightInvalid => 'Check your height (50–260 cm)';
+
+  @override
+  String get personalInjuriesSection => 'INJURIES AND PAIN';
+
+  @override
+  String get personalInjuries => 'Anything your coach should know?';
+
+  @override
+  String get personalInjuriesHint =>
+      'An injury, some pain or something you can\'t do. Your coach sees it in your profile.';
+
+  @override
+  String get personalGoalSection => 'GOAL';
+
+  @override
+  String get personalGoalNone => 'Your coach hasn\'t set your goal yet.';
+
+  @override
+  String get personalGoalHint => 'Your coach sets it. Want to change it?';
+
+  @override
+  String get personalGoalWrite => 'Message them';
+
+  @override
+  String get personalWeightSection => 'WEIGHT';
+
+  @override
+  String get personalWeightHint => 'Logged in Body weight';
+
+  @override
+  String get personalSaved => 'Details saved';
+
+  @override
+  String get goalFatLoss => 'Fat loss';
+
+  @override
+  String get goalMuscleGain => 'Muscle gain';
+
+  @override
+  String get goalStrength => 'Strength';
+
+  @override
+  String get goalEndurance => 'Endurance';
+
+  @override
+  String get goalRecomposition => 'Body recomposition';
+
+  @override
+  String get goalGeneralHealth => 'General health';
 }

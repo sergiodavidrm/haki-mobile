@@ -1141,5 +1141,42 @@
   },
   "inviteNoneHint": "Haki es por invitación: entrá con el correo al que te escribió tu coach, o pedile que te invite con este.",
   "inviteOtherAccount": "Entrar con otra cuenta",
-  "inviteSearchAgain": "Ya me invitó · Volver a buscar"
+  "inviteSearchAgain": "Ya me invitó · Volver a buscar",
+  "personalTitle": "Mis datos",
+  "personalIntro": "{coach} los ve para armar tu programa.",
+  "@personalIntro": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
+  "personalIntroNoCoach": "Tu coach los ve para armar tu programa.",
+  "personalSection": "DATOS PERSONALES",
+  "personalName": "Nombre",
+  "personalNameRequired": "Escribí tu nombre",
+  "personalEmail": "Correo",
+  "personalEmailHint": "Es tu usuario para entrar. No se cambia desde acá.",
+  "personalGender": "Género",
+  "genderMale": "Hombre",
+  "genderFemale": "Mujer",
+  "genderOther": "Otro",
+  "personalHeight": "Estatura",
+  "personalHeightInvalid": "Revisá la estatura (50–260 cm)",
+  "personalInjuriesSection": "LESIONES Y MOLESTIAS",
+  "personalInjuries": "¿Algo que tu coach tenga que saber?",
+  "personalInjuriesHint": "Una lesión, una molestia o algo que no podés hacer. Lo ve en tu perfil.",
+  "personalGoalSection": "OBJETIVO",
+  "personalGoalNone": "Tu coach todavía no cargó tu objetivo.",
+  "personalGoalHint": "Lo define tu coach. ¿Querés cambiarlo?",
+  "personalGoalWrite": "Escribile",
+  "personalWeightSection": "PESO",
+  "personalWeightHint": "Se registra en Peso corporal",
+  "personalSaved": "Datos guardados",
+  "goalFatLoss": "Pérdida de grasa",
+  "goalMuscleGain": "Ganancia muscular",
+  "goalStrength": "Fuerza",
+  "goalEndurance": "Resistencia",
+  "goalRecomposition": "Recomposición corporal",
+  "goalGeneralHealth": "Salud general"
 }

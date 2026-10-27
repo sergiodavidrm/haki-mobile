@@ -4,11 +4,13 @@ import 'package:flutter/material.dart' show ThemeMode;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/cache/api_cache.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../../l10n/l10n.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../auth/providers/auth_me_provider.dart';
+import '../data/personal_info.dart';
 
 part 'settings_providers.g.dart';
 
@@ -91,6 +93,41 @@ class WeightUnitSaver extends _$WeightUnitSaver {
             '/auth/me/weight-unit',
             data: {'preferredWeightUnit': unit.api},
           );
+      ref.invalidate(authMeProvider);
+    });
+    return !state.hasError;
+  }
+}
+
+/// Ajustes → Mis datos: PATCH auth/me/personal (la pantalla manda todo el
+/// formulario) y recarga /auth/me desde la red. El estado es el guardado.
+@riverpod
+class PersonalInfoSaver extends _$PersonalInfoSaver {
+  @override
+  FutureOr<void> build() {}
+
+  Future<bool> save({
+    required String fullName,
+    required Gender? gender,
+    required double? heightCm,
+    required HeightUnit heightUnit,
+    required String? injuries,
+  }) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ref
+          .read(apiClientProvider)
+          .patch<void>(
+            '/auth/me/personal',
+            data: {
+              'fullName': fullName,
+              'gender': gender?.api,
+              'heightCm': heightCm,
+              'heightUnit': heightUnit.api,
+              'injuriesText': injuries,
+            },
+          );
+      ref.read(apiCacheProvider).expire(wait: true);
       ref.invalidate(authMeProvider);
     });
     return !state.hasError;

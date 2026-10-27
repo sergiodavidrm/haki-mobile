@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/network/api_client.dart';
+import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../../core/widgets/back_header.dart';
@@ -14,7 +16,7 @@ import '../../session/data/session_store.dart';
 import '../providers/settings_providers.dart';
 import '../../../l10n/l10n.dart';
 
-// Ajustes: cuenta (cambiar contraseña), unidad de peso, vibración del timer,
+// Ajustes: cuenta (Mis datos, cambiar contraseña), unidad de peso, vibración del timer,
 // tema, idioma y cerrar sesión. Del mockup faltan (sin backend o sin
 // integración): subir videos solo con Wi-Fi, notificaciones, Google Fit,
 // ayuda, términos y la versión de la app.
@@ -41,7 +43,12 @@ class SettingsScreen extends ConsumerWidget {
             _Section(l.settingsAccount),
             _Group(
               children: [
-                _Row(title: ref.watch(displayNameProvider), subtitle: auth.email),
+                _Row(
+                  title: ref.watch(displayNameProvider),
+                  subtitle: auth.email,
+                  onTap: () => context.push(Routes.personalInfo),
+                  trailing: Icon(Icons.chevron_right, color: c.textMuted),
+                ),
                 if (auth.hasPassword)
                   _Row(
                     title: l.settingsChangePassword,
@@ -327,9 +334,8 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
     if (!mounted) return;
     if (ok) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.passwordUpdated)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.l10n.passwordUpdated)));
     } else {
       setState(
         () => _error = _passwordError(ref.read(passwordChangerProvider).error),

@@ -545,8 +545,12 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
   unidad original, aviso de series sin subir. Fila guardada = texto, pendiente
   = "–", la primera pendiente de la sesión (`workOrder`) queda con inputs
   abiertos (sin resaltar: a Sergio no lo convenció); tocar otra fila la abre
-  para cargar/corregir. Sin check: se guarda sola al salir de la fila si tiene
-  reps. Cámara en **todas** las series: dorada con punto = pedida por el
+  para cargar/corregir. Sin check: se guarda sola al salir de la fila si
+  cambió peso, reps o RIR (2026-10-26); reps vacías = las del objetivo, RIR
+  vacío queda vacío (antes exigía reps escritas y un atleta que solo cargaba
+  el peso no guardaba nada). Inputs **sin placeholder** (el hint parecía un
+  valor cargado); el objetivo va con unidad: "12 reps", "60 kg × 12",
+  "60 kg", RIR abajo, y lo que el coach no puso no aparece. Cámara en **todas** las series: dorada con punto = pedida por el
   coach, tachada = no pedida (al tocarla confirma "Tu entrenador no solicitó
   video…"), nube turquesa = en la cola, turquesa con check = subido (tocar
   = grabar otro que lo reemplaza). Ver § Subida de videos. Override de unidad por ejercicio: si queda igual a la del día se
@@ -622,6 +626,7 @@ Perfil (`features/profile/` + `features/body/`, 2026-10-18):
   `recordsProvider`; lógica pura en `profile/data/records.dart` (tests en
   `test/records_test.dart`). Niveles del mockup **oculto** hasta que tenga
   backend. Engranaje → Ajustes.
+- `/perfil/ajustes/datos` (`PersonalInfoScreen`, 2026-10-26, mockup "Mis datos"): se entra tocando el nombre en Ajustes → Cuenta (no desde el Perfil, decisión de Sergio). Nombre, género (`M`/`F`/`Other`), estatura en cm o ft+in (se guarda en cm, `personal_info.dart`), lesiones; email y objetivo solo lectura ("Escribile" → Chat); peso = último `body_log` → Peso corporal. `PATCH auth/me/personal` vía `PersonalInfoSaver` (expira la caché y recarga `/auth/me`).
 - `/perfil/ajustes` (`SettingsScreen`, `features/settings/`): cuenta (nombre,
   email, Cambiar contraseña con Supabase `updateUser` — solo si tiene identidad
   `email`, no con solo Google), unidad de peso (`PATCH auth/me/weight-unit` →

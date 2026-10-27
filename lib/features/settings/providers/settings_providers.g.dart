@@ -249,6 +249,60 @@ abstract class _$WeightUnitSaver extends $AsyncNotifier<void> {
   }
 }
 
+/// Ajustes → Mis datos: PATCH auth/me/personal (la pantalla manda todo el
+/// formulario) y recarga /auth/me desde la red. El estado es el guardado.
+
+@ProviderFor(PersonalInfoSaver)
+final personalInfoSaverProvider = PersonalInfoSaverProvider._();
+
+/// Ajustes → Mis datos: PATCH auth/me/personal (la pantalla manda todo el
+/// formulario) y recarga /auth/me desde la red. El estado es el guardado.
+final class PersonalInfoSaverProvider
+    extends $AsyncNotifierProvider<PersonalInfoSaver, void> {
+  /// Ajustes → Mis datos: PATCH auth/me/personal (la pantalla manda todo el
+  /// formulario) y recarga /auth/me desde la red. El estado es el guardado.
+  PersonalInfoSaverProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'personalInfoSaverProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$personalInfoSaverHash();
+
+  @$internal
+  @override
+  PersonalInfoSaver create() => PersonalInfoSaver();
+}
+
+String _$personalInfoSaverHash() => r'7f582b3a31761ee496c3246a1ade8d292cc2ef16';
+
+/// Ajustes → Mis datos: PATCH auth/me/personal (la pantalla manda todo el
+/// formulario) y recarga /auth/me desde la red. El estado es el guardado.
+
+abstract class _$PersonalInfoSaver extends $AsyncNotifier<void> {
+  FutureOr<void> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<void>, void>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, void>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// Ajustes → Cambiar contraseña (Supabase). El estado es el guardado en curso.
 
 @ProviderFor(PasswordChanger)

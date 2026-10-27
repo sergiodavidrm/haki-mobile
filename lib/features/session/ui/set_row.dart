@@ -66,7 +66,9 @@ class SetTableHeader extends StatelessWidget {
               const SizedBox(width: SetCols.gap),
               Expanded(
                 child: Text(
-                  compact ? context.l10n.targetHeaderShort : context.l10n.targetHeader,
+                  compact
+                      ? context.l10n.targetHeaderShort
+                      : context.l10n.targetHeader,
                   style: style,
                   maxLines: 1,
                   overflow: TextOverflow.clip,
@@ -155,7 +157,9 @@ class _SetRowState extends State<SetRow> {
   bool get _dirty {
     final s = widget.saved;
     if (s == null) {
-      return _weight.text.trim().isNotEmpty || _reps.text.trim().isNotEmpty;
+      return _weight.text.trim().isNotEmpty ||
+          _reps.text.trim().isNotEmpty ||
+          _rir.text.trim().isNotEmpty;
     }
     return _fmt(_parseWeight(_weight.text)) != _savedWeight(s) ||
         _parseInt(_reps.text) != s.reps ||
@@ -193,11 +197,14 @@ class _SetRowState extends State<SetRow> {
 
   void _onFocusChange(bool hasFocus) {
     if (hasFocus) return;
-    if (_dirty && _reps.text.trim().isNotEmpty) {
+    // Cualquier cambio en peso, reps o RIR se guarda. Reps vacías = las del
+    // objetivo: se ven como hint y el atleta las da por cargadas (escribía
+    // solo el peso y la serie no se guardaba). RIR vacío queda vacío.
+    if (_dirty) {
       widget.onSave(
         _parseWeight(_weight.text),
         _rowUnit,
-        _parseInt(_reps.text),
+        _parseInt(_reps.text) ?? widget.target?.reps,
         _parseInt(_rir.text),
       );
     }
@@ -209,13 +216,18 @@ class _SetRowState extends State<SetRow> {
     final c = context.colors;
     final t = widget.target;
     final cols = widget.cols;
+    // Objetivo con su unidad ("12 reps", "60 kg × 12", "60 kg"); lo que el
+    // coach no puso no aparece. Los inputs van sin placeholder: el hint
+    // parecía un valor cargado.
     final targetWeight = t?.weightKg == null
         ? null
-        : formatWeight(widget.unit.fromKg(t!.weightKg!));
-    final objective = [
-      ?targetWeight,
-      if (t?.reps != null) '${t!.reps}',
-    ].join(' × ');
+        : '${formatWeight(widget.unit.fromKg(t!.weightKg!))} ${widget.unit.label}';
+    final objective = switch ((targetWeight, t?.reps)) {
+      (final w?, final r?) => '$w × $r',
+      (final w?, null) => w,
+      (null, final r?) => '$r ${context.l10n.repsShort}',
+      _ => '',
+    };
     final objectiveSub = t?.rir != null ? 'RIR ${t!.rir}' : null;
 
     final Widget weight, reps, rir;
@@ -224,20 +236,17 @@ class _SetRowState extends State<SetRow> {
         controller: _weight,
         focusNode: _weightFocus,
         width: cols.weight,
-        hint: targetWeight,
         decimal: true,
         label: context.l10n.setWeightLabel(widget.setNumber, _rowUnit.label),
       );
       reps = _Input(
         controller: _reps,
         width: cols.reps,
-        hint: t?.reps?.toString(),
         label: context.l10n.setRepsLabel(widget.setNumber),
       );
       rir = _Input(
         controller: _rir,
         width: cols.rir,
-        hint: t?.rir?.toString(),
         label: context.l10n.setRirLabel(widget.setNumber),
         action: TextInputAction.done,
       );
@@ -279,7 +288,7 @@ class _SetRowState extends State<SetRow> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  objective.isEmpty ? '—' : objective,
+                  objective,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -490,7 +499,6 @@ class _Input extends StatelessWidget {
     required this.width,
     required this.label,
     this.focusNode,
-    this.hint,
     this.decimal = false,
     this.action = TextInputAction.next,
   });
@@ -499,7 +507,6 @@ class _Input extends StatelessWidget {
   final FocusNode? focusNode;
   final double width;
   final String label;
-  final String? hint;
   final bool decimal;
 
   /// next = pasa al siguiente campo; done en el último (cierra el teclado y
@@ -539,11 +546,6 @@ class _Input extends StatelessWidget {
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 2,
               vertical: 9,
-            ),
-            hintText: hint,
-            hintStyle: TextStyle(
-              color: c.textMuted,
-              fontWeight: FontWeight.w500,
             ),
             filled: true,
             fillColor: c.background,

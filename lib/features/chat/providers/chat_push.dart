@@ -53,15 +53,8 @@ class ChatPush {
           ?.createNotificationChannel(chatChannel);
     }
 
-    onNotificationTap = (payload) {
-      if (payload != null) unawaited(_open(payload));
-    };
-    // Abrió la app tocando una notificación (estaba cerrada)
-    final launch = await localNotifications.getNotificationAppLaunchDetails();
-    final payload = launch?.notificationResponse?.payload;
-    if ((launch?.didNotificationLaunchApp ?? false) && payload != null) {
-      unawaited(_open(payload));
-    }
+    // El toque en la notificación lo reparte NotificationTaps
+    // (core/notifications/notification_taps.dart) → openMessage.
     // Con la app abierta no se muestra push (decisión de Sergio): el aviso
     // es el badge del tab Chat. FCM solo trae datos, así que no aparece nada.
   }
@@ -127,7 +120,7 @@ class ChatPush {
 
   /// Tocó una notificación ([messageId] = su payload): al Chat y, si es una
   /// respuesta de un hilo de feedback, al hilo.
-  Future<void> _open(String messageId) async {
+  Future<void> openMessage(String messageId) async {
     final router = _ref.read(appRouterProvider);
     router.go(Routes.chat);
     try {

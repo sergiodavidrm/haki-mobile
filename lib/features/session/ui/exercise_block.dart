@@ -25,10 +25,8 @@ class ExerciseBlock extends StatelessWidget {
     super.key,
     required this.exercise,
     required this.unit,
-    required this.isUnitOverridden,
     required this.savedFor,
     required this.nextSetNumber,
-    required this.onToggleUnit,
     required this.onSaveSet,
     required this.onVideo,
     this.badge,
@@ -46,12 +44,10 @@ class ExerciseBlock extends StatelessWidget {
 
   final DayExerciseDto exercise;
   final WeightUnit unit;
-  final bool isUnitOverridden;
   final SavedSet? Function(int setNumber) savedFor;
 
   /// Serie de este ejercicio que toca ahora (null = la siguiente es de otro).
   final int? nextSetNumber;
-  final VoidCallback onToggleUnit;
   final SaveSet onSaveSet;
 
   /// [requested] = el coach pidió video de esa serie.
@@ -180,12 +176,6 @@ class ExerciseBlock extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              _UnitButton(
-                unit: unit,
-                overridden: isUnitOverridden,
-                onTap: onToggleUnit,
-              ),
               if (done) ...[
                 const SizedBox(width: 8),
                 Semantics(
@@ -264,12 +254,6 @@ class ExerciseBlock extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  _UnitButton(
-                    unit: unit,
-                    overridden: isUnitOverridden,
-                    onTap: onToggleUnit,
                   ),
                   const SizedBox(width: 6),
                   _ProgressPill(done: _doneCount, total: _rowCount),
@@ -428,63 +412,3 @@ class _ProgressPill extends StatelessWidget {
   }
 }
 
-/// Pastilla "LB ⇄": invierte la unidad solo para este ejercicio.
-class _UnitButton extends StatelessWidget {
-  const _UnitButton({
-    required this.unit,
-    required this.overridden,
-    required this.onTap,
-  });
-
-  final WeightUnit unit;
-  final bool overridden;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final fg = overridden ? c.goldBright : c.textSecondary;
-    return Semantics(
-      button: true,
-      label:
-          context.l10n.exerciseUnitLabel(unit.label, unit.other.label),
-      excludeSemantics: true,
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const StadiumBorder(),
-        // Zona táctil de 44 px; la pastilla visible mide 28
-        child: SizedBox(
-          height: 44,
-          child: Center(
-            child: Container(
-              height: 28,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: ShapeDecoration(
-                color: overridden ? c.goldSurface : c.background,
-                shape: StadiumBorder(
-                  side: BorderSide(color: overridden ? c.gold : c.border),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    unit.api,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: .9,
-                      color: fg,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(Icons.swap_horiz, size: 12, color: fg),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

@@ -32,6 +32,7 @@ class LocalSetEntry {
     this.reps,
     this.rir,
     required this.synced,
+    this.savedAt,
   });
 
   final String dayExerciseId;
@@ -43,6 +44,9 @@ class LocalSetEntry {
 
   /// false = todavía no llegó a la API.
   final bool synced;
+
+  /// Última vez que se guardó en el teléfono (para la duración del entreno).
+  final DateTime? savedAt;
 }
 
 LocalSessionInfo _session(LocalSession s) => LocalSessionInfo(
@@ -59,6 +63,7 @@ LocalSetEntry _set(LocalSet s) => LocalSetEntry(
   reps: s.reps,
   rir: s.rir,
   synced: s.synced,
+  savedAt: s.updatedAt,
 );
 
 // Escrituras/lecturas locales del entreno. Cada escritura dispara el sync.

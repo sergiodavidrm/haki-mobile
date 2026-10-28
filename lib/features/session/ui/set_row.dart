@@ -216,19 +216,22 @@ class _SetRowState extends State<SetRow> {
     final c = context.colors;
     final t = widget.target;
     final cols = widget.cols;
-    // Objetivo con su unidad ("12 reps", "60 kg × 12", "60 kg"); lo que el
-    // coach no puso no aparece. Los inputs van sin placeholder: el hint
-    // parecía un valor cargado.
+    // Objetivo con su unidad, en dos líneas para que entre en la columna
+    // ("110 kg × 12" se cortaba): arriba el peso (o las reps si no hay peso),
+    // abajo "12 reps · RIR 2". Lo que el coach no puso no aparece. Los inputs
+    // van sin placeholder: el hint parecía un valor cargado.
     final targetWeight = t?.weightKg == null
         ? null
         : '${formatWeight(widget.unit.fromKg(t!.weightKg!))} ${widget.unit.label}';
-    final objective = switch ((targetWeight, t?.reps)) {
-      (final w?, final r?) => '$w × $r',
-      (final w?, null) => w,
-      (null, final r?) => '$r ${context.l10n.repsShort}',
-      _ => '',
-    };
-    final objectiveSub = t?.rir != null ? 'RIR ${t!.rir}' : null;
+    final targetReps = t?.reps == null
+        ? null
+        : '${t!.reps} ${context.l10n.repsShort}';
+    final objective = targetWeight ?? targetReps ?? '';
+    final subParts = [
+      if (targetWeight != null && targetReps != null) targetReps,
+      if (t?.rir != null) 'RIR ${t!.rir}',
+    ];
+    final objectiveSub = subParts.isEmpty ? null : subParts.join(' · ');
 
     final Widget weight, reps, rir;
     if (_editable) {
@@ -287,24 +290,34 @@ class _SetRowState extends State<SetRow> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  objective,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    height: 1.25,
-                    color: c.turquoise,
+                // Si igual no entra (superserie, "308.6 lb"), se achica en
+                // vez de cortarse
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    objective,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      height: 1.25,
+                      color: c.turquoise,
+                    ),
                   ),
                 ),
                 if (objectiveSub != null)
-                  Text(
-                    objectiveSub,
-                    style: TextStyle(
-                      fontSize: 11,
-                      height: 1.25,
-                      color: c.textMuted,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      objectiveSub,
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontSize: 11,
+                        height: 1.25,
+                        color: c.textMuted,
+                      ),
                     ),
                   ),
               ],

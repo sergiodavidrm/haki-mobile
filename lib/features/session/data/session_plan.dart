@@ -240,12 +240,55 @@ WorkoutSummary summarize(
     }
   }
   return WorkoutSummary(
-    duration: startedAt != null && completedAt != null
-        ? completedAt.difference(startedAt)
-        : null,
+    duration: workoutDuration(
+      startedAt: startedAt,
+      completedAt: completedAt,
+      setTimes: [
+        for (final s in local.values)
+          if (s.savedAt != null) s.savedAt!,
+      ],
+    ),
     setsDone: done,
     setsTotal: total,
     volume: unit.fromKg(volumeKg),
     unit: unit,
   );
+}
+
+/// Más que esto no es un entreno: se dejó abierto y se retomó otro día.
+const maxWorkoutDuration = Duration(hours: 4);
+
+/// Margen para contar el arranque y el cierre de la sesión (entrada en calor
+/// antes de la primera serie, Finalizar después de la última).
+const _edgeSlack = Duration(minutes: 30);
+
+/// Duración del entreno para Entreno completado. startedAt → completedAt
+/// daba horas o días si el atleta tocó el día, lo dejó y lo retomó después
+/// (se crea la sesión al entrar). Se mide de la primera a la última serie
+/// guardada, sumando el arranque y el cierre solo si están cerca; si las
+/// series quedaron separadas más de [maxWorkoutDuration], null (sin duración).
+Duration? workoutDuration({
+  DateTime? startedAt,
+  DateTime? completedAt,
+  required List<DateTime> setTimes,
+}) {
+  bool near(DateTime from, DateTime to) {
+    final d = to.difference(from);
+    return !d.isNegative && d <= _edgeSlack;
+  }
+
+  if (setTimes.isEmpty) {
+    if (startedAt == null || completedAt == null) return null;
+    final d = completedAt.difference(startedAt);
+    return d.isNegative || d > maxWorkoutDuration ? null : d;
+  }
+  final sorted = [...setTimes]..sort();
+  final first = sorted.first;
+  final last = sorted.last;
+  if (last.difference(first) > maxWorkoutDuration) return null;
+  final start = startedAt != null && near(startedAt, first) ? startedAt : first;
+  final end = completedAt != null && near(last, completedAt)
+      ? completedAt
+      : last;
+  return end.difference(start);
 }

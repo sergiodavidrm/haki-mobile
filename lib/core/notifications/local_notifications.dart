@@ -6,9 +6,13 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 final localNotifications = FlutterLocalNotificationsPlugin();
 
-/// Quién atiende el toque en una notificación (lo pone ChatPush; el payload
-/// de las del chat es el id del mensaje). Las del timer no tienen payload.
+/// Quién atiende el toque en una notificación (lo pone NotificationTaps; el
+/// payload de las del chat es el id del mensaje, las del timer llevan
+/// [restNotificationPayload] y los cuestionarios no llevan).
 void Function(String? payload)? onNotificationTap;
+
+/// Payload de las notificaciones del timer de descanso.
+const restNotificationPayload = 'rest';
 
 Future<void>? _init;
 

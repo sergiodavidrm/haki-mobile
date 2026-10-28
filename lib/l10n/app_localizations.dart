@@ -968,6 +968,12 @@ abstract class AppLocalizations {
   /// **'entrenando hace {minutes} min'**
   String sessionTrainingFor(int minutes);
 
+  /// No description provided for @sessionStartedOn.
+  ///
+  /// In es, this message translates to:
+  /// **'empezado el {date}'**
+  String sessionStartedOn(String date);
+
   /// No description provided for @countOf.
   ///
   /// In es, this message translates to:
@@ -979,12 +985,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{count, plural, =1{1 serie guardada en el teléfono · se sube al tener señal} other{{count} series guardadas en el teléfono · se suben al tener señal}}'**
   String sessionPendingSync(int count);
-
-  /// No description provided for @sessionUnitHint.
-  ///
-  /// In es, this message translates to:
-  /// **'Tocá la unidad de un ejercicio para cambiarla solo en ese.'**
-  String get sessionUnitHint;
 
   /// No description provided for @sessionDayUnit.
   ///
@@ -1291,12 +1291,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{done} de {total} series hechas'**
   String setsDoneOf(int done, int total);
-
-  /// No description provided for @exerciseUnitLabel.
-  ///
-  /// In es, this message translates to:
-  /// **'Unidad de este ejercicio: {unit}. Tocá para cambiar a {other}'**
-  String exerciseUnitLabel(String unit, String other);
 
   /// No description provided for @trimTitle.
   ///

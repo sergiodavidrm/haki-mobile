@@ -38,7 +38,6 @@ void localDataGuard(Ref ref) {
       ref.invalidate(generalChannelProvider);
       await deleteAllVideoFiles();
       ref.invalidate(dayWeightUnitProvider);
-      ref.invalidate(exerciseUnitOverridesProvider);
       ref.read(restTimerProvider.notifier).reset();
     }
     if (userId == null) {

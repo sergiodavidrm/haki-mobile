@@ -553,6 +553,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String sessionStartedOn(String date) {
+    return 'started $date';
+  }
+
+  @override
   String countOf(int done, int total) {
     return '$done of $total';
   }
@@ -567,10 +572,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get sessionUnitHint =>
-      'Tap an exercise\'s unit to change it just for that one.';
 
   @override
   String get sessionDayUnit => 'Today\'s weight unit';
@@ -771,11 +772,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String setsDoneOf(int done, int total) {
     return '$done of $total sets done';
-  }
-
-  @override
-  String exerciseUnitLabel(String unit, String other) {
-    return 'This exercise\'s unit: $unit. Tap to switch to $other';
   }
 
   @override

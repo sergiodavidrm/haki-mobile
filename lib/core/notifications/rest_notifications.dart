@@ -106,6 +106,7 @@ class RestNotifications {
         final left = endsAt.difference(DateTime.now()).inMilliseconds;
         await _plugin.show(
           id: _runningId,
+          payload: restNotificationPayload,
           title: l10n.restTitle,
           body: title ?? l10n.notifBackToWorkout,
           notificationDetails: NotificationDetails(
@@ -132,6 +133,7 @@ class RestNotifications {
 
       await _plugin.zonedSchedule(
         id: _doneId,
+        payload: restNotificationPayload,
         title: l10n.restGo,
         body: title == null
             ? l10n.notifRestOver
@@ -172,6 +174,7 @@ class RestNotifications {
           '${leftSeconds ~/ 60}:${(leftSeconds % 60).toString().padLeft(2, '0')}';
       await _plugin.show(
         id: _runningId,
+        payload: restNotificationPayload,
         title: '${l10n.notifRestPaused} · $clock',
         body: title ?? l10n.notifBackToWorkout,
         notificationDetails: NotificationDetails(

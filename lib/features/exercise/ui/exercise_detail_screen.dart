@@ -65,9 +65,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
       );
     }
 
-    final overrides = ref.watch(exerciseUnitOverridesProvider(dayId));
-    final WeightUnit unit =
-        overrides[e.id] ?? ref.watch(dayWeightUnitProvider(dayId));
+    final WeightUnit unit = ref.watch(dayWeightUnitProvider(dayId));
     final local =
         ref.watch(localSetsProvider(assignmentId, dayId)).value ?? const {};
     final history = ref.watch(exerciseHistoryProvider(e.exerciseId));

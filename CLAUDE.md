@@ -199,13 +199,9 @@ atleta elige la unidad al registrar:
 
 - **Switch por día** en el header de la sesión; arranca en
   `client_profiles.preferred_weight_unit`.
-- **Override por ejercicio:** tap en la unidad de un ejercicio la invierte solo
-  para ese ejercicio; sobrevive a cambios del switch del día. Si el override
-  queda igual a la unidad del día (otro tap o cambio del switch) se borra y el
-  ejercicio vuelve a seguir al switch. Sin setting de "dónde va el switch"
-  (se descartó por complejidad).
-- Unidad efectiva = `override ?? unidadDelDía` (dos providers Riverpod:
-  unidad del día + `Map<exerciseLogId, WeightUnit>` de overrides).
+- **Sin override por ejercicio** (se sacó 2026-10-27, decisión de Sergio):
+  antes tocar la unidad de un ejercicio la invertía solo para ese; ahora la
+  unidad es una sola, la del switch del header (`DayWeightUnit`).
 - Al tocar el switch **no** se convierte lo que se está escribiendo (si escribió
   45 y la máquina es en lb, quiso decir 45 lb). Sí se convierten prescripción y
   "última vez". **Sets ya guardados también se convierten** a la unidad
@@ -540,8 +536,8 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
 - Hoy pisa el estado del día con las sesiones locales (empezada/completada
   aunque no haya subido).
 - UI (igual al mockup): superseries agrupadas (A1/A2, carril + flujo
-  "A1 → A2 → descanso ↻ repetir"), switch KG/LB del día + override por
-  ejercicio, objetivo convertido a la unidad efectiva, series guardadas en su
+  "A1 → A2 → descanso ↻ repetir"), switch KG/LB del día (sin override por
+  ejercicio), objetivo convertido a la unidad del día, series guardadas en su
   unidad original, aviso de series sin subir. Fila guardada = texto, pendiente
   = "–", la primera pendiente de la sesión (`workOrder`) queda con inputs
   abiertos (sin resaltar: a Sergio no lo convenció); tocar otra fila la abre
@@ -552,12 +548,12 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
   cuenta para adherencia, récords, e1RM ni volumen. Idea para más adelante
   (no hecha): precargar las reps del objetivo como texto real al abrir la
   fila (visible y corregible; peso y RIR no), nunca completarlas en silencio. Inputs **sin placeholder** (el hint parecía un
-  valor cargado); el objetivo va con unidad: "12 reps", "60 kg × 12",
-  "60 kg", RIR abajo, y lo que el coach no puso no aparece. Cámara en **todas** las series: dorada con punto = pedida por el
+  valor cargado); el objetivo va con unidad en dos líneas (2026-10-27:
+  "110 kg × 12" se cortaba): arriba el peso ("60 kg", o "12 reps" sin peso) y
+  abajo "12 reps · RIR 2" (se achica si no entra), y lo que el coach no puso no aparece. Cámara en **todas** las series: dorada con punto = pedida por el
   coach, tachada = no pedida (al tocarla confirma "Tu entrenador no solicitó
   video…"), nube turquesa = en la cola, turquesa con check = subido (tocar
-  = grabar otro que lo reemplaza). Ver § Subida de videos. Override de unidad por ejercicio: si queda igual a la del día se
-  borra (vuelve a seguir al switch). Ejercicios sin series y sin la siguiente
+  = grabar otro que lo reemplaza). Ver § Subida de videos. Ejercicios sin series y sin la siguiente
   se muestran colapsados; tocar los abre.
   Debajo de cada ejercicio: "Sem. pasada: 116 lb × 12·12·12·12 · e1RM 163.8 lb"
   (`lastPerformance` del detalle; "Sem. N" si es otra semana del programa, la
@@ -697,13 +693,30 @@ si `canScheduleExactNotifications()` (manifest: `SCHEDULE_EXACT_ALARM`; en
 Android 14 viene apagado y no se pide), si no inexacta. Android necesita
 desugaring en `build.gradle.kts` y el `ScheduledNotificationReceiver` en el
 manifest. iOS: solo la de fin (la cuenta regresiva en bloqueo necesita Live
-Activities, pendiente).
+Activities, pendiente). Llevan payload `rest` (`restNotificationPayload`): tocarlas abre Descanso si
+el timer sigue activo (si no, la app queda donde estaba).
+
+**Toque en notificaciones (2026-10-27):** lo reparte `NotificationTaps`
+(`core/notifications/notification_taps.dart`, keepAlive, arranca en
+`app.dart`): `rest` → Descanso, id de mensaje → `ChatPush.openMessage`
+(Chat o hilo), sin payload (cuestionarios) → nada. Si la app arrancó por una
+notificación, el payload se guarda en `shared_preferences`
+(`last_launch_notification`) y no se repite: en Android, si el sistema mató
+el proceso, la app vuelve con el intent de la notificación que la abrió antes
+(p. ej. una del chat) aunque se toque otra, y tocar la del timer abría el
+chat.
 
 Entreno completado (`/completado/:assignmentId/:dayId`): Finalizar hace
-`pushReplacement` acá; muestra duración (sesión local), series hechas/total y
-volumen en la unidad del día. "Listo" refresca el programa y va a Hoy. Una
-sesión ya completada muestra "ver resumen". `DayWeightUnit` y
-`ExerciseUnitOverrides` son keepAlive (sobreviven a salir de la Sesión).
+`pushReplacement` acá; muestra duración, series hechas/total y volumen en la
+unidad del día. **Duración (2026-10-27, `workoutDuration` en
+`session_plan.dart`):** de la primera a la última serie guardada en el
+teléfono (`LocalSets.updatedAt`), sumando el arranque de la sesión y el
+Finalizar solo si están a ≤ 30 min; series separadas más de 4 h = sin
+duración ("—"). Antes era `startedAt → completedAt` y un día tocado el
+domingo y entrenado el martes daba "1234 min". El header de la Sesión
+muestra "empezado el dom 25 oct" si la sesión tiene más de 4 h. "Listo" refresca el programa y va a Hoy. Una
+sesión ya completada muestra "ver resumen". `DayWeightUnit` es
+keepAlive (sobrevive a salir de la Sesión).
 
 Unidad inicial: `DayWeightUnit` arranca en `preferredWeightUnit` de
 `GET /auth/me` (kg si no viene).
@@ -711,7 +724,7 @@ Unidad inicial: `DayWeightUnit` arranca en `preferredWeightUnit` de
 BD local de un solo usuario: `LocalDataGuard` (`session/providers/`, se
 arranca en `app.dart`) guarda el dueño en `shared_preferences`
 (`local_db_owner`); al cerrar sesión o si entra otro usuario hace
-`AppDatabase.wipe()` y resetea unidad/overrides/timer. Sin dueño guardado se
+`AppDatabase.wipe()` y resetea unidad y timer. Sin dueño guardado se
 asume del usuario actual. Ajustes → Cerrar sesión avisa si
 `SessionStore.pendingCount()` > 0 ("Tenés entrenos sin subir").
 

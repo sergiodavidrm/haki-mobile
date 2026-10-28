@@ -342,6 +342,14 @@
       }
     }
   },
+  "sessionStartedOn": "empezado el {date}",
+  "@sessionStartedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "countOf": "{done} de {total}",
   "@countOf": {
     "placeholders": {
@@ -361,7 +369,6 @@
       }
     }
   },
-  "sessionUnitHint": "Tocá la unidad de un ejercicio para cambiarla solo en ese.",
   "sessionDayUnit": "Unidad de peso del día",
   "supersetNoRest": "Sin pausa entre {items}",
   "@supersetNoRest": {
@@ -541,17 +548,6 @@
       },
       "total": {
         "type": "int"
-      }
-    }
-  },
-  "exerciseUnitLabel": "Unidad de este ejercicio: {unit}. Tocá para cambiar a {other}",
-  "@exerciseUnitLabel": {
-    "placeholders": {
-      "unit": {
-        "type": "String"
-      },
-      "other": {
-        "type": "String"
       }
     }
   },

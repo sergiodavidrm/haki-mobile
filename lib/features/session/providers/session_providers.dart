@@ -88,28 +88,6 @@ class DayWeightUnit extends _$DayWeightUnit {
   void set(WeightUnit unit) => state = unit;
 }
 
-/// Override de unidad por ejercicio (tap en la unidad del ejercicio).
-/// Sobrevive a cambios del switch del día.
-@Riverpod(keepAlive: true)
-class ExerciseUnitOverrides extends _$ExerciseUnitOverrides {
-  @override
-  Map<String, WeightUnit> build(String dayId) => const {};
-
-  /// Si al invertir queda igual que la unidad del día, se borra el override
-  /// (vuelve a seguir al switch del día).
-  void toggle(String dayExerciseId, WeightUnit current, WeightUnit dayUnit) {
-    final next = current.other;
-    state = next == dayUnit
-        ? ({...state}..remove(dayExerciseId))
-        : {...state, dayExerciseId: next};
-  }
-
-  /// Al cambiar el switch del día, los overrides que quedaron iguales a la
-  /// nueva unidad dejan de ser overrides.
-  void dropMatching(WeightUnit dayUnit) =>
-      state = {...state}..removeWhere((_, u) => u == dayUnit);
-}
-
 /// Resumen del entreno (Entreno completado), en la unidad del día.
 @riverpod
 Future<WorkoutSummary> workoutSummary(

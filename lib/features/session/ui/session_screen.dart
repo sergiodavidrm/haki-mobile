@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/format/dates.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
@@ -88,7 +89,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final local = ref.watch(localSetsProvider(_a, _d)).value ?? const {};
     final session = ref.watch(localSessionProvider(_a, _d)).value;
     final dayUnit = ref.watch(dayWeightUnitProvider(_d));
-    final overrides = ref.watch(exerciseUnitOverridesProvider(_d));
     final videos = ref.watch(localVideosProvider(_a, _d)).value ?? const {};
 
     SavedSet? savedFor(DayExerciseDto e, int n) =>
@@ -112,7 +112,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         );
 
     Widget block(DayExerciseDto e, {String? badge, bool showRail = true}) {
-      final unit = overrides[e.id] ?? dayUnit;
       return ExerciseBlock(
         exercise: e,
         badge: badge,
@@ -128,13 +127,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         nextSetNumber: next?.exercise.id == e.id ? next!.setNumber : null,
         onVideo: (n, requested) =>
             _uploadVideo(e, n, savedFor(e, n), requested),
-        unit: unit,
-        isUnitOverridden:
-            overrides.containsKey(e.id) && overrides[e.id] != dayUnit,
+        unit: dayUnit,
         savedFor: (n) => savedFor(e, n),
-        onToggleUnit: () => ref
-            .read(exerciseUnitOverridesProvider(_d).notifier)
-            .toggle(e.id, unit, dayUnit),
         onSaveSet: (n, w, u, reps, rir) {
           final after = afterSave(
             groups,
@@ -188,12 +182,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           total: s.day.exercises.length,
           pendingSync: pendingSync,
           unit: dayUnit,
-          onUnit: (u) {
-            ref.read(dayWeightUnitProvider(_d).notifier).set(u);
-            ref
-                .read(exerciseUnitOverridesProvider(_d).notifier)
-                .dropMatching(u);
-          },
+          onUnit: (u) => ref.read(dayWeightUnitProvider(_d).notifier).set(u),
         ),
         Expanded(
           child: ListView(
@@ -318,9 +307,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   NextSetInfo? _nextInfo(SetRef? r) {
     if (r == null) return null;
-    final overrides = ref.read(exerciseUnitOverridesProvider(_d));
-    final WeightUnit unit =
-        overrides[r.exercise.id] ?? ref.read(dayWeightUnitProvider(_d));
+    final WeightUnit unit = ref.read(dayWeightUnitProvider(_d));
     final t = r.exercise.targetSets
         .where((s) => s.setNumber == r.setNumber)
         .firstOrNull;
@@ -393,15 +380,19 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final minutes = startedAt == null
+    final elapsed = startedAt == null
         ? null
-        : DateTime.now().difference(startedAt!).inMinutes;
+        : DateTime.now().difference(startedAt!);
     final subtitle = [
       context.l10n.weekN(week),
-      if (minutes != null)
-        minutes < 1
+      // Se empezó otro día (o hace horas) y se retomó: la fecha, no "hace
+      // 1234 min"
+      if (elapsed != null)
+        elapsed > maxWorkoutDuration
+            ? context.l10n.sessionStartedOn(formatShortDate(startedAt!))
+            : elapsed.inMinutes < 1
             ? context.l10n.sessionJustStarted
-            : context.l10n.sessionTrainingFor(minutes),
+            : context.l10n.sessionTrainingFor(elapsed.inMinutes),
     ].join(' · ');
 
     return Container(
@@ -474,18 +465,14 @@ class _Header extends StatelessWidget {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 12, top: 8),
-            child: Text(
-              pendingSync > 0
-                  ? context.l10n.sessionPendingSync(pendingSync)
-                  : context.l10n.sessionUnitHint,
-              style: TextStyle(
-                fontSize: 11,
-                color: pendingSync > 0 ? c.goldBright : c.textMuted,
+          if (pendingSync > 0)
+            Padding(
+              padding: const EdgeInsets.only(left: 12, top: 8),
+              child: Text(
+                context.l10n.sessionPendingSync(pendingSync),
+                style: TextStyle(fontSize: 11, color: c.goldBright),
               ),
             ),
-          ),
         ],
       ),
     );

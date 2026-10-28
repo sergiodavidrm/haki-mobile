@@ -114,4 +114,57 @@ void main() {
     expect(s.volume, closeTo(1000, 0.1));
     expect(s.duration?.inMinutes, 62);
   });
+
+  group('workoutDuration', () {
+    final t0 = DateTime(2026, 10, 27, 18);
+    DateTime at(int min) => t0.add(Duration(minutes: min));
+
+    test('entreno normal: de entrar a Finalizar', () {
+      final d = workoutDuration(
+        startedAt: t0,
+        completedAt: at(65),
+        setTimes: [at(8), at(30), at(60)],
+      );
+      expect(d?.inMinutes, 65);
+    });
+
+    test('entró el domingo y entrenó el martes: solo el tramo de las series', () {
+      final d = workoutDuration(
+        startedAt: t0.subtract(const Duration(days: 2)),
+        completedAt: at(55),
+        setTimes: [at(0), at(20), at(50)],
+      );
+      expect(d?.inMinutes, 55);
+    });
+
+    test('se olvidó de Finalizar: termina en la última serie', () {
+      final d = workoutDuration(
+        startedAt: t0,
+        completedAt: at(60 * 20),
+        setTimes: [at(5), at(45)],
+      );
+      expect(d?.inMinutes, 45);
+    });
+
+    test('series en días distintos: sin duración', () {
+      final d = workoutDuration(
+        startedAt: t0,
+        completedAt: at(60 * 49),
+        setTimes: [at(5), at(60 * 48)],
+      );
+      expect(d, isNull);
+    });
+
+    test('sin series: entrar → Finalizar, salvo que pasen más de 4 h', () {
+      expect(
+        workoutDuration(startedAt: t0, completedAt: at(40), setTimes: [])
+            ?.inMinutes,
+        40,
+      );
+      expect(
+        workoutDuration(startedAt: t0, completedAt: at(60 * 30), setTimes: []),
+        isNull,
+      );
+    });
+  });
 }

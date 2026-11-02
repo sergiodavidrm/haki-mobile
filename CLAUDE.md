@@ -265,7 +265,11 @@ en adelante; por defecto la actual, o la siguiente si ya hiciste algo esta
 semana, `defaultFromWeek`). S1 = todo el programa y el inicio; SN = de ahí en
 adelante sin tocar las anteriores (el inicio solo se muestra). Los
 `dayMappings` traen `fromWeek` y todo cálculo de fechas pasa por
-`mappingsForWeek(p, semana)` (`program_schedule.dart`).
+`mappingsForWeek(p, semana)` (`program_schedule.dart`). Con entrenos hechos
+el calendario solo deja inicios que mantienen hoy dentro del programa
+(`startRange` / `canStartOn`; la API también lo valida). Al guardar,
+`ScheduleSaver` hace `expire(wait: true)` del `ApiCache`: si no, Hoy y
+Programa leían la copia con las fechas viejas hasta el pull-to-refresh.
 
 ## Sincronización con cambios del coach
 

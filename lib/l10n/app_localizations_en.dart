@@ -456,6 +456,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sessionYourNote => 'Your note';
 
   @override
+  String get noteAdd => 'Add a note for your coach';
+
+  @override
+  String get noteLabel => 'Note for your coach';
+
+  @override
+  String get noteHint =>
+      'Anything your coach should know? Discomfort, technique, the load…';
+
+  @override
+  String get noteSave => 'Save note';
+
+  @override
+  String get noteEdit => 'Edit';
+
+  @override
   String sessionViewSetVideo(int set) {
     return 'View video of set $set';
   }
@@ -752,19 +768,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statVolume => 'Volume';
-
-  @override
-  String videoRequestedSets(String sets, int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other:
-          'Your coach asked for a video of sets $sets. Tap the camera to record or upload.',
-      one:
-          'Your coach asked for a video of set $sets. Tap the camera to record or upload.',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get exerciseComplete => 'Exercise complete';

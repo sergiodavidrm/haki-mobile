@@ -128,14 +128,17 @@ void main() {
       expect(d?.inMinutes, 65);
     });
 
-    test('entró el domingo y entrenó el martes: solo el tramo de las series', () {
-      final d = workoutDuration(
-        startedAt: t0.subtract(const Duration(days: 2)),
-        completedAt: at(55),
-        setTimes: [at(0), at(20), at(50)],
-      );
-      expect(d?.inMinutes, 55);
-    });
+    test(
+      'entró el domingo y entrenó el martes: solo el tramo de las series',
+      () {
+        final d = workoutDuration(
+          startedAt: t0.subtract(const Duration(days: 2)),
+          completedAt: at(55),
+          setTimes: [at(0), at(20), at(50)],
+        );
+        expect(d?.inMinutes, 55);
+      },
+    );
 
     test('se olvidó de Finalizar: termina en la última serie', () {
       final d = workoutDuration(
@@ -157,8 +160,11 @@ void main() {
 
     test('sin series: entrar → Finalizar, salvo que pasen más de 4 h', () {
       expect(
-        workoutDuration(startedAt: t0, completedAt: at(40), setTimes: [])
-            ?.inMinutes,
+        workoutDuration(
+          startedAt: t0,
+          completedAt: at(40),
+          setTimes: [],
+        )?.inMinutes,
         40,
       );
       expect(
@@ -197,16 +203,16 @@ void main() {
     final later = saved.add(const Duration(days: 1));
 
     test('el coach la corrigió después: gana el servidor', () {
-      final s = savedSetFor(withRemote(45.359, later), 1, {setKey('a', 1): local()})!;
+      final s = savedSetFor(withRemote(45.359, later), 1, {
+        setKey('a', 1): local(),
+      })!;
       expect(s.weight, closeTo(100, 0.01));
     });
 
     test('mismos valores (la subida del atleta): sigue la local, tal cual', () {
-      final s = savedSetFor(
-        withRemote(453.592, later),
-        1,
-        {setKey('a', 1): local()},
-      )!;
+      final s = savedSetFor(withRemote(453.592, later), 1, {
+        setKey('a', 1): local(),
+      })!;
       expect(s.weight, 1000);
     });
 
@@ -225,6 +231,28 @@ void main() {
         )!.weight,
         1000,
       );
+    });
+  });
+
+  group('noteFor', () {
+    DayExerciseDto withNote(String? n) => DayExerciseDto(
+      id: 'a',
+      exerciseName: 'a',
+      supersetGroupId: null,
+      athleteNote: n,
+    );
+
+    test('sin nada local: la de la API', () {
+      expect(noteFor(withNote('de la api'), const {}), 'de la api');
+    });
+
+    test('la del teléfono gana, también si la borró', () {
+      expect(noteFor(withNote('vieja'), const {'a': 'nueva'}), 'nueva');
+      expect(noteFor(withNote('vieja'), const {'a': null}), isNull);
+    });
+
+    test('vacía o solo espacios = sin nota', () {
+      expect(noteFor(withNote('   '), const {}), isNull);
     });
   });
 }

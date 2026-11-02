@@ -16,8 +16,8 @@ import 'video_trim.dart';
 part 'session_sync.g.dart';
 
 // Manda a la API lo que está pendiente en la BD local, en orden:
-// 1) crear sesiones → 2) series (crea el exercise-log si hace falta) →
-// 3) completar sesiones → 4) videos, de a uno (ver _pushVideo). Todos los
+// 1) crear sesiones → 2) series y notas (crean el exercise-log si hace falta)
+// → 3) completar sesiones → 4) videos, de a uno (ver _pushVideo). Todos los
 // endpoints son idempotentes, así que reintentar después de un corte es
 // seguro. Una sola corrida a la vez; si falla la red, reintenta con backoff
 // (15 s … 5 min) y al volver a la app.
@@ -55,6 +55,7 @@ class SessionSync {
         _again = false;
         await _startSessions();
         await _pushSets();
+        await _pushNotes();
         await _completeSessions();
         // Un video por vuelta: series nuevas no esperan a toda la cola
         if (await _pushVideo()) _again = true;
@@ -144,6 +145,41 @@ class SessionSync {
       await (_db.update(_db.localSets)
             ..where((x) => sameSet(x) & x.updatedAt.equals(set.updatedAt)))
           .write(const LocalSetsCompanion(synced: Value(true)));
+    }
+  }
+
+  /// Notas del atleta: PUT idempotente (reenviarla la pisa, null la borra).
+  Future<void> _pushNotes() async {
+    final pending = await (_db.select(
+      _db.localNotes,
+    )..where((n) => n.synced.equals(false))).get();
+    for (final n in pending) {
+      final session =
+          await (_db.select(_db.localSessions)..where(
+                (x) =>
+                    x.assignmentId.equals(n.assignmentId) &
+                    x.dayId.equals(n.dayId),
+              ))
+              .getSingleOrNull();
+      if (session?.remoteId == null) continue; // se crea en la próxima vuelta
+
+      final logId = await _exerciseLogId(
+        n.assignmentId,
+        n.dayExerciseId,
+        session!.remoteId!,
+      );
+      await _api.put<void>(
+        '/workout-sessions/exercise-logs/$logId/note',
+        data: {'note': n.note},
+      );
+      // Solo marcar si no la editaron mientras se mandaba
+      await (_db.update(_db.localNotes)..where(
+            (x) =>
+                x.assignmentId.equals(n.assignmentId) &
+                x.dayExerciseId.equals(n.dayExerciseId) &
+                x.updatedAt.equals(n.updatedAt),
+          ))
+          .write(const LocalNotesCompanion(synced: Value(true)));
     }
   }
 

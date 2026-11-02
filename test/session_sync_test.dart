@@ -156,4 +156,54 @@ void main() {
     expect(await db.select(db.localSessions).get(), isEmpty);
     expect(await db.select(db.localExerciseLogs).get(), isEmpty);
   });
+
+  test(
+    'la nota del atleta sube aunque no haya series y se puede borrar',
+    () async {
+      await store.saveNote(
+        assignmentId: 'a1',
+        dayId: 'd1',
+        dayExerciseId: 'ex1',
+        note: '  Me molestó el hombro  ',
+      );
+      await settle();
+
+      expect(api.calls, [
+        'POST /workout-sessions',
+        'POST /workout-sessions/ses-1/exercise-logs',
+        'PUT /workout-sessions/exercise-logs/log-1/note',
+      ]);
+      final note = await db.select(db.localNotes).getSingle();
+      expect(note.note, 'Me molestó el hombro');
+      expect(note.synced, isTrue);
+
+      // Vacía = se borra (se manda null)
+      api.calls.clear();
+      await store.saveNote(
+        assignmentId: 'a1',
+        dayId: 'd1',
+        dayExerciseId: 'ex1',
+        note: '   ',
+      );
+      await settle();
+      expect(api.calls, ['PUT /workout-sessions/exercise-logs/log-1/note']);
+      expect((await db.select(db.localNotes).getSingle()).note, isNull);
+
+      await db.wipe();
+      expect(await db.select(db.localNotes).get(), isEmpty);
+    },
+  );
+
+  test('sin señal la nota cuenta como pendiente', () async {
+    api.offline = true;
+    await store.saveNote(
+      assignmentId: 'a1',
+      dayId: 'd1',
+      dayExerciseId: 'ex1',
+      note: 'nota',
+    );
+    await settle();
+    // la nota + la sesión sin crear en la API
+    expect(await store.pendingCount(), 2);
+  });
 }

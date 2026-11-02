@@ -91,6 +91,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final session = ref.watch(localSessionProvider(_a, _d)).value;
     final dayUnit = ref.watch(dayWeightUnitProvider(_d));
     final videos = ref.watch(localVideosProvider(_a, _d)).value ?? const {};
+    final notes = ref.watch(localNotesProvider(_a, _d)).value ?? const {};
 
     SavedSet? savedFor(DayExerciseDto e, int n) =>
         savedSetFor(e, n, local, videos);
@@ -127,6 +128,15 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         badge: badge,
         showRail: showRail,
         onCollapse: onCollapse,
+        note: noteFor(e, notes),
+        onSaveNote: (note) => ref
+            .read(sessionStoreProvider)
+            .saveNote(
+              assignmentId: _a,
+              dayId: _d,
+              dayExerciseId: e.id,
+              note: note,
+            ),
         lastTime: e.lastPerformance == null
             ? null
             : lastTimeLabel(

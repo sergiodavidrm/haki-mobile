@@ -11,6 +11,7 @@ import '../../chat/ui/feedback_links.dart';
 import '../../session/data/session_plan.dart';
 import '../../session/data/session_store.dart';
 import '../../session/providers/session_providers.dart';
+import '../../session/ui/athlete_note.dart';
 import '../../session/ui/set_row.dart';
 import '../../session/ui/set_video_flow.dart';
 import '../data/assignment_dtos.dart';
@@ -39,6 +40,8 @@ class PastSessionScreen extends ConsumerWidget {
         ref.watch(localSetsProvider(assignmentId, dayId)).value ?? const {};
     final videos =
         ref.watch(localVideosProvider(assignmentId, dayId)).value ?? const {};
+    final notes =
+        ref.watch(localNotesProvider(assignmentId, dayId)).value ?? const {};
     final fallbackUnit =
         ref.watch(authMeProvider).value?.preferredWeightUnit ?? WeightUnit.kg;
 
@@ -93,6 +96,15 @@ class PastSessionScreen extends ConsumerWidget {
                               saved: saved,
                               requested: requested,
                             ),
+                            notes: notes,
+                            onSaveNote: (note) => ref
+                                .read(sessionStoreProvider)
+                                .saveNote(
+                                  assignmentId: assignmentId,
+                                  dayId: dayId,
+                                  dayExerciseId: e.id,
+                                  note: note,
+                                ),
                           ),
                         ),
                   ],
@@ -156,7 +168,9 @@ class _StatusPill extends StatelessWidget {
             const SizedBox(width: 4),
           ],
           Text(
-            done ? context.l10n.sessionCompleted : context.l10n.programInProgress,
+            done
+                ? context.l10n.sessionCompleted
+                : context.l10n.programInProgress,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -177,7 +191,13 @@ class _ExerciseCard extends StatelessWidget {
     required this.videos,
     required this.fallbackUnit,
     required this.onVideo,
+    required this.notes,
+    required this.onSaveNote,
   });
+
+  /// Notas del teléfono (ganan sobre la de la API).
+  final Map<String, String?> notes;
+  final ValueChanged<String?> onSaveNote;
 
   final DayExerciseDto exercise;
   final String? badge;
@@ -203,7 +223,7 @@ class _ExerciseCard extends StatelessWidget {
         .map(inUnit)
         .nonNulls
         .fold<double?>(null, (a, b) => a == null || b > a ? b : a);
-    final note = e.athleteNote?.trim();
+    final note = noteFor(e, notes);
 
     return HakiCard(
       radius: 22,
@@ -274,35 +294,8 @@ class _ExerciseCard extends StatelessWidget {
                 onVideo: (requested) => onVideo(n, saved[n - 1], requested),
               ),
           ],
-          if (note != null && note.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: c.surfaceHigh,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text.rich(
-                TextSpan(
-                  style: TextStyle(
-                    fontSize: 13,
-                    height: 1.45,
-                    color: c.textSecondary,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: '${context.l10n.sessionYourNote}: ',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: c.textMuted,
-                      ),
-                    ),
-                    TextSpan(text: note),
-                  ],
-                ),
-              ),
-            ),
-          ],
+          const SizedBox(height: 10),
+          AthleteNote(note: note, onSave: onSaveNote),
         ],
       ),
     );

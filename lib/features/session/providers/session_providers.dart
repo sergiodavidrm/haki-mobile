@@ -65,6 +65,15 @@ Stream<Map<String, LocalSetEntry>> localSets(
       (rows) => {for (final r in rows) setKey(r.dayExerciseId, r.setNumber): r},
     );
 
+/// Notas del atleta guardadas en el teléfono: dayExerciseId → nota (null = la
+/// borró). Ganan sobre `DayExerciseDto.athleteNote` (ver [noteFor]).
+@riverpod
+Stream<Map<String, String?>> localNotes(
+  Ref ref,
+  String assignmentId,
+  String dayId,
+) => ref.watch(sessionStoreProvider).watchNotes(assignmentId, dayId);
+
 /// Videos de la sesión en el teléfono: "dayExerciseId#setNumber" → true si
 /// ya se subió, false si está en la cola.
 @riverpod

@@ -94,6 +94,14 @@ bool _correctedOnServer(LocalSetEntry l, LoggedSetDto? r) {
   return !sameWeight || l.reps != r.reps || l.rir != r.rir;
 }
 
+/// Nota del atleta de un ejercicio: la del teléfono si la escribió o la borró
+/// acá (aunque todavía no haya subido); si no, la que vino de la API.
+String? noteFor(DayExerciseDto e, Map<String, String?> local) {
+  final note = local.containsKey(e.id) ? local[e.id] : e.athleteNote;
+  final t = note?.trim();
+  return t == null || t.isEmpty ? null : t;
+}
+
 /// Filas de series de un ejercicio: las prescritas, o más si ya se cargaron
 /// más (de otro teléfono); mínimo 1.
 int setCountOf(DayExerciseDto e) {

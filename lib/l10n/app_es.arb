@@ -255,6 +255,11 @@
   "sessionCompleted": "Completada",
   "sessionNoSets": "Sin series registradas",
   "sessionYourNote": "Tu nota",
+  "noteAdd": "Agregar nota para tu coach",
+  "noteLabel": "Nota para tu coach",
+  "noteHint": "¿Algo que tu coach deba saber? Molestias, técnica, la carga…",
+  "noteSave": "Guardar nota",
+  "noteEdit": "Editar",
   "sessionViewSetVideo": "Ver video de la serie {set}",
   "@sessionViewSetVideo": {
     "placeholders": {
@@ -524,17 +529,6 @@
   "commonDone": "Listo",
   "statSets": "Series",
   "statVolume": "Volumen",
-  "videoRequestedSets": "{count, plural, =1{Tu coach pidió video de la serie {sets}. Tocá la cámara para grabar o subir.} other{Tu coach pidió video de las series {sets}. Tocá la cámara para grabar o subir.}}",
-  "@videoRequestedSets": {
-    "placeholders": {
-      "sets": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "exerciseComplete": "Ejercicio completo",
   "noSetsPrescribed": "Sin series prescritas",
   "setsCount": "{count, plural, =1{1 serie} other{{count} series}}",

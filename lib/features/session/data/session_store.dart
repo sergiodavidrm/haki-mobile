@@ -94,6 +94,15 @@ class SessionStore {
           .watch()
           .map((rows) => rows.map(_set).toList());
 
+  /// Notas del día guardadas en el teléfono: dayExerciseId → nota (null = la
+  /// borró). Ganan sobre la que vino de la API.
+  Stream<Map<String, String?>> watchNotes(String assignmentId, String dayId) =>
+      (_db.select(_db.localNotes)..where(
+            (n) => n.assignmentId.equals(assignmentId) & n.dayId.equals(dayId),
+          ))
+          .watch()
+          .map((rows) => {for (final n in rows) n.dayExerciseId: n.note});
+
   /// Videos de la sesión: setKey → true si ya se subió, false si está en la
   /// cola.
   Stream<Map<String, bool>> watchVideos(String assignmentId, String dayId) =>
@@ -196,8 +205,33 @@ class SessionStore {
     _sync.kick();
   }
 
+  /// Nota para el coach sobre un ejercicio. Vacía = la borra. Crea la sesión si
+  /// no existía (se puede escribir antes de cargar series).
+  Future<void> saveNote({
+    required String assignmentId,
+    required String dayId,
+    required String dayExerciseId,
+    required String? note,
+  }) async {
+    final value = note?.trim();
+    await start(assignmentId, dayId);
+    await _db
+        .into(_db.localNotes)
+        .insertOnConflictUpdate(
+          LocalNotesCompanion.insert(
+            assignmentId: assignmentId,
+            dayId: dayId,
+            dayExerciseId: dayExerciseId,
+            note: Value(value == null || value.isEmpty ? null : value),
+            updatedAt: DateTime.now(),
+            synced: const Value(false),
+          ),
+        );
+    _sync.kick();
+  }
+
   /// Cosas guardadas en el teléfono que todavía no llegaron a la API
-  /// (series + sesiones sin crear o sin completar + videos).
+  /// (series + notas + sesiones sin crear o sin completar + videos).
   Future<int> pendingCount() async {
     final sets = await (_db.select(
       _db.localSets,
@@ -212,7 +246,10 @@ class SessionStore {
     final videos = await (_db.select(
       _db.localVideos,
     )..where((v) => v.done.equals(false))).get();
-    return sets.length + sessions.length + videos.length;
+    final notes = await (_db.select(
+      _db.localNotes,
+    )..where((n) => n.synced.equals(false))).get();
+    return sets.length + notes.length + sessions.length + videos.length;
   }
 
   Future<void> complete(String assignmentId, String dayId) async {

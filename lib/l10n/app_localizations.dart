@@ -836,6 +836,36 @@ abstract class AppLocalizations {
   /// **'Tu nota'**
   String get sessionYourNote;
 
+  /// No description provided for @noteAdd.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar nota para tu coach'**
+  String get noteAdd;
+
+  /// No description provided for @noteLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Nota para tu coach'**
+  String get noteLabel;
+
+  /// No description provided for @noteHint.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Algo que tu coach deba saber? Molestias, técnica, la carga…'**
+  String get noteHint;
+
+  /// No description provided for @noteSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar nota'**
+  String get noteSave;
+
+  /// No description provided for @noteEdit.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar'**
+  String get noteEdit;
+
   /// No description provided for @sessionViewSetVideo.
   ///
   /// In es, this message translates to:
@@ -1285,12 +1315,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Volumen'**
   String get statVolume;
-
-  /// No description provided for @videoRequestedSets.
-  ///
-  /// In es, this message translates to:
-  /// **'{count, plural, =1{Tu coach pidió video de la serie {sets}. Tocá la cámara para grabar o subir.} other{Tu coach pidió video de las series {sets}. Tocá la cámara para grabar o subir.}}'**
-  String videoRequestedSets(String sets, int count);
 
   /// No description provided for @exerciseComplete.
   ///

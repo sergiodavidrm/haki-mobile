@@ -2400,6 +2400,425 @@ class LocalVideosCompanion extends UpdateCompanion<LocalVideo> {
   }
 }
 
+class $LocalNotesTable extends LocalNotes
+    with TableInfo<$LocalNotesTable, LocalNote> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalNotesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _assignmentIdMeta = const VerificationMeta(
+    'assignmentId',
+  );
+  @override
+  late final GeneratedColumn<String> assignmentId = GeneratedColumn<String>(
+    'assignment_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dayIdMeta = const VerificationMeta('dayId');
+  @override
+  late final GeneratedColumn<String> dayId = GeneratedColumn<String>(
+    'day_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dayExerciseIdMeta = const VerificationMeta(
+    'dayExerciseId',
+  );
+  @override
+  late final GeneratedColumn<String> dayExerciseId = GeneratedColumn<String>(
+    'day_exercise_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncedMeta = const VerificationMeta('synced');
+  @override
+  late final GeneratedColumn<bool> synced = GeneratedColumn<bool>(
+    'synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("synced" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    assignmentId,
+    dayId,
+    dayExerciseId,
+    note,
+    updatedAt,
+    synced,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_notes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalNote> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('assignment_id')) {
+      context.handle(
+        _assignmentIdMeta,
+        assignmentId.isAcceptableOrUnknown(
+          data['assignment_id']!,
+          _assignmentIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_assignmentIdMeta);
+    }
+    if (data.containsKey('day_id')) {
+      context.handle(
+        _dayIdMeta,
+        dayId.isAcceptableOrUnknown(data['day_id']!, _dayIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dayIdMeta);
+    }
+    if (data.containsKey('day_exercise_id')) {
+      context.handle(
+        _dayExerciseIdMeta,
+        dayExerciseId.isAcceptableOrUnknown(
+          data['day_exercise_id']!,
+          _dayExerciseIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_dayExerciseIdMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('synced')) {
+      context.handle(
+        _syncedMeta,
+        synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {assignmentId, dayExerciseId};
+  @override
+  LocalNote map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalNote(
+      assignmentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}assignment_id'],
+      )!,
+      dayId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}day_id'],
+      )!,
+      dayExerciseId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}day_exercise_id'],
+      )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      synced: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}synced'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalNotesTable createAlias(String alias) {
+    return $LocalNotesTable(attachedDatabase, alias);
+  }
+}
+
+class LocalNote extends DataClass implements Insertable<LocalNote> {
+  final String assignmentId;
+  final String dayId;
+  final String dayExerciseId;
+  final String? note;
+  final DateTime updatedAt;
+  final bool synced;
+  const LocalNote({
+    required this.assignmentId,
+    required this.dayId,
+    required this.dayExerciseId,
+    this.note,
+    required this.updatedAt,
+    required this.synced,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['assignment_id'] = Variable<String>(assignmentId);
+    map['day_id'] = Variable<String>(dayId);
+    map['day_exercise_id'] = Variable<String>(dayExerciseId);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['synced'] = Variable<bool>(synced);
+    return map;
+  }
+
+  LocalNotesCompanion toCompanion(bool nullToAbsent) {
+    return LocalNotesCompanion(
+      assignmentId: Value(assignmentId),
+      dayId: Value(dayId),
+      dayExerciseId: Value(dayExerciseId),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      updatedAt: Value(updatedAt),
+      synced: Value(synced),
+    );
+  }
+
+  factory LocalNote.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalNote(
+      assignmentId: serializer.fromJson<String>(json['assignmentId']),
+      dayId: serializer.fromJson<String>(json['dayId']),
+      dayExerciseId: serializer.fromJson<String>(json['dayExerciseId']),
+      note: serializer.fromJson<String?>(json['note']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      synced: serializer.fromJson<bool>(json['synced']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'assignmentId': serializer.toJson<String>(assignmentId),
+      'dayId': serializer.toJson<String>(dayId),
+      'dayExerciseId': serializer.toJson<String>(dayExerciseId),
+      'note': serializer.toJson<String?>(note),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'synced': serializer.toJson<bool>(synced),
+    };
+  }
+
+  LocalNote copyWith({
+    String? assignmentId,
+    String? dayId,
+    String? dayExerciseId,
+    Value<String?> note = const Value.absent(),
+    DateTime? updatedAt,
+    bool? synced,
+  }) => LocalNote(
+    assignmentId: assignmentId ?? this.assignmentId,
+    dayId: dayId ?? this.dayId,
+    dayExerciseId: dayExerciseId ?? this.dayExerciseId,
+    note: note.present ? note.value : this.note,
+    updatedAt: updatedAt ?? this.updatedAt,
+    synced: synced ?? this.synced,
+  );
+  LocalNote copyWithCompanion(LocalNotesCompanion data) {
+    return LocalNote(
+      assignmentId: data.assignmentId.present
+          ? data.assignmentId.value
+          : this.assignmentId,
+      dayId: data.dayId.present ? data.dayId.value : this.dayId,
+      dayExerciseId: data.dayExerciseId.present
+          ? data.dayExerciseId.value
+          : this.dayExerciseId,
+      note: data.note.present ? data.note.value : this.note,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      synced: data.synced.present ? data.synced.value : this.synced,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalNote(')
+          ..write('assignmentId: $assignmentId, ')
+          ..write('dayId: $dayId, ')
+          ..write('dayExerciseId: $dayExerciseId, ')
+          ..write('note: $note, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('synced: $synced')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(assignmentId, dayId, dayExerciseId, note, updatedAt, synced);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalNote &&
+          other.assignmentId == this.assignmentId &&
+          other.dayId == this.dayId &&
+          other.dayExerciseId == this.dayExerciseId &&
+          other.note == this.note &&
+          other.updatedAt == this.updatedAt &&
+          other.synced == this.synced);
+}
+
+class LocalNotesCompanion extends UpdateCompanion<LocalNote> {
+  final Value<String> assignmentId;
+  final Value<String> dayId;
+  final Value<String> dayExerciseId;
+  final Value<String?> note;
+  final Value<DateTime> updatedAt;
+  final Value<bool> synced;
+  final Value<int> rowid;
+  const LocalNotesCompanion({
+    this.assignmentId = const Value.absent(),
+    this.dayId = const Value.absent(),
+    this.dayExerciseId = const Value.absent(),
+    this.note = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.synced = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalNotesCompanion.insert({
+    required String assignmentId,
+    required String dayId,
+    required String dayExerciseId,
+    this.note = const Value.absent(),
+    required DateTime updatedAt,
+    this.synced = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : assignmentId = Value(assignmentId),
+       dayId = Value(dayId),
+       dayExerciseId = Value(dayExerciseId),
+       updatedAt = Value(updatedAt);
+  static Insertable<LocalNote> custom({
+    Expression<String>? assignmentId,
+    Expression<String>? dayId,
+    Expression<String>? dayExerciseId,
+    Expression<String>? note,
+    Expression<DateTime>? updatedAt,
+    Expression<bool>? synced,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (assignmentId != null) 'assignment_id': assignmentId,
+      if (dayId != null) 'day_id': dayId,
+      if (dayExerciseId != null) 'day_exercise_id': dayExerciseId,
+      if (note != null) 'note': note,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (synced != null) 'synced': synced,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalNotesCompanion copyWith({
+    Value<String>? assignmentId,
+    Value<String>? dayId,
+    Value<String>? dayExerciseId,
+    Value<String?>? note,
+    Value<DateTime>? updatedAt,
+    Value<bool>? synced,
+    Value<int>? rowid,
+  }) {
+    return LocalNotesCompanion(
+      assignmentId: assignmentId ?? this.assignmentId,
+      dayId: dayId ?? this.dayId,
+      dayExerciseId: dayExerciseId ?? this.dayExerciseId,
+      note: note ?? this.note,
+      updatedAt: updatedAt ?? this.updatedAt,
+      synced: synced ?? this.synced,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (assignmentId.present) {
+      map['assignment_id'] = Variable<String>(assignmentId.value);
+    }
+    if (dayId.present) {
+      map['day_id'] = Variable<String>(dayId.value);
+    }
+    if (dayExerciseId.present) {
+      map['day_exercise_id'] = Variable<String>(dayExerciseId.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (synced.present) {
+      map['synced'] = Variable<bool>(synced.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalNotesCompanion(')
+          ..write('assignmentId: $assignmentId, ')
+          ..write('dayId: $dayId, ')
+          ..write('dayExerciseId: $dayExerciseId, ')
+          ..write('note: $note, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('synced: $synced, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2411,6 +2830,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $LocalVideosTable localVideos = $LocalVideosTable(this);
+  late final $LocalNotesTable localNotes = $LocalNotesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2421,6 +2841,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     localSets,
     cachedResponses,
     localVideos,
+    localNotes,
   ];
 }
 
@@ -3696,6 +4117,233 @@ typedef $$LocalVideosTableProcessedTableManager =
       LocalVideo,
       PrefetchHooks Function()
     >;
+typedef $$LocalNotesTableCreateCompanionBuilder = LocalNotesCompanion Function({
+  required String assignmentId,
+  required String dayId,
+  required String dayExerciseId,
+  Value<String?> note,
+  required DateTime updatedAt,
+  Value<bool> synced,
+  Value<int> rowid,
+});
+typedef $$LocalNotesTableUpdateCompanionBuilder = LocalNotesCompanion Function({
+  Value<String> assignmentId,
+  Value<String> dayId,
+  Value<String> dayExerciseId,
+  Value<String?> note,
+  Value<DateTime> updatedAt,
+  Value<bool> synced,
+  Value<int> rowid,
+});
+
+class $$LocalNotesTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalNotesTable> {
+  $$LocalNotesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get assignmentId => $composableBuilder(
+    column: $table.assignmentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dayId => $composableBuilder(
+    column: $table.dayId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dayExerciseId => $composableBuilder(
+    column: $table.dayExerciseId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get synced => $composableBuilder(
+    column: $table.synced,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalNotesTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalNotesTable> {
+  $$LocalNotesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get assignmentId => $composableBuilder(
+    column: $table.assignmentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dayId => $composableBuilder(
+    column: $table.dayId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dayExerciseId => $composableBuilder(
+    column: $table.dayExerciseId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get synced => $composableBuilder(
+    column: $table.synced,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalNotesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalNotesTable> {
+  $$LocalNotesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get assignmentId => $composableBuilder(
+    column: $table.assignmentId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get dayId =>
+      $composableBuilder(column: $table.dayId, builder: (column) => column);
+
+  GeneratedColumn<String> get dayExerciseId => $composableBuilder(
+    column: $table.dayExerciseId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get synced =>
+      $composableBuilder(column: $table.synced, builder: (column) => column);
+}
+
+class $$LocalNotesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalNotesTable,
+          LocalNote,
+          $$LocalNotesTableFilterComposer,
+          $$LocalNotesTableOrderingComposer,
+          $$LocalNotesTableAnnotationComposer,
+          $$LocalNotesTableCreateCompanionBuilder,
+          $$LocalNotesTableUpdateCompanionBuilder,
+          (
+            LocalNote,
+            BaseReferences<_$AppDatabase, $LocalNotesTable, LocalNote>,
+          ),
+          LocalNote,
+          PrefetchHooks Function()
+        > {
+  $$LocalNotesTableTableManager(_$AppDatabase db, $LocalNotesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalNotesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalNotesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalNotesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> assignmentId = const Value.absent(),
+                Value<String> dayId = const Value.absent(),
+                Value<String> dayExerciseId = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<bool> synced = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalNotesCompanion(
+                assignmentId: assignmentId,
+                dayId: dayId,
+                dayExerciseId: dayExerciseId,
+                note: note,
+                updatedAt: updatedAt,
+                synced: synced,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String assignmentId,
+                required String dayId,
+                required String dayExerciseId,
+                Value<String?> note = const Value.absent(),
+                required DateTime updatedAt,
+                Value<bool> synced = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalNotesCompanion.insert(
+                assignmentId: assignmentId,
+                dayId: dayId,
+                dayExerciseId: dayExerciseId,
+                note: note,
+                updatedAt: updatedAt,
+                synced: synced,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$LocalNotesTable, LocalNote>(table),
+                  BaseReferences<_$AppDatabase, $LocalNotesTable, LocalNote>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalNotesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalNotesTable,
+      LocalNote,
+      $$LocalNotesTableFilterComposer,
+      $$LocalNotesTableOrderingComposer,
+      $$LocalNotesTableAnnotationComposer,
+      $$LocalNotesTableCreateCompanionBuilder,
+      $$LocalNotesTableUpdateCompanionBuilder,
+      (LocalNote, BaseReferences<_$AppDatabase, $LocalNotesTable, LocalNote>),
+      LocalNote,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3710,6 +4358,8 @@ class $AppDatabaseManager {
       $$CachedResponsesTableTableManager(_db, _db.cachedResponses);
   $$LocalVideosTableTableManager get localVideos =>
       $$LocalVideosTableTableManager(_db, _db.localVideos);
+  $$LocalNotesTableTableManager get localNotes =>
+      $$LocalNotesTableTableManager(_db, _db.localNotes);
 }
 
 // **************************************************************************

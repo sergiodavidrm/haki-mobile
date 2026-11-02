@@ -429,6 +429,24 @@ Los arma el coach en el web; reglas y backend en `../haki-api/CLAUDE.md`
   teléfono; el backend crea el envío a las 20:00 de la zona del coach (iguales
   en Costa Rica).
 
+## Nota del atleta por ejercicio (2026-11-02)
+
+Mockup: pantalla Sesión del canvas Haki Mobile. Al final de cada ejercicio
+(Sesión y Sesión pasada) `AthleteNote` (`session/ui/athlete_note.dart`):
+botón "Agregar nota para tu coach" → campo + Cancelar/Guardar nota →
+"Tu nota: …" con Editar. Offline como las series: tabla drift `LocalNotes`
+(schema 5, una por ejercicio, `note` null = la borró) → `SessionSync._pushNotes`
+(`PUT workout-sessions/exercise-logs/{id}/note`, crea sesión/exercise-log si
+hace falta) → cuenta en `pendingCount` y se borra en `wipe`. La del teléfono
+gana sobre `DayExerciseDto.athleteNote` (`noteFor`). El coach la ve en el web
+(builder y detalle del día del Resumen). Se sacó el aviso "Tu coach pidió
+video de la serie N…" (la cámara dorada ya lo dice).
+
+**Teclado al volver de segundo plano (2026-11-02):** quedaba el espacio del
+teclado reservado (bloque negro abajo en todos los tabs). `keyboardGuard`
+(`core/widgets/keyboard_guard.dart`): al irse saca el foco; al volver, si nada
+tiene foco, `TextInput.hide`.
+
 ## Videos según el coach (2026-11-02)
 
 `/auth/me` trae `videoFeedbackEnabled` ("Pedir feedback con videos" del

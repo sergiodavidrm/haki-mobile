@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
-import '../../auth/providers/auth_me_provider.dart';
 import '../../chat/ui/feedback_links.dart';
 import '../../exercise/data/exercise_stats.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../data/session_plan.dart';
+import 'athlete_note.dart';
 import 'set_row.dart';
 import '../../../l10n/l10n.dart';
 
@@ -19,10 +18,11 @@ typedef SaveSet = void Function(
   int? rir,
 );
 
-/// Un ejercicio de la sesión: encabezado, nota del coach y tabla de series.
+/// Un ejercicio de la sesión: encabezado, nota del coach, tabla de series y
+/// nota del atleta para el coach.
 /// Suelto ([badge] null) se dibuja como en el mockup dentro de una tarjeta que
 /// pone el que lo usa; en superserie lleva el carril A1/A2 a la izquierda.
-class ExerciseBlock extends ConsumerWidget {
+class ExerciseBlock extends StatelessWidget {
   const ExerciseBlock({
     super.key,
     required this.exercise,
@@ -36,7 +36,15 @@ class ExerciseBlock extends ConsumerWidget {
     this.lastTime,
     this.onOpenDetail,
     this.onCollapse,
+    this.note,
+    this.onSaveNote,
   });
+
+  /// Nota del atleta para el coach (la del teléfono o la de la API).
+  final String? note;
+
+  /// null = sin nota editable (no se muestra el botón).
+  final ValueChanged<String?>? onSaveNote;
 
   /// Chevron a la derecha del encabezado para colapsar (null = sin botón; en
   /// superserie lo pone la tarjeta). El nombre sigue abriendo el detalle.
@@ -72,19 +80,11 @@ class ExerciseBlock extends ConsumerWidget {
       List.generate(_rowCount, (i) => savedFor(i + 1)).nonNulls.length;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final c = context.colors;
     final inSuperset = badge != null;
-    // Sin videos (el coach no los pide) tampoco se avisa de los pedidos
-    final videos = ref.watch(videosEnabledProvider);
     final cols = inSuperset ? SetCols.compact : SetCols.normal;
     final done = _doneCount == _rowCount;
-    final pendingVideo = exercise.targetSets
-        .where(
-          (s) => s.requestVideo && !(savedFor(s.setNumber)?.hasVideo ?? false),
-        )
-        .map((s) => s.setNumber)
-        .toList();
 
     final table = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -115,24 +115,6 @@ class ExerciseBlock extends ConsumerWidget {
         dayExerciseId: exercise.id,
         streamMessageId: exercise.streamMessageId,
       ),
-      if (videos && pendingVideo.isNotEmpty) ...[
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Icon(Icons.videocam_outlined, size: 15, color: c.goldBright),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                context.l10n.videoRequestedSets(
-                  _joinNumbers(pendingVideo),
-                  pendingVideo.length,
-                ),
-                style: TextStyle(fontSize: 12, color: c.goldBright),
-              ),
-            ),
-          ],
-        ),
-      ],
       // "Sem. pasada: 116 lb × 12·12·12·12        e1RM 163.8 lb"
       if (last != null && lastTime != null && last.sets.isNotEmpty) ...[
         const SizedBox(height: 10),
@@ -166,6 +148,10 @@ class ExerciseBlock extends ConsumerWidget {
             ],
           ),
         ),
+      ],
+      if (onSaveNote != null) ...[
+        const SizedBox(height: 10),
+        AthleteNote(note: note, onSave: onSaveNote!),
       ],
     ];
 
@@ -305,10 +291,6 @@ String exerciseSummary(DayExerciseDto e) {
     if (rirs.length == 1 && rirs.single != null) 'RIR ${rirs.single}',
   ].join(' · ');
 }
-
-String _joinNumbers(List<int> n) => n.length == 1
-    ? '${n.single}'
-    : '${n.sublist(0, n.length - 1).join(', ')} ${l10n.commonAnd} ${n.last}';
 
 /// Chevron para colapsar un ejercicio o superserie abiertos (mismo lugar que
 /// el `expand_more` de la fila colapsada).

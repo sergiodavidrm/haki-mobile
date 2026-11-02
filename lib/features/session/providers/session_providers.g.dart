@@ -328,6 +328,101 @@ final class LocalSetsFamily extends $Family
   String toString() => r'localSetsProvider';
 }
 
+/// Notas del atleta guardadas en el teléfono: dayExerciseId → nota (null = la
+/// borró). Ganan sobre `DayExerciseDto.athleteNote` (ver [noteFor]).
+
+@ProviderFor(localNotes)
+final localNotesProvider = LocalNotesFamily._();
+
+/// Notas del atleta guardadas en el teléfono: dayExerciseId → nota (null = la
+/// borró). Ganan sobre `DayExerciseDto.athleteNote` (ver [noteFor]).
+
+final class LocalNotesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Map<String, String?>>,
+          Map<String, String?>,
+          Stream<Map<String, String?>>
+        >
+    with
+        $FutureModifier<Map<String, String?>>,
+        $StreamProvider<Map<String, String?>> {
+  /// Notas del atleta guardadas en el teléfono: dayExerciseId → nota (null = la
+  /// borró). Ganan sobre `DayExerciseDto.athleteNote` (ver [noteFor]).
+  LocalNotesProvider._({
+    required LocalNotesFamily super.from,
+    required (String, String) super.argument,
+  }) : super(
+         retry: null,
+         name: r'localNotesProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$localNotesHash();
+
+  @override
+  String toString() {
+    return r'localNotesProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<Map<String, String?>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<Map<String, String?>> create(Ref ref) {
+    final argument = this.argument as (String, String);
+    return localNotes(ref, argument.$1, argument.$2);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is LocalNotesProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$localNotesHash() => r'71d874c29524ef949a3551665fb2f74f40ebc1c4';
+
+/// Notas del atleta guardadas en el teléfono: dayExerciseId → nota (null = la
+/// borró). Ganan sobre `DayExerciseDto.athleteNote` (ver [noteFor]).
+
+final class LocalNotesFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          Stream<Map<String, String?>>,
+          (String, String)
+        > {
+  LocalNotesFamily._()
+    : super(
+        retry: null,
+        name: r'localNotesProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Notas del atleta guardadas en el teléfono: dayExerciseId → nota (null = la
+  /// borró). Ganan sobre `DayExerciseDto.athleteNote` (ver [noteFor]).
+
+  LocalNotesProvider call(String assignmentId, String dayId) =>
+      LocalNotesProvider._(argument: (assignmentId, dayId), from: this);
+
+  @override
+  String toString() => r'localNotesProvider';
+}
+
 /// Videos de la sesión en el teléfono: "dayExerciseId#setNumber" → true si
 /// ya se subió, false si está en la cola.
 

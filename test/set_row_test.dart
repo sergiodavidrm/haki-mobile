@@ -78,6 +78,32 @@ void main() {
     expect(focusedText(tester), '60');
   });
 
+  testWidgets('sin videos, una serie que ya tiene video sigue con la cámara', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [videosEnabledProvider.overrideWithValue(false)],
+        child: MaterialApp(
+          theme: buildAppTheme(HakiColors.obsidian),
+          locale: const Locale('es'),
+          supportedLocales: supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: Scaffold(
+            body: SetCameraButton(
+              setNumber: 1,
+              requested: false,
+              sent: true,
+              uploading: false,
+              onTap: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(find.byIcon(Icons.videocam_outlined), findsOneWidget);
+  });
+
   testWidgets('sin videos (el coach no los pide) no hay cámara', (
     tester,
   ) async {

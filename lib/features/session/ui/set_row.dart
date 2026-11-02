@@ -436,8 +436,9 @@ class _Value extends StatelessWidget {
 /// tachada (igual se puede subir, con confirmación); en la cola = nube
 /// turquesa; enviado = turquesa con check.
 /// Cámara de una serie (Sesión y Sesión pasada): dorada = pedida por el coach,
-/// tachada = no pedida, nube = en la cola, turquesa = subido. No se muestra si
-/// el coach no pide videos (`videosEnabledProvider`).
+/// tachada = no pedida, nube = en la cola, turquesa = subido. Si el coach no
+/// pide videos (`videosEnabledProvider`) solo se muestra en una serie que ya
+/// tiene video (subido o en la cola).
 class SetCameraButton extends ConsumerWidget {
   const SetCameraButton({
     super.key,
@@ -456,7 +457,9 @@ class SetCameraButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!ref.watch(videosEnabledProvider)) return const SizedBox.shrink();
+    if (!ref.watch(videosEnabledProvider) && !sent && !uploading) {
+      return const SizedBox.shrink();
+    }
     final c = context.colors;
     final (bg, side, fg, icon) = uploading
         ? (

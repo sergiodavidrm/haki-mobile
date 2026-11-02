@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/cache/api_cache.dart';
 import '../../auth/providers/auth_me_provider.dart';
 import '../../session/data/session_store.dart';
 import '../data/assignment_dtos.dart';
@@ -104,6 +105,9 @@ class ScheduleSaver extends _$ScheduleSaver {
       await ref
           .read(programRepositoryProvider)
           .schedule(assignmentId, start, weekDays, fromWeek: fromWeek);
+      // Que Hoy y Programa lean la API y no la copia (con las fechas viejas):
+      // sin esto había que hacer pull-to-refresh para ver el cambio
+      ref.read(apiCacheProvider).expire(wait: true);
       ref.invalidate(programSectionsProvider);
       ref.invalidate(programDetailProvider(assignmentId));
     });

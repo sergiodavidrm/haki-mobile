@@ -129,16 +129,29 @@ class WeekTabs extends StatelessWidget {
     required this.total,
     required this.selected,
     required this.onSelect,
+    this.isEnabled,
   });
 
   final int total;
   final int selected;
   final ValueChanged<int> onSelect;
 
+  /// null = todas se pueden elegir.
+  final bool Function(int week)? isEnabled;
+
   @override
   Widget build(BuildContext context) {
-    Widget tab(int w) =>
-        _WeekTab(week: w, selected: w == selected, onTap: () => onSelect(w));
+    Widget tab(int w) {
+      final enabled = isEnabled?.call(w) ?? true;
+      return Opacity(
+        opacity: enabled || w == selected ? 1 : .35,
+        child: _WeekTab(
+          week: w,
+          selected: w == selected,
+          onTap: enabled ? () => onSelect(w) : null,
+        ),
+      );
+    }
 
     if (total <= 6) {
       return Row(
@@ -171,7 +184,7 @@ class _WeekTab extends StatelessWidget {
 
   final int week;
   final bool selected;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -179,6 +192,7 @@ class _WeekTab extends StatelessWidget {
     return Semantics(
       selected: selected,
       button: true,
+      enabled: onTap != null,
       label: context.l10n.weekN(week),
       excludeSemantics: true,
       child: Material(

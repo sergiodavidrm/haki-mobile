@@ -39,18 +39,22 @@ class ProgramRepository {
   );
 
   /// Fecha de inicio + día de la semana de cada entreno ([weekDays]:
-  /// DayNumber → 1 = lunes … 7 = domingo). La API recalcula el fin.
+  /// DayNumber → 1 = lunes … 7 = domingo) desde la semana [fromWeek] (1 = todo
+  /// el programa; si no, las anteriores no cambian y [start] es el que ya
+  /// tenía). La API recalcula el fin.
   Future<AssignmentDetailDto> schedule(
     String assignmentId,
     DateTime start,
-    Map<int, int> weekDays,
-  ) async {
+    Map<int, int> weekDays, {
+    int fromWeek = 1,
+  }) async {
     final date =
         '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}';
     final res = await _api.put<Map<String, dynamic>>(
       '/block-assignments/$assignmentId/schedule',
       data: {
         'startDate': date,
+        'fromWeek': fromWeek,
         'dayMappings': [
           for (final e in weekDays.entries)
             {'dayNumber': e.key, 'weekDay': DayMappingDto.codeOf(e.value)},

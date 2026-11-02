@@ -746,6 +746,42 @@ abstract class AppLocalizations {
   /// **'Se repite igual todas las semanas del bloque.'**
   String get datesRepeatHint;
 
+  /// No description provided for @datesApplyFrom.
+  ///
+  /// In es, this message translates to:
+  /// **'Aplicar desde'**
+  String get datesApplyFrom;
+
+  /// No description provided for @datesApplyFromAll.
+  ///
+  /// In es, this message translates to:
+  /// **'S1 cambia todo el programa, también el día de inicio.'**
+  String get datesApplyFromAll;
+
+  /// No description provided for @datesApplyFromWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Las semanas antes de la {week} quedan como estaban.'**
+  String datesApplyFromWeek(int week);
+
+  /// No description provided for @datesStartOnlyFromS1.
+  ///
+  /// In es, this message translates to:
+  /// **'El inicio solo se cambia aplicando desde S1.'**
+  String get datesStartOnlyFromS1;
+
+  /// No description provided for @datesRepeatFromWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Se repite igual desde la semana {week} hasta el final del bloque.'**
+  String datesRepeatFromWeek(int week);
+
+  /// No description provided for @datesResetsLater.
+  ///
+  /// In es, this message translates to:
+  /// **'Reemplaza también los cambios que hiciste desde otras semanas.'**
+  String get datesResetsLater;
+
   /// No description provided for @datesNoWorkouts.
   ///
   /// In es, this message translates to:

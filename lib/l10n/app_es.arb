@@ -230,6 +230,26 @@
   "datesMoveHint": "Cambiar el inicio mueve en qué semana del programa estás.",
   "datesStepDays": "2 · ¿Qué día hacés cada entreno?",
   "datesRepeatHint": "Se repite igual todas las semanas del bloque.",
+  "datesApplyFrom": "Aplicar desde",
+  "datesApplyFromAll": "S1 cambia todo el programa, también el día de inicio.",
+  "datesApplyFromWeek": "Las semanas antes de la {week} quedan como estaban.",
+  "@datesApplyFromWeek": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "datesStartOnlyFromS1": "El inicio solo se cambia aplicando desde S1.",
+  "datesRepeatFromWeek": "Se repite igual desde la semana {week} hasta el final del bloque.",
+  "@datesRepeatFromWeek": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "datesResetsLater": "Reemplaza también los cambios que hiciste desde otras semanas.",
   "datesNoWorkouts": "Tu coach todavía no armó los entrenos de este programa.",
   "datesTooMany": "Este programa tiene más de 7 entrenos por semana: pedile a tu coach que asigne las fechas.",
   "monthPrev": "Mes anterior",

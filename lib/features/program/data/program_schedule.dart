@@ -120,6 +120,20 @@ class ProgramFinished extends TodayPlan {
   const ProgramFinished();
 }
 
+/// Día de la semana de cada entreno en la semana [weekNumber]: el juego con el
+/// fromWeek más alto que no la pasa (igual que ProgramCalendar.Schedule en la
+/// API). Vacío si el programa no tiene días asignados.
+List<DayMappingDto> mappingsForWeek(AssignmentDetailDto p, int weekNumber) {
+  var from = 0;
+  for (final m in p.dayMappings) {
+    if (m.fromWeek <= weekNumber && m.fromWeek > from) from = m.fromWeek;
+  }
+  return [
+    for (final m in p.dayMappings)
+      if (m.fromWeek == from) m,
+  ];
+}
+
 /// Semana (1-based) en la que cae [today] para un programa con fecha de inicio.
 int weekNumberFor(DateTime startDate, DateTime today) =>
     dateOnly(today).difference(startDate).inDays ~/ 7 + 1;
@@ -145,9 +159,10 @@ TodayPlan resolveToday(AssignmentDetailDto p, DateTime today) {
 
   // Con fechas y día de la semana por entreno
   if (p.dayMappings.isNotEmpty) {
-    final mapping = p.dayMappings
-        .where((m) => m.weekDay == t.weekday)
-        .firstOrNull;
+    final mapping = mappingsForWeek(
+      p,
+      weekNumber,
+    ).where((m) => m.weekDay == t.weekday).firstOrNull;
     final day = mapping == null
         ? null
         : week?.days.where((d) => d.dayNumber == mapping.dayNumber).firstOrNull;
@@ -177,13 +192,13 @@ TodayPlan resolveToday(AssignmentDetailDto p, DateTime today) {
     d.isBefore(end);
     d = d.add(const Duration(days: 1))
   ) {
-    final mapping = p.dayMappings
-        .where((m) => m.weekDay == d.weekday)
-        .firstOrNull;
+    final n = weekNumberFor(p.startDate!, d);
+    final mapping = mappingsForWeek(
+      p,
+      n,
+    ).where((m) => m.weekDay == d.weekday).firstOrNull;
     if (mapping == null) continue;
-    final week = p.weeks
-        .where((w) => w.weekNumber == weekNumberFor(p.startDate!, d))
-        .firstOrNull;
+    final week = p.weeks.where((w) => w.weekNumber == n).firstOrNull;
     final day = week?.days
         .where((x) => x.dayNumber == mapping.dayNumber)
         .firstOrNull;
@@ -255,13 +270,13 @@ bool canMoveStrip(AssignmentDetailDto p, DateTime selected, int delta) {
 
 StripDayKind _kindOn(AssignmentDetailDto p, DateTime d) {
   if (d.isBefore(p.startDate!)) return StripDayKind.none;
-  final mapping = p.dayMappings
-      .where((m) => m.weekDay == d.weekday)
-      .firstOrNull;
+  final n = weekNumberFor(p.startDate!, d);
+  final mapping = mappingsForWeek(
+    p,
+    n,
+  ).where((m) => m.weekDay == d.weekday).firstOrNull;
   if (mapping == null) return StripDayKind.none;
-  final week = p.weeks
-      .where((w) => w.weekNumber == weekNumberFor(p.startDate!, d))
-      .firstOrNull;
+  final week = p.weeks.where((w) => w.weekNumber == n).firstOrNull;
   final day = week?.days
       .where((x) => x.dayNumber == mapping.dayNumber)
       .firstOrNull;
@@ -294,7 +309,10 @@ int currentWeekOf(AssignmentDetailDto p, DateTime today) {
 /// fechas y día de la semana por entreno). null si no aplica.
 DateTime? dateOfDay(AssignmentDetailDto p, int weekNumber, int dayNumber) {
   if (!p.hasDates) return null;
-  final m = p.dayMappings.where((m) => m.dayNumber == dayNumber).firstOrNull;
+  final m = mappingsForWeek(
+    p,
+    weekNumber,
+  ).where((m) => m.dayNumber == dayNumber).firstOrNull;
   if (m == null) return null;
   final start = p.startDate!;
   final offset = (m.weekDay - start.weekday + 7) % 7;

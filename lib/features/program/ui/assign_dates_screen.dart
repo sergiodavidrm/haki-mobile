@@ -13,9 +13,12 @@ import '../data/assignment_dtos.dart';
 import '../data/program_schedule.dart';
 import '../providers/program_providers.dart';
 import '../../../l10n/l10n.dart';
+import 'program_widgets.dart';
 
 // Asignar (o cambiar) fechas: día de inicio + qué día de la semana se hace
-// cada entreno. Opcional: "Ahora no" deja el programa sin fechas.
+// cada entreno. Opcional: "Ahora no" deja el programa sin fechas. En un
+// programa en curso, "Aplicar desde" elige desde qué semana valen los días
+// (S1 = todo y el inicio; las semanas anteriores a la elegida no cambian).
 class AssignDatesScreen extends ConsumerStatefulWidget {
   const AssignDatesScreen({super.key, required this.assignmentId});
 
@@ -29,18 +32,31 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
   DateTime? _start;
   Map<int, int>? _weekDays;
   DateTime? _month;
+  int _fromWeek = 1;
 
   void _init(AssignmentDetailDto p) {
     if (_start != null) return;
     _start = defaultStart(p, DateTime.now());
-    _weekDays = defaultWeekdays(p);
+    _fromWeek = defaultFromWeek(p, DateTime.now());
+    _weekDays = defaultWeekdays(p, _fromWeek);
     _month = DateTime.utc(_start!.year, _start!.month);
   }
+
+  /// Otra semana en "Aplicar desde": arranca con los días que ya tenía esa
+  /// semana. Desde S2 en adelante el inicio vuelve al que tenía.
+  void _pickFromWeek(AssignmentDetailDto p, int week) => setState(() {
+    _fromWeek = week;
+    _weekDays = defaultWeekdays(p, week);
+    if (week > 1) {
+      _start = p.startDate;
+      _month = DateTime.utc(_start!.year, _start!.month);
+    }
+  });
 
   Future<void> _save(AssignmentDetailDto p) async {
     final ok = await ref
         .read(scheduleSaverProvider.notifier)
-        .save(p.assignmentId, _start!, _weekDays!);
+        .save(p.assignmentId, _start!, _weekDays!, fromWeek: _fromWeek);
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     if (ok) {
@@ -139,74 +155,114 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
     final start = _start!;
     final end = endDateFor(start, p.totalWeeks);
     final today = dateOnly(DateTime.now());
-    // Se puede elegir desde hoy, o mantener el inicio que ya tenía
-    final minDate = p.startDate != null && p.startDate!.isBefore(today)
-        ? p.startDate!
-        : today;
+    // Desde hoy (o el inicio que tenía); con entrenos hechos, que siga en curso
+    final (minDate, _) = startRange(p, today);
     final titles = trainingDaysOf(p);
-    // Hechos esta semana: su día queda fijo
-    final locked = lockedDays(p, today);
+    final fromOptions = fromWeekOptions(p, today);
+    final fromWeek = _fromWeek;
+    // Hechos esta semana: su día queda fijo (si el cambio incluye esta semana)
+    final locked = lockedDays(p, today, fromWeek);
     final moved =
         p.startDate != null && start != p.startDate && dayCountsOf(p).$1 > 0;
+    // Desde S1 se pisan también los cambios hechos desde otras semanas
+    final resetsLater =
+        fromWeek == 1 && p.dayMappings.any((m) => m.fromWeek > 1);
     final l = context.l10n;
+    final startText = Text.rich(
+      TextSpan(
+        style: TextStyle(fontSize: 13, color: c.textSecondary),
+        children: [
+          TextSpan(text: '${l.datesStartsOn} '),
+          TextSpan(
+            text: formatShortDate(start),
+            style: TextStyle(fontWeight: FontWeight.w700, color: c.goldBright),
+          ),
+          TextSpan(text: ' · ${l.datesEndsOn(formatShortDate(end))}'),
+        ],
+      ),
+    );
 
     return [
-      HakiCard(
-        radius: 22,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(child: SectionLabel(l.datesStepStart)),
-                _MonthNav(
-                  month: _month!,
-                  canBack: _month!.isAfter(
-                    DateTime.utc(minDate.year, minDate.month),
-                  ),
-                  onChange: (m) => setState(() => _month = m),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _Calendar(
-              month: _month!,
-              selected: start,
-              isEnabled: (d) => d == p.startDate || !d.isBefore(today),
-              onPick: (d) => setState(() => _start = d),
-            ),
-            const SizedBox(height: 12),
-            Text.rich(
-              TextSpan(
-                style: TextStyle(fontSize: 13, color: c.textSecondary),
-                children: [
-                  TextSpan(text: '${l.datesStartsOn} '),
-                  TextSpan(
-                    text: formatShortDate(start),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: c.goldBright,
-                    ),
-                  ),
-                  TextSpan(text: ' · ${l.datesEndsOn(formatShortDate(end))}'),
-                ],
-              ),
-            ),
-            if (moved) ...[
+      if (fromOptions.isNotEmpty) ...[
+        SectionLabel(l.datesApplyFrom),
+        const SizedBox(height: 10),
+        WeekTabs(
+          total: p.totalWeeks,
+          selected: fromWeek,
+          isEnabled: fromOptions.contains,
+          onSelect: (w) => _pickFromWeek(p, w),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          fromWeek == 1 ? l.datesApplyFromAll : l.datesApplyFromWeek(fromWeek),
+          style: TextStyle(fontSize: 13, height: 1.45, color: c.textMuted),
+        ),
+        const SizedBox(height: 20),
+      ],
+      if (fromWeek > 1)
+        // El inicio solo cambia desde S1: acá solo se muestra
+        HakiCard(
+          radius: 22,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SectionLabel(l.datesStepStart),
+              const SizedBox(height: 10),
+              startText,
               const SizedBox(height: 8),
               Text(
-                l.datesMoveHint,
+                l.datesStartOnlyFromS1,
                 style: TextStyle(fontSize: 12, color: c.textMuted),
               ),
             ],
-          ],
+          ),
+        )
+      else
+        HakiCard(
+          radius: 22,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: SectionLabel(l.datesStepStart)),
+                  _MonthNav(
+                    month: _month!,
+                    canBack: _month!.isAfter(
+                      DateTime.utc(minDate.year, minDate.month),
+                    ),
+                    onChange: (m) => setState(() => _month = m),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _Calendar(
+                month: _month!,
+                selected: start,
+                isEnabled: (d) => canStartOn(p, today, d),
+                onPick: (d) => setState(() => _start = d),
+              ),
+              const SizedBox(height: 12),
+              startText,
+              if (moved) ...[
+                const SizedBox(height: 8),
+                Text(
+                  l.datesMoveHint,
+                  style: TextStyle(fontSize: 12, color: c.textMuted),
+                ),
+              ],
+            ],
+          ),
         ),
-      ),
       const SizedBox(height: 20),
       SectionLabel(l.datesStepDays),
       const SizedBox(height: 6),
       Text(
-        l.datesRepeatHint,
+        fromWeek > 1
+            ? l.datesRepeatFromWeek(fromWeek)
+            : resetsLater
+            ? '${l.datesRepeatHint} ${l.datesResetsLater}'
+            : l.datesRepeatHint,
         style: TextStyle(fontSize: 13, height: 1.45, color: c.textMuted),
       ),
       const SizedBox(height: 10),
@@ -220,7 +276,7 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
           _DayWeekdayCard(
             title: e.value,
             weekDay: _weekDays![e.key]!,
-            first: firstOn(start, _weekDays![e.key]!),
+            first: firstOnFromWeek(start, fromWeek, _weekDays![e.key]!),
             locked: locked.contains(e.key),
             canPick: (wd) => canPickWeekday(_weekDays!, locked, e.key, wd),
             onPick: (wd) =>

@@ -415,11 +415,19 @@ class LastPerformanceDto {
       );
 }
 
-/// Qué día de la semana se hace cada entreno; se repite todas las semanas.
+/// Qué día de la semana se hace cada entreno; se repite todas las semanas
+/// desde [fromWeek] (hasta el próximo juego con un fromWeek mayor).
 class DayMappingDto {
-  const DayMappingDto({required this.dayNumber, required this.weekDay});
+  const DayMappingDto({
+    required this.dayNumber,
+    required this.weekDay,
+    this.fromWeek = 1,
+  });
 
   final int dayNumber;
+
+  /// Semana del programa desde la que vale (1 = desde el inicio).
+  final int fromWeek;
 
   /// 1 = lunes … 7 = domingo (mismo criterio que DateTime.weekday).
   final int weekDay;
@@ -432,5 +440,6 @@ class DayMappingDto {
   factory DayMappingDto.fromJson(Map<String, dynamic> j) => DayMappingDto(
     dayNumber: j['dayNumber'] as int,
     weekDay: _codes.indexOf(j['weekDay'] as String) + 1,
+    fromWeek: j['fromWeek'] as int? ?? 1,
   );
 }

@@ -259,6 +259,13 @@ Los entrenos ya hechos en la semana del programa que corre hoy quedan con
 su día fijo (`lockedDays`, candado "Ya lo hiciste esta semana") y nadie puede
 tomar ese día (`canPickWeekday`); en la semana siguiente se pueden cambiar.
 Solo en la app: la API no lo valida.
+**Aplicar desde (2026-11-02):** en un programa en curso de 2+ semanas, arriba
+de la pantalla el selector S1…SN (`fromWeekOptions`: S1 y de la semana actual
+en adelante; por defecto la actual, o la siguiente si ya hiciste algo esta
+semana, `defaultFromWeek`). S1 = todo el programa y el inicio; SN = de ahí en
+adelante sin tocar las anteriores (el inicio solo se muestra). Los
+`dayMappings` traen `fromWeek` y todo cálculo de fechas pasa por
+`mappingsForWeek(p, semana)` (`program_schedule.dart`).
 
 ## Sincronización con cambios del coach
 

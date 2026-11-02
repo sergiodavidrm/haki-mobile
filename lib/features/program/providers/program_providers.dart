@@ -96,13 +96,14 @@ class ScheduleSaver extends _$ScheduleSaver {
   Future<bool> save(
     String assignmentId,
     DateTime start,
-    Map<int, int> weekDays,
-  ) async {
+    Map<int, int> weekDays, {
+    int fromWeek = 1,
+  }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await ref
           .read(programRepositoryProvider)
-          .schedule(assignmentId, start, weekDays);
+          .schedule(assignmentId, start, weekDays, fromWeek: fromWeek);
       ref.invalidate(programSectionsProvider);
       ref.invalidate(programDetailProvider(assignmentId));
     });

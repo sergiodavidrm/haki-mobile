@@ -406,6 +406,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get datesRepeatHint => 'It repeats the same every week of the block.';
 
   @override
+  String get datesApplyFrom => 'Apply from';
+
+  @override
+  String get datesApplyFromAll =>
+      'W1 changes the whole program, including the start day.';
+
+  @override
+  String datesApplyFromWeek(int week) {
+    return 'Weeks before week $week stay as they were.';
+  }
+
+  @override
+  String get datesStartOnlyFromS1 =>
+      'The start can only be changed when applying from W1.';
+
+  @override
+  String datesRepeatFromWeek(int week) {
+    return 'It repeats the same from week $week to the end of the block.';
+  }
+
+  @override
+  String get datesResetsLater =>
+      'It also replaces the changes you made from other weeks.';
+
+  @override
   String get datesNoWorkouts =>
       'Your coach hasn\'t built this program\'s workouts yet.';
 

@@ -1,0 +1,71 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'selected_day_provider.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// Día elegido en la tira de Hoy. null = hoy (así, si la app queda abierta y
+/// cambia la fecha, sigue mostrando el día de hoy).
+
+@ProviderFor(SelectedDay)
+final selectedDayProvider = SelectedDayProvider._();
+
+/// Día elegido en la tira de Hoy. null = hoy (así, si la app queda abierta y
+/// cambia la fecha, sigue mostrando el día de hoy).
+final class SelectedDayProvider
+    extends $NotifierProvider<SelectedDay, DateTime?> {
+  /// Día elegido en la tira de Hoy. null = hoy (así, si la app queda abierta y
+  /// cambia la fecha, sigue mostrando el día de hoy).
+  SelectedDayProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'selectedDayProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$selectedDayHash();
+
+  @$internal
+  @override
+  SelectedDay create() => SelectedDay();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DateTime? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DateTime?>(value),
+    );
+  }
+}
+
+String _$selectedDayHash() => r'cbbbdf55763a25991c0eead29219c0728b33beb0';
+
+/// Día elegido en la tira de Hoy. null = hoy (así, si la app queda abierta y
+/// cambia la fecha, sigue mostrando el día de hoy).
+
+abstract class _$SelectedDay extends $Notifier<DateTime?> {
+  DateTime? build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<DateTime?, DateTime?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<DateTime?, DateTime?>,
+              DateTime?,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

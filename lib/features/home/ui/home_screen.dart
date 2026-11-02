@@ -14,6 +14,8 @@ import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
 import '../../questionnaire/providers/questionnaire_providers.dart';
 import '../../questionnaire/ui/pending_questionnaire_card.dart';
+import '../../questionnaire/data/questionnaire_dtos.dart';
+import '../providers/selected_day_provider.dart';
 import '../providers/today_provider.dart';
 import 'today_widgets.dart';
 import '../../../l10n/l10n.dart';
@@ -28,9 +30,14 @@ class HomeScreen extends ConsumerWidget {
     final l = context.l10n;
     final name = ref.watch(displayNameProvider);
     final today = ref.watch(todayProvider);
-    // Pendientes sin responder: quedan en Hoy hasta que los envía (no vencen)
-    final pending =
-        ref.watch(myQuestionnairesProvider).value?.pending ?? const [];
+    // Día elegido en la tira (null = hoy)
+    final selected = ref.watch(selectedDayProvider);
+    // Pendientes sin responder: quedan hasta que los envía (no vencen); en otro
+    // día solo los enviados ese día o antes
+    final pending = pendingOn(
+      ref.watch(myQuestionnairesProvider).value?.pending ?? const [],
+      selected ?? DateTime.now(),
+    );
     // El coach lo archivó o eliminó: aviso hasta que se cierra el acceso
     final accessEndsAt = ref.watch(authMeProvider).value?.accessEndsAt;
 
@@ -71,7 +78,12 @@ class HomeScreen extends ConsumerWidget {
                 const SizedBox(height: 14),
               ],
               ...switch (today) {
-                AsyncData(:final value) => _content(context, value),
+                AsyncData(:final value) => _content(
+                  context,
+                  ref,
+                  value,
+                  selected,
+                ),
                 AsyncError() => [
                   TodayInfoCard(
                     label: l.commonOffline,
@@ -98,7 +110,12 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  List<Widget> _content(BuildContext context, TodayState state) {
+  List<Widget> _content(
+    BuildContext context,
+    WidgetRef ref,
+    TodayState state,
+    DateTime? selected,
+  ) {
     const gap = SizedBox(height: 20);
     final l = context.l10n;
     switch (state) {
@@ -120,8 +137,15 @@ class HomeScreen extends ConsumerWidget {
                 : l.homeStartsOn(formatShortDate(next.startDate!)),
           ),
         ];
-      case WithProgram(:final program, :final plan):
-        final strip = weekStrip(program, DateTime.now());
+      case WithProgram(:final program, plan: final todayPlan):
+        final now = DateTime.now();
+        final day = selected ?? dateOnly(now);
+        // Otro día de la tira: lo que toca ese día
+        final plan = selected == null
+            ? todayPlan
+            : resolveToday(program, selected);
+        final picker = ref.read(selectedDayProvider.notifier);
+        final strip = weekStrip(program, now, selected: selected);
         final weekForProgress = switch (plan) {
           TrainingDay(:final week) => week,
           WeekDone(:final week) => week,
@@ -129,7 +153,17 @@ class HomeScreen extends ConsumerWidget {
         };
         return [
           if (strip != null)
-            WeekStrip(days: strip)
+            WeekStrip(
+              days: strip,
+              onSelect: picker.select,
+              onPrevWeek: canMoveStrip(program, day, -1)
+                  ? () => picker.select(day.subtract(const Duration(days: 7)))
+                  : null,
+              onNextWeek: canMoveStrip(program, day, 1)
+                  ? () => picker.select(day.add(const Duration(days: 7)))
+                  : null,
+              onToday: selected == null ? null : picker.reset,
+            )
           else if (weekForProgress != null)
             WeekProgressCard(week: weekForProgress),
           gap,
@@ -137,6 +171,7 @@ class HomeScreen extends ConsumerWidget {
             TrainingDay() => TrainingDayCard(
               program: program,
               plan: plan,
+              date: selected,
               onStart: () => _openOverProgram(
                 context,
                 Routes.session(program.assignmentId, plan.day.id),
@@ -147,7 +182,9 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             RestDay(:final next, :final nextDate) => TodayInfoCard(
-              label: l.homeRestLabel,
+              label: selected == null
+                  ? l.homeRestLabel
+                  : l.homeRestLabelOn(capitalize(formatShortDate(selected))),
               title: l.homeRestTitle,
               body: next != null
                   ? l.homeRestNext(next.title, formatShortDate(nextDate!))

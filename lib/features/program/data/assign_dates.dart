@@ -53,6 +53,34 @@ Map<int, int> pickWeekday(Map<int, int> map, int dayNumber, int weekDay) {
   };
 }
 
+/// Entrenos ya hechos en la semana del programa que corre hoy: ya tienen fecha,
+/// así que su día de la semana no se cambia. En otra semana (sin hacerlos
+/// todavía) sí. Solo con fechas y día por entreno (si no, no hay día que fijar).
+Set<int> lockedDays(AssignmentDetailDto p, DateTime today) {
+  if (!p.hasDates || p.dayMappings.isEmpty) return const {};
+  final n = weekNumberFor(p.startDate!, today);
+  final week = p.weeks.where((w) => w.weekNumber == n).firstOrNull;
+  if (week == null) return const {};
+  final mapped = {for (final m in p.dayMappings) m.dayNumber};
+  return {
+    for (final d in week.days)
+      if (d.sessionStatus == SessionStatus.completed &&
+          mapped.contains(d.dayNumber))
+        d.dayNumber,
+  };
+}
+
+/// Se puede asignar [weekDay] a [dayNumber]: el entreno no está bloqueado y el
+/// día no es de uno bloqueado (el intercambio de [pickWeekday] lo movería).
+bool canPickWeekday(
+  Map<int, int> map,
+  Set<int> locked,
+  int dayNumber,
+  int weekDay,
+) =>
+    !locked.contains(dayNumber) &&
+    !map.entries.any((e) => e.value == weekDay && locked.contains(e.key));
+
 /// Último día del programa (mismo cálculo que el backend: semanas × 7 − 1).
 DateTime endDateFor(DateTime start, int totalWeeks) =>
     start.add(Duration(days: (totalWeeks < 1 ? 1 : totalWeeks) * 7 - 1));

@@ -11,89 +11,168 @@ import '../../program/data/program_schedule.dart';
 import '../../../l10n/l10n.dart';
 
 /// Tira L–D de la semana (programas con fechas por día). Punto = hay entreno;
-/// relleno turquesa = hecho; dorado = hoy.
+/// relleno turquesa = hecho; dorado = el día elegido (hoy si no se tocó otro);
+/// aro dorado = hoy cuando se eligió otro día. Tocar un día muestra lo que toca
+/// ese día; las flechas cambian de semana dentro del programa.
 class WeekStrip extends StatelessWidget {
-  const WeekStrip({super.key, required this.days});
+  const WeekStrip({
+    super.key,
+    required this.days,
+    required this.onSelect,
+    this.onPrevWeek,
+    this.onNextWeek,
+    this.onToday,
+  });
 
   final List<StripDay> days;
+  final ValueChanged<DateTime> onSelect;
+
+  /// null = no hay semana anterior/siguiente en el programa.
+  final VoidCallback? onPrevWeek;
+  final VoidCallback? onNextWeek;
+
+  /// "Hoy": solo cuando se eligió otro día.
+  final VoidCallback? onToday;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final l = context.l10n;
+    Widget arrow(IconData icon, String tip, VoidCallback? onTap) => IconButton(
+      tooltip: tip,
+      visualDensity: VisualDensity.compact,
+      onPressed: onTap,
+      icon: Icon(icon, size: 20),
+      color: c.textSecondary,
+      disabledColor: c.border,
+    );
+
+    return Column(
       children: [
-        for (final d in days)
-          Semantics(
-            label:
-                '${formatShortDate(d.date)}: ${switch (d.kind) {
-                  StripDayKind.done => context.l10n.stripDone,
-                  StripDayKind.planned => context.l10n.stripPlanned,
-                  StripDayKind.none => context.l10n.stripNone,
-                }}',
-            excludeSemantics: true,
-            child: SizedBox(
-              width: 44,
-              child: Column(
-                children: [
-                  Text(
-                    weekdayInitial(d.date),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: d.isToday ? c.goldBright : c.textMuted,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: d.isToday
-                          ? c.gold
-                          : (d.kind == StripDayKind.done
-                                ? c.turquoiseSurface
-                                : Colors.transparent),
-                    ),
-                    child: Text(
-                      '${d.date.day}',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: d.isToday
-                            ? FontWeight.w700
-                            : FontWeight.w600,
-                        color: d.isToday
-                            ? c.onAccent
-                            : (d.kind == StripDayKind.done
-                                  ? c.turquoise
-                                  : c.textSecondary),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    width: 5,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: switch (d.kind) {
-                        StripDayKind.done => c.turquoise,
-                        StripDayKind.planned =>
-                          d.isToday ? c.goldBright : Colors.transparent,
-                        StripDayKind.none => Colors.transparent,
-                      },
-                      border: d.kind == StripDayKind.planned && !d.isToday
-                          ? Border.all(color: c.goldBright)
-                          : null,
-                    ),
-                  ),
-                ],
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                formatMonthYear(days.first.date),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: c.textSecondary,
+                ),
               ),
             ),
-          ),
+            if (onToday != null)
+              TextButton(
+                onPressed: onToday,
+                style: TextButton.styleFrom(
+                  foregroundColor: c.goldBright,
+                  visualDensity: VisualDensity.compact,
+                ),
+                child: Text(l.commonToday),
+              ),
+            arrow(Icons.chevron_left, l.weekPrev, onPrevWeek),
+            arrow(Icons.chevron_right, l.weekNext, onNextWeek),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            for (final d in days)
+              _StripDayCell(day: d, onTap: () => onSelect(d.date)),
+          ],
+        ),
       ],
+    );
+  }
+}
+
+class _StripDayCell extends StatelessWidget {
+  const _StripDayCell({required this.day, required this.onTap});
+
+  final StripDay day;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final d = day;
+    final selected = d.isSelected;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label:
+          '${formatShortDate(d.date)}: ${switch (d.kind) {
+            StripDayKind.done => context.l10n.stripDone,
+            StripDayKind.planned => context.l10n.stripPlanned,
+            StripDayKind.none => context.l10n.stripNone,
+          }}',
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          width: 44,
+          child: Column(
+            children: [
+              Text(
+                weekdayInitial(d.date),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: selected || d.isToday ? c.goldBright : c.textMuted,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: selected
+                      ? c.gold
+                      : (d.kind == StripDayKind.done
+                            ? c.turquoiseSurface
+                            : Colors.transparent),
+                  border: d.isToday && !selected
+                      ? Border.all(color: c.goldBright, width: 1.5)
+                      : null,
+                ),
+                child: Text(
+                  '${d.date.day}',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                    color: selected
+                        ? c.onAccent
+                        : (d.kind == StripDayKind.done
+                              ? c.turquoise
+                              : c.textSecondary),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Container(
+                width: 5,
+                height: 5,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: switch (d.kind) {
+                    StripDayKind.done => c.turquoise,
+                    StripDayKind.planned =>
+                      selected ? c.goldBright : Colors.transparent,
+                    StripDayKind.none => Colors.transparent,
+                  },
+                  border: d.kind == StripDayKind.planned && !selected
+                      ? Border.all(color: c.goldBright)
+                      : null,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -150,10 +229,14 @@ class TrainingDayCard extends StatelessWidget {
     required this.plan,
     required this.onStart,
     required this.onOpenDone,
+    this.date,
   });
 
   final AssignmentDetailDto program;
   final TrainingDay plan;
+
+  /// Día elegido en la tira si no es hoy: la etiqueta dice la fecha.
+  final DateTime? date;
   final VoidCallback onStart;
 
   /// Día ya completado → Sesión pasada (ver lo hecho y subir videos).
@@ -165,7 +248,11 @@ class TrainingDayCard extends StatelessWidget {
     final day = plan.day;
     final l = context.l10n;
     final label =
-        '${plan.isScheduledToday ? l.commonToday : l.commonNext} · ${l.weekOfTotal(plan.week.weekNumber, program.totalWeeks)}';
+        '${date != null
+            ? capitalize(formatShortDate(date!))
+            : plan.isScheduledToday
+            ? l.commonToday
+            : l.commonNext} · ${l.weekOfTotal(plan.week.weekNumber, program.totalWeeks)}';
 
     return HakiCard(
       radius: 24,
@@ -200,9 +287,7 @@ class TrainingDayCard extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                PillChip(
-                  l.exercisesCount(day.exercises.length),
-                ),
+                PillChip(l.exercisesCount(day.exercises.length)),
                 if (day.supersetCount > 0)
                   PillChip(
                     l.supersetsCount(day.supersetCount),

@@ -404,6 +404,12 @@ abstract class AppLocalizations {
   /// **'Hoy · Descanso'**
   String get homeRestLabel;
 
+  /// No description provided for @homeRestLabelOn.
+  ///
+  /// In es, this message translates to:
+  /// **'{date} · Descanso'**
+  String homeRestLabelOn(String date);
+
   /// No description provided for @homeRestTitle.
   ///
   /// In es, this message translates to:
@@ -758,6 +764,18 @@ abstract class AppLocalizations {
   /// **'Mes anterior'**
   String get monthPrev;
 
+  /// No description provided for @weekPrev.
+  ///
+  /// In es, this message translates to:
+  /// **'Semana anterior'**
+  String get weekPrev;
+
+  /// No description provided for @weekNext.
+  ///
+  /// In es, this message translates to:
+  /// **'Semana siguiente'**
+  String get weekNext;
+
   /// No description provided for @monthNext.
   ///
   /// In es, this message translates to:
@@ -775,6 +793,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'1.º: '**
   String get datesFirstOccurrence;
+
+  /// No description provided for @datesDoneThisWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya lo hiciste esta semana'**
+  String get datesDoneThisWeek;
 
   /// No description provided for @sessionTitle.
   ///
@@ -1003,6 +1027,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tocá para abrir'**
   String get tapToOpen;
+
+  /// No description provided for @collapse.
+  ///
+  /// In es, this message translates to:
+  /// **'Colapsar'**
+  String get collapse;
 
   /// No description provided for @commonAnd.
   ///

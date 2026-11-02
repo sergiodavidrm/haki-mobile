@@ -1,4 +1,5 @@
 import '../../../l10n/l10n.dart';
+
 // DTOs de block-assignments (haki-api: ClientAssignmentSummaryDto y
 // BlockAssignmentDetailDto). Solo los campos que usa la app; se agregan a
 // medida que los necesiten Programa / Sesión.
@@ -358,10 +359,15 @@ class LoggedSetDto {
     this.reps,
     this.rir,
     this.videoUrl,
+    this.updatedAt,
   });
 
   /// Id del set-log (para subirle el video).
   final String? id;
+
+  /// Última modificación en el servidor (la del atleta al subirla o una
+  /// corrección del coach desde el web).
+  final DateTime? updatedAt;
   final int setNumber;
   final double? weightKg;
   final String weightUnit;
@@ -379,6 +385,7 @@ class LoggedSetDto {
     reps: j['reps'] as int?,
     rir: j['rir'] as int?,
     videoUrl: j['videoUrl'] as String?,
+    updatedAt: DateTime.tryParse(j['updatedAt'] as String? ?? ''),
   );
 }
 

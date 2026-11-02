@@ -167,4 +167,64 @@ void main() {
       );
     });
   });
+
+  group('savedSetFor con corrección del coach', () {
+    final saved = DateTime.utc(2026, 11, 1, 10);
+    LocalSetEntry local({bool synced = true, double weight = 1000}) =>
+        LocalSetEntry(
+          dayExerciseId: 'a',
+          setNumber: 1,
+          weight: weight,
+          unit: WeightUnit.lb,
+          reps: 10,
+          synced: synced,
+          savedAt: saved,
+        );
+    DayExerciseDto withRemote(double kg, DateTime updatedAt) => DayExerciseDto(
+      id: 'a',
+      exerciseName: 'a',
+      supersetGroupId: null,
+      loggedSets: [
+        LoggedSetDto(
+          setNumber: 1,
+          weightKg: kg,
+          weightUnit: 'LB',
+          reps: 10,
+          updatedAt: updatedAt,
+        ),
+      ],
+    );
+    final later = saved.add(const Duration(days: 1));
+
+    test('el coach la corrigió después: gana el servidor', () {
+      final s = savedSetFor(withRemote(45.359, later), 1, {setKey('a', 1): local()})!;
+      expect(s.weight, closeTo(100, 0.01));
+    });
+
+    test('mismos valores (la subida del atleta): sigue la local, tal cual', () {
+      final s = savedSetFor(
+        withRemote(453.592, later),
+        1,
+        {setKey('a', 1): local()},
+      )!;
+      expect(s.weight, 1000);
+    });
+
+    test('sin subir o servidor más viejo: gana la local', () {
+      expect(
+        savedSetFor(withRemote(45.359, later), 1, {
+          setKey('a', 1): local(synced: false),
+        })!.weight,
+        1000,
+      );
+      expect(
+        savedSetFor(
+          withRemote(45.359, saved.subtract(const Duration(hours: 1))),
+          1,
+          {setKey('a', 1): local()},
+        )!.weight,
+        1000,
+      );
+    });
+  });
 }

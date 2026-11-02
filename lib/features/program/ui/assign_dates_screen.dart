@@ -72,17 +72,16 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
           children: [
             BackHeader(
               title: p?.hasDates == true ? l.changeDates : l.assignDates,
-              subtitle: p == null ? null : '${p.blockName} · ${l.commonOptional}',
+              subtitle: p == null
+                  ? null
+                  : '${p.blockName} · ${l.commonOptional}',
               titleSize: 24,
             ),
             const SizedBox(height: 16),
             if (p != null)
               ..._form(p)
             else if (detail.hasError)
-              Text(
-                l.programLoadError,
-                style: TextStyle(color: c.textMuted),
-              )
+              Text(l.programLoadError, style: TextStyle(color: c.textMuted))
             else
               const Padding(
                 padding: EdgeInsets.only(top: 48),
@@ -145,6 +144,8 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
         ? p.startDate!
         : today;
     final titles = trainingDaysOf(p);
+    // Hechos esta semana: su día queda fijo
+    final locked = lockedDays(p, today);
     final moved =
         p.startDate != null && start != p.startDate && dayCountsOf(p).$1 > 0;
     final l = context.l10n;
@@ -211,9 +212,7 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
       const SizedBox(height: 10),
       if (_weekDays!.isEmpty)
         Text(
-          titles.isEmpty
-              ? l.datesNoWorkouts
-              : l.datesTooMany,
+          titles.isEmpty ? l.datesNoWorkouts : l.datesTooMany,
           style: TextStyle(fontSize: 14, color: c.textSecondary),
         )
       else
@@ -222,6 +221,8 @@ class _AssignDatesScreenState extends ConsumerState<AssignDatesScreen> {
             title: e.value,
             weekDay: _weekDays![e.key]!,
             first: firstOn(start, _weekDays![e.key]!),
+            locked: locked.contains(e.key),
+            canPick: (wd) => canPickWeekday(_weekDays!, locked, e.key, wd),
             onPick: (wd) =>
                 setState(() => _weekDays = pickWeekday(_weekDays!, e.key, wd)),
           ),
@@ -362,6 +363,8 @@ class _DayWeekdayCard extends StatelessWidget {
     required this.weekDay,
     required this.first,
     required this.onPick,
+    required this.canPick,
+    this.locked = false,
   });
 
   final String title;
@@ -369,6 +372,11 @@ class _DayWeekdayCard extends StatelessWidget {
   final DateTime first;
   final ValueChanged<int> onPick;
 
+  /// false = ese día es de un entreno que ya se hizo esta semana.
+  final bool Function(int weekDay) canPick;
+
+  /// Ya se hizo esta semana: el día no se cambia.
+  final bool locked;
 
   @override
   Widget build(BuildContext context) {
@@ -393,21 +401,34 @@ class _DayWeekdayCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Text.rich(
-                TextSpan(
-                  style: TextStyle(fontSize: 12, color: c.textMuted),
+              if (locked)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextSpan(text: context.l10n.datesFirstOccurrence),
-                    TextSpan(
-                      text: formatShortDate(first),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: c.turquoise,
-                      ),
+                    Icon(Icons.lock_outline, size: 13, color: c.textMuted),
+                    const SizedBox(width: 4),
+                    Text(
+                      context.l10n.datesDoneThisWeek,
+                      style: TextStyle(fontSize: 12, color: c.textMuted),
                     ),
                   ],
+                )
+              else
+                Text.rich(
+                  TextSpan(
+                    style: TextStyle(fontSize: 12, color: c.textMuted),
+                    children: [
+                      TextSpan(text: context.l10n.datesFirstOccurrence),
+                      TextSpan(
+                        text: formatShortDate(first),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: c.turquoise,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -416,36 +437,42 @@ class _DayWeekdayCard extends StatelessWidget {
               for (var wd = 1; wd <= 7; wd++) ...[
                 if (wd > 1) const SizedBox(width: 5),
                 Expanded(
-                  child: Semantics(
-                    inMutuallyExclusiveGroup: true,
-                    checked: wd == weekDay,
-                    button: true,
-                    label: context.l10n.datesDayOn(title, weekdayName(wd)),
-                    excludeSemantics: true,
-                    child: Material(
-                      color: wd == weekDay
-                          ? c.turquoiseSurface
-                          : Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: BorderSide(
-                          color: wd == weekDay ? c.turquoise : c.border,
+                  child: Opacity(
+                    opacity: wd == weekDay || canPick(wd) ? 1 : .35,
+                    child: Semantics(
+                      enabled: canPick(wd),
+                      inMutuallyExclusiveGroup: true,
+                      checked: wd == weekDay,
+                      button: true,
+                      label: context.l10n.datesDayOn(title, weekdayName(wd)),
+                      excludeSemantics: true,
+                      child: Material(
+                        color: wd == weekDay
+                            ? c.turquoiseSurface
+                            : Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(
+                            color: wd == weekDay ? c.turquoise : c.border,
+                          ),
                         ),
-                      ),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(10),
-                        onTap: () => onPick(wd),
-                        child: SizedBox(
-                          height: 36,
-                          child: Center(
-                            child: Text(
-                              weekdayLetter(wd),
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: wd == weekDay
-                                    ? c.turquoise
-                                    : c.textMuted,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: wd != weekDay && canPick(wd)
+                              ? () => onPick(wd)
+                              : null,
+                          child: SizedBox(
+                            height: 36,
+                            child: Center(
+                              child: Text(
+                                weekdayLetter(wd),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: wd == weekDay
+                                      ? c.turquoise
+                                      : c.textMuted,
+                                ),
                               ),
                             ),
                           ),

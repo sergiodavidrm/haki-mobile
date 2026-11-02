@@ -170,6 +170,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get homeRestLabel => 'Hoy · Descanso';
 
   @override
+  String homeRestLabelOn(String date) {
+    return '$date · Descanso';
+  }
+
+  @override
   String get homeRestTitle => 'Día de descanso';
 
   @override
@@ -411,6 +416,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get monthPrev => 'Mes anterior';
 
   @override
+  String get weekPrev => 'Semana anterior';
+
+  @override
+  String get weekNext => 'Semana siguiente';
+
+  @override
   String get monthNext => 'Mes siguiente';
 
   @override
@@ -420,6 +431,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get datesFirstOccurrence => '1.º: ';
+
+  @override
+  String get datesDoneThisWeek => 'Ya lo hiciste esta semana';
 
   @override
   String get sessionTitle => 'Sesión';
@@ -582,6 +596,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get tapToOpen => 'Tocá para abrir';
+
+  @override
+  String get collapse => 'Colapsar';
 
   @override
   String get commonAnd => 'y';

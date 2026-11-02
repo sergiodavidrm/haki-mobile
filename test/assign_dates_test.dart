@@ -86,4 +86,52 @@ void main() {
       DateTime.utc(2026, 9, 14),
     );
   });
+
+  group('días bloqueados (hechos esta semana)', () {
+    final start = DateTime.utc(2026, 10, 26); // lunes
+    DayDto done(int n) => DayDto(
+      id: 'd$n',
+      dayNumber: n,
+      name: null,
+      sessionStatus: SessionStatus.completed,
+      workoutSessionId: 's$n',
+      exercises: const [],
+    );
+    const mappings = [
+      DayMappingDto(dayNumber: 1, weekDay: 1),
+      DayMappingDto(dayNumber: 2, weekDay: 3),
+      DayMappingDto(dayNumber: 3, weekDay: 5),
+    ];
+    final p = detail(
+      [
+        [day(1), day(2), done(3)],
+        [day(1), day(2), day(3)],
+      ],
+      mappings: mappings,
+      start: start,
+    );
+
+    test('semana 1 con el día 3 hecho: queda fijo', () {
+      expect(lockedDays(p, DateTime(2026, 10, 31)), {3});
+    });
+
+    test('en la semana 2 ya se puede cambiar', () {
+      expect(lockedDays(p, DateTime(2026, 11, 3)), isEmpty);
+    });
+
+    test('nadie puede tomar el día de uno bloqueado', () {
+      final map = {1: 1, 2: 3, 3: 5};
+      expect(canPickWeekday(map, {3}, 3, 6), isFalse);
+      expect(canPickWeekday(map, {3}, 1, 5), isFalse);
+      expect(canPickWeekday(map, {3}, 1, 2), isTrue);
+      expect(canPickWeekday(map, {3}, 1, 3), isTrue);
+    });
+
+    test('sin fechas no hay nada bloqueado', () {
+      final undated = detail([
+        [done(1)],
+      ]);
+      expect(lockedDays(undated, DateTime(2026, 10, 31)), isEmpty);
+    });
+  });
 }

@@ -231,4 +231,38 @@ void main() {
     ]);
     expect(strip[4].isToday, isTrue);
   });
+
+  test('weekStrip con un día elegido: su semana, marcado y hoy aparte', () {
+    final p = detail(
+      start: monday,
+      weeks: [
+        WeekDto(weekNumber: 1, days: [day(1), day(2)]),
+        WeekDto(weekNumber: 2, days: [day(1), day(2)]),
+      ],
+      mappings: const [
+        DayMappingDto(dayNumber: 1, weekDay: 1),
+        DayMappingDto(dayNumber: 2, weekDay: 5),
+      ],
+    );
+    final nextMonday = monday.add(const Duration(days: 7));
+    final strip = weekStrip(p, friday, selected: nextMonday)!;
+    expect(strip.first.date, nextMonday);
+    expect(strip.first.isSelected, isTrue);
+    expect(strip.any((d) => d.isToday), isFalse);
+    // Sin elegir: hoy es el elegido
+    expect(weekStrip(p, friday)![4].isSelected, isTrue);
+  });
+
+  test('canMoveStrip: solo dentro de las semanas del programa', () {
+    // El helper arma 4 semanas desde el lunes 28 sep
+    final p = detail(
+      start: monday,
+      mappings: const [DayMappingDto(dayNumber: 1, weekDay: 1)],
+    );
+    expect(canMoveStrip(p, friday, -1), isFalse);
+    expect(canMoveStrip(p, friday, 1), isTrue);
+    final week4 = monday.add(const Duration(days: 23));
+    expect(canMoveStrip(p, week4, 1), isFalse);
+    expect(canMoveStrip(p, week4, -1), isTrue);
+  });
 }

@@ -53,7 +53,7 @@ SavedSet? savedSetFor(
   final queued = videos[key];
   final hasVideo = r?.videoUrl != null || queued == true;
   final videoUploading = queued == false;
-  if (l != null) {
+  if (l != null && !_correctedOnServer(l, r)) {
     return SavedSet(
       weight: l.weight,
       unit: l.unit,
@@ -77,6 +77,21 @@ SavedSet? savedSetFor(
     videoUploading: videoUploading,
     setLogId: r.id,
   );
+}
+
+/// La copia del teléfono gana, salvo que ya esté subida y el servidor tenga
+/// otros valores modificados después (el coach la corrigió desde el web).
+/// Con los mismos valores sigue la local: conserva el peso tal cual se escribió.
+bool _correctedOnServer(LocalSetEntry l, LoggedSetDto? r) {
+  if (!l.synced || r == null || r.updatedAt == null || l.savedAt == null) {
+    return false;
+  }
+  if (!r.updatedAt!.isAfter(l.savedAt!)) return false;
+  final localKg = l.weight == null ? null : l.unit.toKg(l.weight!);
+  final sameWeight = localKg == null || r.weightKg == null
+      ? localKg == r.weightKg
+      : (localKg - r.weightKg!).abs() < 0.01;
+  return !sameWeight || l.reps != r.reps || l.rir != r.rir;
 }
 
 /// Filas de series de un ejercicio: las prescritas, o más si ya se cargaron

@@ -148,3 +148,21 @@ class AnswerInput {
     detail: detail ?? this.detail,
   );
 }
+
+/// Pendientes que se ven en Hoy para [day]: los enviados ese día o antes (no
+/// vencen). Uno del viernes sale el viernes y los días siguientes, no el jueves.
+List<PendingQuestionnaire> pendingOn(
+  List<PendingQuestionnaire> pending,
+  DateTime day,
+) {
+  final d = DateTime.utc(day.year, day.month, day.day);
+  return [
+    for (final q in pending)
+      if (!DateTime.utc(
+        q.periodStart.year,
+        q.periodStart.month,
+        q.periodStart.day,
+      ).isAfter(d))
+        q,
+  ];
+}

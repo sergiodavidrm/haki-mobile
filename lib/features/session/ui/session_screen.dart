@@ -39,8 +39,9 @@ class SessionScreen extends ConsumerStatefulWidget {
 class _SessionScreenState extends ConsumerState<SessionScreen> {
   late final Timer _tick;
 
-  /// Grupos que el atleta abrió a mano (id del primer ejercicio).
-  final _expanded = <String>{};
+  /// Grupos que el atleta abrió (true) o cerró (false) a mano, por id del
+  /// primer ejercicio. Gana sobre la regla automática; sin entrada = automático.
+  final _open = <String, bool>{};
 
   String get _a => widget.assignmentId;
   String get _d => widget.dayId;
@@ -99,10 +100,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         .where((r) => savedFor(r.exercise, r.setNumber) == null)
         .firstOrNull;
 
-    // Abiertos: el que tiene la serie que sigue, los que ya tienen series y
-    // los que el atleta abrió. El resto queda colapsado (como en el mockup).
-    bool expanded(ExerciseGroup g) =>
-        _expanded.contains(g.exercises.first.id) ||
+    // Abiertos solos: el que tiene la serie que sigue y los que ya tienen
+    // series. El resto queda colapsado (como en el mockup). Lo que el atleta
+    // abrió o cerró a mano gana.
+    bool autoOpen(ExerciseGroup g) =>
         g.exercises.any((e) => e.id == next?.exercise.id) ||
         g.exercises.any(
           (e) => List.generate(
@@ -110,12 +111,22 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             (i) => savedFor(e, i + 1),
           ).any((x) => x != null),
         );
+    bool expanded(ExerciseGroup g) =>
+        _open[g.exercises.first.id] ?? autoOpen(g);
+    void toggle(ExerciseGroup g) =>
+        setState(() => _open[g.exercises.first.id] = !expanded(g));
 
-    Widget block(DayExerciseDto e, {String? badge, bool showRail = true}) {
+    Widget block(
+      DayExerciseDto e, {
+      String? badge,
+      bool showRail = true,
+      VoidCallback? onCollapse,
+    }) {
       return ExerciseBlock(
         exercise: e,
         badge: badge,
         showRail: showRail,
+        onCollapse: onCollapse,
         lastTime: e.lastPerformance == null
             ? null
             : lastTimeLabel(
@@ -191,20 +202,20 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             children: [
               for (final g in groups) ...[
                 if (!expanded(g))
-                  _CollapsedGroup(
-                    group: g,
-                    onTap: () =>
-                        setState(() => _expanded.add(g.exercises.first.id)),
-                  )
+                  _CollapsedGroup(group: g, onTap: () => toggle(g))
                 else if (g.letter == null)
                   HakiCard(
                     radius: 22,
                     padding: const EdgeInsets.all(14),
-                    child: block(g.exercises.single),
+                    child: block(
+                      g.exercises.single,
+                      onCollapse: () => toggle(g),
+                    ),
                   )
                 else
                   _SupersetCard(
                     group: g,
+                    onCollapse: () => toggle(g),
                     children: [
                       for (final (i, e) in g.exercises.indexed)
                         block(
@@ -538,10 +549,15 @@ class _UnitSegment extends StatelessWidget {
 }
 
 class _SupersetCard extends StatelessWidget {
-  const _SupersetCard({required this.group, required this.children});
+  const _SupersetCard({
+    required this.group,
+    required this.children,
+    required this.onCollapse,
+  });
 
   final ExerciseGroup group;
   final List<Widget> children;
+  final VoidCallback onCollapse;
 
   @override
   Widget build(BuildContext context) {
@@ -596,6 +612,7 @@ class _SupersetCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                CollapseButton(onPressed: onCollapse),
               ],
             ),
             const SizedBox(height: 12),

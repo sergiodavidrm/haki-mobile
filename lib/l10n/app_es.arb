@@ -65,6 +65,8 @@
     }
   },
   "homeRestLabel": "Hoy · Descanso",
+  "homeRestLabelOn": "{date} · Descanso",
+  "@homeRestLabelOn": {"placeholders": {"date": {"type": "String"}}},
   "homeRestTitle": "Día de descanso",
   "homeRestNext": "Próximo: {title} · {date}",
   "@homeRestNext": {
@@ -231,6 +233,8 @@
   "datesNoWorkouts": "Tu coach todavía no armó los entrenos de este programa.",
   "datesTooMany": "Este programa tiene más de 7 entrenos por semana: pedile a tu coach que asigne las fechas.",
   "monthPrev": "Mes anterior",
+  "weekPrev": "Semana anterior",
+  "weekNext": "Semana siguiente",
   "monthNext": "Mes siguiente",
   "datesDayOn": "{title} el {weekday}",
   "@datesDayOn": {
@@ -244,6 +248,7 @@
     }
   },
   "datesFirstOccurrence": "1.º: ",
+  "datesDoneThisWeek": "Ya lo hiciste esta semana",
   "sessionTitle": "Sesión",
   "sessionLoadError": "No pudimos cargar la sesión. Revisá tu conexión.",
   "sessionDayGone": "Este día ya no está en el programa.",
@@ -379,6 +384,7 @@
     }
   },
   "tapToOpen": "Tocá para abrir",
+  "collapse": "Colapsar",
   "commonAnd": "y",
   "restAgain": "Otra vez",
   "restPause": "Pausar",

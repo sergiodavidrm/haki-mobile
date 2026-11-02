@@ -241,12 +241,24 @@ día del mapping del día de la semana (sin mapping = descanso). Con fechas sin
 mappings → primer día sin completar de la semana actual. Sin fechas → primer
 día sin completar del programa.
 
+**Tira navegable (2026-11-01):** con fechas + `dayMappings`, tocar un día de
+la tira muestra lo que toca ese día (`resolveToday(program, día)`; la tarjeta
+dice la fecha en vez de "Hoy") y las flechas cambian de semana dentro del
+programa (`canMoveStrip`); "Hoy" vuelve. El día elegido vive en
+`selectedDayProvider` (null = hoy). Cuestionarios: en otro día solo los
+enviados ese día o antes (`pendingOn`: el del viernes sale viernes y
+sábado, no el jueves).
+
 Estados de Hoy: sin programas · solo próximo · toca entrenar · descanso · día
 vacío ("Tu coach lo está preparando") · sesión empezada (Continuar) · sesión
 completada · programa terminado · offline (caché).
 
 Asignar fechas (atleta): `PUT block-assignments/{id}/schedule` con
 `startDate` + `dayMappings` (`MON`…`SUN`). "Ahora no" = sigue sin fechas.
+Los entrenos ya hechos en la semana del programa que corre hoy quedan con
+su día fijo (`lockedDays`, candado "Ya lo hiciste esta semana") y nadie puede
+tomar ese día (`canPickWeekday`); en la semana siguiente se pueden cambiar.
+Solo en la app: la API no lo valida.
 
 ## Sincronización con cambios del coach
 
@@ -544,7 +556,10 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
   para cargar/corregir. Sin check: se guarda sola al salir de la fila si
   cambió peso, reps o RIR (2026-10-26), tal cual: lo que no escribió queda
   vacío, reps incluidas (decisión de Sergio; antes exigía reps escritas y un
-  atleta que solo cargaba el peso no guardaba nada). Una serie sin reps no
+  atleta que solo cargaba el peso no guardaba nada). Si el coach corrige una serie desde el web
+  (`PUT set-logs/{id}`), `savedSetFor` muestra la del servidor cuando la local
+  ya está subida y el servidor tiene otros valores con `updatedAt` posterior
+  (`_correctedOnServer`); con los mismos valores sigue la local. Una serie sin reps no
   cuenta para adherencia, récords, e1RM ni volumen. Idea para más adelante
   (no hecha): precargar las reps del objetivo como texto real al abrir la
   fila (visible y corregible; peso y RIR no), nunca completarlas en silencio. Inputs **sin placeholder** (el hint parecía un
@@ -554,7 +569,11 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
   coach, tachada = no pedida (al tocarla confirma "Tu entrenador no solicitó
   video…"), nube turquesa = en la cola, turquesa con check = subido (tocar
   = grabar otro que lo reemplaza). Ver § Subida de videos. Ejercicios sin series y sin la siguiente
-  se muestran colapsados; tocar los abre.
+  se muestran colapsados; tocar los abre. Abiertos llevan un chevron
+  (`CollapseButton`) a la derecha del encabezado (en superserie, en el header
+  de la tarjeta) que los colapsa; el nombre sigue abriendo el Detalle. Lo que
+  el atleta abre/cierra a mano gana sobre la regla automática (`_open` en
+  `SessionScreen`, 2026-11-01).
   Debajo de cada ejercicio: "Sem. pasada: 116 lb × 12·12·12·12 · e1RM 163.8 lb"
   (`lastPerformance` del detalle; "Sem. N" si es otra semana del programa, la
   fecha si es de otro programa), en la unidad efectiva del ejercicio. Tocar el

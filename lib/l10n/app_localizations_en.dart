@@ -171,6 +171,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeRestLabel => 'Today · Rest';
 
   @override
+  String homeRestLabelOn(String date) {
+    return '$date · Rest';
+  }
+
+  @override
   String get homeRestTitle => 'Rest day';
 
   @override
@@ -412,6 +417,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get monthPrev => 'Previous month';
 
   @override
+  String get weekPrev => 'Previous week';
+
+  @override
+  String get weekNext => 'Next week';
+
+  @override
   String get monthNext => 'Next month';
 
   @override
@@ -421,6 +432,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get datesFirstOccurrence => '1st: ';
+
+  @override
+  String get datesDoneThisWeek => 'Already done this week';
 
   @override
   String get sessionTitle => 'Session';
@@ -583,6 +597,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tapToOpen => 'Tap to open';
+
+  @override
+  String get collapse => 'Collapse';
 
   @override
   String get commonAnd => 'and';

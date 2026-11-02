@@ -199,6 +199,7 @@ class StripDay {
     required this.date,
     required this.kind,
     required this.isToday,
+    this.isSelected = false,
   });
 
   final DateTime date;
@@ -206,21 +207,50 @@ class StripDay {
   /// none = sin entreno ese día; planned = hay entreno sin completar.
   final StripDayKind kind;
   final bool isToday;
+
+  /// El día que el atleta tocó en Hoy (hoy si no tocó ninguno).
+  final bool isSelected;
 }
 
-/// Lunes a domingo de la semana calendario de [today], para programas con
-/// fechas y día de la semana por entreno. null si no aplica.
-List<StripDay>? weekStrip(AssignmentDetailDto p, DateTime today) {
+DateTime _mondayOf(DateTime d) => d.subtract(Duration(days: d.weekday - 1));
+
+/// Lunes a domingo de la semana calendario de [selected] (hoy si es null),
+/// para programas con fechas y día de la semana por entreno. null si no aplica.
+List<StripDay>? weekStrip(
+  AssignmentDetailDto p,
+  DateTime today, {
+  DateTime? selected,
+}) {
   if (!p.hasDates || p.dayMappings.isEmpty) return null;
   final t = dateOnly(today);
-  final monday = t.subtract(Duration(days: t.weekday - 1));
+  final s = selected == null ? t : dateOnly(selected);
+  final monday = _mondayOf(s);
   return [
     for (var i = 0; i < 7; i++)
       () {
         final d = monday.add(Duration(days: i));
-        return StripDay(date: d, kind: _kindOn(p, d), isToday: d == t);
+        return StripDay(
+          date: d,
+          kind: _kindOn(p, d),
+          isToday: d == t,
+          isSelected: d == s,
+        );
       }(),
   ];
+}
+
+/// Se puede pasar a la semana anterior (-1) o siguiente (+1) de la tira sin
+/// salir del programa (de la semana de inicio a la del último día).
+bool canMoveStrip(AssignmentDetailDto p, DateTime selected, int delta) {
+  if (!p.hasDates) return false;
+  final target = _mondayOf(dateOnly(selected)).add(Duration(days: 7 * delta));
+  final first = _mondayOf(p.startDate!);
+  final last = _mondayOf(
+    p.startDate!.add(
+      Duration(days: (p.totalWeeks < 1 ? 1 : p.totalWeeks) * 7 - 1),
+    ),
+  );
+  return !target.isBefore(first) && !target.isAfter(last);
 }
 
 StripDayKind _kindOn(AssignmentDetailDto p, DateTime d) {

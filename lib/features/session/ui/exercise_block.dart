@@ -33,7 +33,12 @@ class ExerciseBlock extends StatelessWidget {
     this.showRail = true,
     this.lastTime,
     this.onOpenDetail,
+    this.onCollapse,
   });
+
+  /// Chevron a la derecha del encabezado para colapsar (null = sin botón; en
+  /// superserie lo pone la tarjeta). El nombre sigue abriendo el detalle.
+  final VoidCallback? onCollapse;
 
   /// "Sem. pasada" / "Sem. 2" / "25 sep" (lastTimeLabel); null = no mostrar
   /// la última vez.
@@ -191,6 +196,7 @@ class ExerciseBlock extends StatelessWidget {
                   ),
                 ),
               ],
+              if (onCollapse != null) CollapseButton(onPressed: onCollapse!),
             ],
           ),
           if (exercise.coachNote?.trim().isNotEmpty ?? false) ...[
@@ -296,6 +302,24 @@ String exerciseSummary(DayExerciseDto e) {
 String _joinNumbers(List<int> n) => n.length == 1
     ? '${n.single}'
     : '${n.sublist(0, n.length - 1).join(', ')} ${l10n.commonAnd} ${n.last}';
+
+/// Chevron para colapsar un ejercicio o superserie abiertos (mismo lugar que
+/// el `expand_more` de la fila colapsada).
+class CollapseButton extends StatelessWidget {
+  const CollapseButton({super.key, required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: onPressed,
+      tooltip: context.l10n.collapse,
+      visualDensity: VisualDensity.compact,
+      icon: Icon(Icons.expand_less, size: 20, color: context.colors.textMuted),
+    );
+  }
+}
 
 /// Cuadro gris con la mancuerna (ejercicio suelto, abierto o colapsado).
 class ExerciseIconTile extends StatelessWidget {

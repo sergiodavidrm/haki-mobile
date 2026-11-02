@@ -7,6 +7,7 @@ import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/haki_colors.dart';
+import 'core/widgets/keyboard_guard.dart';
 import 'core/widgets/splash_screen.dart';
 import 'features/chat/providers/chat_providers.dart';
 import 'features/chat/providers/chat_push.dart';
@@ -35,6 +36,8 @@ class HakiApp extends ConsumerWidget {
     ref.watch(notificationTapsProvider);
     // Cuestionarios: aviso local de las 20:00 y recarga al volver a primer plano
     ref.watch(questionnaireSyncProvider);
+    // Teclado al ir y volver de segundo plano (bloque negro abajo)
+    ref.watch(keyboardGuardProvider);
     return MaterialApp.router(
       onGenerateTitle: (context) => 'Haki',
       debugShowCheckedModeBanner: false,

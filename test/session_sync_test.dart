@@ -19,6 +19,9 @@ class FakeApi implements HttpClientAdapter {
   /// path → código de error que responde (p. ej. 409 al firmar un video).
   final errors = <String, int>{};
 
+  /// Cuerpo del último POST /workout-sessions.
+  Map<String, dynamic>? lastSession;
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions o,
@@ -32,6 +35,9 @@ class FakeApi implements HttpClientAdapter {
       );
     }
     calls.add('${o.method} ${o.path}');
+    if (o.method == 'POST' && o.path == '/workout-sessions') {
+      lastSession = Map<String, dynamic>.from(o.data as Map);
+    }
     final error = errors[o.path];
     if (error != null) {
       return ResponseBody.fromString(
@@ -250,4 +256,37 @@ void main() {
     expect(await db.select(db.localVideos).get(), isEmpty);
     expect(file.existsSync(), isFalse);
   });
+
+  test('abrir un día sin cargar nada no crea la sesión en la API', () async {
+    await store.start('a1', 'd1');
+    await settle();
+
+    expect(api.calls, isEmpty);
+    expect(await store.pendingCount(), 0);
+  });
+
+  test(
+    'la fecha de la sesión es la de la primera serie, no la de abrir el día',
+    () async {
+      // Abrió el día hace 3 días (sin cargar nada) y entrenó hoy
+      await db
+          .into(db.localSessions)
+          .insert(
+            LocalSessionsCompanion.insert(
+              assignmentId: 'a1',
+              dayId: 'd1',
+              startedAt: DateTime.now().subtract(const Duration(days: 3)),
+            ),
+          );
+      await saveSet(1);
+      await settle();
+
+      final today = DateTime.now();
+      String two(int n) => n.toString().padLeft(2, '0');
+      expect(
+        api.lastSession?['scheduledDate'],
+        '${today.year}-${two(today.month)}-${two(today.day)}',
+      );
+    },
+  );
 }

@@ -236,19 +236,32 @@ class SessionStore {
     final sets = await (_db.select(
       _db.localSets,
     )..where((s) => s.synced.equals(false))).get();
-    final sessions =
-        await (_db.select(_db.localSessions)..where(
-              (s) =>
-                  s.remoteId.isNull() |
-                  (s.completedAt.isNotNull() & s.completeSynced.equals(false)),
-            ))
-            .get();
-    final videos = await (_db.select(
-      _db.localVideos,
-    )..where((v) => v.done.equals(false))).get();
     final notes = await (_db.select(
       _db.localNotes,
     )..where((n) => n.synced.equals(false))).get();
+    bool sameDay(String a, String d, LocalSession s) =>
+        a == s.assignmentId && d == s.dayId;
+    // Una sesión sin crear en la API cuenta solo si tiene algo para subir
+    // (abrir un día para mirarlo no crea nada, ver SessionSync._startSessions)
+    final sessions =
+        (await (_db.select(_db.localSessions)..where(
+                  (s) =>
+                      s.remoteId.isNull() |
+                      (s.completedAt.isNotNull() &
+                          s.completeSynced.equals(false)),
+                ))
+                .get())
+            .where(
+              (s) =>
+                  s.remoteId != null ||
+                  s.completedAt != null ||
+                  sets.any((x) => sameDay(x.assignmentId, x.dayId, s)) ||
+                  notes.any((n) => sameDay(n.assignmentId, n.dayId, s)),
+            )
+            .toList();
+    final videos = await (_db.select(
+      _db.localVideos,
+    )..where((v) => v.done.equals(false))).get();
     return sets.length + notes.length + sessions.length + videos.length;
   }
 

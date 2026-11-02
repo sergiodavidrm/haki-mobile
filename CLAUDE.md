@@ -563,6 +563,7 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
 - `core/db/app_database.dart` (drift, `haki.sqlite`): `LocalSessions`,
   `LocalSets` (peso tal cual se escribió + unidad), `LocalExerciseLogs` (caché
   de ids). Claves naturales = las de los upserts de la API.
+- **Abrir un día no crea la sesión en la API** (2026-11-02): `SessionSync._startSessions` la crea recién cuando hay una serie, una nota o Finalizar, con `scheduledDate` = la primera serie/nota (antes era el día en que se abrió, y la campana del coach contaba días sin entrenar de más). La sesión local sí se crea al entrar ("entrenando hace X min", Continuar en Hoy); `pendingCount` no cuenta una sesión vacía.
 - `SessionStore` escribe local y patea `SessionSync`, que sube en orden
   (crear sesión → exercise-log → series → complete) con backoff 15 s…5 min y
   al volver a primer plano. Una serie editada mientras se subía queda

@@ -83,17 +83,24 @@ class SessionSync {
     }
   }
 
+  /// Crea en la API las sesiones que ya tienen algo para subir (una serie, una
+  /// nota o Finalizar), con la fecha en que entrenó: la de la primera serie o
+  /// nota. Abrir un día solo para mirarlo no crea nada: antes la fecha quedaba
+  /// la de cuando se abrió (un día abierto el lunes y entrenado el jueves
+  /// figuraba como del lunes: "7 días sin entrenar" en la campana del coach).
   Future<void> _startSessions() async {
     final pending = await (_db.select(
       _db.localSessions,
     )..where((s) => s.remoteId.isNull())).get();
     for (final s in pending) {
+      final trainedAt = await _trainedAt(s);
+      if (trainedAt == null) continue;
       final res = await _api.post<Map<String, dynamic>>(
         '/workout-sessions',
         data: {
           'blockAssignmentId': s.assignmentId,
           'blockDayId': s.dayId,
-          'scheduledDate': _dateOnly(s.startedAt),
+          'scheduledDate': _dateOnly(trainedAt),
         },
       );
       await (_db.update(_db.localSessions)..where(
@@ -104,6 +111,32 @@ class SessionSync {
             LocalSessionsCompanion(remoteId: Value(res.data!['id'] as String)),
           );
     }
+  }
+
+  /// Cuándo empezó a entrenar ese día: la primera serie o nota guardada; si
+  /// solo tocó Finalizar, ese momento. null = todavía no hay nada que subir.
+  Future<DateTime?> _trainedAt(LocalSession s) async {
+    final sets =
+        await (_db.select(_db.localSets)..where(
+              (x) =>
+                  x.assignmentId.equals(s.assignmentId) &
+                  x.dayId.equals(s.dayId),
+            ))
+            .get();
+    final notes =
+        await (_db.select(_db.localNotes)..where(
+              (x) =>
+                  x.assignmentId.equals(s.assignmentId) &
+                  x.dayId.equals(s.dayId),
+            ))
+            .get();
+    final times = [
+      for (final x in sets) x.updatedAt,
+      for (final n in notes) n.updatedAt,
+      ?s.completedAt,
+    ];
+    if (times.isEmpty) return null;
+    return times.reduce((a, b) => a.isBefore(b) ? a : b);
   }
 
   Future<void> _pushSets() async {

@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:haki_mobile/core/db/app_database.dart';
@@ -13,6 +15,9 @@ import 'package:haki_mobile/features/session/data/session_sync.dart';
 class FakeApi implements HttpClientAdapter {
   final calls = <String>[];
   bool offline = false;
+
+  /// path → código de error que responde (p. ej. 409 al firmar un video).
+  final errors = <String, int>{};
 
   @override
   Future<ResponseBody> fetch(
@@ -27,6 +32,16 @@ class FakeApi implements HttpClientAdapter {
       );
     }
     calls.add('${o.method} ${o.path}');
+    final error = errors[o.path];
+    if (error != null) {
+      return ResponseBody.fromString(
+        jsonEncode({'detail': 'error'}),
+        error,
+        headers: {
+          Headers.contentTypeHeader: ['application/json'],
+        },
+      );
+    }
     final data = switch (o.path) {
       '/workout-sessions' => {'id': 'ses-1'},
       final p when p.endsWith('/exercise-logs') => {'id': 'log-1'},
@@ -205,5 +220,34 @@ void main() {
     await settle();
     // la nota + la sesión sin crear en la API
     expect(await store.pendingCount(), 2);
+  });
+
+  test('un video con 409 al firmar (el coach no pide videos) se descarta', () async {
+    api.errors['/set-logs/sl-1/video/signature'] = 409;
+    final file = File(
+      '${Directory.systemTemp.path}/haki_test_${DateTime.now().microsecondsSinceEpoch}.mp4',
+    )..writeAsBytesSync([0]);
+    await db
+        .into(db.localVideos)
+        .insert(
+          LocalVideosCompanion.insert(
+            assignmentId: 'a1',
+            dayId: 'd1',
+            dayExerciseId: 'ex1',
+            setNumber: 1,
+            setLogId: const Value('sl-1'),
+            filePath: Value(file.path),
+            compressed: const Value(true),
+            createdAt: DateTime.now(),
+          ),
+        );
+
+    sync.kick();
+    await settle();
+
+    expect(api.calls, contains('POST /set-logs/sl-1/video/signature'));
+    // Fuera de la cola (no reintenta para siempre) y sin el archivo
+    expect(await db.select(db.localVideos).get(), isEmpty);
+    expect(file.existsSync(), isFalse);
   });
 }

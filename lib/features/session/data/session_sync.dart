@@ -296,8 +296,9 @@ class SessionSync {
         );
       } on DioException catch (e) {
         final code = e.response?.statusCode;
-        // El archivo o la serie no sirven más: se descarta en vez de trabar la cola
-        if (code == 400 || code == 404 || code == 413) {
+        // El archivo o la serie no sirven más, o el coach dejó de pedir videos
+        // (409 al firmar): se descarta en vez de reintentar para siempre
+        if (code == 400 || code == 404 || code == 409 || code == 413) {
           debugPrint(
             'SessionSync: video descartado ($code) ${e.response?.data}',
           );

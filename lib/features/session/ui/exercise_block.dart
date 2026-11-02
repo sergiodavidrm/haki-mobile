@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
+import '../../auth/providers/auth_me_provider.dart';
 import '../../chat/ui/feedback_links.dart';
 import '../../exercise/data/exercise_stats.dart';
 import '../../program/data/assignment_dtos.dart';
@@ -20,7 +22,7 @@ typedef SaveSet = void Function(
 /// Un ejercicio de la sesión: encabezado, nota del coach y tabla de series.
 /// Suelto ([badge] null) se dibuja como en el mockup dentro de una tarjeta que
 /// pone el que lo usa; en superserie lleva el carril A1/A2 a la izquierda.
-class ExerciseBlock extends StatelessWidget {
+class ExerciseBlock extends ConsumerWidget {
   const ExerciseBlock({
     super.key,
     required this.exercise,
@@ -70,9 +72,11 @@ class ExerciseBlock extends StatelessWidget {
       List.generate(_rowCount, (i) => savedFor(i + 1)).nonNulls.length;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
     final inSuperset = badge != null;
+    // Sin videos (el coach no los pide) tampoco se avisa de los pedidos
+    final videos = ref.watch(videosEnabledProvider);
     final cols = inSuperset ? SetCols.compact : SetCols.normal;
     final done = _doneCount == _rowCount;
     final pendingVideo = exercise.targetSets
@@ -111,7 +115,7 @@ class ExerciseBlock extends StatelessWidget {
         dayExerciseId: exercise.id,
         streamMessageId: exercise.streamMessageId,
       ),
-      if (pendingVideo.isNotEmpty) ...[
+      if (videos && pendingVideo.isNotEmpty) ...[
         const SizedBox(height: 10),
         Row(
           children: [
@@ -119,7 +123,10 @@ class ExerciseBlock extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                context.l10n.videoRequestedSets(_joinNumbers(pendingVideo), pendingVideo.length),
+                context.l10n.videoRequestedSets(
+                  _joinNumbers(pendingVideo),
+                  pendingVideo.length,
+                ),
                 style: TextStyle(fontSize: 12, color: c.goldBright),
               ),
             ),
@@ -435,4 +442,3 @@ class _ProgressPill extends StatelessWidget {
     );
   }
 }
-

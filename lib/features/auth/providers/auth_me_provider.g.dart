@@ -98,3 +98,51 @@ final class DisplayNameProvider
 }
 
 String _$displayNameHash() => r'77e538966968424755d587ae791fe87fc5c93279';
+
+/// El coach pide videos de las series (Configuración del web): sin esto no
+/// hay cámara en la Sesión ni en la Sesión pasada. Mientras carga, true.
+
+@ProviderFor(videosEnabled)
+final videosEnabledProvider = VideosEnabledProvider._();
+
+/// El coach pide videos de las series (Configuración del web): sin esto no
+/// hay cámara en la Sesión ni en la Sesión pasada. Mientras carga, true.
+
+final class VideosEnabledProvider extends $FunctionalProvider<bool, bool, bool>
+    with $Provider<bool> {
+  /// El coach pide videos de las series (Configuración del web): sin esto no
+  /// hay cámara en la Sesión ni en la Sesión pasada. Mientras carga, true.
+  VideosEnabledProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'videosEnabledProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$videosEnabledHash();
+
+  @$internal
+  @override
+  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  bool create(Ref ref) {
+    return videosEnabled(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$videosEnabledHash() => r'e8324aae7224a5eb14f5ab90d28f8d5e47497f7f';

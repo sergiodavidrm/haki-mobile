@@ -429,6 +429,13 @@ Los arma el coach en el web; reglas y backend en `../haki-api/CLAUDE.md`
   teléfono; el backend crea el envío a las 20:00 de la zona del coach (iguales
   en Costa Rica).
 
+## Videos según el coach (2026-11-02)
+
+`/auth/me` trae `videoFeedbackEnabled` ("Pedir feedback con videos" del
+coach; `true` si no viene). `videosEnabledProvider`: sin videos
+`SetCameraButton` no se dibuja (Sesión y Sesión pasada) y la Sesión no avisa
+de videos pedidos. La API además no firma subidas (409).
+
 ## Feedback del coach (hilos)
 
 El feedback por ejercicio vive en el **hilo** de la tarjeta de videos del
@@ -553,7 +560,9 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
   unidad original, aviso de series sin subir. Fila guardada = texto, pendiente
   = "–", la primera pendiente de la sesión (`workOrder`) queda con inputs
   abiertos (sin resaltar: a Sergio no lo convenció); tocar otra fila la abre
-  para cargar/corregir. Sin check: se guarda sola al salir de la fila si
+  para cargar/corregir, **con el foco en la columna tocada** (peso, reps o
+  RIR; el resto de la fila → peso; 2026-11-02, `_Field` en `set_row.dart`,
+  tests en `test/set_row_test.dart`). Sin check: se guarda sola al salir de la fila si
   cambió peso, reps o RIR (2026-10-26), tal cual: lo que no escribió queda
   vacío, reps incluidas (decisión de Sergio; antes exigía reps escritas y un
   atleta que solo cargaba el peso no guardaba nada). Si el coach corrige una serie desde el web

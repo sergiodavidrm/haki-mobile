@@ -16,6 +16,7 @@ class AuthMeDto {
     this.preferredWeightUnit,
     this.coachName,
     this.exerciseFeedbackEnabled = false,
+    this.videoFeedbackEnabled = true,
     this.bodyMeasurements = const [],
     this.accessEndsAt,
     this.coach,
@@ -36,6 +37,10 @@ class AuthMeDto {
   /// El coach da feedback por ejercicio en el hilo de cada tarjeta de videos
   /// (si no, responde en el chat general citándola).
   final bool exerciseFeedbackEnabled;
+
+  /// El coach pide videos de las series: sin esto no se muestra la cámara.
+  /// true si no viene (API o caché de antes de 2026-11-02: había videos).
+  final bool videoFeedbackEnabled;
 
   /// Medidas que pidió el coach (estándar o creadas por él), en el orden del
   /// catálogo.
@@ -67,6 +72,7 @@ class AuthMeDto {
         : WeightUnit.parse(json['preferredWeightUnit'] as String),
     coachName: json['coachName'] as String?,
     exerciseFeedbackEnabled: json['exerciseFeedbackEnabled'] as bool? ?? false,
+    videoFeedbackEnabled: json['videoFeedbackEnabled'] as bool? ?? true,
     bodyMeasurements: [
       for (final j in json['bodyMeasurements'] as List? ?? const [])
         ?BodyMeasure.fromJson(j),

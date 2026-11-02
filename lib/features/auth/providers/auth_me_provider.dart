@@ -29,3 +29,9 @@ String displayName(Ref ref) {
   if (fullName != null && fullName.isNotEmpty) return fullName;
   return ref.watch(authRepositoryProvider).displayName;
 }
+
+/// El coach pide videos de las series (Configuración del web): sin esto no
+/// hay cámara en la Sesión ni en la Sesión pasada. Mientras carga, true.
+@riverpod
+bool videosEnabled(Ref ref) =>
+    ref.watch(authMeProvider).value?.videoFeedbackEnabled ?? true;

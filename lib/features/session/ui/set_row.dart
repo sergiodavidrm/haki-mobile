@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
+import '../../auth/providers/auth_me_provider.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../data/session_plan.dart';
 import '../../../l10n/l10n.dart';
@@ -126,6 +128,9 @@ class SetRow extends StatefulWidget {
   State<SetRow> createState() => _SetRowState();
 }
 
+/// Campo que recibe el foco al abrir la fila: el que el atleta tocó.
+enum _Field { weight, reps, rir }
+
 class _SetRowState extends State<SetRow> {
   late final _weight = TextEditingController(text: _savedWeight(widget.saved));
   late final _reps = TextEditingController(
@@ -135,6 +140,8 @@ class _SetRowState extends State<SetRow> {
     text: widget.saved?.rir?.toString() ?? '',
   );
   final _weightFocus = FocusNode();
+  final _repsFocus = FocusNode();
+  final _rirFocus = FocusNode();
 
   /// El atleta tocó la fila para cargarla o corregirla.
   bool _editing = false;
@@ -185,14 +192,21 @@ class _SetRowState extends State<SetRow> {
     _reps.dispose();
     _rir.dispose();
     _weightFocus.dispose();
+    _repsFocus.dispose();
+    _rirFocus.dispose();
     super.dispose();
   }
 
-  void _startEditing() {
+  /// Abre la fila con el foco en la columna que tocó (peso si tocó otra parte
+  /// de la fila, como el objetivo).
+  void _startEditing([_Field field = _Field.weight]) {
     setState(() => _editing = true);
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _weightFocus.requestFocus(),
-    );
+    final focus = switch (field) {
+      _Field.weight => _weightFocus,
+      _Field.reps => _repsFocus,
+      _Field.rir => _rirFocus,
+    };
+    WidgetsBinding.instance.addPostFrameCallback((_) => focus.requestFocus());
   }
 
   void _onFocusChange(bool hasFocus) {
@@ -244,11 +258,13 @@ class _SetRowState extends State<SetRow> {
       );
       reps = _Input(
         controller: _reps,
+        focusNode: _repsFocus,
         width: cols.reps,
         label: context.l10n.setRepsLabel(widget.setNumber),
       );
       rir = _Input(
         controller: _rir,
+        focusNode: _rirFocus,
         width: cols.rir,
         label: context.l10n.setRirLabel(widget.setNumber),
         action: TextInputAction.done,
@@ -259,13 +275,20 @@ class _SetRowState extends State<SetRow> {
         width: cols.weight,
         text: s?.weight == null ? null : _savedWeight(s),
         empty: s == null,
+        onTap: () => _startEditing(_Field.weight),
       );
       reps = _Value(
         width: cols.reps,
         text: s?.reps?.toString(),
         empty: s == null,
+        onTap: () => _startEditing(_Field.reps),
       );
-      rir = _Value(width: cols.rir, text: s?.rir?.toString(), empty: s == null);
+      rir = _Value(
+        width: cols.rir,
+        text: s?.rir?.toString(),
+        empty: s == null,
+        onTap: () => _startEditing(_Field.rir),
+      );
     }
 
     final row = Container(
@@ -367,28 +390,42 @@ class _SetRowState extends State<SetRow> {
   }
 }
 
-/// Valor ya guardado (texto) o "–" si la serie no se cargó.
+/// Valor ya guardado (texto) o "–" si la serie no se cargó. Tocarlo abre la
+/// fila con el foco en este campo (toda la altura de la fila es tocable).
 class _Value extends StatelessWidget {
-  const _Value({required this.width, required this.text, required this.empty});
+  const _Value({
+    required this.width,
+    required this.text,
+    required this.empty,
+    required this.onTap,
+  });
 
   final double width;
   final String? text;
   final bool empty;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return SizedBox(
-      width: width,
-      child: Text(
-        empty ? '–' : (text ?? '–'),
-        textAlign: TextAlign.center,
-        maxLines: 1,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: empty ? FontWeight.w400 : FontWeight.w600,
-          color: empty ? c.textMuted : c.text,
-          fontFeatures: const [FontFeature.tabularFigures()],
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: SizedBox(
+        width: width,
+        height: 40,
+        child: Center(
+          child: Text(
+            empty ? '–' : (text ?? '–'),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: empty ? FontWeight.w400 : FontWeight.w600,
+              color: empty ? c.textMuted : c.text,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
         ),
       ),
     );
@@ -399,8 +436,9 @@ class _Value extends StatelessWidget {
 /// tachada (igual se puede subir, con confirmación); en la cola = nube
 /// turquesa; enviado = turquesa con check.
 /// Cámara de una serie (Sesión y Sesión pasada): dorada = pedida por el coach,
-/// tachada = no pedida, nube = en la cola, turquesa = subido.
-class SetCameraButton extends StatelessWidget {
+/// tachada = no pedida, nube = en la cola, turquesa = subido. No se muestra si
+/// el coach no pide videos (`videosEnabledProvider`).
+class SetCameraButton extends ConsumerWidget {
   const SetCameraButton({
     super.key,
     required this.setNumber,
@@ -417,7 +455,8 @@ class SetCameraButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!ref.watch(videosEnabledProvider)) return const SizedBox.shrink();
     final c = context.colors;
     final (bg, side, fg, icon) = uploading
         ? (

@@ -20,6 +20,8 @@ class InvitationGate extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return switch (ref.watch(myInvitationProvider)) {
+      AsyncData(value: final invitation?) when invitation.expired =>
+        _NoInvitationScreen(expiredFrom: invitation.coachName),
       AsyncData(value: final invitation?) => _InvitationScreen(invitation: invitation),
       AsyncData() => const _NoInvitationScreen(),
       AsyncError() => _Frame(children: [
@@ -114,7 +116,10 @@ class _InvitationScreen extends ConsumerWidget {
 }
 
 class _NoInvitationScreen extends ConsumerWidget {
-  const _NoInvitationScreen();
+  const _NoInvitationScreen({this.expiredFrom});
+
+  /// Nombre del coach si la invitación existe pero venció.
+  final String? expiredFrom;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -123,18 +128,20 @@ class _NoInvitationScreen extends ConsumerWidget {
     final email = ref.watch(authRepositoryProvider).email ?? '';
 
     return _Frame(children: [
-      Text(l.inviteNoneTitle,
+      Text(expiredFrom == null ? l.inviteNoneTitle : l.inviteExpiredTitle,
           style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800)),
       const SizedBox(height: 10),
-      Text(l.inviteNoneBody(email),
+      Text(expiredFrom == null ? l.inviteNoneBody(email) : l.inviteExpiredBody(expiredFrom!),
           style: TextStyle(color: c.textMuted, fontSize: 15, height: 1.5)),
-      const SizedBox(height: 24),
-      HakiCard(
-        padding: const EdgeInsets.all(14),
-        radius: 14,
-        child: Text(l.inviteNoneHint,
-            style: TextStyle(color: c.textSecondary, fontSize: 14, height: 1.5)),
-      ),
+      if (expiredFrom == null) ...[
+        const SizedBox(height: 24),
+        HakiCard(
+          padding: const EdgeInsets.all(14),
+          radius: 14,
+          child: Text(l.inviteNoneHint,
+              style: TextStyle(color: c.textSecondary, fontSize: 14, height: 1.5)),
+        ),
+      ],
       const SizedBox(height: 28),
       FilledButton(
         onPressed: () => ref.read(authRepositoryProvider).signOut(),
@@ -143,7 +150,7 @@ class _NoInvitationScreen extends ConsumerWidget {
       const SizedBox(height: 8),
       TextButton(
         onPressed: () => ref.invalidate(myInvitationProvider),
-        child: Text(l.inviteSearchAgain),
+        child: Text(expiredFrom == null ? l.inviteSearchAgain : l.inviteExpiredSearchAgain),
       ),
     ]);
   }

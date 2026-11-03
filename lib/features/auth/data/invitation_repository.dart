@@ -12,6 +12,7 @@ class MyInvitationDto {
     required this.email,
     required this.coachName,
     this.coachingSince,
+    this.expired = false,
   });
 
   final String id;
@@ -21,11 +22,15 @@ class MyInvitationDto {
   /// Año en que el coach empezó (para "N años de experiencia").
   final int? coachingSince;
 
+  /// Venció (7 días sin aceptar): la app avisa en vez de dejar aceptar.
+  final bool expired;
+
   factory MyInvitationDto.fromJson(Map<String, dynamic> j) => MyInvitationDto(
     id: j['id'] as String,
     email: j['email'] as String,
     coachName: j['coachName'] as String,
     coachingSince: (j['coachingSince'] as num?)?.toInt(),
+    expired: j['expired'] as bool? ?? false,
   );
 }
 

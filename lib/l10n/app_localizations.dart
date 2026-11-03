@@ -2798,6 +2798,24 @@ abstract class AppLocalizations {
   /// **'Ya me invitó · Volver a buscar'**
   String get inviteSearchAgain;
 
+  /// No description provided for @inviteExpiredTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu invitación venció'**
+  String get inviteExpiredTitle;
+
+  /// No description provided for @inviteExpiredBody.
+  ///
+  /// In es, this message translates to:
+  /// **'La invitación de {coach} venció (dura 7 días). Pedile que te la reenvíe desde Haki.'**
+  String inviteExpiredBody(String coach);
+
+  /// No description provided for @inviteExpiredSearchAgain.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya me la reenvió · Volver a buscar'**
+  String get inviteExpiredSearchAgain;
+
   /// No description provided for @personalTitle.
   ///
   /// In es, this message translates to:

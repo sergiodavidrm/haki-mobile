@@ -1695,6 +1695,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inviteSearchAgain => 'I was invited · Search again';
 
   @override
+  String get inviteExpiredTitle => 'Your invitation expired';
+
+  @override
+  String inviteExpiredBody(String coach) {
+    return '$coach\'s invitation expired (it lasts 7 days). Ask them to resend it from Haki.';
+  }
+
+  @override
+  String get inviteExpiredSearchAgain => 'They resent it · Search again';
+
+  @override
   String get personalTitle => 'My details';
 
   @override

@@ -1158,6 +1158,16 @@
   "inviteNoneHint": "Haki es por invitación: entrá con el correo al que te escribió tu coach, o pedile que te invite con este.",
   "inviteOtherAccount": "Entrar con otra cuenta",
   "inviteSearchAgain": "Ya me invitó · Volver a buscar",
+  "inviteExpiredTitle": "Tu invitación venció",
+  "inviteExpiredBody": "La invitación de {coach} venció (dura 7 días). Pedile que te la reenvíe desde Haki.",
+  "@inviteExpiredBody": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteExpiredSearchAgain": "Ya me la reenvió · Volver a buscar",
   "personalTitle": "Mis datos",
   "personalIntro": "{coach} los ve para armar tu programa.",
   "@personalIntro": {

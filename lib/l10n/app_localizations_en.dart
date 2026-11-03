@@ -1799,4 +1799,89 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goalGeneralHealth => 'General health';
+
+  @override
+  String get chatGroupsSection => 'Groups';
+
+  @override
+  String chatGroupMembers(int count) {
+    return '$count members';
+  }
+
+  @override
+  String chatGroupOnlyCoachWrites(String coach) {
+    return 'Only $coach writes';
+  }
+
+  @override
+  String get chatGroupEveryoneWrites => 'Everyone can write';
+
+  @override
+  String chatGroupLocked(String coach) {
+    return 'Only $coach writes in this group. Press and hold a message to react.';
+  }
+
+  @override
+  String get chatGroupHint => 'Message the group…';
+
+  @override
+  String get chatGroupEmpty => 'No messages in the group yet.';
+
+  @override
+  String get chatGroupInfo => 'Group info';
+
+  @override
+  String chatGroupOf(String coach, int count) {
+    return '$coach\'s group · $count members';
+  }
+
+  @override
+  String chatGroupMembersTitle(int count) {
+    return 'Members · $count';
+  }
+
+  @override
+  String get chatGroupCoachTag => 'Coach';
+
+  @override
+  String get chatGroupYou => 'You';
+
+  @override
+  String get chatGroupLeave => 'Leave group';
+
+  @override
+  String chatGroupLeaveTitle(String name) {
+    return 'Leave \"$name\"?';
+  }
+
+  @override
+  String chatGroupLeaveBody(String coach) {
+    return 'You stop seeing the group\'s messages. The group sees that you left, and only $coach can add you back.';
+  }
+
+  @override
+  String chatGroupLeaveKeep(String coach) {
+    return 'Your chat with $coach stays the same.';
+  }
+
+  @override
+  String get chatGroupLeaveError =>
+      'Couldn\'t leave the group. Check your connection.';
+
+  @override
+  String get chatGroupGone => 'You\'re no longer in this group.';
+
+  @override
+  String get chatReact => 'React';
+
+  @override
+  String get chatNoMessagesYet => 'No messages';
+
+  @override
+  String notifGroupBody(String name, String text) {
+    return '$name: $text';
+  }
+
+  @override
+  String get chatReactError => 'Couldn\'t react. Check your connection.';
 }

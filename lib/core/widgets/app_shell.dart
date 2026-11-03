@@ -15,8 +15,11 @@ class AppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Conecta el chat al entrar (para el badge de no leídos del tab)
+    // Conecta el chat al entrar (para el badge de no leídos del tab). El
+    // badge suma el chat con el coach y los grupos (no leídos de la cuenta).
     final channel = ref.watch(generalChannelProvider).value;
+    ref.watch(chatGroupsProvider);
+    final state = channel?.client.state;
     return Scaffold(
       body: shell,
       bottomNavigationBar: DecoratedBox(
@@ -39,8 +42,8 @@ class AppShell extends ConsumerWidget {
             ),
             NavigationDestination(
               icon: StreamBuilder<int>(
-                stream: channel?.state?.unreadCountStream,
-                initialData: channel?.state?.unreadCount ?? 0,
+                stream: state?.totalUnreadCountStream,
+                initialData: state?.totalUnreadCount ?? 0,
                 builder: (context, snap) {
                   final n = snap.data ?? 0;
                   return Badge(

@@ -2995,6 +2995,138 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Salud general'**
   String get goalGeneralHealth;
+
+  /// No description provided for @chatGroupsSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupos'**
+  String get chatGroupsSection;
+
+  /// No description provided for @chatGroupMembers.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} integrantes'**
+  String chatGroupMembers(int count);
+
+  /// No description provided for @chatGroupOnlyCoachWrites.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo {coach} escribe'**
+  String chatGroupOnlyCoachWrites(String coach);
+
+  /// No description provided for @chatGroupEveryoneWrites.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos pueden escribir'**
+  String get chatGroupEveryoneWrites;
+
+  /// No description provided for @chatGroupLocked.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo {coach} escribe en este grupo. Mantené presionado un mensaje para reaccionar.'**
+  String chatGroupLocked(String coach);
+
+  /// No description provided for @chatGroupHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribí al grupo…'**
+  String get chatGroupHint;
+
+  /// No description provided for @chatGroupEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no hay mensajes en el grupo.'**
+  String get chatGroupEmpty;
+
+  /// No description provided for @chatGroupInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'Info del grupo'**
+  String get chatGroupInfo;
+
+  /// No description provided for @chatGroupOf.
+  ///
+  /// In es, this message translates to:
+  /// **'Grupo de {coach} · {count} integrantes'**
+  String chatGroupOf(String coach, int count);
+
+  /// No description provided for @chatGroupMembersTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Integrantes · {count}'**
+  String chatGroupMembersTitle(int count);
+
+  /// No description provided for @chatGroupCoachTag.
+  ///
+  /// In es, this message translates to:
+  /// **'Coach'**
+  String get chatGroupCoachTag;
+
+  /// No description provided for @chatGroupYou.
+  ///
+  /// In es, this message translates to:
+  /// **'Vos'**
+  String get chatGroupYou;
+
+  /// No description provided for @chatGroupLeave.
+  ///
+  /// In es, this message translates to:
+  /// **'Salir del grupo'**
+  String get chatGroupLeave;
+
+  /// No description provided for @chatGroupLeaveTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Salir de \"{name}\"?'**
+  String chatGroupLeaveTitle(String name);
+
+  /// No description provided for @chatGroupLeaveBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Dejás de ver los mensajes del grupo. El grupo ve que saliste y para volver te tiene que agregar {coach}.'**
+  String chatGroupLeaveBody(String coach);
+
+  /// No description provided for @chatGroupLeaveKeep.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu chat con {coach} sigue igual.'**
+  String chatGroupLeaveKeep(String coach);
+
+  /// No description provided for @chatGroupLeaveError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo salir del grupo. Revisá tu conexión.'**
+  String get chatGroupLeaveError;
+
+  /// No description provided for @chatGroupGone.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya no estás en este grupo.'**
+  String get chatGroupGone;
+
+  /// No description provided for @chatReact.
+  ///
+  /// In es, this message translates to:
+  /// **'Reaccionar'**
+  String get chatReact;
+
+  /// No description provided for @chatNoMessagesYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin mensajes'**
+  String get chatNoMessagesYet;
+
+  /// No description provided for @notifGroupBody.
+  ///
+  /// In es, this message translates to:
+  /// **'{name}: {text}'**
+  String notifGroupBody(String name, String text);
+
+  /// No description provided for @chatReactError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo reaccionar. Revisá tu conexión.'**
+  String get chatReactError;
 }
 
 class _AppLocalizationsDelegate

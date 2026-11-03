@@ -113,3 +113,16 @@ bool sameDay(DateTime a, DateTime b) =>
 /// "18:42"
 String timeOf(DateTime d) =>
     '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+
+/// Reacciones (las mismas que el web: `core/constants/chat-reactions.ts`).
+const chatReactions = <String, String>{
+  'like': '👍',
+  'love': '❤️',
+  'haha': '😄',
+  'fire': '🔥',
+  'clap': '👏',
+};
+
+/// Hora de la lista de chats: la hora si es de hoy; si no, "Ayer" / "25 sep".
+String listTime(DateTime d, DateTime now) =>
+    sameDay(d, now) ? timeOf(d) : daySeparator(d, now);

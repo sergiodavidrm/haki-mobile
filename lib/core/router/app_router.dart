@@ -29,6 +29,7 @@ import '../../features/session/ui/rest_timer_screen.dart';
 import '../../features/session/ui/session_screen.dart';
 import '../../features/session/ui/workout_complete_screen.dart';
 import '../../features/chat/ui/chat_screen.dart';
+import '../../features/chat/ui/group_chat_screen.dart';
 import '../../features/questionnaire/ui/questionnaire_screen.dart';
 import '../widgets/app_shell.dart';
 
@@ -79,6 +80,11 @@ abstract final class Routes {
   static const records = '/perfil/records';
   static const coach = '/perfil/coach';
   static const chatCoach = '/chat/coach';
+  static const chatGeneral = '/chat/general';
+
+  /// Grupo por su canal de Stream (`grp-…`).
+  static String chatGroup(String channelId) => '/chat/grupo/$channelId';
+  static String chatGroupInfo(String channelId) => '/chat/grupo/$channelId/info';
   static const adherence = '/perfil/adherencia';
   static const measureLogs = '/perfil/medidas/registros';
 
@@ -221,6 +227,24 @@ GoRouter appRouter(Ref ref) {
                   GoRoute(
                     path: 'coach',
                     builder: (_, _) => const CoachScreen(),
+                  ),
+                  GoRoute(
+                    path: 'general',
+                    builder: (_, _) => const ChatScreen(general: true),
+                  ),
+                  GoRoute(
+                    path: 'grupo/:channelId',
+                    builder: (_, state) => GroupChatScreen(
+                      channelId: state.pathParameters['channelId']!,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'info',
+                        builder: (_, state) => GroupInfoScreen(
+                          channelId: state.pathParameters['channelId']!,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -70,6 +70,9 @@ class TextBubble extends StatelessWidget {
     this.showTime = true,
     this.failed = false,
     this.onRetry,
+    this.showAuthorName = false,
+    this.below,
+    this.onLongPress,
   });
 
   final String text;
@@ -83,10 +86,19 @@ class TextBubble extends StatelessWidget {
   final bool failed;
   final VoidCallback? onRetry;
 
+  /// Grupo: el nombre de quien escribió arriba de la burbuja.
+  final bool showAuthorName;
+
+  /// Debajo de la burbuja (reacciones).
+  final Widget? below;
+
+  /// Mantener presionado (reaccionar).
+  final VoidCallback? onLongPress;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final bubble = Container(
+    final box = Container(
       constraints: const BoxConstraints(maxWidth: 280),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -104,14 +116,29 @@ class TextBubble extends StatelessWidget {
         style: TextStyle(fontSize: 14, height: 1.45, color: c.text),
       ),
     );
+    final bubble = onLongPress == null
+        ? box
+        : GestureDetector(onLongPress: onLongPress, child: box);
 
     final column = Column(
       crossAxisAlignment: mine
           ? CrossAxisAlignment.end
           : CrossAxisAlignment.start,
       children: [
+        if (showAuthorName && !mine && (authorName ?? '').isNotEmpty) ...[
+          Text(
+            authorName!,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: c.turquoise,
+            ),
+          ),
+          const SizedBox(height: 4),
+        ],
         if (quote != null) ...[_Quote(text: quote!), const SizedBox(height: 4)],
         bubble,
+        if (below != null) ...[const SizedBox(height: 5), below!],
         if (failed || showTime) const SizedBox(height: 4),
         if (failed)
           GestureDetector(

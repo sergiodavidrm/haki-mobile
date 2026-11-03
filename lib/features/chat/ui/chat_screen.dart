@@ -13,19 +13,29 @@ import '../../body/providers/body_providers.dart';
 import '../data/chat_message.dart';
 import '../providers/chat_providers.dart';
 import '../providers/chat_push.dart';
+import 'chat_list_view.dart';
 import 'chat_widgets.dart';
 import 'feedback_thread_screen.dart';
+import 'group_widgets.dart';
 import '../../../l10n/l10n.dart';
 
 // Tab Chat: canal general con el coach (Stream). Mensajes de texto, tarjetas
 // de videos de los ejercicios (las publica la API) y respuestas del coach
-// citando una tarjeta. Necesita red.
+// citando una tarjeta. Necesita red. Si el atleta está en algún grupo, el
+// tab muestra la lista (coach + grupos) y el chat con el coach se abre en
+// /chat/general ([general] = true, con flecha para volver).
 class ChatScreen extends ConsumerWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, this.general = false});
+
+  final bool general;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
+    if (!general && (ref.watch(chatGroupsProvider).value?.isNotEmpty ?? false)) {
+      unawaited(ref.read(chatPushProvider).askPermissionOnce());
+      return const ChatListView();
+    }
     final channel = ref.watch(generalChannelProvider);
     // Primera vez en el Chat: pedir permiso de notificaciones (una sola vez)
     unawaited(ref.read(chatPushProvider).askPermissionOnce());
@@ -36,7 +46,7 @@ class ChatScreen extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            _Header(coachName: coach),
+            _Header(coachName: coach, showBack: general),
             Expanded(
               child: switch (channel) {
                 AsyncData(:final value) => StreamChannel(
@@ -76,9 +86,10 @@ class ChatScreen extends ConsumerWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.coachName});
+  const _Header({required this.coachName, this.showBack = false});
 
   final String coachName;
+  final bool showBack;
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +104,12 @@ class _Header extends StatelessWidget {
         ),
         child: Row(
           children: [
+            if (showBack)
+              IconButton(
+                tooltip: context.l10n.commonBack,
+                onPressed: () => context.pop(),
+                icon: Icon(Icons.chevron_left, color: c.text),
+              ),
             CoachAvatar(name: coachName, size: 40),
             const SizedBox(width: 12),
             Column(
@@ -282,6 +299,8 @@ class _ChatViewState extends ConsumerState<_ChatView> {
           : quoted?.text,
       failed: m.state.isFailed,
       onRetry: () => unawaited(channel.retryMessage(m)),
+      onLongPress: () => unawaited(showReactionPicker(context, channel, m)),
+      below: ReactionChips(message: m, channel: channel),
     );
   }
 }

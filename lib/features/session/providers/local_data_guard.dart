@@ -36,6 +36,8 @@ void localDataGuard(Ref ref) {
       await ref.read(chatPushProvider).unregister(stream);
       await stream.disconnectUser();
       ref.invalidate(generalChannelProvider);
+      ref.invalidate(chatGroupsProvider);
+      ref.invalidate(connectedStreamClientProvider);
       await deleteAllVideoFiles();
       ref.invalidate(dayWeightUnitProvider);
       ref.read(restTimerProvider.notifier).reset();

@@ -8,20 +8,26 @@ part of 'program_refresher.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Al volver la app a primer plano vuelve a pedir los programas y el detalle
-/// (cambios del coach), salvo durante un entreno. Se arranca en app.dart.
+/// Al volver la app a primer plano vuelve a pedir `/auth/me` (configuración
+/// del coach: videos, feedback por ejercicio, medidas que pide) y, salvo
+/// durante un entreno, los programas y el detalle (cambios del coach). Se
+/// arranca en app.dart.
 
 @ProviderFor(programRefresher)
 final programRefresherProvider = ProgramRefresherProvider._();
 
-/// Al volver la app a primer plano vuelve a pedir los programas y el detalle
-/// (cambios del coach), salvo durante un entreno. Se arranca en app.dart.
+/// Al volver la app a primer plano vuelve a pedir `/auth/me` (configuración
+/// del coach: videos, feedback por ejercicio, medidas que pide) y, salvo
+/// durante un entreno, los programas y el detalle (cambios del coach). Se
+/// arranca en app.dart.
 
 final class ProgramRefresherProvider
     extends $FunctionalProvider<void, void, void>
     with $Provider<void> {
-  /// Al volver la app a primer plano vuelve a pedir los programas y el detalle
-  /// (cambios del coach), salvo durante un entreno. Se arranca en app.dart.
+  /// Al volver la app a primer plano vuelve a pedir `/auth/me` (configuración
+  /// del coach: videos, feedback por ejercicio, medidas que pide) y, salvo
+  /// durante un entreno, los programas y el detalle (cambios del coach). Se
+  /// arranca en app.dart.
   ProgramRefresherProvider._()
     : super(
         from: null,
@@ -55,4 +61,4 @@ final class ProgramRefresherProvider
   }
 }
 
-String _$programRefresherHash() => r'5e19810fcf7c3db8f7f0c888a4ca7f5d0a186de5';
+String _$programRefresherHash() => r'aef765c4f7eddd2674fe2332bac5c707af397942';

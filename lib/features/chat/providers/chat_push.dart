@@ -125,7 +125,13 @@ class ChatPush {
     router.go(Routes.chat);
     try {
       final channel = await _ref.read(generalChannelProvider.future);
-      final message = (await channel.client.getMessage(messageId)).message;
+      final res = await channel.client.getMessage(messageId);
+      // Mensaje de un grupo: abrir el grupo
+      if (res.channel?.type == groupChannelType && res.channel?.id != null) {
+        router.push(Routes.chatGroup(res.channel!.id));
+        return;
+      }
+      final message = res.message;
       final parentId = message.parentId;
       if (parentId == null) return;
       final parent = (await channel.client.getMessage(parentId)).message;

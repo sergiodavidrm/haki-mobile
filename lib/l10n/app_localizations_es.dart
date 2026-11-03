@@ -1795,4 +1795,89 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get goalGeneralHealth => 'Salud general';
+
+  @override
+  String get chatGroupsSection => 'Grupos';
+
+  @override
+  String chatGroupMembers(int count) {
+    return '$count integrantes';
+  }
+
+  @override
+  String chatGroupOnlyCoachWrites(String coach) {
+    return 'Solo $coach escribe';
+  }
+
+  @override
+  String get chatGroupEveryoneWrites => 'Todos pueden escribir';
+
+  @override
+  String chatGroupLocked(String coach) {
+    return 'Solo $coach escribe en este grupo. Mantené presionado un mensaje para reaccionar.';
+  }
+
+  @override
+  String get chatGroupHint => 'Escribí al grupo…';
+
+  @override
+  String get chatGroupEmpty => 'Todavía no hay mensajes en el grupo.';
+
+  @override
+  String get chatGroupInfo => 'Info del grupo';
+
+  @override
+  String chatGroupOf(String coach, int count) {
+    return 'Grupo de $coach · $count integrantes';
+  }
+
+  @override
+  String chatGroupMembersTitle(int count) {
+    return 'Integrantes · $count';
+  }
+
+  @override
+  String get chatGroupCoachTag => 'Coach';
+
+  @override
+  String get chatGroupYou => 'Vos';
+
+  @override
+  String get chatGroupLeave => 'Salir del grupo';
+
+  @override
+  String chatGroupLeaveTitle(String name) {
+    return '¿Salir de \"$name\"?';
+  }
+
+  @override
+  String chatGroupLeaveBody(String coach) {
+    return 'Dejás de ver los mensajes del grupo. El grupo ve que saliste y para volver te tiene que agregar $coach.';
+  }
+
+  @override
+  String chatGroupLeaveKeep(String coach) {
+    return 'Tu chat con $coach sigue igual.';
+  }
+
+  @override
+  String get chatGroupLeaveError =>
+      'No se pudo salir del grupo. Revisá tu conexión.';
+
+  @override
+  String get chatGroupGone => 'Ya no estás en este grupo.';
+
+  @override
+  String get chatReact => 'Reaccionar';
+
+  @override
+  String get chatNoMessagesYet => 'Sin mensajes';
+
+  @override
+  String notifGroupBody(String name, String text) {
+    return '$name: $text';
+  }
+
+  @override
+  String get chatReactError => 'No se pudo reaccionar. Revisá tu conexión.';
 }

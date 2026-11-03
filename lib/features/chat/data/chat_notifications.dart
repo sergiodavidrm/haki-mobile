@@ -71,8 +71,14 @@ Future<void> showChatNotification(
         connectWebSocket: false,
       );
     }
-    final msg = (await c.getMessage(id)).message;
+    final res = await c.getMessage(id);
+    final msg = res.message;
     if (msg.user?.id == me) return; // lo mandó el atleta (sus tarjetas)
+    if (msg.isSystem) return; // avisos del grupo (agregó, salió…)
+    // Grupo: título = nombre del grupo, texto = "Laura: …"
+    final group = res.channel?.type == 'haki_group'
+        ? res.channel?.extraData['name'] as String?
+        : null;
 
     final name = msg.user?.name ?? l10n.yourCoach;
     final card = VideoCard.of(msg);
@@ -86,8 +92,8 @@ Future<void> showChatNotification(
     await ensureLocalNotifications();
     await localNotifications.show(
       id: msg.id.hashCode,
-      title: msg.parentId != null ? l10n.notifFeedbackFrom(name) : name,
-      body: body,
+      title: group ?? (msg.parentId != null ? l10n.notifFeedbackFrom(name) : name),
+      body: group != null ? l10n.notifGroupBody(name, body) : body,
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           chatChannel.id,
@@ -96,7 +102,9 @@ Future<void> showChatNotification(
           importance: Importance.high,
           priority: Priority.high,
           category: AndroidNotificationCategory.message,
-          styleInformation: BigTextStyleInformation(body),
+          styleInformation: BigTextStyleInformation(
+            group != null ? l10n.notifGroupBody(name, body) : body,
+          ),
         ),
         iOS: const DarwinNotificationDetails(
           presentAlert: true,

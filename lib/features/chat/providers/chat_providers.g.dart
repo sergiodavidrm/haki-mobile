@@ -65,23 +65,71 @@ final class StreamClientProvider
 
 String _$streamClientHash() => r'deba2db2822f117817c75064bf00b8b4686dff73';
 
-/// Canal general con el coach, conectado y escuchando. Conecta al usuario la
-/// primera vez (token de la API). keepAlive: el chat queda vivo al cambiar de
-/// tab; al cerrar sesión `LocalDataGuard` desconecta y lo invalida.
+/// Conecta al usuario a Stream (token de la API) y registra el push. Lo usan
+/// el canal general y los grupos. keepAlive; al cerrar sesión
+/// `LocalDataGuard` desconecta y lo invalida.
+
+@ProviderFor(connectedStreamClient)
+final connectedStreamClientProvider = ConnectedStreamClientProvider._();
+
+/// Conecta al usuario a Stream (token de la API) y registra el push. Lo usan
+/// el canal general y los grupos. keepAlive; al cerrar sesión
+/// `LocalDataGuard` desconecta y lo invalida.
+
+final class ConnectedStreamClientProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<StreamChatClient>,
+          StreamChatClient,
+          FutureOr<StreamChatClient>
+        >
+    with $FutureModifier<StreamChatClient>, $FutureProvider<StreamChatClient> {
+  /// Conecta al usuario a Stream (token de la API) y registra el push. Lo usan
+  /// el canal general y los grupos. keepAlive; al cerrar sesión
+  /// `LocalDataGuard` desconecta y lo invalida.
+  ConnectedStreamClientProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'connectedStreamClientProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$connectedStreamClientHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<StreamChatClient> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<StreamChatClient> create(Ref ref) {
+    return connectedStreamClient(ref);
+  }
+}
+
+String _$connectedStreamClientHash() =>
+    r'81565542db290a49c0c6d85cef54b93e92411e8b';
+
+/// Canal general con el coach, conectado y escuchando. keepAlive: el chat
+/// queda vivo al cambiar de tab.
 
 @ProviderFor(generalChannel)
 final generalChannelProvider = GeneralChannelProvider._();
 
-/// Canal general con el coach, conectado y escuchando. Conecta al usuario la
-/// primera vez (token de la API). keepAlive: el chat queda vivo al cambiar de
-/// tab; al cerrar sesión `LocalDataGuard` desconecta y lo invalida.
+/// Canal general con el coach, conectado y escuchando. keepAlive: el chat
+/// queda vivo al cambiar de tab.
 
 final class GeneralChannelProvider
     extends $FunctionalProvider<AsyncValue<Channel>, Channel, FutureOr<Channel>>
     with $FutureModifier<Channel>, $FutureProvider<Channel> {
-  /// Canal general con el coach, conectado y escuchando. Conecta al usuario la
-  /// primera vez (token de la API). keepAlive: el chat queda vivo al cambiar de
-  /// tab; al cerrar sesión `LocalDataGuard` desconecta y lo invalida.
+  /// Canal general con el coach, conectado y escuchando. keepAlive: el chat
+  /// queda vivo al cambiar de tab.
   GeneralChannelProvider._()
     : super(
         from: null,
@@ -107,4 +155,54 @@ final class GeneralChannelProvider
   }
 }
 
-String _$generalChannelHash() => r'5a6a8ee6e51c85a3a534c2ce95b2757a3e0807af';
+String _$generalChannelHash() => r'd6a14b8a4579a3503a719ce0a0ba7ffeeff85282';
+
+/// Grupos en los que está el atleta. Se recarga solo cuando el coach lo
+/// agrega, lo quita o borra un grupo (eventos de Stream). Sin grupos, el tab
+/// Chat abre directo el chat con el coach.
+
+@ProviderFor(chatGroups)
+final chatGroupsProvider = ChatGroupsProvider._();
+
+/// Grupos en los que está el atleta. Se recarga solo cuando el coach lo
+/// agrega, lo quita o borra un grupo (eventos de Stream). Sin grupos, el tab
+/// Chat abre directo el chat con el coach.
+
+final class ChatGroupsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<GroupChat>>,
+          List<GroupChat>,
+          FutureOr<List<GroupChat>>
+        >
+    with $FutureModifier<List<GroupChat>>, $FutureProvider<List<GroupChat>> {
+  /// Grupos en los que está el atleta. Se recarga solo cuando el coach lo
+  /// agrega, lo quita o borra un grupo (eventos de Stream). Sin grupos, el tab
+  /// Chat abre directo el chat con el coach.
+  ChatGroupsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'chatGroupsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$chatGroupsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<GroupChat>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<GroupChat>> create(Ref ref) {
+    return chatGroups(ref);
+  }
+}
+
+String _$chatGroupsHash() => r'8dc9a2e7c4f7e48876feb9aa61c8dcf95cea7e76';

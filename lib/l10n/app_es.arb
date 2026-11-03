@@ -66,7 +66,13 @@
   },
   "homeRestLabel": "Hoy · Descanso",
   "homeRestLabelOn": "{date} · Descanso",
-  "@homeRestLabelOn": {"placeholders": {"date": {"type": "String"}}},
+  "@homeRestLabelOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "homeRestTitle": "Día de descanso",
   "homeRestNext": "Próximo: {title} · {date}",
   "@homeRestNext": {
@@ -1204,5 +1210,96 @@
   "goalStrength": "Fuerza",
   "goalEndurance": "Resistencia",
   "goalRecomposition": "Recomposición corporal",
-  "goalGeneralHealth": "Salud general"
+  "goalGeneralHealth": "Salud general",
+  "chatGroupsSection": "Grupos",
+  "chatGroupMembers": "{count} integrantes",
+  "@chatGroupMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatGroupOnlyCoachWrites": "Solo {coach} escribe",
+  "@chatGroupOnlyCoachWrites": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
+  "chatGroupEveryoneWrites": "Todos pueden escribir",
+  "chatGroupLocked": "Solo {coach} escribe en este grupo. Mantené presionado un mensaje para reaccionar.",
+  "@chatGroupLocked": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
+  "chatGroupHint": "Escribí al grupo…",
+  "chatGroupEmpty": "Todavía no hay mensajes en el grupo.",
+  "chatGroupInfo": "Info del grupo",
+  "chatGroupOf": "Grupo de {coach} · {count} integrantes",
+  "@chatGroupOf": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatGroupMembersTitle": "Integrantes · {count}",
+  "@chatGroupMembersTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatGroupCoachTag": "Coach",
+  "chatGroupYou": "Vos",
+  "chatGroupLeave": "Salir del grupo",
+  "chatGroupLeaveTitle": "¿Salir de \"{name}\"?",
+  "@chatGroupLeaveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chatGroupLeaveBody": "Dejás de ver los mensajes del grupo. El grupo ve que saliste y para volver te tiene que agregar {coach}.",
+  "@chatGroupLeaveBody": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
+  "chatGroupLeaveKeep": "Tu chat con {coach} sigue igual.",
+  "@chatGroupLeaveKeep": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
+  "chatGroupLeaveError": "No se pudo salir del grupo. Revisá tu conexión.",
+  "chatGroupGone": "Ya no estás en este grupo.",
+  "chatReact": "Reaccionar",
+  "chatNoMessagesYet": "Sin mensajes",
+  "notifGroupBody": "{name}: {text}",
+  "@notifGroupBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "chatReactError": "No se pudo reaccionar. Revisá tu conexión."
 }

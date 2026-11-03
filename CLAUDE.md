@@ -415,6 +415,29 @@ pesado (grabación, galería, encuestas) y porque hay que pisar todo su diseño.
   desde Mac) y push del backend (no-chat). Decidido 2026-10-20: **no** hay mensajes por ejercicio sin video
   (para eso está el chat general).
 
+## Chat grupal (2026-11-03)
+
+Mockup: fila "App del atleta" de https://claude.ai/artifact/NqRaMmBnKvJZPRXtGJJoiN.
+Backend en `haki-api/CLAUDE.md` § Chat.
+- `connectedStreamClient` (conecta al usuario + push) lo usan `generalChannel`
+  y `chatGroups` (`GET chat-groups/me` → `GroupChat(dto, canal escuchando)`;
+  se recarga solo con `notification.added_to_channel` /
+  `notification.removed_from_channel` / `channel.deleted`).
+- Sin grupos el tab Chat abre directo el chat con el coach (igual que antes).
+  Con grupos `ChatScreen` muestra `ChatListView` (coach arriba, grupos abajo,
+  último mensaje y no leídos) y el chat con el coach va a `/chat/general`.
+- `/chat/grupo/:channelId` (`GroupChatScreen`): nombre de quien escribe,
+  mensajes `system`, reacciones (`ReactionChips`; mantener presionado =
+  `showReactionPicker`, mismas 5 que el web en `chatReactions`). Si el coach
+  eligió "Solo yo" (`athletesCanWrite` del canal, en vivo) va el aviso con
+  candado en vez de la caja de texto. `/chat/grupo/:channelId/info`
+  (`GroupInfoScreen`): integrantes (coach primero, "Vos") y Salir del grupo
+  (hoja de confirmación → `POST chat-groups/{id}/leave`).
+- Badge del tab = `totalUnreadCount` de la cuenta (coach + grupos).
+- Push: título = nombre del grupo, texto "Laura: …"; tocarla abre el grupo.
+  Los avisos `system` no notifican.
+- Falta probar en el emulador.
+
 ## Cuestionarios (2026-10-21)
 
 Los arma el coach en el web; reglas y backend en `../haki-api/CLAUDE.md`

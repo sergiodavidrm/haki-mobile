@@ -27,6 +27,41 @@ class StreamTokenDto {
   );
 }
 
+/// Grupo del coach en el que está el atleta (`GET chat-groups/me`).
+class ChatGroupDto {
+  const ChatGroupDto({
+    required this.id,
+    required this.name,
+    required this.channelType,
+    required this.channelId,
+    required this.athletesCanWrite,
+    required this.coachName,
+    required this.coachStreamId,
+  });
+
+  final String id;
+  final String name;
+  final String channelType;
+  final String channelId;
+
+  /// false = "Solo el coach escribe": el atleta solo reacciona.
+  final bool athletesCanWrite;
+  final String coachName;
+
+  /// Id del coach en Stream (para marcarlo "Coach" en la lista de integrantes).
+  final String coachStreamId;
+
+  factory ChatGroupDto.fromJson(Map<String, dynamic> j) => ChatGroupDto(
+    id: j['id'] as String,
+    name: j['name'] as String? ?? '',
+    channelType: j['channelType'] as String,
+    channelId: j['channelId'] as String,
+    athletesCanWrite: j['athletesCanWrite'] as bool? ?? true,
+    coachName: j['coachName'] as String? ?? '',
+    coachStreamId: j['coachStreamId'] as String? ?? '',
+  );
+}
+
 class ChatRepository {
   ChatRepository(this._api);
 
@@ -47,6 +82,17 @@ class ChatRepository {
       res.data!['channelId'] as String,
     );
   }
+
+  Future<List<ChatGroupDto>> groups() async {
+    final res = await _api.get<List<dynamic>>('/chat-groups/me');
+    return (res.data ?? const [])
+        .map((e) => ChatGroupDto.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// Salir de un grupo (solo el coach lo puede volver a agregar).
+  Future<void> leaveGroup(String groupId) =>
+      _api.post<void>('/chat-groups/$groupId/leave');
 }
 
 @Riverpod(keepAlive: true)

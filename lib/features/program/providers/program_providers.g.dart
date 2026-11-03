@@ -385,7 +385,7 @@ final class ScheduleSaverProvider
   ScheduleSaver create() => ScheduleSaver();
 }
 
-String _$scheduleSaverHash() => r'2c8c529c9ea2de9385afcfc2b7ecfed7a6d7097c';
+String _$scheduleSaverHash() => r'ef0c1cfac1797f77643c960467011de6d0fbdf71';
 
 /// Guardar fechas desde "Asignar fechas". El estado es el guardado en curso
 /// (loading / error con el mensaje de la API).

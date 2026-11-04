@@ -103,6 +103,15 @@ class SessionStore {
           .watch()
           .map((rows) => {for (final n in rows) n.dayExerciseId: n.note});
 
+  /// Cardio / Movilidad marcados en el teléfono: dayExerciseId → hecho. Ganan
+  /// sobre `completedAt` de la API.
+  Stream<Map<String, bool>> watchDone(String assignmentId, String dayId) =>
+      (_db.select(_db.localDone)..where(
+            (d) => d.assignmentId.equals(assignmentId) & d.dayId.equals(dayId),
+          ))
+          .watch()
+          .map((rows) => {for (final d in rows) d.dayExerciseId: d.done});
+
   /// Videos de la sesión: setKey → true si ya se subió, false si está en la
   /// cola.
   Stream<Map<String, bool>> watchVideos(String assignmentId, String dayId) =>
@@ -230,6 +239,30 @@ class SessionStore {
     _sync.kick();
   }
 
+  /// Cardio / Movilidad: marcar (o desmarcar) Hecho. Crea la sesión si no
+  /// existía.
+  Future<void> saveDone({
+    required String assignmentId,
+    required String dayId,
+    required String dayExerciseId,
+    required bool done,
+  }) async {
+    await start(assignmentId, dayId);
+    await _db
+        .into(_db.localDone)
+        .insertOnConflictUpdate(
+          LocalDoneCompanion.insert(
+            assignmentId: assignmentId,
+            dayId: dayId,
+            dayExerciseId: dayExerciseId,
+            done: done,
+            updatedAt: DateTime.now(),
+            synced: const Value(false),
+          ),
+        );
+    _sync.kick();
+  }
+
   /// Cosas guardadas en el teléfono que todavía no llegaron a la API
   /// (series + notas + sesiones sin crear o sin completar + videos).
   Future<int> pendingCount() async {
@@ -239,6 +272,9 @@ class SessionStore {
     final notes = await (_db.select(
       _db.localNotes,
     )..where((n) => n.synced.equals(false))).get();
+    final done = await (_db.select(
+      _db.localDone,
+    )..where((d) => d.synced.equals(false))).get();
     bool sameDay(String a, String d, LocalSession s) =>
         a == s.assignmentId && d == s.dayId;
     // Una sesión sin crear en la API cuenta solo si tiene algo para subir
@@ -256,13 +292,18 @@ class SessionStore {
                   s.remoteId != null ||
                   s.completedAt != null ||
                   sets.any((x) => sameDay(x.assignmentId, x.dayId, s)) ||
-                  notes.any((n) => sameDay(n.assignmentId, n.dayId, s)),
+                  notes.any((n) => sameDay(n.assignmentId, n.dayId, s)) ||
+                  done.any((d) => sameDay(d.assignmentId, d.dayId, s)),
             )
             .toList();
     final videos = await (_db.select(
       _db.localVideos,
     )..where((v) => v.done.equals(false))).get();
-    return sets.length + notes.length + sessions.length + videos.length;
+    return sets.length +
+        notes.length +
+        done.length +
+        sessions.length +
+        videos.length;
   }
 
   Future<void> complete(String assignmentId, String dayId) async {

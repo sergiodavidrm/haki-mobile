@@ -11,11 +11,15 @@ class PillChip extends StatelessWidget {
     super.key,
     this.tone = PillTone.neutral,
     this.icon,
+    this.dotColor,
   });
 
   final String label;
   final PillTone tone;
   final IconData? icon;
+
+  /// Punto de color antes del texto (movilidad / cardio).
+  final Color? dotColor;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +40,14 @@ class PillChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (dotColor != null) ...[
+            Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 6),
+          ],
           if (icon != null) ...[
             Icon(icon, size: 14, color: fg),
             const SizedBox(width: 6),

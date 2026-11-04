@@ -1,3 +1,4 @@
+import '../../program/data/prescription.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/format/dates.dart';
@@ -287,12 +288,36 @@ class TrainingDayCard extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                PillChip(l.exercisesCount(day.exercises.length)),
+                // La tarjeta no crece: fuerza como siempre + chips de movilidad y cardio
+                if (day.exercises.any((e) => e.isStrength))
+                  PillChip(l.exercisesCount(day.exercises.where((e) => e.isStrength).length)),
                 if (day.supersetCount > 0)
                   PillChip(
                     l.supersetsCount(day.supersetCount),
                     tone: PillTone.turquoise,
                   ),
+                if (day.exercises.where((e) => e.kind == ExerciseKinds.mobility).length case final n when n > 0)
+                  PillChip(l.todayChipMobility(n), dotColor: c.mobilityText),
+                ...switch (day.exercises.where((e) => e.kind == ExerciseKinds.cardio).toList()) {
+                  [] => const <Widget>[],
+                  [final one] => [
+                    PillChip(
+                      [one.exerciseName, formatPrescription(one.kind, one.prescription, withIntensity: false)]
+                          .where((s) => s.isNotEmpty)
+                          .join(' '),
+                      dotColor: c.cardioText,
+                    ),
+                  ],
+                  final many => [
+                    PillChip(
+                      l.todayChipCardios(
+                        many.length,
+                        many.fold<int>(0, (a, e) => a + (e.prescription?.minutes ?? 0)),
+                      ),
+                      dotColor: c.cardioText,
+                    ),
+                  ],
+                },
                 if (day.videoRequestCount > 0)
                   PillChip(
                     l.videosRequestedCount(day.videoRequestCount),

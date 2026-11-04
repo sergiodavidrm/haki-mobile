@@ -423,6 +423,98 @@ final class LocalNotesFamily extends $Family
   String toString() => r'localNotesProvider';
 }
 
+/// Cardio / Movilidad marcados en el teléfono: dayExerciseId → hecho. Ganan
+/// sobre `DayExerciseDto.completedAt` (ver [doneFor]).
+
+@ProviderFor(localDone)
+final localDoneProvider = LocalDoneFamily._();
+
+/// Cardio / Movilidad marcados en el teléfono: dayExerciseId → hecho. Ganan
+/// sobre `DayExerciseDto.completedAt` (ver [doneFor]).
+
+final class LocalDoneProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Map<String, bool>>,
+          Map<String, bool>,
+          Stream<Map<String, bool>>
+        >
+    with
+        $FutureModifier<Map<String, bool>>,
+        $StreamProvider<Map<String, bool>> {
+  /// Cardio / Movilidad marcados en el teléfono: dayExerciseId → hecho. Ganan
+  /// sobre `DayExerciseDto.completedAt` (ver [doneFor]).
+  LocalDoneProvider._({
+    required LocalDoneFamily super.from,
+    required (String, String) super.argument,
+  }) : super(
+         retry: null,
+         name: r'localDoneProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$localDoneHash();
+
+  @override
+  String toString() {
+    return r'localDoneProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<Map<String, bool>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<Map<String, bool>> create(Ref ref) {
+    final argument = this.argument as (String, String);
+    return localDone(ref, argument.$1, argument.$2);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is LocalDoneProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$localDoneHash() => r'c36017485fcecac4e5559b181e09afbbfe3501f6';
+
+/// Cardio / Movilidad marcados en el teléfono: dayExerciseId → hecho. Ganan
+/// sobre `DayExerciseDto.completedAt` (ver [doneFor]).
+
+final class LocalDoneFamily extends $Family
+    with
+        $FunctionalFamilyOverride<Stream<Map<String, bool>>, (String, String)> {
+  LocalDoneFamily._()
+    : super(
+        retry: null,
+        name: r'localDoneProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Cardio / Movilidad marcados en el teléfono: dayExerciseId → hecho. Ganan
+  /// sobre `DayExerciseDto.completedAt` (ver [doneFor]).
+
+  LocalDoneProvider call(String assignmentId, String dayId) =>
+      LocalDoneProvider._(argument: (assignmentId, dayId), from: this);
+
+  @override
+  String toString() => r'localDoneProvider';
+}
+
 /// Videos de la sesión en el teléfono: "dayExerciseId#setNumber" → true si
 /// ya se subió, false si está en la cola.
 

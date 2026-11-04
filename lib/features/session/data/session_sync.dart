@@ -56,6 +56,7 @@ class SessionSync {
         await _startSessions();
         await _pushSets();
         await _pushNotes();
+        await _pushDone();
         await _completeSessions();
         // Un video por vuelta: series nuevas no esperan a toda la cola
         if (await _pushVideo()) _again = true;
@@ -130,9 +131,17 @@ class SessionSync {
                   x.dayId.equals(s.dayId),
             ))
             .get();
+    final done =
+        await (_db.select(_db.localDone)..where(
+              (x) =>
+                  x.assignmentId.equals(s.assignmentId) &
+                  x.dayId.equals(s.dayId),
+            ))
+            .get();
     final times = [
       for (final x in sets) x.updatedAt,
       for (final n in notes) n.updatedAt,
+      for (final d in done) d.updatedAt,
       ?s.completedAt,
     ];
     if (times.isEmpty) return null;
@@ -213,6 +222,40 @@ class SessionSync {
                 x.updatedAt.equals(n.updatedAt),
           ))
           .write(const LocalNotesCompanion(synced: Value(true)));
+    }
+  }
+
+  /// Cardio / Movilidad: Hecho (PUT idempotente).
+  Future<void> _pushDone() async {
+    final pending = await (_db.select(
+      _db.localDone,
+    )..where((d) => d.synced.equals(false))).get();
+    for (final d in pending) {
+      final session =
+          await (_db.select(_db.localSessions)..where(
+                (x) =>
+                    x.assignmentId.equals(d.assignmentId) &
+                    x.dayId.equals(d.dayId),
+              ))
+              .getSingleOrNull();
+      if (session?.remoteId == null) continue; // se crea en la próxima vuelta
+
+      final logId = await _exerciseLogId(
+        d.assignmentId,
+        d.dayExerciseId,
+        session!.remoteId!,
+      );
+      await _api.put<void>(
+        '/workout-sessions/exercise-logs/$logId/done',
+        data: {'done': d.done},
+      );
+      await (_db.update(_db.localDone)..where(
+            (x) =>
+                x.assignmentId.equals(d.assignmentId) &
+                x.dayExerciseId.equals(d.dayExerciseId) &
+                x.updatedAt.equals(d.updatedAt),
+          ))
+          .write(const LocalDoneCompanion(synced: Value(true)));
     }
   }
 

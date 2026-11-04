@@ -504,5 +504,15 @@
   "chatReact": "React",
   "chatNoMessagesYet": "No messages",
   "notifGroupBody": "{name}: {text}",
-  "chatReactError": "Couldn't react. Check your connection."
+  "chatReactError": "Couldn't react. Check your connection.",
+  "rxMin": "min",
+  "rxSec": "s",
+  "rxPerSide": "per side",
+  "kindCardio": "Cardio",
+  "kindMobility": "Mobility",
+  "rxMarkDone": "Mark done",
+  "rxMarkUndone": "Unmark",
+  "rxDoneCount": "{done}/{total}",
+  "todayChipMobility": "{count} mobility",
+  "todayChipCardios": "{count} cardio · {minutes} min"
 }

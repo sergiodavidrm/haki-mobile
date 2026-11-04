@@ -1880,4 +1880,40 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get chatReactError => 'No se pudo reaccionar. Revisá tu conexión.';
+
+  @override
+  String get rxMin => 'min';
+
+  @override
+  String get rxSec => 's';
+
+  @override
+  String get rxPerSide => 'por lado';
+
+  @override
+  String get kindCardio => 'Cardio';
+
+  @override
+  String get kindMobility => 'Movilidad';
+
+  @override
+  String get rxMarkDone => 'Marcar hecho';
+
+  @override
+  String get rxMarkUndone => 'Desmarcar';
+
+  @override
+  String rxDoneCount(int done, int total) {
+    return '$done/$total';
+  }
+
+  @override
+  String todayChipMobility(int count) {
+    return '$count movilidad';
+  }
+
+  @override
+  String todayChipCardios(int count, int minutes) {
+    return '$count cardio · $minutes min';
+  }
 }

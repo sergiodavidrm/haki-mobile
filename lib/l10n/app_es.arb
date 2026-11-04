@@ -1301,5 +1301,42 @@
       }
     }
   },
-  "chatReactError": "No se pudo reaccionar. Revisá tu conexión."
+  "chatReactError": "No se pudo reaccionar. Revisá tu conexión.",
+  "rxMin": "min",
+  "rxSec": "s",
+  "rxPerSide": "por lado",
+  "kindCardio": "Cardio",
+  "kindMobility": "Movilidad",
+  "rxMarkDone": "Marcar hecho",
+  "rxMarkUndone": "Desmarcar",
+  "rxDoneCount": "{done}/{total}",
+  "todayChipMobility": "{count} movilidad",
+  "todayChipCardios": "{count} cardio · {minutes} min",
+  "@rxDoneCount": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@todayChipMobility": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@todayChipCardios": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  }
 }

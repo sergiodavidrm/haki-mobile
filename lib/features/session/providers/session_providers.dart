@@ -74,6 +74,15 @@ Stream<Map<String, String?>> localNotes(
   String dayId,
 ) => ref.watch(sessionStoreProvider).watchNotes(assignmentId, dayId);
 
+/// Cardio / Movilidad marcados en el teléfono: dayExerciseId → hecho. Ganan
+/// sobre `DayExerciseDto.completedAt` (ver [doneFor]).
+@riverpod
+Stream<Map<String, bool>> localDone(
+  Ref ref,
+  String assignmentId,
+  String dayId,
+) => ref.watch(sessionStoreProvider).watchDone(assignmentId, dayId);
+
 /// Videos de la sesión en el teléfono: "dayExerciseId#setNumber" → true si
 /// ya se subió, false si está en la cola.
 @riverpod

@@ -22,6 +22,10 @@ class HakiColors extends ThemeExtension<HakiColors> {
     required this.turquoiseBorder,
     required this.turquoiseMuted,
     required this.danger,
+    required this.mobility,
+    required this.mobilityText,
+    required this.cardio,
+    required this.cardioText,
     required this.onAccent,
   });
 
@@ -48,6 +52,12 @@ class HakiColors extends ThemeExtension<HakiColors> {
   final Color turquoiseMuted;
   final Color danger;
 
+  /// Tipos de ejercicio (2026-11-03): solo borde + etiqueta, sin fondos.
+  final Color mobility;
+  final Color mobilityText;
+  final Color cardio;
+  final Color cardioText;
+
   /// Texto e íconos sobre dorado o turquesa (botones, badges, checks): oscuro
   /// en los dos temas.
   final Color onAccent;
@@ -71,6 +81,10 @@ class HakiColors extends ThemeExtension<HakiColors> {
     turquoiseBorder: Color(0xFF1D3A37),
     turquoiseMuted: Color(0xFF8FB9B5),
     danger: Color(0xFFE5484D),
+    mobility: Color(0xFF8B6FD6),
+    mobilityText: Color(0xFFB79CFF),
+    cardio: Color(0xFFFF7A45),
+    cardioText: Color(0xFFFF7A45),
     onAccent: Color(0xFF0D0D0D),
   );
 
@@ -96,6 +110,10 @@ class HakiColors extends ThemeExtension<HakiColors> {
     turquoiseBorder: Color(0xFFBFE6E2),
     turquoiseMuted: Color(0xFF3F7A75),
     danger: Color(0xFFD93036),
+    mobility: Color(0xFF8B6FD6),
+    mobilityText: Color(0xFF6B4FC0),
+    cardio: Color(0xFFFF7A45),
+    cardioText: Color(0xFFB4501A),
     onAccent: Color(0xFF141414),
   );
 
@@ -118,6 +136,10 @@ class HakiColors extends ThemeExtension<HakiColors> {
     Color? turquoiseBorder,
     Color? turquoiseMuted,
     Color? danger,
+    Color? mobility,
+    Color? mobilityText,
+    Color? cardio,
+    Color? cardioText,
     Color? onAccent,
   }) {
     return HakiColors(
@@ -138,6 +160,10 @@ class HakiColors extends ThemeExtension<HakiColors> {
       turquoiseBorder: turquoiseBorder ?? this.turquoiseBorder,
       turquoiseMuted: turquoiseMuted ?? this.turquoiseMuted,
       danger: danger ?? this.danger,
+      mobility: mobility ?? this.mobility,
+      mobilityText: mobilityText ?? this.mobilityText,
+      cardio: cardio ?? this.cardio,
+      cardioText: cardioText ?? this.cardioText,
       onAccent: onAccent ?? this.onAccent,
     );
   }
@@ -167,6 +193,10 @@ class HakiColors extends ThemeExtension<HakiColors> {
       turquoiseBorder: Color.lerp(turquoiseBorder, other.turquoiseBorder, t)!,
       turquoiseMuted: Color.lerp(turquoiseMuted, other.turquoiseMuted, t)!,
       danger: Color.lerp(danger, other.danger, t)!,
+      mobility: Color.lerp(mobility, other.mobility, t)!,
+      mobilityText: Color.lerp(mobilityText, other.mobilityText, t)!,
+      cardio: Color.lerp(cardio, other.cardio, t)!,
+      cardioText: Color.lerp(cardioText, other.cardioText, t)!,
       onAccent: Color.lerp(onAccent, other.onAccent, t)!,
     );
   }

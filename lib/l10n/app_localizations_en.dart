@@ -1884,4 +1884,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatReactError => 'Couldn\'t react. Check your connection.';
+
+  @override
+  String get rxMin => 'min';
+
+  @override
+  String get rxSec => 's';
+
+  @override
+  String get rxPerSide => 'per side';
+
+  @override
+  String get kindCardio => 'Cardio';
+
+  @override
+  String get kindMobility => 'Mobility';
+
+  @override
+  String get rxMarkDone => 'Mark done';
+
+  @override
+  String get rxMarkUndone => 'Unmark';
+
+  @override
+  String rxDoneCount(int done, int total) {
+    return '$done/$total';
+  }
+
+  @override
+  String todayChipMobility(int count) {
+    return '$count mobility';
+  }
+
+  @override
+  String todayChipCardios(int count, int minutes) {
+    return '$count cardio · $minutes min';
+  }
 }

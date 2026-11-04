@@ -17,6 +17,8 @@ import '../providers/rest_timer.dart';
 import '../providers/session_providers.dart';
 import 'exercise_block.dart';
 import 'set_video_flow.dart';
+import 'rx_rows.dart';
+import '../../program/data/prescription.dart';
 import 'rest_timer_widgets.dart';
 import '../../../l10n/l10n.dart';
 
@@ -92,6 +94,15 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final dayUnit = ref.watch(dayWeightUnitProvider(_d));
     final videos = ref.watch(localVideosProvider(_a, _d)).value ?? const {};
     final notes = ref.watch(localNotesProvider(_a, _d)).value ?? const {};
+    final done = ref.watch(localDoneProvider(_a, _d)).value ?? const {};
+    void toggleDone(DayExerciseDto e) => ref
+        .read(sessionStoreProvider)
+        .saveDone(
+          assignmentId: _a,
+          dayId: _d,
+          dayExerciseId: e.id,
+          done: !doneFor(e, done),
+        );
 
     SavedSet? savedFor(DayExerciseDto e, int n) =>
         savedSetFor(e, n, local, videos);
@@ -175,12 +186,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       );
     }
 
-    final doneCount = s.day.exercises.where((e) {
-      return List.generate(
-        setCountOf(e),
-        (i) => savedFor(e, i + 1),
-      ).every((x) => x != null);
-    }).length;
+    final doneCount = s.day.exercises
+        .where((e) => exerciseFinished(e, done, (n) => savedFor(e, n) != null))
+        .length;
     final missingSets = s.day.exercises.fold<int>(0, (acc, e) {
       return acc +
           List.generate(
@@ -211,7 +219,33 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             children: [
               for (final g in groups) ...[
-                if (!expanded(g))
+                // Combo, cardio y movilidad: filas compactas, sin colapsar
+                if (g.isCombo)
+                  ComboCard(
+                    title: g.comboName ?? context.l10n.kindMobility,
+                    note: g.comboNote,
+                    exercises: g.exercises,
+                    isDone: (e) => doneFor(e, done),
+                    onToggle: toggleDone,
+                    strengthBuilder: (e) => block(e),
+                  )
+                else if (g.letter == null &&
+                    g.exercises.single.kind == ExerciseKinds.cardio)
+                  CardioCard(
+                    exercise: g.exercises.single,
+                    done: doneFor(g.exercises.single, done),
+                    onToggle: () => toggleDone(g.exercises.single),
+                  )
+                else if (g.letter == null && !g.exercises.single.isStrength)
+                  ComboCard(
+                    title: kindName(context, g.exercises.single.kind),
+                    note: g.exercises.single.coachNote,
+                    exercises: g.exercises,
+                    isDone: (e) => doneFor(e, done),
+                    onToggle: toggleDone,
+                    strengthBuilder: (e) => block(e),
+                  )
+                else if (!expanded(g))
                   _CollapsedGroup(group: g, onTap: () => toggle(g))
                 else if (g.letter == null)
                   HakiCard(

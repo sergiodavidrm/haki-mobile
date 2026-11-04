@@ -3127,6 +3127,66 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se pudo reaccionar. Revisá tu conexión.'**
   String get chatReactError;
+
+  /// No description provided for @rxMin.
+  ///
+  /// In es, this message translates to:
+  /// **'min'**
+  String get rxMin;
+
+  /// No description provided for @rxSec.
+  ///
+  /// In es, this message translates to:
+  /// **'s'**
+  String get rxSec;
+
+  /// No description provided for @rxPerSide.
+  ///
+  /// In es, this message translates to:
+  /// **'por lado'**
+  String get rxPerSide;
+
+  /// No description provided for @kindCardio.
+  ///
+  /// In es, this message translates to:
+  /// **'Cardio'**
+  String get kindCardio;
+
+  /// No description provided for @kindMobility.
+  ///
+  /// In es, this message translates to:
+  /// **'Movilidad'**
+  String get kindMobility;
+
+  /// No description provided for @rxMarkDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcar hecho'**
+  String get rxMarkDone;
+
+  /// No description provided for @rxMarkUndone.
+  ///
+  /// In es, this message translates to:
+  /// **'Desmarcar'**
+  String get rxMarkUndone;
+
+  /// No description provided for @rxDoneCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{done}/{total}'**
+  String rxDoneCount(int done, int total);
+
+  /// No description provided for @todayChipMobility.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} movilidad'**
+  String todayChipMobility(int count);
+
+  /// No description provided for @todayChipCardios.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} cardio · {minutes} min'**
+  String todayChipCardios(int count, int minutes);
 }
 
 class _AppLocalizationsDelegate

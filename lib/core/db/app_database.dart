@@ -49,6 +49,20 @@ class LocalNotes extends Table {
   Set<Column> get primaryKey => {assignmentId, dayExerciseId};
 }
 
+/// Cardio / Movilidad: el atleta marcó Hecho (exercise_logs.completed_at). Una
+/// fila por ejercicio del día; done false = lo desmarcó. Sube como las notas.
+class LocalDone extends Table {
+  TextColumn get assignmentId => text()();
+  TextColumn get dayId => text()();
+  TextColumn get dayExerciseId => text()();
+  BoolColumn get done => boolean()();
+  DateTimeColumn get updatedAt => dateTime()();
+  BoolColumn get synced => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {assignmentId, dayExerciseId};
+}
+
 /// Serie registrada. El peso queda como lo escribió el atleta (valor + unidad);
 /// la API lo convierte a kg.
 class LocalSets extends Table {
@@ -120,6 +134,7 @@ class CachedResponses extends Table {
     CachedResponses,
     LocalVideos,
     LocalNotes,
+    LocalDone,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -127,7 +142,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'haki'));
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -142,6 +157,7 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(localVideos, localVideos.trimEndMs);
       }
       if (from < 5) await m.createTable(localNotes);
+      if (from < 6) await m.createTable(localDone);
     },
   );
 
@@ -149,6 +165,7 @@ class AppDatabase extends _$AppDatabase {
   Future<void> wipe() => transaction(() async {
     await delete(localVideos).go();
     await delete(localNotes).go();
+    await delete(localDone).go();
     await delete(localSets).go();
     await delete(localExerciseLogs).go();
     await delete(localSessions).go();

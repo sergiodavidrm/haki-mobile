@@ -1,3 +1,4 @@
+import 'prescription.dart';
 import '../../../l10n/l10n.dart';
 
 // DTOs de block-assignments (haki-api: ClientAssignmentSummaryDto y
@@ -262,7 +263,28 @@ class DayExerciseDto {
     this.loggedSets = const [],
     this.lastPerformance,
     this.streamMessageId,
+    this.kind = ExerciseKinds.strength,
+    this.prescription,
+    this.groupKind,
+    this.groupName,
+    this.groupNote,
+    this.completedAt,
   });
+
+  /// strength | cardio | mobility. Cardio y movilidad no tienen series: llevan
+  /// [prescription] y el atleta marca Hecho ([completedAt]).
+  final String kind;
+  final PrescriptionDto? prescription;
+
+  /// superset | combo (null = suelto). Combo = marco con [groupName] y
+  /// [groupNote] para el atleta, sin rondas.
+  final String? groupKind;
+  final String? groupName;
+  final String? groupNote;
+  final DateTime? completedAt;
+
+  bool get isStrength => kind == ExerciseKinds.strength;
+  bool get inCombo => groupKind == 'combo' && supersetGroupId != null;
 
   /// BlockDayExerciseId: clave de los logs de este ejercicio en este día.
   final String id;
@@ -321,6 +343,14 @@ class DayExerciseDto {
         LoggedSetDto.fromJson(s as Map<String, dynamic>),
     ],
     streamMessageId: j['streamMessageId'] as String?,
+    kind: j['exerciseKind'] as String? ?? ExerciseKinds.strength,
+    prescription: j['prescription'] == null
+        ? null
+        : PrescriptionDto.fromJson(j['prescription'] as Map<String, dynamic>),
+    groupKind: j['groupKind'] as String?,
+    groupName: j['groupName'] as String?,
+    groupNote: j['groupNote'] as String?,
+    completedAt: DateTime.tryParse(j['completedAt'] as String? ?? ''),
   );
 }
 

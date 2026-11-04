@@ -96,6 +96,19 @@ bool _correctedOnServer(LocalSetEntry l, LoggedSetDto? r) {
 
 /// Nota del atleta de un ejercicio: la del teléfono si la escribió o la borró
 /// acá (aunque todavía no haya subido); si no, la que vino de la API.
+/// Cardio / Movilidad: lo marcado en el teléfono gana sobre la API.
+bool doneFor(DayExerciseDto e, Map<String, bool> local) =>
+    local[e.id] ?? e.completedAt != null;
+
+/// Ejercicio terminado: Fuerza = todas sus series; cardio/movilidad = Hecho.
+bool exerciseFinished(
+  DayExerciseDto e,
+  Map<String, bool> done,
+  bool Function(int setNumber) isSaved,
+) => e.isStrength
+    ? List.generate(setCountOf(e), (i) => isSaved(i + 1)).every((x) => x)
+    : doneFor(e, done);
+
 String? noteFor(DayExerciseDto e, Map<String, String?> local) {
   final note = local.containsKey(e.id) ? local[e.id] : e.athleteNote;
   final t = note?.trim();
@@ -105,6 +118,8 @@ String? noteFor(DayExerciseDto e, Map<String, String?> local) {
 /// Filas de series de un ejercicio: las prescritas, o más si ya se cargaron
 /// más (de otro teléfono); mínimo 1.
 int setCountOf(DayExerciseDto e) {
+  // Cardio / Movilidad no tienen series (se marcan Hecho)
+  if (!e.isStrength) return 0;
   var n = e.targetSets.length;
   for (final s in e.loggedSets) {
     if (s.setNumber > n) n = s.setNumber;
@@ -113,11 +128,17 @@ int setCountOf(DayExerciseDto e) {
 }
 
 class ExerciseGroup {
-  ExerciseGroup(this.letter, this.exercises);
+  ExerciseGroup(this.letter, this.exercises, {this.isCombo = false});
 
-  /// null = ejercicio suelto; "A", "B"… = superserie.
+  /// null = ejercicio suelto o combo; "A", "B"… = superserie.
   final String? letter;
   final List<DayExerciseDto> exercises;
+
+  /// Combo del coach: marco con nombre y nota, sin rondas (cada ejercicio va
+  /// por su cuenta).
+  final bool isCombo;
+  String? get comboName => isCombo ? exercises.first.groupName : null;
+  String? get comboNote => isCombo ? exercises.first.groupNote : null;
 
   /// "A1", "A2"… dentro de una superserie.
   String? badgeOf(DayExerciseDto e) =>
@@ -130,6 +151,16 @@ List<ExerciseGroup> groupSupersets(List<DayExerciseDto> exercises) {
   var nextLetter = 'A'.codeUnitAt(0);
   for (final e in exercises) {
     final last = groups.lastOrNull;
+    if (e.inCombo) {
+      if (last != null &&
+          last.isCombo &&
+          last.exercises.first.supersetGroupId == e.supersetGroupId) {
+        last.exercises.add(e);
+      } else {
+        groups.add(ExerciseGroup(null, [e], isCombo: true));
+      }
+      continue;
+    }
     if (e.supersetGroupId != null &&
         last != null &&
         last.letter != null &&
@@ -144,7 +175,9 @@ List<ExerciseGroup> groupSupersets(List<DayExerciseDto> exercises) {
   // Una "superserie" de un solo ejercicio se muestra como ejercicio suelto
   return [
     for (final g in groups)
-      g.exercises.length == 1 ? ExerciseGroup(null, g.exercises) : g,
+      g.exercises.length == 1 && !g.isCombo
+          ? ExerciseGroup(null, g.exercises)
+          : g,
   ];
 }
 
@@ -165,8 +198,8 @@ class SetRef {
 List<SetRef> workOrder(List<ExerciseGroup> groups) => [
   for (final g in groups)
     if (g.letter == null)
-      for (var n = 1; n <= setCountOf(g.exercises.single); n++)
-        SetRef(g, g.exercises.single, n)
+      for (final e in g.exercises)
+        for (var n = 1; n <= setCountOf(e); n++) SetRef(g, e, n)
     else
       for (
         var n = 1;

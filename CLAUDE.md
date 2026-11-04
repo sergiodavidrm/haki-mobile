@@ -415,6 +415,31 @@ pesado (grabación, galería, encuestas) y porque hay que pisar todo su diseño.
   desde Mac) y push del backend (no-chat). Decidido 2026-10-20: **no** hay mensajes por ejercicio sin video
   (para eso está el chat general).
 
+## Cardio, Movilidad y Combos (2026-11-03)
+
+Mockup: pantallas "App · Sesión" y "App · Hoy" de
+https://claude.ai/artifact/4nRtimX6AqMUKyqNnzbxNx. Backend en
+`haki-api/CLAUDE.md` § Cardio.
+- `DayExerciseDto` trae `kind`, `prescription` (`program/data/prescription.dart`,
+  `formatPrescription`), `groupKind` / `groupName` / `groupNote` y
+  `completedAt`. Cardio y movilidad: `setCountOf` = 0 (no entran en
+  `workOrder`, volumen ni series).
+- **Hecho offline** como las notas: tabla drift `LocalDone` (schema 6) →
+  `SessionSync._pushDone` (`PUT workout-sessions/exercise-logs/{id}/done`,
+  crea sesión/exercise-log si hace falta), cuenta en `pendingCount` y en la
+  fecha de la sesión (`_trainedAt`), se borra en `wipe`. `doneFor` (el
+  teléfono gana sobre la API), `exerciseFinished`.
+- `groupSupersets`: un combo (`groupKind == 'combo'`) es un `ExerciseGroup`
+  con `isCombo`, sin letra ni rondas. Sesión (`session/ui/rx_rows.dart`):
+  `ComboCard` (nombre, "1/3", nota, `RxRow` de 44 px por ejercicio con check de
+  22 px y toda la fila tocable; los de fuerza adentro con su tarjeta normal),
+  `CardioCard` (una fila). Una movilidad suelta va en un `ComboCard` titulado
+  "Movilidad". Sesión pasada: `CardioCard` (se puede marcar después).
+- Hoy: la tarjeta no crece: "N ejercicios" (solo fuerza) · superseries ·
+  "● 3 movilidad" · "● Caminadora 30 min" (varios: "2 cardio · 50 min");
+  `PillChip(dotColor:)`. Colores `mobility*` / `cardio*` en `HakiColors`.
+- Tests en `test/cardio_mobility_test.dart`. Falta probar en el emulador.
+
 ## Chat grupal (2026-11-03)
 
 Mockup: fila "App del atleta" de https://claude.ai/artifact/NqRaMmBnKvJZPRXtGJJoiN.

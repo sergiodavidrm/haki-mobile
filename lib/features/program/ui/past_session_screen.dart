@@ -18,6 +18,7 @@ import '../data/assignment_dtos.dart';
 import '../data/program_schedule.dart';
 import '../providers/program_providers.dart';
 import '../../../l10n/l10n.dart';
+import '../../session/ui/rx_rows.dart';
 
 // Sesión pasada: lo que se registró en un día completado. Las series son de
 // solo lectura, pero se pueden subir videos (muchos los suben después del gym):
@@ -42,6 +43,8 @@ class PastSessionScreen extends ConsumerWidget {
         ref.watch(localVideosProvider(assignmentId, dayId)).value ?? const {};
     final notes =
         ref.watch(localNotesProvider(assignmentId, dayId)).value ?? const {};
+    final done =
+        ref.watch(localDoneProvider(assignmentId, dayId)).value ?? const {};
     final fallbackUnit =
         ref.watch(authMeProvider).value?.preferredWeightUnit ?? WeightUnit.kg;
 
@@ -80,7 +83,21 @@ class PastSessionScreen extends ConsumerWidget {
                       for (final e in g.exercises)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 14),
-                          child: _ExerciseCard(
+                          // Cardio / Movilidad: Hecho (se puede marcar después)
+                          child: !e.isStrength
+                              ? CardioCard(
+                                  exercise: e,
+                                  done: doneFor(e, done),
+                                  onToggle: () => ref
+                                      .read(sessionStoreProvider)
+                                      .saveDone(
+                                        assignmentId: assignmentId,
+                                        dayId: dayId,
+                                        dayExerciseId: e.id,
+                                        done: !doneFor(e, done),
+                                      ),
+                                )
+                              : _ExerciseCard(
                             exercise: e,
                             badge: g.badgeOf(e),
                             local: local,

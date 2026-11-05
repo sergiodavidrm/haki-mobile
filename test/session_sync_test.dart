@@ -19,6 +19,9 @@ class FakeApi implements HttpClientAdapter {
   /// path → código de error que responde (p. ej. 409 al firmar un video).
   final errors = <String, int>{};
 
+  /// path → cuerpo que responde (200) en vez del mínimo.
+  final bodies = <String, Map<String, dynamic>>{};
+
   /// Cuerpo del último POST /workout-sessions.
   Map<String, dynamic>? lastSession;
 
@@ -48,7 +51,7 @@ class FakeApi implements HttpClientAdapter {
         },
       );
     }
-    final data = switch (o.path) {
+    final data = bodies[o.path] ?? switch (o.path) {
       '/workout-sessions' => {'id': 'ses-1'},
       final p when p.endsWith('/exercise-logs') => {'id': 'log-1'},
       _ => <String, dynamic>{},
@@ -268,6 +271,17 @@ void main() {
     expect(session.completedAt, isNull);
     expect(session.completeSynced, isFalse);
     expect(await store.pendingCount(), 0);
+  });
+
+  test('Finalizar que la API deja en pending (día vacío) reabre el día', () async {
+    api.bodies['/workout-sessions/ses-1/complete'] = {'status': 'pending'};
+    await saveSet(1);
+    await store.complete('a1', 'd1');
+    await settle();
+
+    final session = await db.select(db.localSessions).getSingle();
+    expect(session.completedAt, isNull);
+    expect(session.completeSynced, isFalse);
   });
 
   test('abrir un día sin cargar nada no crea la sesión en la API', () async {

@@ -361,23 +361,31 @@ class SessionSync {
               .get();
       if (undone.isNotEmpty) continue;
 
+      // Día sin nada registrado: la API responde 200 con la sesión en
+      // `pending` (antes 409) y no lo cierra → se reabre en el teléfono en vez
+      // de reintentar para siempre
+      Future<void> reopen() => (_db.update(_db.localSessions)..where(
+            (x) =>
+                x.assignmentId.equals(s.assignmentId) &
+                x.dayId.equals(s.dayId),
+          ))
+          .write(const LocalSessionsCompanion(completedAt: Value(null)));
       try {
-        await _api.put<Map<String, dynamic>>(
+        final res = await _api.put<Map<String, dynamic>>(
           '/workout-sessions/${s.remoteId}/complete',
         );
+        final status = res.data?['status'];
+        if (status != null && status != 'completed') {
+          debugPrint('SessionSync: Finalizar sin nada registrado ($status)');
+          await reopen();
+          continue;
+        }
       } on DioException catch (e) {
-        // 409 = el día no tiene nada registrado: se reabre en el teléfono en
-        // vez de reintentar para siempre
         if (e.response?.statusCode != 409) rethrow;
         debugPrint(
           'SessionSync: Finalizar rechazado (409) ${e.response?.data}',
         );
-        await (_db.update(_db.localSessions)..where(
-              (x) =>
-                  x.assignmentId.equals(s.assignmentId) &
-                  x.dayId.equals(s.dayId),
-            ))
-            .write(const LocalSessionsCompanion(completedAt: Value(null)));
+        await reopen();
         continue;
       }
       await (_db.update(_db.localSessions)..where(

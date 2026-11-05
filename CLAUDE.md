@@ -927,9 +927,11 @@ canvas Haki Mobile.
 
 Finalizar queda deshabilitado (sin texto de ayuda, decisión de Sergio) si no
 hay ninguna serie guardada ni cardio/movilidad Hecho (`hasAnyWork` en
-`session_plan.dart`). La API también lo rechaza (409); `_completeSessions`
-espera a que suban las series y los Hecho del día y, si igual recibe 409,
-reabre el día en el teléfono (`completedAt` null) en vez de reintentar.
+`session_plan.dart`). La API tampoco lo cierra: responde 200 con `status`
+`pending` (no 409, para no trabar la subida de apps viejas). `_completeSessions`
+espera a que suban las series y los Hecho del día y, si la respuesta no dice
+`completed` (o llega un 409), reabre el día en el teléfono (`completedAt`
+null) en vez de reintentar.
 
 ### Sync: un rechazo no frena la cola (2026-11-04)
 

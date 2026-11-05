@@ -446,6 +446,10 @@ con `ApiCache` (`progressReportProvider(period)`), lógica pura en
   racha suelta, Adherencia, Récords y PRs recientes (viven en Tu progreso).
   La pantalla Adherencia queda sin enlazar desde el Perfil (decidido: un lugar
   por cosa; si se extraña "Sin completar", va como sección de Tu progreso).
+- Barrita por semana (2026-11-05): llena en proporción a los hechos
+  (`weekFillOf`: hechos / entrenos de la semana, los futuros de la en curso
+  cuentan); dorado brillante solo si la semana está completa (`weekIsFull`).
+  "N semana(s) seguida(s)" con plural.
 - La constancia de Tu progreso muestra el **% de adherencia** del período
   ("83 % de adherencia · 10 de 12 entrenos hasta hoy").
 - Detalle del ejercicio: `ValueLineChart` con el número en cada punto (sin

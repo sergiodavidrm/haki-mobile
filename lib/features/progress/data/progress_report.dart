@@ -150,6 +150,7 @@ class ProgressReport {
     required this.due,
     required this.programNames,
     required this.weekFull,
+    required this.weekFill,
     this.program,
     this.currentDone,
     this.currentPlanned,
@@ -172,6 +173,9 @@ class ProgressReport {
 
   /// Por columna: hizo todos los entrenos que tocaban (barrita llena)
   final List<bool> weekFull;
+
+  /// Por columna: parte de la barrita llena (hechos / los que tenía la semana)
+  final List<double> weekFill;
 
   factory ProgressReport.fromJson(Map<String, dynamic> j) {
     final columns = [
@@ -212,8 +216,20 @@ class ProgressReport {
         for (var i = 0; i < columns.length; i++)
           weekIsFull([for (final r in cells) i < r.length ? r[i] : 'none']),
       ],
+      weekFill: [
+        for (var i = 0; i < columns.length; i++)
+          weekFillOf([for (final r in cells) i < r.length ? r[i] : 'none']),
+      ],
     );
   }
+}
+
+/// Parte de la semana hecha (0–1): hechos sobre los entrenos que tenía
+/// (sin días vacíos ni descansos; los futuros de la semana en curso cuentan).
+double weekFillOf(List<String> cells) {
+  final total = cells.where((c) => c != 'none' && c != 'rest').length;
+  if (total == 0) return 0;
+  return cells.where((c) => c == 'done').length / total;
 }
 
 /// Una semana está completa si tenía algo que hacer y no faltó a nada.

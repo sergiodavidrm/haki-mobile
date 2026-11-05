@@ -76,6 +76,8 @@ void main() {
     );
     expect(r.weekFull, [true, false, false]);
     expect(weekIsFull(['rest', 'rest']), isFalse);
+    expect(r.weekFill, [1, 2 / 3, 0]);
+    expect(weekFillOf(['rest', 'none']), 0);
   });
 
   test(

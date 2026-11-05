@@ -1413,7 +1413,14 @@
       }
     }
   },
-  "progressStreak": "semanas seguidas",
+  "progressStreak": "{count, plural, =1{semana seguida} other{semanas seguidas}}",
+  "@progressStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "progressWeekShort": "S{n}",
   "@progressWeekShort": {
     "placeholders": {

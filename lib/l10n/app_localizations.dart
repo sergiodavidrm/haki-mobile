@@ -3293,8 +3293,8 @@ abstract class AppLocalizations {
   /// No description provided for @progressStreak.
   ///
   /// In es, this message translates to:
-  /// **'semanas seguidas'**
-  String get progressStreak;
+  /// **'{count, plural, =1{semana seguida} other{semanas seguidas}}'**
+  String progressStreak(int count);
 
   /// No description provided for @progressWeekShort.
   ///

@@ -1994,7 +1994,15 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get progressStreak => 'semanas seguidas';
+  String progressStreak(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'semanas seguidas',
+      one: 'semana seguida',
+    );
+    return '$_temp0';
+  }
 
   @override
   String progressWeekShort(int n) {

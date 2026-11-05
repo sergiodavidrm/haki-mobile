@@ -532,7 +532,7 @@
   "progressNoteEnded": "All {n} weeks of the block",
   "progressConstancy": "YOUR CONSISTENCY",
   "progressWorkoutsOf": "workouts out of {due} due",
-  "progressStreak": "weeks in a row",
+  "progressStreak": "{count, plural, =1{week in a row} other{weeks in a row}}",
   "progressWeekShort": "W{n}",
   "progressExercises": "YOUR EXERCISES",
   "progressE1rmRange": "e1RM {from} → {to} {unit}",

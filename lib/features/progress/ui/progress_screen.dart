@@ -340,7 +340,7 @@ class _ConstancyCard extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      context.l10n.progressStreak,
+                      context.l10n.progressStreak(streak.currentWeeks),
                       style: TextStyle(fontSize: 12, color: c.textMuted),
                     ),
                   ],
@@ -357,18 +357,29 @@ class _ConstancyCard extends ConsumerWidget {
                     children: [
                       Container(
                         height: 6,
+                        clipBehavior: Clip.antiAlias,
+                        alignment: Alignment.centerLeft,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(3),
-                          color: switch (col.state) {
-                            ColumnState.future => Colors.transparent,
-                            ColumnState.partial => c.goldBorder,
-                            ColumnState.done =>
-                              report.weekFull[i] ? c.goldBright : c.goldBorder,
-                          },
+                          color: col.state == ColumnState.future
+                              ? Colors.transparent
+                              : c.goldSurface,
                           border: col.state == ColumnState.future
                               ? Border.all(color: c.border)
                               : null,
                         ),
+                        // Llena en proporción a los entrenos hechos
+                        child: col.state == ColumnState.future
+                            ? null
+                            : FractionallySizedBox(
+                                widthFactor: report.weekFill[i],
+                                heightFactor: 1,
+                                child: ColoredBox(
+                                  color: report.weekFull[i]
+                                      ? c.goldBright
+                                      : c.goldBorder,
+                                ),
+                              ),
                       ),
                       const SizedBox(height: 4),
                       FittedBox(

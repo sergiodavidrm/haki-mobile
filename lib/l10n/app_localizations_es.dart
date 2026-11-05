@@ -742,6 +742,11 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String exerciseUnitToggle(String unit, String other) {
+    return 'Unidad de este ejercicio: $unit. Cambiar a $other';
+  }
+
+  @override
   String setRepsLabel(int set) {
     return 'Repeticiones de la serie $set';
   }
@@ -1915,5 +1920,198 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String todayChipCardios(int count, int minutes) {
     return '$count cardio · $minutes min';
+  }
+
+  @override
+  String get progressTitle => 'Tu progreso';
+
+  @override
+  String get progressCardFooter => 'Ejercicios, constancia, récords y peso';
+
+  @override
+  String get progressPeriodBlock => 'Este bloque';
+
+  @override
+  String get progressPeriodPrevious => 'Bloque anterior';
+
+  @override
+  String progressPeriodWeeks(int n) {
+    return 'Últimas $n semanas';
+  }
+
+  @override
+  String get progressPeriodMonths3 => 'Últimos 3 meses';
+
+  @override
+  String progressKickerWeek(int week, int total) {
+    return 'Semana $week de $total';
+  }
+
+  @override
+  String progressKickerEnded(String date) {
+    return 'Terminó el $date';
+  }
+
+  @override
+  String progressKickerRange(int n) {
+    return 'Últimas $n semanas';
+  }
+
+  @override
+  String get progressNoteBlock =>
+      'Cuenta las semanas terminadas y lo que llevás de esta';
+
+  @override
+  String progressNoteEnded(int n) {
+    return 'Las $n semanas del bloque';
+  }
+
+  @override
+  String get progressConstancy => 'TU CONSTANCIA';
+
+  @override
+  String progressWorkoutsOf(int due) {
+    return 'entrenos de $due que tocaban';
+  }
+
+  @override
+  String get progressStreak => 'semanas seguidas';
+
+  @override
+  String progressWeekShort(int n) {
+    return 'S$n';
+  }
+
+  @override
+  String get progressExercises => 'TUS EJERCICIOS';
+
+  @override
+  String progressE1rmRange(String from, String to, String unit) {
+    return 'e1RM $from → $to $unit';
+  }
+
+  @override
+  String progressRepsRange(String from, String to) {
+    return '$from → $to reps';
+  }
+
+  @override
+  String get progressOneWeek => 'Una semana con datos';
+
+  @override
+  String progressOpenChart(String name) {
+    return 'Ver gráfico de $name';
+  }
+
+  @override
+  String progressHide(String name) {
+    return 'Ocultar $name';
+  }
+
+  @override
+  String progressShow(String name) {
+    return 'Mostrar $name';
+  }
+
+  @override
+  String progressHidden(int count) {
+    return 'Ocultos ($count)';
+  }
+
+  @override
+  String get progressRecords => 'RÉCORDS DEL PERÍODO';
+
+  @override
+  String get progressNoRecords => 'Sin récords nuevos en este período';
+
+  @override
+  String get progressWeight => 'PESO CORPORAL';
+
+  @override
+  String progressWeightDelta(String delta) {
+    return '$delta en el período';
+  }
+
+  @override
+  String get progressEmpty =>
+      'Todavía no hay entrenos registrados en este período.';
+
+  @override
+  String get progressError => 'No se pudo cargar. Revisá tu conexión.';
+
+  @override
+  String get progressNoDataExercise =>
+      'Este ejercicio no tiene datos en el período.';
+
+  @override
+  String progressDetailKicker(String period) {
+    return 'e1RM · $period';
+  }
+
+  @override
+  String progressDetailRepsKicker(String period) {
+    return 'Reps · $period';
+  }
+
+  @override
+  String get progressDetailSub =>
+      'Mejor serie de cada semana, en la unidad en que la cargaste';
+
+  @override
+  String progressRepsValue(String n) {
+    return '$n reps';
+  }
+
+  @override
+  String get progressWeekByWeek => 'SEMANA A SEMANA';
+
+  @override
+  String progressBestSet(String weight, int reps, String e1rm) {
+    return '$weight × $reps · e1RM $e1rm';
+  }
+
+  @override
+  String progressBestBw(int reps) {
+    return '$reps reps';
+  }
+
+  @override
+  String get progressPrLegend => 'Récord (nuevo PR)';
+
+  @override
+  String streakComplete(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Racha: $count semanas completas',
+      one: 'Racha: 1 semana completa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakNext(int n) {
+    return 'Completá esta y van $n';
+  }
+
+  @override
+  String get streakThisWeekDone => 'Esta semana ya está ✓';
+
+  @override
+  String get streakCompleteThisWeek => 'Completá esta semana';
+
+  @override
+  String progressLastPr(String name) {
+    return 'Último PR: $name';
+  }
+
+  @override
+  String progressAdherencePct(int pct) {
+    return '$pct %';
+  }
+
+  @override
+  String progressWorkoutsUntilToday(int done, int due) {
+    return 'de adherencia · $done de $due entrenos hasta hoy';
   }
 }

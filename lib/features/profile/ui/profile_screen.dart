@@ -17,7 +17,6 @@ import '../../body/providers/body_providers.dart';
 import '../../body/ui/body_widgets.dart';
 import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
-import '../data/records.dart';
 import '../data/streak_dto.dart';
 import '../providers/profile_providers.dart';
 import '../../../l10n/l10n.dart';
@@ -94,7 +93,7 @@ class ProfileScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              const _StreakCard(),
+              const _ProgressCard(),
               IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -113,18 +112,6 @@ class ProfileScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Expanded(child: _AdherenceTile()),
-                    const SizedBox(width: 12),
-                    const Expanded(child: _RecordsTile()),
-                  ],
-                ),
-              ),
-              const _RecentPrs(),
               if (me?.coachName != null)
                 _CoachCard(
                   name: me!.coach?.fullName ?? me.coachName!,
@@ -138,208 +125,175 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-/// Racha de semanas (mockup: llama, "5 semanas seguidas", la mejor racha y
-/// una barrita por semana). Sin red o sin programas no se muestra.
-class _StreakCard extends ConsumerWidget {
-  const _StreakCard();
+/// Tu progreso (mockup "A · Una tarjeta de progreso" del canvas Haki · Perfil
+/// del atleta): la puerta a /perfil/progreso. Racha, una barrita por semana y
+/// el último PR; sin porcentajes (el período se elige en Tu progreso).
+class _ProgressCard extends ConsumerWidget {
+  const _ProgressCard();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
-    final s = ref.watch(streakProvider).value;
-    if (s == null || s.weeks.every((w) => w.state == StreakWeekState.off)) {
-      return const SizedBox.shrink();
-    }
-
     final l = context.l10n;
-    final pending = s.thisWeekPending;
-    final title = s.currentWeeks > 0
-        ? l.streakWeeksInARow(s.currentWeeks)
-        : l.streakStart;
-    final subtitle = [
-      if (pending != null) l.streakThisWeek(pending.completed, pending.target),
-      if (s.bestWeeks > 0) l.streakBest(l.weeksCount(s.bestWeeks)),
-    ].join(' · ');
+    final s = ref.watch(streakProvider).value;
+    final lastPr = (ref.watch(recordsProvider).value ?? const [])
+        .where((r) => r.isPr)
+        .firstOrNull;
+    final thisWeekDone = s?.weeks.lastOrNull?.state == StreakWeekState.met;
+    final streak = s?.currentWeeks ?? 0;
+    final title = streak > 0 ? l.streakComplete(streak) : l.streakStart;
+    final subtitle = thisWeekDone
+        ? l.streakThisWeekDone
+        : streak > 0
+        ? l.streakNext(streak + 1)
+        : l.streakCompleteThisWeek;
+    final weeks = (s?.weeks ?? const <StreakWeekDto>[]).reversed
+        .take(6)
+        .toList()
+        .reversed
+        .toList();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Semantics(
-        label: '$title. $subtitle',
+        button: true,
+        label: '${l.progressTitle}. $title. $subtitle',
         excludeSemantics: true,
-        child: HakiCard(
-          radius: 22,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              Icon(
-                Icons.local_fire_department_outlined,
-                size: 30,
-                color: s.currentWeeks > 0 ? c.goldBright : c.textMuted,
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: c.text,
-                      ),
-                    ),
-                    if (subtitle.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: TextStyle(fontSize: 12, color: c.textMuted),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Una barrita por semana: dorada = cumplida
-              Row(
+        child: Material(
+          color: c.goldSurface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+            side: BorderSide(color: c.goldBorder),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(22),
+            onTap: () => context.push(Routes.progress),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (final w in s.weeks)
-                    Container(
-                      width: 8,
-                      height: 22,
-                      margin: const EdgeInsets.only(left: 4),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(3),
-                        color: w.state == StreakWeekState.met
-                            ? c.goldBright
-                            : c.border,
-                      ),
-                    ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Récords: PRs (superó su marca) del programa en curso, o de siempre si no
-/// hay programa. Sin red queda "—".
-class _RecordsTile extends ConsumerWidget {
-  const _RecordsTile();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final records = ref.watch(recordsProvider).value;
-    final current = ref.watch(currentAssignmentIdProvider).value;
-    void open() => context.push(Routes.records);
-    if (records == null) {
-      return _Tile(
-        title: context.l10n.recordsTitle,
-        value: '—',
-        footer: Text(context.l10n.recordsBestMarks),
-        onTap: open,
-      );
-    }
-    final prs = records
-        .where((r) => r.isPr)
-        .where((r) => current == null || r.assignmentId == current)
-        .length;
-    return _Tile(
-      title: context.l10n.recordsTitle,
-      value: '$prs',
-      valueSuffix: prs == 1 ? ' PR' : ' PRs',
-      footer: Text(
-        current == null
-            ? context.l10n.recordsInTotal
-            : context.l10n.recordsInBlock,
-      ),
-      onTap: open,
-    );
-  }
-}
-
-/// Los 3 PRs más recientes (mockup: "PRs recientes"). Sin PRs no se muestra.
-class _RecentPrs extends ConsumerWidget {
-  const _RecentPrs();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final c = context.colors;
-    final prs = (ref.watch(recordsProvider).value ?? const [])
-        .where((r) => r.isPr)
-        .take(3)
-        .toList();
-    if (prs.isEmpty) return const SizedBox.shrink();
-    final today = DateTime.now();
-    return Padding(
-      padding: const EdgeInsets.only(top: 18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            context.l10n.recordsRecent,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: c.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          for (final r in prs)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: HakiCard(
-                radius: 16,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                onTap: () => context.push(Routes.records),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: c.goldBright,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        r.exerciseName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: c.text,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l.progressTitle.toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1,
+                            color: c.goldBright,
+                          ),
                         ),
                       ),
-                    ),
-                    Text(
-                      r.e1RmLabel,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: c.goldBright,
-                        fontFeatures: const [FontFeature.tabularFigures()],
+                      Icon(Icons.chevron_right, size: 20, color: c.goldBright),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.local_fire_department_outlined,
+                        size: 30,
+                        color: streak > 0 ? c.goldBright : c.textMuted,
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      recordDateLabel(r.date, today),
-                      style: TextStyle(fontSize: 12, color: c.textMuted),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: c.text,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              subtitle,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: c.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (weeks.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    // Una barrita por semana: dorada = cumplida
+                    Row(
+                      children: [
+                        for (final (i, w) in weeks.indexed) ...[
+                          if (i > 0) const SizedBox(width: 6),
+                          Expanded(
+                            child: Container(
+                              height: 6,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(3),
+                                color: switch (w.state) {
+                                  StreakWeekState.met => c.goldBright,
+                                  StreakWeekState.current => c.goldBorder,
+                                  StreakWeekState.missed => c.border,
+                                  StreakWeekState.off => Colors.transparent,
+                                },
+                                border: w.state == StreakWeekState.off
+                                    ? Border.all(color: c.border)
+                                    : null,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
-                ),
+                  if (lastPr != null) ...[
+                    const SizedBox(height: 12),
+                    Divider(height: 1, color: c.goldBorder),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: c.goldBright,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            l.progressLastPr(lastPr.exerciseName),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: c.textSecondary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          lastPr.e1RmLabel,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: c.goldBright,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
               ),
             ),
-        ],
+          ),
+        ),
       ),
     );
   }
@@ -548,35 +502,5 @@ class _MeasuresTile extends StatelessWidget {
       ),
       onTap: () => context.push(Routes.measures),
     );
-  }
-}
-
-class _AdherenceTile extends ConsumerWidget {
-  const _AdherenceTile();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final a = ref.watch(currentAdherenceProvider).value;
-    return switch (a) {
-      null => _Tile(
-        title: context.l10n.adherenceTitle,
-        value: '–',
-        footer: Text(context.l10n.adherenceNoProgram),
-      ),
-      (done: final done, due: final int due, total: _) when due > 0 => _Tile(
-        title: context.l10n.adherenceTitle,
-        value: '${(100 * done / due).round().clamp(0, 100)}',
-        valueSuffix: '%',
-        footer: Text(context.l10n.adherenceDoneOf(done, due)),
-        onTap: () => context.push(Routes.adherence),
-      ),
-      (done: final done, due: _, total: final total) => _Tile(
-        title: context.l10n.adherenceTitle,
-        value: '$done',
-        valueSuffix: ' ${context.l10n.ofTotal(total)}',
-        footer: Text(context.l10n.adherenceWorkoutsDone),
-        onTap: () => context.push(Routes.adherence),
-      ),
-    };
   }
 }

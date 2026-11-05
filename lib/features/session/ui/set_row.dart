@@ -35,11 +35,20 @@ class SetTableHeader extends StatelessWidget {
     required this.cols,
     required this.unit,
     this.compact = false,
+    this.onToggleUnit,
+    this.unitOverridden = false,
   });
 
   final SetCols cols;
   final WeightUnit unit;
   final bool compact;
+
+  /// Tocar "KG" cambia la unidad solo de este ejercicio (y convierte, también
+  /// la fila abierta). null = no se toca (Sesión pasada).
+  final VoidCallback? onToggleUnit;
+
+  /// La unidad del ejercicio no es la del día: va en dorado.
+  final bool unitOverridden;
 
   @override
   Widget build(BuildContext context) {
@@ -49,24 +58,39 @@ class SetTableHeader extends StatelessWidget {
       letterSpacing: 1,
       color: context.colors.textMuted,
     );
-    Widget cell(String text, double width) => SizedBox(
-      width: width,
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(text, style: style, maxLines: 1),
+    // Los títulos de columna no se leen (la fila ya dice qué es cada valor);
+    // el botón de la unidad sí
+    Widget cell(String text, double width) => ExcludeSemantics(
+      child: SizedBox(
+        width: width,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(text, style: style, maxLines: 1),
+        ),
       ),
     );
 
-    return ExcludeSemantics(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: SetCols.inset),
-        child: SizedBox(
-          height: 24,
-          child: Row(
-            children: [
-              cell(compact ? '#' : context.l10n.setHeader, cols.set),
-              const SizedBox(width: SetCols.gap),
-              Expanded(
+    final toggle = onToggleUnit;
+    final unitCell = toggle == null
+        ? cell(unit.api, cols.weight)
+        : _UnitHeaderButton(
+            width: cols.weight,
+            unit: unit,
+            overridden: unitOverridden,
+            style: style,
+            onTap: toggle,
+          );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: SetCols.inset),
+      child: SizedBox(
+        height: 24,
+        child: Row(
+          children: [
+            cell(compact ? '#' : context.l10n.setHeader, cols.set),
+            const SizedBox(width: SetCols.gap),
+            Expanded(
+              child: ExcludeSemantics(
                 child: Text(
                   compact
                       ? context.l10n.targetHeaderShort
@@ -76,15 +100,65 @@ class SetTableHeader extends StatelessWidget {
                   overflow: TextOverflow.clip,
                 ),
               ),
-              const SizedBox(width: SetCols.gap),
-              cell(unit.api, cols.weight),
-              const SizedBox(width: SetCols.gap),
-              cell(context.l10n.repsHeader, cols.reps),
-              const SizedBox(width: SetCols.gap),
-              cell('RIR', cols.rir),
-              const SizedBox(width: SetCols.gap),
-              SizedBox(width: cols.action),
-            ],
+            ),
+            const SizedBox(width: SetCols.gap),
+            unitCell,
+            const SizedBox(width: SetCols.gap),
+            cell(context.l10n.repsHeader, cols.reps),
+            const SizedBox(width: SetCols.gap),
+            cell('RIR', cols.rir),
+            const SizedBox(width: SetCols.gap),
+            SizedBox(width: cols.action),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// "KG ⇄" del encabezado: cambia la unidad de este ejercicio (convierte todo
+/// el ejercicio, también la fila abierta). Dorado si no es la del día. No
+/// saca el foco de la fila abierta (si no, se guardaría y cerraría).
+class _UnitHeaderButton extends StatelessWidget {
+  const _UnitHeaderButton({
+    required this.width,
+    required this.unit,
+    required this.overridden,
+    required this.style,
+    required this.onTap,
+  });
+
+  final double width;
+  final WeightUnit unit;
+  final bool overridden;
+  final TextStyle style;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = overridden ? context.colors.goldBright : style.color;
+    return TextFieldTapRegion(
+      child: Semantics(
+        button: true,
+        label: context.l10n.exerciseUnitToggle(unit.label, unit.other.label),
+        excludeSemantics: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: SizedBox(
+            width: width,
+            height: 24,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(unit.api, style: style.copyWith(color: color)),
+                  const SizedBox(width: 2),
+                  Icon(Icons.swap_horiz, size: 11, color: color),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -93,8 +167,8 @@ class SetTableHeader extends StatelessWidget {
 }
 
 /// Una fila de la tabla de series. Guardada → valores como texto; pendiente →
-/// "–"; la que sigue ([isNext]) o la que el atleta tocó → inputs. Se guarda
-/// sola al salir de la fila (con reps cargadas). Todas llevan cámara.
+/// "–"; solo la que el atleta tocó → inputs (una sola abierta en toda la
+/// Sesión). Se guarda sola al salir de la fila. Todas llevan cámara.
 class SetRow extends StatefulWidget {
   const SetRow({
     super.key,
@@ -102,7 +176,6 @@ class SetRow extends StatefulWidget {
     required this.target,
     required this.unit,
     required this.saved,
-    required this.isNext,
     required this.cols,
     required this.onSave,
     required this.onVideo,
@@ -114,9 +187,6 @@ class SetRow extends StatefulWidget {
   /// Unidad efectiva del ejercicio (switch del día u override).
   final WeightUnit unit;
   final SavedSet? saved;
-
-  /// Primera serie pendiente de la sesión: queda con los inputs abiertos.
-  final bool isNext;
   final SetCols cols;
   final void Function(double? weight, WeightUnit unit, int? reps, int? rir)
   onSave;
@@ -146,6 +216,21 @@ class _SetRowState extends State<SetRow> {
   /// El atleta tocó la fila para cargarla o corregirla.
   bool _editing = false;
 
+  /// Fila abierta en la Sesión: abrir otra cierra (y guarda) la anterior.
+  /// Antes la serie que seguía quedaba abierta sola y había varias con
+  /// inputs a la vez.
+  static final _openRow = ValueNotifier<_SetRowState?>(null);
+
+  @override
+  void initState() {
+    super.initState();
+    _openRow.addListener(_onOtherOpened);
+  }
+
+  void _onOtherOpened() {
+    if (_editing && _openRow.value != this) _commit();
+  }
+
   static String _fmt(double? v) => v == null ? '' : formatWeight(v);
   static double? _parseWeight(String s) =>
       double.tryParse(s.trim().replaceAll(',', '.'));
@@ -159,7 +244,7 @@ class _SetRowState extends State<SetRow> {
       ? ''
       : formatWeight(widget.unit.fromKg(s!.unit.toKg(s.weight!)));
 
-  bool get _editable => _editing || (widget.isNext && widget.saved == null);
+  bool get _editable => _editing;
 
   bool get _dirty {
     final s = widget.saved;
@@ -179,6 +264,15 @@ class _SetRowState extends State<SetRow> {
     // Llegó un valor guardado nuevo (sync / otro teléfono) o cambió la unidad,
     // y no se está editando
     final s = widget.saved;
+    // Cambió la unidad (del día o del ejercicio) con la fila abierta: el peso
+    // escrito también se convierte (si no, "100" pensado en kg se guardaba
+    // como 100 lb)
+    if (_editing && old.unit != widget.unit) {
+      final w = _parseWeight(_weight.text);
+      if (w != null) {
+        _weight.text = formatWeight(widget.unit.fromKg(old.unit.toKg(w)));
+      }
+    }
     if (!_editing && s != null) {
       _weight.text = _savedWeight(s);
       _reps.text = s.reps?.toString() ?? '';
@@ -188,6 +282,8 @@ class _SetRowState extends State<SetRow> {
 
   @override
   void dispose() {
+    _openRow.removeListener(_onOtherOpened);
+    if (_openRow.value == this) _openRow.value = null;
     _weight.dispose();
     _reps.dispose();
     _rir.dispose();
@@ -201,6 +297,7 @@ class _SetRowState extends State<SetRow> {
   /// de la fila, como el objetivo).
   void _startEditing([_Field field = _Field.weight]) {
     setState(() => _editing = true);
+    _openRow.value = this;
     final focus = switch (field) {
       _Field.weight => _weightFocus,
       _Field.reps => _repsFocus,
@@ -210,7 +307,11 @@ class _SetRowState extends State<SetRow> {
   }
 
   void _onFocusChange(bool hasFocus) {
-    if (hasFocus) return;
+    if (!hasFocus) _commit();
+  }
+
+  /// Guarda si hubo cambios y cierra la fila.
+  void _commit() {
     // Cualquier cambio en peso, reps o RIR se guarda tal cual: lo que no
     // escribió queda vacío (antes exigía reps y un atleta que solo cargaba el
     // peso no guardaba nada).
@@ -223,6 +324,7 @@ class _SetRowState extends State<SetRow> {
       );
     }
     if (_editing) setState(() => _editing = false);
+    if (_openRow.value == this) _openRow.value = null;
   }
 
   @override

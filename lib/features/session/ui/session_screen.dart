@@ -92,6 +92,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final local = ref.watch(localSetsProvider(_a, _d)).value ?? const {};
     final session = ref.watch(localSessionProvider(_a, _d)).value;
     final dayUnit = ref.watch(dayWeightUnitProvider(_d));
+    final overrides = ref.watch(exerciseUnitOverridesProvider(_d));
     final videos = ref.watch(localVideosProvider(_a, _d)).value ?? const {};
     final notes = ref.watch(localNotesProvider(_a, _d)).value ?? const {};
     final done = ref.watch(localDoneProvider(_a, _d)).value ?? const {};
@@ -107,7 +108,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     SavedSet? savedFor(DayExerciseDto e, int n) =>
         savedSetFor(e, n, local, videos);
     final groups = groupSupersets(s.day.exercises);
-    // La primera serie pendiente de la sesión: se resalta como "Siguiente"
+    // La primera serie pendiente de la sesión: su ejercicio arranca abierto
     final next = workOrder(groups)
         .where((r) => savedFor(r.exercise, r.setNumber) == null)
         .firstOrNull;
@@ -134,6 +135,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       bool showRail = true,
       VoidCallback? onCollapse,
     }) {
+      final unit = overrides[e.id] ?? dayUnit;
       return ExerciseBlock(
         exercise: e,
         badge: badge,
@@ -156,10 +158,13 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                 weekNumber: s.week.weekNumber,
               ),
         onOpenDetail: () => context.push(Routes.exercise(_a, _d, e.id)),
-        nextSetNumber: next?.exercise.id == e.id ? next!.setNumber : null,
         onVideo: (n, requested) =>
             _uploadVideo(e, n, savedFor(e, n), requested),
-        unit: dayUnit,
+        unit: unit,
+        unitOverridden: unit != dayUnit,
+        onToggleUnit: () => ref
+            .read(exerciseUnitOverridesProvider(_d).notifier)
+            .toggle(e.id, unit, dayUnit),
         savedFor: (n) => savedFor(e, n),
         onSaveSet: (n, w, u, reps, rir) {
           final after = afterSave(
@@ -211,7 +216,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           total: s.day.exercises.length,
           pendingSync: pendingSync,
           unit: dayUnit,
-          onUnit: (u) => ref.read(dayWeightUnitProvider(_d).notifier).set(u),
+          onUnit: (u) {
+            ref.read(dayWeightUnitProvider(_d).notifier).set(u);
+            ref.read(exerciseUnitOverridesProvider(_d).notifier).clear();
+          },
         ),
         Expanded(
           child: ListView(
@@ -362,7 +370,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   NextSetInfo? _nextInfo(SetRef? r) {
     if (r == null) return null;
-    final WeightUnit unit = ref.read(dayWeightUnitProvider(_d));
+    final WeightUnit unit =
+        ref.read(exerciseUnitOverridesProvider(_d))[r.exercise.id] ??
+        ref.read(dayWeightUnitProvider(_d));
     final t = r.exercise.targetSets
         .where((s) => s.setNumber == r.setNumber)
         .firstOrNull;

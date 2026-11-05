@@ -23,10 +23,11 @@ Future<ProgramAdherence?> currentAdherence(Ref ref) async {
     programWithLocalProvider(current.assignmentId).future,
   );
   final (done, total) = dayCountsOf(p);
-  final a = adherenceOf(p, dateOnly(DateTime.now()));
-  return a == null
+  final (dueDone, due) = adherenceOf(p, dateOnly(DateTime.now()));
+  // Todavía no tocaba ninguno (semana 1 sin cerrar): hechos / total
+  return due == 0
       ? (done: done, due: null, total: total)
-      : (done: a.$1, due: a.$2, total: total);
+      : (done: dueDone, due: due, total: total);
 }
 
 /// Pantalla Adherencia: el programa en curso + el anterior (para comparar).

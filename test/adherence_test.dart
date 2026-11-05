@@ -84,13 +84,14 @@ void main() {
       AdherenceCell.pending,
     ]); // día sin ejercicios no cuenta
     expect(r.weeks.last.started, isFalse);
-    expect((r.done, r.due, r.total), (1, 3, 5));
-    expect(r.percent, 33);
+    // El de hoy sin hacer todavía no tocaba (misma regla que la API)
+    expect((r.done, r.due, r.total), (1, 2, 5));
+    expect(r.percent, 50);
     expect((r.setsDone, r.setsTarget), (2, 3));
     expect(r.missed.single.day.id, 'd2');
   });
 
-  test('sin calendario: hechos sobre el total', () {
+  test('sin calendario, semana abierta: solo cuentan los hechos', () {
     final r = adherenceReport(
       program([
         WeekDto(
@@ -100,8 +101,8 @@ void main() {
       ], dates: false),
       friday,
     );
-    expect(r.due, isNull);
-    expect(r.percent, 67);
+    expect(r.due, 2);
+    expect(r.percent, 100);
     expect(r.weeks.single.cells.last, AdherenceCell.pending);
     expect(r.missed, isEmpty);
     expect((r.setsDone, r.setsTarget), (6, 6));

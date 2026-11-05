@@ -18,6 +18,8 @@ import '../../features/home/ui/home_screen.dart';
 import '../../features/profile/ui/profile_screen.dart';
 import '../../features/profile/ui/adherence_screen.dart';
 import '../../features/profile/ui/records_screen.dart';
+import '../../features/progress/ui/exercise_progress_screen.dart';
+import '../../features/progress/ui/progress_screen.dart';
 import '../../features/profile/ui/coach_screen.dart';
 import '../../features/program/ui/assign_dates_screen.dart';
 import '../../features/program/ui/past_session_screen.dart';
@@ -78,13 +80,17 @@ abstract final class Routes {
   static const settings = '/perfil/ajustes';
   static const personalInfo = '/perfil/ajustes/datos';
   static const records = '/perfil/records';
+  static const progress = '/perfil/progreso';
+  static String progressExercise(String exerciseId) =>
+      '/perfil/progreso/e/$exerciseId';
   static const coach = '/perfil/coach';
   static const chatCoach = '/chat/coach';
   static const chatGeneral = '/chat/general';
 
   /// Grupo por su canal de Stream (`grp-…`).
   static String chatGroup(String channelId) => '/chat/grupo/$channelId';
-  static String chatGroupInfo(String channelId) => '/chat/grupo/$channelId/info';
+  static String chatGroupInfo(String channelId) =>
+      '/chat/grupo/$channelId/info';
   static const adherence = '/perfil/adherencia';
   static const measureLogs = '/perfil/medidas/registros';
 
@@ -273,6 +279,18 @@ GoRouter appRouter(Ref ref) {
                   GoRoute(
                     path: 'records',
                     builder: (_, _) => const RecordsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'progreso',
+                    builder: (_, _) => const ProgressScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'e/:exerciseId',
+                        builder: (_, state) => ExerciseProgressScreen(
+                          exerciseId: state.pathParameters['exerciseId']!,
+                        ),
+                      ),
+                    ],
                   ),
                   GoRoute(
                     path: 'coach',

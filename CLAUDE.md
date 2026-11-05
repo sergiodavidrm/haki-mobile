@@ -199,14 +199,20 @@ atleta elige la unidad al registrar:
 
 - **Switch por día** en el header de la sesión; arranca en
   `client_profiles.preferred_weight_unit`.
-- **Sin override por ejercicio** (se sacó 2026-10-27, decisión de Sergio):
-  antes tocar la unidad de un ejercicio la invertía solo para ese; ahora la
-  unidad es una sola, la del switch del header (`DayWeightUnit`).
-- Al tocar el switch **no** se convierte lo que se está escribiendo (si escribió
-  45 y la máquina es en lb, quiso decir 45 lb). Sí se convierten prescripción y
-  "última vez". **Sets ya guardados también se convierten** a la unidad
-  efectiva (140 kg → 308.6 lb; decisión de Sergio 2026-10-16). Si se edita uno,
-  se vuelve a guardar en la unidad efectiva.
+- **Unidad por ejercicio tocando "KG ⇄" de su tabla** (2026-11-04, canvas
+  https://claude.ai/artifact/Paub4iv7ggBPYxcht9qp5X, variante B). Sin switch
+  visible por ejercicio: el 2026-10-27 se había sacado la pastilla junto al
+  nombre porque "hace ruido tener el switch en varios lados" (Sergio). El
+  encabezado de la columna de peso (`_UnitHeaderButton` en `set_row.dart`)
+  invierte la unidad de ese ejercicio (`ExerciseUnitOverrides`, keepAlive por
+  día; dorado si no es la del día). El switch del header cambia el día y
+  **borra** los overrides (todos vuelven a la del día). Los dos **convierten**
+  todo, incluido el peso de la fila abierta (100 kg → 220.5 lb, sin cerrarla:
+  `TextFieldTapRegion`); antes el switch no convertía lo que se estaba
+  escribiendo. Se convierten también prescripción, "última vez" y las
+  **series ya guardadas** a la unidad efectiva (140 kg → 308.6 lb; decisión
+  de Sergio 2026-10-16). Si se edita una, se vuelve a guardar en la unidad
+  efectiva.
 - Mostrar la unidad junto a cada input (`[ 45 ] lb`) para evitar registros en
   la unidad equivocada.
 - Guardar: mandar `{ weight, weightUnit }` tal cual lo escribió; el backend
@@ -414,6 +420,37 @@ pesado (grabación, galería, encuestas) y porque hay que pisar todo su diseño.
   no se pisa el callback del toque. Falta: iOS (clave APNs en Firebase,
   desde Mac) y push del backend (no-chat). Decidido 2026-10-20: **no** hay mensajes por ejercicio sin video
   (para eso está el chat general).
+
+## Tu progreso (2026-11-04)
+
+Mockup: pantalla "App · Tu progreso" de https://claude.ai/artifact/WqKHzTWsJgE2CnrNqHX1gy.
+`/perfil/progreso` (tarjeta en el Perfil) y `/perfil/progreso/e/:exerciseId`.
+`features/progress/`: `GET progress/{id}/performance-report?byExercise=true`
+con `ApiCache` (`progressReportProvider(period)`), lógica pura en
+`data/progress_report.dart` (tests en `test/progress_report_test.dart`).
+- Período (`SelectedProgressPeriod`, keepAlive, lo comparten lista y detalle):
+  Este bloque · Bloque anterior · Últimas 4 / 8 semanas · Últimos 3 meses,
+  con un botón que despliega la lista (sin chips con scroll).
+- Constancia (hechos de los que tocaban, racha del `streakProvider`, barrita
+  por semana), ejercicios del que más subió al que menos con mini gráfico y
+  **ojito** para ocultar (`HiddenExercises`, shared_preferences por usuario;
+  "Ocultos (N)" al final para volver a mostrarlos), PRs del período
+  (`recordsProvider` filtrado por fecha) y peso (`bodyLogsProvider`; tocar
+  abre Peso corporal).
+- **Perfil simplificado (2026-11-04, mockup A de
+  https://claude.ai/artifact/1xrhyXt7NRLtQaCxs3MgQv):** header → tarjeta
+  **Tu progreso** (`_ProgressCard`: "Racha: N semanas completas" + "Completá
+  esta y van N+1" / "Esta semana ya está ✓", barritas de las últimas 6
+  semanas del `streakProvider` y el último PR; **sin porcentajes**, el período
+  se elige en Tu progreso) → Peso y Medidas → Tu coach. Salieron del Perfil la
+  racha suelta, Adherencia, Récords y PRs recientes (viven en Tu progreso).
+  La pantalla Adherencia queda sin enlazar desde el Perfil (decidido: un lugar
+  por cosa; si se extraña "Sin completar", va como sección de Tu progreso).
+- La constancia de Tu progreso muestra el **% de adherencia** del período
+  ("83 % de adherencia · 10 de 12 entrenos hasta hoy").
+- Detalle del ejercicio: `ValueLineChart` con el número en cada punto (sin
+  eje Y), récords en dorado y "Semana a semana" con la mejor serie y la
+  diferencia. Lectura positiva: sin "estancado" ni RIR comparado (es del coach).
 
 ## Cardio, Movilidad y Combos (2026-11-03)
 
@@ -636,9 +673,11 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
   "A1 → A2 → descanso ↻ repetir"), switch KG/LB del día (sin override por
   ejercicio), objetivo convertido a la unidad del día, series guardadas en su
   unidad original, aviso de series sin subir. Fila guardada = texto, pendiente
-  = "–", la primera pendiente de la sesión (`workOrder`) queda con inputs
-  abiertos (sin resaltar: a Sergio no lo convenció); tocar otra fila la abre
-  para cargar/corregir, **con el foco en la columna tocada** (peso, reps o
+  = "–". **Ninguna fila se abre sola** (2026-11-04: antes la primera
+  pendiente de cada ejercicio quedaba con inputs abiertos y la pantalla
+  saltaba) y **solo una fila abierta en toda la Sesión** (`_openRow` en
+  `set_row.dart`: abrir otra guarda y cierra la anterior). Tocar una fila la
+  abre para cargar/corregir, **con el foco en la columna tocada** (peso, reps o
   RIR; el resto de la fila → peso; 2026-11-02, `_Field` en `set_row.dart`,
   tests en `test/set_row_test.dart`). Sin check: se guarda sola al salir de la fila si
   cambió peso, reps o RIR (2026-10-26), tal cual: lo que no escribió queda
@@ -713,8 +752,12 @@ Perfil (`features/profile/` + `features/body/`, 2026-10-18):
 - `/perfil`: avatar, nombre, "Coach: X" (`coachName` de `/auth/me`) y
   tarjetas Peso (último + sparkline + cambio en 4 sem), Medidas (cintura o la
   primera pedida, cantidad y fecha) y Adherencia (`currentAdherence`: hechos /
-  días que ya tocaban del programa en curso, `adherenceOf`; sin calendario
-  muestra hechos / total; tocarla abre **Adherencia**, `/perfil/adherencia`:
+  días que ya tocaban del programa en curso, `adherenceOf` sobre `dueDaysOf`
+  — regla única con la API desde 2026-11-04, ver `haki-api/CLAUDE.md` § Qué
+  entrenos ya tocaban: también sin fechas (la semana cierra al hacer todos sus
+  días, pasar a la siguiente o 7 días después de empezarla) y el de hoy sin
+  hacer no cuenta —; si todavía no tocaba ninguno muestra hechos / total;
+  tocarla abre **Adherencia**, `/perfil/adherencia`:
   anillo con el % (cumplir el programa), "Series de tus entrenos" (solo de
   los entrenos hechos, "85 de 85 · en los 5 que hiciste"), % del bloque anterior, una fila por
   semana — hecho / no se hizo / hoy / pendiente — y "Sin completar" → Sesión

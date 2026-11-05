@@ -487,6 +487,17 @@
       }
     }
   },
+  "exerciseUnitToggle": "Unidad de este ejercicio: {unit}. Cambiar a {other}",
+  "@exerciseUnitToggle": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      },
+      "other": {
+        "type": "String"
+      }
+    }
+  },
   "setRepsLabel": "Repeticiones de la serie {set}",
   "@setRepsLabel": {
     "placeholders": {
@@ -1335,6 +1346,240 @@
         "type": "int"
       },
       "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "progressTitle": "Tu progreso",
+  "progressCardFooter": "Ejercicios, constancia, récords y peso",
+  "progressPeriodBlock": "Este bloque",
+  "progressPeriodPrevious": "Bloque anterior",
+  "progressPeriodWeeks": "Últimas {n} semanas",
+  "@progressPeriodWeeks": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "progressPeriodMonths3": "Últimos 3 meses",
+  "progressKickerWeek": "Semana {week} de {total}",
+  "@progressKickerWeek": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "progressKickerEnded": "Terminó el {date}",
+  "@progressKickerEnded": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "progressKickerRange": "Últimas {n} semanas",
+  "@progressKickerRange": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "progressNoteBlock": "Cuenta las semanas terminadas y lo que llevás de esta",
+  "progressNoteEnded": "Las {n} semanas del bloque",
+  "@progressNoteEnded": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "progressConstancy": "TU CONSTANCIA",
+  "progressWorkoutsOf": "entrenos de {due} que tocaban",
+  "@progressWorkoutsOf": {
+    "placeholders": {
+      "due": {
+        "type": "int"
+      }
+    }
+  },
+  "progressStreak": "semanas seguidas",
+  "progressWeekShort": "S{n}",
+  "@progressWeekShort": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "progressExercises": "TUS EJERCICIOS",
+  "progressE1rmRange": "e1RM {from} → {to} {unit}",
+  "@progressE1rmRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "progressRepsRange": "{from} → {to} reps",
+  "@progressRepsRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "progressOneWeek": "Una semana con datos",
+  "progressOpenChart": "Ver gráfico de {name}",
+  "@progressOpenChart": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "progressHide": "Ocultar {name}",
+  "@progressHide": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "progressShow": "Mostrar {name}",
+  "@progressShow": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "progressHidden": "Ocultos ({count})",
+  "@progressHidden": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "progressRecords": "RÉCORDS DEL PERÍODO",
+  "progressNoRecords": "Sin récords nuevos en este período",
+  "progressWeight": "PESO CORPORAL",
+  "progressWeightDelta": "{delta} en el período",
+  "@progressWeightDelta": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "progressEmpty": "Todavía no hay entrenos registrados en este período.",
+  "progressError": "No se pudo cargar. Revisá tu conexión.",
+  "progressNoDataExercise": "Este ejercicio no tiene datos en el período.",
+  "progressDetailKicker": "e1RM · {period}",
+  "@progressDetailKicker": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "progressDetailRepsKicker": "Reps · {period}",
+  "@progressDetailRepsKicker": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "progressDetailSub": "Mejor serie de cada semana, en la unidad en que la cargaste",
+  "progressRepsValue": "{n} reps",
+  "@progressRepsValue": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "progressWeekByWeek": "SEMANA A SEMANA",
+  "progressBestSet": "{weight} × {reps} · e1RM {e1rm}",
+  "@progressBestSet": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      },
+      "e1rm": {
+        "type": "String"
+      }
+    }
+  },
+  "progressBestBw": "{reps} reps",
+  "@progressBestBw": {
+    "placeholders": {
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
+  "progressPrLegend": "Récord (nuevo PR)",
+  "streakComplete": "{count, plural, =1{Racha: 1 semana completa} other{Racha: {count} semanas completas}}",
+  "@streakComplete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakNext": "Completá esta y van {n}",
+  "@streakNext": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "streakThisWeekDone": "Esta semana ya está ✓",
+  "streakCompleteThisWeek": "Completá esta semana",
+  "progressLastPr": "Último PR: {name}",
+  "@progressLastPr": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "progressAdherencePct": "{pct} %",
+  "@progressAdherencePct": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "progressWorkoutsUntilToday": "de adherencia · {done} de {due} entrenos hasta hoy",
+  "@progressWorkoutsUntilToday": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "due": {
         "type": "int"
       }
     }

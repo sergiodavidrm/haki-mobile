@@ -272,11 +272,67 @@ void main() {
     );
     // Lunes de la semana 2: tocaban día 1 y 3 de S1 + día 1 de S2
     expect(adherenceOf(p, monday.add(const Duration(days: 7))), (2, 3));
-    // Sin calendario no hay días vencidos
-    expect(
-      adherenceOf(detail(start: monday, weeks: plainWeeks(1)), monday),
-      isNull,
+    // Sin nada hecho ni semanas cerradas, no tocaba ninguno
+    expect(adherenceOf(detail(start: monday, weeks: plainWeeks(1)), monday), (
+      0,
+      0,
+    ));
+    expect(adherenceOf(detail(weeks: plainWeeks(1)), monday), (0, 0));
+  });
+
+  group('dueDaysOf sin calendario (regla única 2026-11-04)', () {
+    // Entreno hecho al mediodía (hora local) de ese día
+    DayDto doneOn(int week, int n, DateTime d) => day(
+      week,
+      n,
+      status: SessionStatus.completed,
+      completedAt: DateTime(d.year, d.month, d.day, 12),
     );
-    expect(adherenceOf(detail(weeks: plainWeeks(1)), monday), isNull);
+    final tue = monday.add(const Duration(days: 1));
+    final wed = monday.add(const Duration(days: 2));
+    final thu = monday.add(const Duration(days: 3));
+    final nextMon = monday.add(const Duration(days: 7));
+
+    AssignmentDetailDto undated(List<DayDto> w1, List<DayDto> w2) => detail(
+      weeks: [
+        WeekDto(weekNumber: 1, days: w1),
+        WeekDto(weekNumber: 2, days: w2),
+      ],
+    );
+    final s2 = [day(2, 1), day(2, 2), day(2, 3)];
+
+    test('semana abierta: solo cuentan los hechos', () {
+      final p = undated([doneOn(1, 1, monday), doneOn(1, 2, tue), day(1, 3)], s2);
+      expect(adherenceOf(p, thu), (2, 2));
+    });
+
+    test('7 días después del primer entreno cierra: el que falta, faltó', () {
+      final p = undated([doneOn(1, 1, monday), doneOn(1, 2, tue), day(1, 3)], s2);
+      expect(adherenceOf(p, nextMon), (2, 3));
+      final missed = dueDaysOf(p, nextMon).firstWhere((d) => d.day.id == 'w1d3');
+      expect(missed.dueOn, nextMon);
+    });
+
+    test('pasó a la semana siguiente: la anterior cierra ese día', () {
+      final p = undated(
+        [doneOn(1, 1, monday), doneOn(1, 2, tue), day(1, 3)],
+        [doneOn(2, 1, thu), day(2, 2), day(2, 3)],
+      );
+      expect(adherenceOf(p, thu), (3, 4));
+    });
+
+    test('con fechas sin días de la semana: cierra al terminar la semana', () {
+      final p = detail(
+        start: monday,
+        weeks: [
+          WeekDto(
+            weekNumber: 1,
+            days: [doneOn(1, 1, monday), day(1, 2), day(1, 3)],
+          ),
+        ],
+      );
+      expect(adherenceOf(p, wed), (1, 1));
+      expect(adherenceOf(p, nextMon), (1, 3));
+    });
   });
 }

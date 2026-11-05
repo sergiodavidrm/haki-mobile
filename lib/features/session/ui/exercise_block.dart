@@ -27,8 +27,9 @@ class ExerciseBlock extends StatelessWidget {
     super.key,
     required this.exercise,
     required this.unit,
+    required this.onToggleUnit,
+    this.unitOverridden = false,
     required this.savedFor,
-    required this.nextSetNumber,
     required this.onSaveSet,
     required this.onVideo,
     this.badge,
@@ -58,11 +59,15 @@ class ExerciseBlock extends StatelessWidget {
   final VoidCallback? onOpenDetail;
 
   final DayExerciseDto exercise;
+
+  /// Unidad efectiva del ejercicio (la del día o la que eligió para este).
   final WeightUnit unit;
+
+  /// Tocar "KG" del encabezado de la tabla.
+  final VoidCallback onToggleUnit;
+  final bool unitOverridden;
   final SavedSet? Function(int setNumber) savedFor;
 
-  /// Serie de este ejercicio que toca ahora (null = la siguiente es de otro).
-  final int? nextSetNumber;
   final SaveSet onSaveSet;
 
   /// [requested] = el coach pidió video de esa serie.
@@ -89,7 +94,13 @@ class ExerciseBlock extends StatelessWidget {
     final table = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SetTableHeader(cols: cols, unit: unit, compact: inSuperset),
+        SetTableHeader(
+          cols: cols,
+          unit: unit,
+          compact: inSuperset,
+          onToggleUnit: onToggleUnit,
+          unitOverridden: unitOverridden,
+        ),
         for (var n = 1; n <= _rowCount; n++)
           SetRow(
             key: ValueKey('${exercise.id}#$n'),
@@ -99,7 +110,6 @@ class ExerciseBlock extends StatelessWidget {
                 .firstOrNull,
             unit: unit,
             saved: savedFor(n),
-            isNext: nextSetNumber == n,
             cols: cols,
             onSave: (w, u, r, rir) => onSaveSet(n, w, u, r, rir),
             onVideo: (requested) => onVideo(n, requested),

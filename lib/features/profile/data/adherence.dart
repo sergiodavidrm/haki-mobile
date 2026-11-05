@@ -94,6 +94,10 @@ class AdherenceReport {
 AdherenceReport adherenceReport(AssignmentDetailDto p, DateTime today) {
   final calendar = p.hasDates && p.dayMappings.isNotEmpty;
   final current = currentWeekOf(p, today);
+  // Regla única de qué ya tocaba (también sin fechas: semana cerrada)
+  final dueOn = {
+    for (final x in dueDaysOf(p, today)) (x.weekNumber, x.day.id): x.dueOn,
+  };
   var done = 0, due = 0, total = 0, setsDone = 0, setsTarget = 0;
   var workoutsDone = 0;
   final weeks = <AdherenceWeek>[];
@@ -107,8 +111,9 @@ AdherenceReport adherenceReport(AssignmentDetailDto p, DateTime today) {
       total++;
       final completed = d.sessionStatus == SessionStatus.completed;
       final date = calendar ? dateOfDay(p, w.weekNumber, d.dayNumber) : null;
-      final isDue = calendar ? date != null && !date.isAfter(today) : completed;
-      // Con calendario cuenta como la tarjeta del Perfil: hechos de los que ya tocaban
+      final dueDate = dueOn[(w.weekNumber, d.id)];
+      final isDue = dueDate != null;
+      // Cuenta como la tarjeta del Perfil: hechos de los que ya tocaban
       if (completed && isDue) done++;
       if (isDue) due++;
       // Series: solo de los entrenos hechos (los que no se hicieron ya bajan
@@ -127,11 +132,11 @@ AdherenceReport adherenceReport(AssignmentDetailDto p, DateTime today) {
       cells.add(switch ((completed, date)) {
         (true, _) => AdherenceCell.done,
         (false, final d?) when d == today => AdherenceCell.today,
-        (false, final d?) when d.isBefore(today) => AdherenceCell.missed,
+        _ when isDue => AdherenceCell.missed,
         _ => AdherenceCell.pending,
       });
-      if (!completed && date != null && date.isBefore(today)) {
-        missed.add(MissedDay(weekNumber: w.weekNumber, day: d, date: date));
+      if (!completed && isDue) {
+        missed.add(MissedDay(weekNumber: w.weekNumber, day: d, date: dueDate));
       }
     }
     if (cells.isEmpty) continue;
@@ -150,7 +155,8 @@ AdherenceReport adherenceReport(AssignmentDetailDto p, DateTime today) {
     assignmentId: p.assignmentId,
     blockName: p.blockName,
     done: done,
-    due: calendar ? due : null,
+    // Todavía no tocaba ninguno: "0 de N" en vez de "0 de 0 hasta hoy"
+    due: due == 0 ? null : due,
     total: total,
     setsDone: setsDone,
     setsTarget: setsTarget,

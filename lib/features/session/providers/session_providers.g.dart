@@ -726,6 +726,134 @@ abstract class _$DayWeightUnit extends $Notifier<WeightUnit> {
   }
 }
 
+/// Unidad por ejercicio (tocar "KG" en el encabezado de su tabla). El switch
+/// del día la borra (todos vuelven a la del día). 2026-11-04: vuelve sin
+/// switch visible por ejercicio (antes una pastilla junto al nombre, que
+/// hacía ruido).
+
+@ProviderFor(ExerciseUnitOverrides)
+final exerciseUnitOverridesProvider = ExerciseUnitOverridesFamily._();
+
+/// Unidad por ejercicio (tocar "KG" en el encabezado de su tabla). El switch
+/// del día la borra (todos vuelven a la del día). 2026-11-04: vuelve sin
+/// switch visible por ejercicio (antes una pastilla junto al nombre, que
+/// hacía ruido).
+final class ExerciseUnitOverridesProvider
+    extends $NotifierProvider<ExerciseUnitOverrides, Map<String, WeightUnit>> {
+  /// Unidad por ejercicio (tocar "KG" en el encabezado de su tabla). El switch
+  /// del día la borra (todos vuelven a la del día). 2026-11-04: vuelve sin
+  /// switch visible por ejercicio (antes una pastilla junto al nombre, que
+  /// hacía ruido).
+  ExerciseUnitOverridesProvider._({
+    required ExerciseUnitOverridesFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'exerciseUnitOverridesProvider',
+         isAutoDispose: false,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$exerciseUnitOverridesHash();
+
+  @override
+  String toString() {
+    return r'exerciseUnitOverridesProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  ExerciseUnitOverrides create() => ExerciseUnitOverrides();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Map<String, WeightUnit> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Map<String, WeightUnit>>(value),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ExerciseUnitOverridesProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$exerciseUnitOverridesHash() =>
+    r'3711967880c2987fb81786606284830d6c8b7ac1';
+
+/// Unidad por ejercicio (tocar "KG" en el encabezado de su tabla). El switch
+/// del día la borra (todos vuelven a la del día). 2026-11-04: vuelve sin
+/// switch visible por ejercicio (antes una pastilla junto al nombre, que
+/// hacía ruido).
+
+final class ExerciseUnitOverridesFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          ExerciseUnitOverrides,
+          Map<String, WeightUnit>,
+          Map<String, WeightUnit>,
+          Map<String, WeightUnit>,
+          String
+        > {
+  ExerciseUnitOverridesFamily._()
+    : super(
+        retry: null,
+        name: r'exerciseUnitOverridesProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: false,
+      );
+
+  /// Unidad por ejercicio (tocar "KG" en el encabezado de su tabla). El switch
+  /// del día la borra (todos vuelven a la del día). 2026-11-04: vuelve sin
+  /// switch visible por ejercicio (antes una pastilla junto al nombre, que
+  /// hacía ruido).
+
+  ExerciseUnitOverridesProvider call(String dayId) =>
+      ExerciseUnitOverridesProvider._(argument: dayId, from: this);
+
+  @override
+  String toString() => r'exerciseUnitOverridesProvider';
+}
+
+/// Unidad por ejercicio (tocar "KG" en el encabezado de su tabla). El switch
+/// del día la borra (todos vuelven a la del día). 2026-11-04: vuelve sin
+/// switch visible por ejercicio (antes una pastilla junto al nombre, que
+/// hacía ruido).
+
+abstract class _$ExerciseUnitOverrides
+    extends $Notifier<Map<String, WeightUnit>> {
+  late final _$args = ref.$arg as String;
+  String get dayId => _$args;
+
+  Map<String, WeightUnit> build(String dayId);
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref as $Ref<Map<String, WeightUnit>, Map<String, WeightUnit>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<Map<String, WeightUnit>, Map<String, WeightUnit>>,
+              Map<String, WeightUnit>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, () => build(_$args));
+  }
+}
+
 /// Resumen del entreno (Entreno completado), en la unidad del día.
 
 @ProviderFor(workoutSummary)

@@ -106,6 +106,26 @@ class DayWeightUnit extends _$DayWeightUnit {
   void set(WeightUnit unit) => state = unit;
 }
 
+/// Unidad por ejercicio (tocar "KG" en el encabezado de su tabla). El switch
+/// del día la borra (todos vuelven a la del día). 2026-11-04: vuelve sin
+/// switch visible por ejercicio (antes una pastilla junto al nombre, que
+/// hacía ruido).
+@Riverpod(keepAlive: true)
+class ExerciseUnitOverrides extends _$ExerciseUnitOverrides {
+  @override
+  Map<String, WeightUnit> build(String dayId) => const {};
+
+  /// Si al invertir queda igual que la unidad del día, se borra el override.
+  void toggle(String dayExerciseId, WeightUnit current, WeightUnit dayUnit) {
+    final next = current.other;
+    state = next == dayUnit
+        ? ({...state}..remove(dayExerciseId))
+        : {...state, dayExerciseId: next};
+  }
+
+  void clear() => state = const {};
+}
+
 /// Resumen del entreno (Entreno completado), en la unidad del día.
 @riverpod
 Future<WorkoutSummary> workoutSummary(

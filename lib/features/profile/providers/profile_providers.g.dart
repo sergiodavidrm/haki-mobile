@@ -48,7 +48,7 @@ final class CurrentAdherenceProvider
   }
 }
 
-String _$currentAdherenceHash() => r'3977fe80a627503b5799da773e1262e2d6406b05';
+String _$currentAdherenceHash() => r'af781295b2e3e4b593f390599f38e79d695f232e';
 
 /// Pantalla Adherencia: el programa en curso + el anterior (para comparar).
 /// null si no hay programa en curso.

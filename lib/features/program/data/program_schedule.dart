@@ -328,22 +328,107 @@ DateTime? dateOfDay(AssignmentDetailDto p, int weekNumber, int dayNumber) {
   );
 }
 
-/// Adherencia del programa: (hechos, que ya tocaban) contando solo los días
-/// con fecha hasta [today] inclusive y con ejercicios. null si el programa no
-/// tiene calendario (sin fechas o sin día de la semana por entreno): ahí ningún
-/// día "vence".
-(int, int)? adherenceOf(AssignmentDetailDto p, DateTime today) {
-  if (!p.hasDates || p.dayMappings.isEmpty) return null;
-  var done = 0, due = 0;
-  for (final w in p.weeks) {
-    for (final d in w.days) {
-      final date = dateOfDay(p, w.weekNumber, d.dayNumber);
-      if (date == null || date.isAfter(today) || d.exercises.isEmpty) continue;
-      due++;
-      if (d.sessionStatus == SessionStatus.completed) done++;
+/// Un entreno (con ejercicios) y desde cuándo "tocaba" ([dueOn] null =
+/// todavía no toca). Misma regla que haki-api `ProgramCalendar.DueDays`.
+class DueDay {
+  const DueDay({required this.weekNumber, required this.day, this.dueOn});
+
+  final int weekNumber;
+  final DayDto day;
+  final DateTime? dueOn;
+
+  bool get done => day.sessionStatus == SessionStatus.completed;
+}
+
+/// Días que cierran una semana sin fechas después de su primer entreno.
+const undatedWeekDays = 7;
+
+/// Regla única (2026-11-04) de qué entrenos ya tocaban:
+/// - Con fechas y día de la semana por entreno: en su fecha (hoy solo si ya
+///   se hizo).
+/// - Con fechas sin días de la semana: los no hechos al terminar su semana de
+///   calendario; los hechos, el día que se hicieron.
+/// - Sin fechas: la semana cierra con lo primero que pase: hizo todos sus
+///   días, entrenó un día de una semana posterior, o pasaron 7 días desde su
+///   primer entreno. Los no hechos de una semana cerrada tocan ese día
+///   (faltó); los hechos, el día que se hicieron.
+List<DueDay> dueDaysOf(AssignmentDetailDto p, DateTime today) {
+  final t = dateOnly(today);
+  final days = [
+    for (final w in p.weeks)
+      for (final d in w.days)
+        if (d.exercises.isNotEmpty) (week: w.weekNumber, day: d),
+  ];
+  DateTime? doneOn(DayDto d) => d.sessionStatus != SessionStatus.completed
+      ? null
+      : dateOnly((d.completedAt ?? d.startedAt ?? t).toLocal());
+
+  if (p.hasDates && p.dayMappings.isNotEmpty) {
+    return [
+      for (final x in days)
+        () {
+          final date = dateOfDay(p, x.week, x.day.dayNumber);
+          final done = x.day.sessionStatus == SessionStatus.completed;
+          final due =
+              date != null && (date.isBefore(t) || (date == t && done));
+          return DueDay(weekNumber: x.week, day: x.day, dueOn: due ? date : null);
+        }(),
+    ];
+  }
+
+  if (p.hasDates) {
+    final start = dateOnly(p.startDate!);
+    return [
+      for (final x in days)
+        () {
+          final on = doneOn(x.day);
+          if (on != null) return DueDay(weekNumber: x.week, day: x.day, dueOn: on);
+          final weekEnd = start.add(Duration(days: x.week * 7 - 1));
+          return DueDay(
+            weekNumber: x.week,
+            day: x.day,
+            dueOn: weekEnd.isBefore(t) ? weekEnd : null,
+          );
+        }(),
+    ];
+  }
+
+  // Sin fechas: fecha en que cerró cada semana (solo las cerradas hasta hoy)
+  final closes = <int, DateTime>{};
+  for (final week in days.map((x) => x.week).toSet()) {
+    final weekDays = days.where((x) => x.week == week).toList();
+    final dates = weekDays.map((x) => doneOn(x.day)).nonNulls.toList()..sort();
+    final later =
+        days
+            .where((x) => x.week > week)
+            .map((x) => doneOn(x.day))
+            .nonNulls
+            .toList()
+          ..sort();
+    final candidates = [
+      if (dates.length == weekDays.length && dates.isNotEmpty) dates.last,
+      if (dates.isNotEmpty) dates.first.add(const Duration(days: undatedWeekDays)),
+      if (later.isNotEmpty) later.first,
+    ]..sort();
+    if (candidates.isNotEmpty && !candidates.first.isAfter(t)) {
+      closes[week] = candidates.first;
     }
   }
-  return (done, due);
+  return [
+    for (final x in days)
+      DueDay(
+        weekNumber: x.week,
+        day: x.day,
+        dueOn: doneOn(x.day) ?? closes[x.week],
+      ),
+  ];
+}
+
+/// Adherencia del programa: (hechos, que ya tocaban) hasta [today], con la
+/// regla de [dueDaysOf] (también en programas sin fechas).
+(int, int) adherenceOf(AssignmentDetailDto p, DateTime today) {
+  final due = dueDaysOf(p, today).where((d) => d.dueOn != null).toList();
+  return (due.where((d) => d.done).length, due.length);
 }
 
 /// Duración del entreno si se sabe y es creíble (1 min – 6 h).

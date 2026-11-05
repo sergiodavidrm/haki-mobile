@@ -1280,6 +1280,12 @@ abstract class AppLocalizations {
   /// **'Peso de la serie {set} en {unit}'**
   String setWeightLabel(int set, String unit);
 
+  /// No description provided for @exerciseUnitToggle.
+  ///
+  /// In es, this message translates to:
+  /// **'Unidad de este ejercicio: {unit}. Cambiar a {other}'**
+  String exerciseUnitToggle(String unit, String other);
+
   /// No description provided for @setRepsLabel.
   ///
   /// In es, this message translates to:
@@ -3187,6 +3193,276 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{count} cardio · {minutes} min'**
   String todayChipCardios(int count, int minutes);
+
+  /// No description provided for @progressTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu progreso'**
+  String get progressTitle;
+
+  /// No description provided for @progressCardFooter.
+  ///
+  /// In es, this message translates to:
+  /// **'Ejercicios, constancia, récords y peso'**
+  String get progressCardFooter;
+
+  /// No description provided for @progressPeriodBlock.
+  ///
+  /// In es, this message translates to:
+  /// **'Este bloque'**
+  String get progressPeriodBlock;
+
+  /// No description provided for @progressPeriodPrevious.
+  ///
+  /// In es, this message translates to:
+  /// **'Bloque anterior'**
+  String get progressPeriodPrevious;
+
+  /// No description provided for @progressPeriodWeeks.
+  ///
+  /// In es, this message translates to:
+  /// **'Últimas {n} semanas'**
+  String progressPeriodWeeks(int n);
+
+  /// No description provided for @progressPeriodMonths3.
+  ///
+  /// In es, this message translates to:
+  /// **'Últimos 3 meses'**
+  String get progressPeriodMonths3;
+
+  /// No description provided for @progressKickerWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Semana {week} de {total}'**
+  String progressKickerWeek(int week, int total);
+
+  /// No description provided for @progressKickerEnded.
+  ///
+  /// In es, this message translates to:
+  /// **'Terminó el {date}'**
+  String progressKickerEnded(String date);
+
+  /// No description provided for @progressKickerRange.
+  ///
+  /// In es, this message translates to:
+  /// **'Últimas {n} semanas'**
+  String progressKickerRange(int n);
+
+  /// No description provided for @progressNoteBlock.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuenta las semanas terminadas y lo que llevás de esta'**
+  String get progressNoteBlock;
+
+  /// No description provided for @progressNoteEnded.
+  ///
+  /// In es, this message translates to:
+  /// **'Las {n} semanas del bloque'**
+  String progressNoteEnded(int n);
+
+  /// No description provided for @progressConstancy.
+  ///
+  /// In es, this message translates to:
+  /// **'TU CONSTANCIA'**
+  String get progressConstancy;
+
+  /// No description provided for @progressWorkoutsOf.
+  ///
+  /// In es, this message translates to:
+  /// **'entrenos de {due} que tocaban'**
+  String progressWorkoutsOf(int due);
+
+  /// No description provided for @progressStreak.
+  ///
+  /// In es, this message translates to:
+  /// **'semanas seguidas'**
+  String get progressStreak;
+
+  /// No description provided for @progressWeekShort.
+  ///
+  /// In es, this message translates to:
+  /// **'S{n}'**
+  String progressWeekShort(int n);
+
+  /// No description provided for @progressExercises.
+  ///
+  /// In es, this message translates to:
+  /// **'TUS EJERCICIOS'**
+  String get progressExercises;
+
+  /// No description provided for @progressE1rmRange.
+  ///
+  /// In es, this message translates to:
+  /// **'e1RM {from} → {to} {unit}'**
+  String progressE1rmRange(String from, String to, String unit);
+
+  /// No description provided for @progressRepsRange.
+  ///
+  /// In es, this message translates to:
+  /// **'{from} → {to} reps'**
+  String progressRepsRange(String from, String to);
+
+  /// No description provided for @progressOneWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Una semana con datos'**
+  String get progressOneWeek;
+
+  /// No description provided for @progressOpenChart.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver gráfico de {name}'**
+  String progressOpenChart(String name);
+
+  /// No description provided for @progressHide.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocultar {name}'**
+  String progressHide(String name);
+
+  /// No description provided for @progressShow.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostrar {name}'**
+  String progressShow(String name);
+
+  /// No description provided for @progressHidden.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocultos ({count})'**
+  String progressHidden(int count);
+
+  /// No description provided for @progressRecords.
+  ///
+  /// In es, this message translates to:
+  /// **'RÉCORDS DEL PERÍODO'**
+  String get progressRecords;
+
+  /// No description provided for @progressNoRecords.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin récords nuevos en este período'**
+  String get progressNoRecords;
+
+  /// No description provided for @progressWeight.
+  ///
+  /// In es, this message translates to:
+  /// **'PESO CORPORAL'**
+  String get progressWeight;
+
+  /// No description provided for @progressWeightDelta.
+  ///
+  /// In es, this message translates to:
+  /// **'{delta} en el período'**
+  String progressWeightDelta(String delta);
+
+  /// No description provided for @progressEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no hay entrenos registrados en este período.'**
+  String get progressEmpty;
+
+  /// No description provided for @progressError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar. Revisá tu conexión.'**
+  String get progressError;
+
+  /// No description provided for @progressNoDataExercise.
+  ///
+  /// In es, this message translates to:
+  /// **'Este ejercicio no tiene datos en el período.'**
+  String get progressNoDataExercise;
+
+  /// No description provided for @progressDetailKicker.
+  ///
+  /// In es, this message translates to:
+  /// **'e1RM · {period}'**
+  String progressDetailKicker(String period);
+
+  /// No description provided for @progressDetailRepsKicker.
+  ///
+  /// In es, this message translates to:
+  /// **'Reps · {period}'**
+  String progressDetailRepsKicker(String period);
+
+  /// No description provided for @progressDetailSub.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejor serie de cada semana, en la unidad en que la cargaste'**
+  String get progressDetailSub;
+
+  /// No description provided for @progressRepsValue.
+  ///
+  /// In es, this message translates to:
+  /// **'{n} reps'**
+  String progressRepsValue(String n);
+
+  /// No description provided for @progressWeekByWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'SEMANA A SEMANA'**
+  String get progressWeekByWeek;
+
+  /// No description provided for @progressBestSet.
+  ///
+  /// In es, this message translates to:
+  /// **'{weight} × {reps} · e1RM {e1rm}'**
+  String progressBestSet(String weight, int reps, String e1rm);
+
+  /// No description provided for @progressBestBw.
+  ///
+  /// In es, this message translates to:
+  /// **'{reps} reps'**
+  String progressBestBw(int reps);
+
+  /// No description provided for @progressPrLegend.
+  ///
+  /// In es, this message translates to:
+  /// **'Récord (nuevo PR)'**
+  String get progressPrLegend;
+
+  /// No description provided for @streakComplete.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{Racha: 1 semana completa} other{Racha: {count} semanas completas}}'**
+  String streakComplete(int count);
+
+  /// No description provided for @streakNext.
+  ///
+  /// In es, this message translates to:
+  /// **'Completá esta y van {n}'**
+  String streakNext(int n);
+
+  /// No description provided for @streakThisWeekDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta semana ya está ✓'**
+  String get streakThisWeekDone;
+
+  /// No description provided for @streakCompleteThisWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Completá esta semana'**
+  String get streakCompleteThisWeek;
+
+  /// No description provided for @progressLastPr.
+  ///
+  /// In es, this message translates to:
+  /// **'Último PR: {name}'**
+  String progressLastPr(String name);
+
+  /// No description provided for @progressAdherencePct.
+  ///
+  /// In es, this message translates to:
+  /// **'{pct} %'**
+  String progressAdherencePct(int pct);
+
+  /// No description provided for @progressWorkoutsUntilToday.
+  ///
+  /// In es, this message translates to:
+  /// **'de adherencia · {done} de {due} entrenos hasta hoy'**
+  String progressWorkoutsUntilToday(int done, int due);
 }
 
 class _AppLocalizationsDelegate

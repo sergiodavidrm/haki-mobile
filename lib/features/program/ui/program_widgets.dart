@@ -4,6 +4,7 @@ import '../../../core/format/dates.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/widgets/dashed_border.dart';
 import '../../../core/widgets/haki_card.dart';
+import '../../../core/widgets/partial_ring.dart';
 import '../../../core/widgets/section_label.dart';
 import '../../../core/widgets/segmented_progress.dart';
 import '../data/assignment_dtos.dart';
@@ -315,7 +316,10 @@ class DayRowTile extends StatelessWidget {
     final ss = d.supersetCount;
     return [
       ?when,
-      l.exercisesCount(n),
+      if (row.kind == DayRowKind.done && d.isPartial)
+        l.daySetsOf(d.setsDone!, d.setsTotal!)
+      else
+        l.exercisesCount(n),
       if (duration != null)
         l.minutesShort(duration.inMinutes)
       else if (ss > 0)
@@ -366,6 +370,22 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final number = '${row.day.dayNumber}';
+    if (row.kind == DayRowKind.done && row.day.partialProgress != null) {
+      return Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: c.turquoiseSurface,
+        ),
+        child: PartialRing(
+          size: 36,
+          progress: row.day.partialProgress!,
+          strokeWidth: 3,
+          child: Icon(Icons.check_rounded, size: 17, color: c.turquoise),
+        ),
+      );
+    }
     if (row.kind == DayRowKind.done) {
       return Container(
         width: 36,

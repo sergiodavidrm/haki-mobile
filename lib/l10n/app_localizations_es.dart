@@ -225,6 +225,25 @@ class AppLocalizationsEs extends AppLocalizations {
   String get stripNone => 'sin entreno';
 
   @override
+  String get stripPartial => 'entreno hecho en parte';
+
+  @override
+  String daySetsOf(int done, int total) {
+    return '$done de $total series';
+  }
+
+  @override
+  String pastSessionUnlogged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ejercicios sin registrar',
+      one: '1 ejercicio sin registrar',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String workoutsDoneOf(int done, int total) {
     return '$done de $total entrenos';
   }

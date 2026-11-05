@@ -257,6 +257,19 @@ void main() {
     expect(file.existsSync(), isFalse);
   });
 
+  test('Finalizar rechazado con 409 (día vacío) reabre el día y no traba la cola', () async {
+    api.errors['/workout-sessions/ses-1/complete'] = 409;
+    await saveSet(1);
+    await store.complete('a1', 'd1');
+    await settle();
+
+    expect(api.calls, contains('PUT /workout-sessions/ses-1/complete'));
+    final session = await db.select(db.localSessions).getSingle();
+    expect(session.completedAt, isNull);
+    expect(session.completeSynced, isFalse);
+    expect(await store.pendingCount(), 0);
+  });
+
   test('abrir un día sin cargar nada no crea la sesión en la API', () async {
     await store.start('a1', 'd1');
     await settle();

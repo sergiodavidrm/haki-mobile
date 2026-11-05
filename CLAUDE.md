@@ -911,6 +911,26 @@ en `ios/Runner.xcodeproj/project.pbxproj` (bug): descartar ese cambio con
 Pendiente de marca: fuente Raleway para el wordmark "haki" (el web la usa) y
 el dorado del logo del web es `#C9A84C` vs. `gold` `#B8922A` del tema.
 
+### Día parcial (2026-11-05)
+
+Completado con menos de la mitad de las series de fuerza con reps (misma
+regla que la API, `SessionCompletion`). `mergeLocalSessions` le pone a cada
+día completado `setsDone`/`setsTotal` (`setProgressOf`, con las series del
+teléfono encima de la API: `watchSetsOf`) → `DayDto.isPartial` /
+`partialProgress`. Solo cambia cómo se ve: anillo turquesa a medias
+(`PartialRing`) en la tira de Hoy y en el día del tab Programa ("6 de 14
+series" en vez de "N ejercicios") y resumen con barra en la Sesión pasada.
+Sin "incompleto" ni ámbar (eso es del web). Mockup: fila "Día parcial" del
+canvas Haki Mobile.
+
+### Finalizar un día vacío (2026-11-05)
+
+Finalizar queda deshabilitado (sin texto de ayuda, decisión de Sergio) si no
+hay ninguna serie guardada ni cardio/movilidad Hecho (`hasAnyWork` en
+`session_plan.dart`). La API también lo rechaza (409); `_completeSessions`
+espera a que suban las series y los Hecho del día y, si igual recibe 409,
+reabre el día en el teléfono (`completedAt` null) en vez de reintentar.
+
 ### Sync: un rechazo no frena la cola (2026-11-04)
 
 Bug en test: `PUT …/note` daba 409 siempre (API) y `SessionSync` cortaba la

@@ -201,6 +201,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             (i) => savedFor(e, i + 1),
           ).where((x) => x == null).length;
     });
+    final canFinish = hasAnyWork(
+      s.day.exercises,
+      done,
+      (e, n) => savedFor(e, n) != null,
+    );
     final pendingSync = local.values.where((l) => !l.synced).length;
     final completed =
         session?.completedAt != null ||
@@ -293,7 +298,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                 )
               else
                 OutlinedButton(
-                  onPressed: () => _finish(missingSets),
+                  onPressed: canFinish ? () => _finish(missingSets) : null,
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(50),
                     foregroundColor: context.colors.text,

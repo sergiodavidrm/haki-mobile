@@ -114,6 +114,11 @@
   "stripDone": "entreno hecho",
   "stripPlanned": "entreno",
   "stripNone": "sin entreno",
+  "stripPartial": "entreno hecho en parte",
+  "daySetsOf": "{done} de {total} series",
+  "@daySetsOf": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}}},
+  "pastSessionUnlogged": "{count, plural, =1{1 ejercicio sin registrar} other{{count} ejercicios sin registrar}}",
+  "@pastSessionUnlogged": {"placeholders": {"count": {"type": "int"}}},
   "workoutsDoneOf": "{done} de {total} entrenos",
   "@workoutsDoneOf": {
     "placeholders": {

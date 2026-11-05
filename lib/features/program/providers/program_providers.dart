@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/cache/api_cache.dart';
 import '../../auth/providers/auth_me_provider.dart';
+import '../../session/data/session_plan.dart';
 import '../../session/data/session_store.dart';
 import '../data/assignment_dtos.dart';
 import '../data/program_repository.dart';
@@ -53,8 +54,15 @@ Future<AssignmentDetailDto> programWithLocal(
   final local = await ref.watch(
     _localSessionsStreamProvider(assignmentId).future,
   );
-  return mergeLocalSessions(remote, local);
+  final sets = await ref.watch(_localSetsStreamProvider(assignmentId).future);
+  return mergeLocalSessions(remote, local, {
+    for (final s in sets) setKey(s.dayExerciseId, s.setNumber): s,
+  });
 }
+
+@riverpod
+Stream<List<LocalSetEntry>> _localSetsStream(Ref ref, String assignmentId) =>
+    ref.watch(sessionStoreProvider).watchSetsOf(assignmentId);
 
 @riverpod
 Stream<List<LocalSessionInfo>> _localSessionsStream(
@@ -63,14 +71,16 @@ Stream<List<LocalSessionInfo>> _localSessionsStream(
 ) => ref.watch(sessionStoreProvider).watchSessionsOf(assignmentId);
 
 /// Lo local manda, salvo que la API ya tenga el día completado y en el
-/// teléfono figure solo empezado (se completó desde otro lado).
+/// teléfono figure solo empezado (se completó desde otro lado). Los días
+/// completados llevan sus series hechas / totales ([sets] = series del
+/// teléfono por `setKey`), para mostrar el día parcial.
 AssignmentDetailDto mergeLocalSessions(
   AssignmentDetailDto remote,
-  List<LocalSessionInfo> local,
-) {
-  if (local.isEmpty) return remote;
+  List<LocalSessionInfo> local, [
+  Map<String, LocalSetEntry> sets = const {},
+]) {
   final byDay = {for (final s in local) s.dayId: s};
-  return remote.mapDays((d) {
+  DayDto merged(DayDto d) {
     final s = byDay[d.id];
     if (s == null) return d;
     if (s.completedAt == null) {
@@ -83,6 +93,13 @@ AssignmentDetailDto mergeLocalSessions(
       startedAt: s.startedAt,
       completedAt: s.completedAt,
     );
+  }
+
+  return remote.mapDays((d) {
+    final m = merged(d);
+    if (m.sessionStatus != SessionStatus.completed) return m;
+    final p = setProgressOf(m.exercises, sets);
+    return m.withSetProgress(p.done, p.total);
   });
 }
 

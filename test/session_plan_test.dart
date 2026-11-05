@@ -255,4 +255,37 @@ void main() {
       expect(noteFor(withNote('   '), const {}), isNull);
     });
   });
+
+  test('día parcial: menos de la mitad de las series de fuerza con reps', () {
+    LocalSetEntry set(String id, int n, {int? reps = 10}) => LocalSetEntry(
+      dayExerciseId: id,
+      setNumber: n,
+      weight: 50,
+      unit: WeightUnit.kg,
+      reps: reps,
+      synced: false,
+    );
+    final day = [ex('a', sets: 4), ex('b', sets: 3)]; // 7 series
+    final three = {
+      for (var n = 1; n <= 3; n++) setKey('a', n): set('a', n),
+      setKey('b', 1): set('b', 1, reps: null), // sin reps no cuenta
+    };
+    expect(setProgressOf(day, three), (done: 3, total: 7));
+    DayDto completed(Map<String, LocalSetEntry> local) {
+      final p = setProgressOf(day, local);
+      return DayDto(
+        id: 'd',
+        dayNumber: 1,
+        name: null,
+        sessionStatus: SessionStatus.completed,
+        workoutSessionId: null,
+        exercises: day,
+      ).withSetProgress(p.done, p.total);
+    }
+
+    expect(completed(three).isPartial, isTrue);
+    expect(completed(three).partialProgress, closeTo(3 / 7, 1e-9));
+    final four = {...three, setKey('a', 4): set('a', 4)};
+    expect(completed(four).isPartial, isFalse); // 4 de 7: no es parcial
+  });
 }

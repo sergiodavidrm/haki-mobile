@@ -82,6 +82,16 @@ void main() {
     expect(exerciseFinished(strength('s'), const {}, (_) => true), isTrue);
   });
 
+  test('Finalizar necesita una serie o un Hecho', () {
+    final day = [strength('s'), cardio('cami'), mobility('cat')];
+    bool none(DayExerciseDto e, int n) => false;
+    expect(hasAnyWork(day, const {}, none), isFalse);
+    expect(hasAnyWork(day, const {'cami': false}, none), isFalse);
+    expect(hasAnyWork(day, const {'cat': true}, none), isTrue);
+    expect(hasAnyWork(day, const {}, (e, n) => e.id == 's' && n == 2), isTrue);
+    expect(hasAnyWork(const [], const {}, none), isFalse);
+  });
+
   test('formato de la prescripción', () {
     expect(formatPrescription(ExerciseKinds.cardio, const PrescriptionDto(minutes: 30, intensity: 'zona 2')), '30 min · zona 2');
     expect(formatPrescription(ExerciseKinds.cardio, const PrescriptionDto(minutes: 30, intensity: 'zona 2'), withIntensity: false), '30 min');

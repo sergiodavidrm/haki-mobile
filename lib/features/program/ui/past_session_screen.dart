@@ -79,6 +79,11 @@ class PastSessionScreen extends ConsumerWidget {
                 (_, final DayDto d) => ListView(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                   children: [
+                    if (d.isPartial)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: _PartialSummary(day: d, local: local),
+                      ),
                     for (final g in groupSupersets(d.exercises))
                       for (final e in g.exercises)
                         Padding(
@@ -157,6 +162,67 @@ class PastSessionScreen extends ConsumerWidget {
       if (date != null) capitalize(formatShortDate(date)),
       if (duration != null) l10n.minutesShort(duration.inMinutes),
     ].join(' · ');
+  }
+}
+
+/// Día parcial: "6 de 14 series · 1 ejercicio sin registrar" + barra. Sin
+/// "incompleto" ni colores de alerta (eso queda para el web del coach).
+class _PartialSummary extends StatelessWidget {
+  const _PartialSummary({required this.day, required this.local});
+
+  final DayDto day;
+  final Map<String, LocalSetEntry> local;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final unlogged = day.exercises
+        .where(
+          (e) =>
+              e.isStrength &&
+              !List.generate(
+                setCountOf(e),
+                (i) => savedSetFor(e, i + 1, local),
+              ).any((s) => s?.reps != null),
+        )
+        .length;
+    return HakiCard(
+      radius: 18,
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  context.l10n.daySetsOf(day.setsDone!, day.setsTotal!),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              if (unlogged > 0)
+                Text(
+                  context.l10n.pastSessionUnlogged(unlogged),
+                  style: TextStyle(fontSize: 13, color: c.textMuted),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              value: day.partialProgress,
+              minHeight: 6,
+              color: c.turquoise,
+              backgroundColor: c.border,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

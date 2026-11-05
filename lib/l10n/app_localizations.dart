@@ -494,6 +494,24 @@ abstract class AppLocalizations {
   /// **'sin entreno'**
   String get stripNone;
 
+  /// No description provided for @stripPartial.
+  ///
+  /// In es, this message translates to:
+  /// **'entreno hecho en parte'**
+  String get stripPartial;
+
+  /// No description provided for @daySetsOf.
+  ///
+  /// In es, this message translates to:
+  /// **'{done} de {total} series'**
+  String daySetsOf(int done, int total);
+
+  /// No description provided for @pastSessionUnlogged.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 ejercicio sin registrar} other{{count} ejercicios sin registrar}}'**
+  String pastSessionUnlogged(int count);
+
   /// No description provided for @workoutsDoneOf.
   ///
   /// In es, this message translates to:

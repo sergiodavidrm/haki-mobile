@@ -87,6 +87,13 @@ class SessionStore {
           .watch()
           .map((rows) => rows.map(_session).toList());
 
+  /// Todas las series de un programa (para el día parcial en Hoy y Programa).
+  Stream<List<LocalSetEntry>> watchSetsOf(String assignmentId) =>
+      (_db.select(_db.localSets)
+            ..where((s) => s.assignmentId.equals(assignmentId)))
+          .watch()
+          .map((rows) => rows.map(_set).toList());
+
   Stream<List<LocalSetEntry>> watchSets(String assignmentId, String dayId) =>
       (_db.select(_db.localSets)..where(
             (s) => s.assignmentId.equals(assignmentId) & s.dayId.equals(dayId),

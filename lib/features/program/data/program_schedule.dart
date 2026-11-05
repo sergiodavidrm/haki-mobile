@@ -215,9 +215,14 @@ class StripDay {
     required this.kind,
     required this.isToday,
     this.isSelected = false,
+    this.partialProgress,
   });
 
   final DateTime date;
+
+  /// Día parcial (hecho con menos de la mitad de las series): parte hecha
+  /// 0–1 para el anillo. null = no es parcial.
+  final double? partialProgress;
 
   /// none = sin entreno ese día; planned = hay entreno sin completar.
   final StripDayKind kind;
@@ -244,11 +249,17 @@ List<StripDay>? weekStrip(
     for (var i = 0; i < 7; i++)
       () {
         final d = monday.add(Duration(days: i));
+        final day = _dayOn(p, d);
         return StripDay(
           date: d,
-          kind: _kindOn(p, d),
+          kind: day == null
+              ? StripDayKind.none
+              : day.sessionStatus == SessionStatus.completed
+              ? StripDayKind.done
+              : StripDayKind.planned,
           isToday: d == t,
           isSelected: d == s,
+          partialProgress: day?.partialProgress,
         );
       }(),
   ];
@@ -268,22 +279,16 @@ bool canMoveStrip(AssignmentDetailDto p, DateTime selected, int delta) {
   return !target.isBefore(first) && !target.isAfter(last);
 }
 
-StripDayKind _kindOn(AssignmentDetailDto p, DateTime d) {
-  if (d.isBefore(p.startDate!)) return StripDayKind.none;
+DayDto? _dayOn(AssignmentDetailDto p, DateTime d) {
+  if (d.isBefore(p.startDate!)) return null;
   final n = weekNumberFor(p.startDate!, d);
   final mapping = mappingsForWeek(
     p,
     n,
   ).where((m) => m.weekDay == d.weekday).firstOrNull;
-  if (mapping == null) return StripDayKind.none;
+  if (mapping == null) return null;
   final week = p.weeks.where((w) => w.weekNumber == n).firstOrNull;
-  final day = week?.days
-      .where((x) => x.dayNumber == mapping.dayNumber)
-      .firstOrNull;
-  if (day == null) return StripDayKind.none;
-  return day.sessionStatus == SessionStatus.completed
-      ? StripDayKind.done
-      : StripDayKind.planned;
+  return week?.days.where((x) => x.dayNumber == mapping.dayNumber).firstOrNull;
 }
 
 // ---------------------------------------------------------------------------

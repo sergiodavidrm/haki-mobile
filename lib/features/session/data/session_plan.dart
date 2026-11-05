@@ -109,6 +109,40 @@ bool exerciseFinished(
     ? List.generate(setCountOf(e), (i) => isSaved(i + 1)).every((x) => x)
     : doneFor(e, done);
 
+/// Series de fuerza registradas (con reps) y totales de un día, con lo del
+/// teléfono encima de la API. Total de un ejercicio = las prescritas o más si
+/// cargó más (igual que `SessionCompletion.TotalOf` en haki-api).
+({int done, int total}) setProgressOf(
+  List<DayExerciseDto> exercises,
+  Map<String, LocalSetEntry> local,
+) {
+  var done = 0;
+  var total = 0;
+  for (final e in exercises.where((e) => e.isStrength)) {
+    var n = e.targetSets.length;
+    for (final s in e.loggedSets) {
+      if (s.setNumber > n) n = s.setNumber;
+    }
+    total += n;
+    for (var i = 1; i <= n; i++) {
+      if (savedSetFor(e, i, local)?.reps != null) done++;
+    }
+  }
+  return (done: done, total: total);
+}
+
+/// Hay algo para finalizar: una serie guardada o un cardio/movilidad Hecho.
+/// Sin nada, Finalizar queda deshabilitado (la API también lo rechaza: 409).
+bool hasAnyWork(
+  List<DayExerciseDto> exercises,
+  Map<String, bool> done,
+  bool Function(DayExerciseDto e, int setNumber) isSaved,
+) => exercises.any(
+  (e) => e.isStrength
+      ? List.generate(setCountOf(e), (i) => isSaved(e, i + 1)).any((x) => x)
+      : doneFor(e, done),
+);
+
 String? noteFor(DayExerciseDto e, Map<String, String?> local) {
   final note = local.containsKey(e.id) ? local[e.id] : e.athleteNote;
   final t = note?.trim();

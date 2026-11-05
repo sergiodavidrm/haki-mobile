@@ -187,6 +187,8 @@ class DayDto {
     required this.exercises,
     this.startedAt,
     this.completedAt,
+    this.setsDone,
+    this.setsTotal,
   });
 
   final String id;
@@ -200,6 +202,24 @@ class DayDto {
   /// servidor; si el entreno se hizo sin conexión puede ser más tarde).
   final DateTime? startedAt;
   final DateTime? completedAt;
+
+  /// Días completados: series de fuerza con reps / totales (`setProgressOf`,
+  /// lo arma `mergeLocalSessions`). null = sin calcular.
+  final int? setsDone;
+  final int? setsTotal;
+
+  /// Día parcial (2026-11-05): completado con menos de la mitad de las series.
+  /// Misma regla que `SessionCompletion.IsPartial` en haki-api. Cuenta igual
+  /// como hecho; en la app solo cambia cómo se ve (anillo a medias).
+  bool get isPartial =>
+      sessionStatus == SessionStatus.completed &&
+      setsDone != null &&
+      setsTotal != null &&
+      setsTotal! > 0 &&
+      setsDone! * 2 < setsTotal!;
+
+  /// Parte hecha (0–1) de un día parcial; null si no es parcial.
+  double? get partialProgress => isPartial ? setsDone! / setsTotal! : null;
 
   /// "Día 3 · Espalda y bíceps" (o solo "Día 3" si el coach no le puso nombre).
   String get title {
@@ -222,6 +242,21 @@ class DayDto {
     exercises: exercises,
     startedAt: startedAt ?? this.startedAt,
     completedAt: completedAt ?? this.completedAt,
+    setsDone: setsDone,
+    setsTotal: setsTotal,
+  );
+
+  DayDto withSetProgress(int done, int total) => DayDto(
+    id: id,
+    dayNumber: dayNumber,
+    name: name,
+    sessionStatus: sessionStatus,
+    workoutSessionId: workoutSessionId,
+    exercises: exercises,
+    startedAt: startedAt,
+    completedAt: completedAt,
+    setsDone: done,
+    setsTotal: total,
   );
 
   int get supersetCount => exercises

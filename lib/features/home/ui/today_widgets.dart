@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/widgets/haki_card.dart';
+import '../../../core/widgets/partial_ring.dart';
 import '../../../core/widgets/pill_chip.dart';
 import '../../../core/widgets/section_label.dart';
 import '../../../core/widgets/segmented_progress.dart';
@@ -104,6 +105,8 @@ class _StripDayCell extends StatelessWidget {
       selected: selected,
       label:
           '${formatShortDate(d.date)}: ${switch (d.kind) {
+            StripDayKind.done when d.partialProgress != null =>
+              context.l10n.stripPartial,
             StripDayKind.done => context.l10n.stripDone,
             StripDayKind.planned => context.l10n.stripPlanned,
             StripDayKind.none => context.l10n.stripNone,
@@ -125,7 +128,9 @@ class _StripDayCell extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              Container(
+              _PartialWrap(
+                progress: selected ? null : d.partialProgress,
+                child: Container(
                 width: 40,
                 height: 40,
                 alignment: Alignment.center,
@@ -153,6 +158,7 @@ class _StripDayCell extends StatelessWidget {
                   ),
                 ),
               ),
+              ),
               const SizedBox(height: 6),
               Container(
                 width: 5,
@@ -176,6 +182,19 @@ class _StripDayCell extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Día parcial: el círculo de la tira con el anillo a medias.
+class _PartialWrap extends StatelessWidget {
+  const _PartialWrap({required this.progress, required this.child});
+
+  final double? progress;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => progress == null
+      ? child
+      : PartialRing(size: 40, progress: progress!, child: child);
 }
 
 /// "Semana 2 del programa · 2 de 4 entrenos" (programas sin día de la semana

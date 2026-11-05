@@ -250,7 +250,7 @@ final class ProgramWithLocalProvider
   }
 }
 
-String _$programWithLocalHash() => r'7cd761ba705150f248e68635ca1a104c6584cc75';
+String _$programWithLocalHash() => r'09794f420bfce6bf47d5ec140be3fddd157719fb';
 
 /// Detalle con el estado de los días pisado por lo registrado en el teléfono
 /// (puede no haber llegado a la API todavía). Lo usan Hoy y Programa.
@@ -274,6 +274,83 @@ final class ProgramWithLocalFamily extends $Family
 
   @override
   String toString() => r'programWithLocalProvider';
+}
+
+@ProviderFor(_localSetsStream)
+final _localSetsStreamProvider = _LocalSetsStreamFamily._();
+
+final class _LocalSetsStreamProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<LocalSetEntry>>,
+          List<LocalSetEntry>,
+          Stream<List<LocalSetEntry>>
+        >
+    with
+        $FutureModifier<List<LocalSetEntry>>,
+        $StreamProvider<List<LocalSetEntry>> {
+  _LocalSetsStreamProvider._({
+    required _LocalSetsStreamFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'_localSetsStreamProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$_localSetsStreamHash();
+
+  @override
+  String toString() {
+    return r'_localSetsStreamProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<List<LocalSetEntry>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<LocalSetEntry>> create(Ref ref) {
+    final argument = this.argument as String;
+    return _localSetsStream(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is _LocalSetsStreamProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$_localSetsStreamHash() => r'c583f5c0214ea074292a637abd5b699b006bf9de';
+
+final class _LocalSetsStreamFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<List<LocalSetEntry>>, String> {
+  _LocalSetsStreamFamily._()
+    : super(
+        retry: null,
+        name: r'_localSetsStreamProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  _LocalSetsStreamProvider call(String assignmentId) =>
+      _LocalSetsStreamProvider._(argument: assignmentId, from: this);
+
+  @override
+  String toString() => r'_localSetsStreamProvider';
 }
 
 @ProviderFor(_localSessionsStream)

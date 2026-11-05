@@ -35,6 +35,11 @@ class SessionSync {
 
   bool _running = false;
   bool _again = false;
+
+  /// Alguna nota o Hecho rechazado en esta corrida: se reintenta más tarde
+  /// (no en cada kick) para no repetir el mismo 409 miles de veces.
+  bool _rejected = false;
+  DateTime? _rejectedUntil;
   int _failures = 0;
   Timer? _retry;
 
@@ -51,17 +56,27 @@ class SessionSync {
   Future<void> _run() async {
     _running = true;
     try {
+      final retryRejected =
+          _rejectedUntil == null || DateTime.now().isAfter(_rejectedUntil!);
+      _rejected = false;
       do {
         _again = false;
         await _startSessions();
         await _pushSets();
-        await _pushNotes();
-        await _pushDone();
+        if (retryRejected) {
+          await _pushNotes();
+          await _pushDone();
+        }
         await _completeSessions();
         // Un video por vuelta: series nuevas no esperan a toda la cola
         if (await _pushVideo()) _again = true;
       } while (_again);
       _failures = 0;
+      if (retryRejected) {
+        _rejectedUntil = _rejected
+            ? DateTime.now().add(const Duration(minutes: 10))
+            : null;
+      }
     } on DioException catch (e) {
       _failures++;
       final seconds = min(300, 15 * pow(2, _failures - 1).toInt());
@@ -210,10 +225,14 @@ class SessionSync {
         n.dayExerciseId,
         session!.remoteId!,
       );
-      await _api.put<void>(
+      // Un rechazo de la API (4xx) no frena la cola: antes una nota con 409
+      // cortaba la corrida y Finalizar entreno nunca llegaba al coach
+      if (!await _putOrSkip(
         '/workout-sessions/exercise-logs/$logId/note',
-        data: {'note': n.note},
-      );
+        {'note': n.note},
+      )) {
+        continue;
+      }
       // Solo marcar si no la editaron mientras se mandaba
       await (_db.update(_db.localNotes)..where(
             (x) =>
@@ -245,10 +264,12 @@ class SessionSync {
         d.dayExerciseId,
         session!.remoteId!,
       );
-      await _api.put<void>(
+      if (!await _putOrSkip(
         '/workout-sessions/exercise-logs/$logId/done',
-        data: {'done': d.done},
-      );
+        {'done': d.done},
+      )) {
+        continue;
+      }
       await (_db.update(_db.localDone)..where(
             (x) =>
                 x.assignmentId.equals(d.assignmentId) &
@@ -256,6 +277,25 @@ class SessionSync {
                 x.updatedAt.equals(d.updatedAt),
           ))
           .write(const LocalDoneCompanion(synced: Value(true)));
+    }
+  }
+
+  /// PUT de una nota o un Hecho. false = la API lo rechazó (400/404/409/422):
+  /// queda sin subir y se reintenta en la próxima corrida, pero sin cortar
+  /// esta (las series y Finalizar siguen). Red caída o 401/5xx: se propaga y
+  /// la corrida entera reintenta con backoff.
+  Future<bool> _putOrSkip(String path, Map<String, dynamic> data) async {
+    try {
+      await _api.put<void>(path, data: data);
+      return true;
+    } on DioException catch (e) {
+      final code = e.response?.statusCode;
+      if (code == 400 || code == 404 || code == 409 || code == 422) {
+        debugPrint('SessionSync: rechazado ($code) $path ${e.response?.data}');
+        _rejected = true;
+        return false;
+      }
+      rethrow;
     }
   }
 

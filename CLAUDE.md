@@ -910,3 +910,14 @@ en `ios/Runner.xcodeproj/project.pbxproj` (bug): descartar ese cambio con
 
 Pendiente de marca: fuente Raleway para el wordmark "haki" (el web la usa) y
 el dorado del logo del web es `#C9A84C` vs. `gold` `#B8922A` del tema.
+
+### Sync: un rechazo no frena la cola (2026-11-04)
+
+Bug en test: `PUT …/note` daba 409 siempre (API) y `SessionSync` cortaba la
+corrida ahí, antes de `_completeSessions`: las series subían pero **Finalizar
+entreno nunca llegaba** (en el web los días quedaban sin "Completado") y la
+nota se reintentaba en cada `kick` (~3.000 requests en un día). Ahora notas y
+Hecho van por `_putOrSkip`: 400/404/409/422 = queda sin subir, la corrida
+sigue (series, Finalizar, videos) y lo rechazado se reintenta a los 10 min.
+Red caída, 401 y 5xx siguen cortando la corrida con backoff.
+

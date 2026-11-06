@@ -937,3 +937,93 @@ final class WorkoutSummaryFamily extends $Family
   @override
   String toString() => r'workoutSummaryProvider';
 }
+
+/// Nuevos PR del entreno (Entreno completado). Necesita los récords de la
+/// API: sin red no hay tarjeta de PR (el resto del resumen sí se ve).
+
+@ProviderFor(workoutPrsOf)
+final workoutPrsOfProvider = WorkoutPrsOfFamily._();
+
+/// Nuevos PR del entreno (Entreno completado). Necesita los récords de la
+/// API: sin red no hay tarjeta de PR (el resto del resumen sí se ve).
+
+final class WorkoutPrsOfProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<WorkoutPr>>,
+          List<WorkoutPr>,
+          FutureOr<List<WorkoutPr>>
+        >
+    with $FutureModifier<List<WorkoutPr>>, $FutureProvider<List<WorkoutPr>> {
+  /// Nuevos PR del entreno (Entreno completado). Necesita los récords de la
+  /// API: sin red no hay tarjeta de PR (el resto del resumen sí se ve).
+  WorkoutPrsOfProvider._({
+    required WorkoutPrsOfFamily super.from,
+    required (String, String) super.argument,
+  }) : super(
+         retry: null,
+         name: r'workoutPrsOfProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$workoutPrsOfHash();
+
+  @override
+  String toString() {
+    return r'workoutPrsOfProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<WorkoutPr>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<WorkoutPr>> create(Ref ref) {
+    final argument = this.argument as (String, String);
+    return workoutPrsOf(ref, argument.$1, argument.$2);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is WorkoutPrsOfProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$workoutPrsOfHash() => r'8ff5e00736c66f0f35348edfd063dce263bd9206';
+
+/// Nuevos PR del entreno (Entreno completado). Necesita los récords de la
+/// API: sin red no hay tarjeta de PR (el resto del resumen sí se ve).
+
+final class WorkoutPrsOfFamily extends $Family
+    with
+        $FunctionalFamilyOverride<FutureOr<List<WorkoutPr>>, (String, String)> {
+  WorkoutPrsOfFamily._()
+    : super(
+        retry: null,
+        name: r'workoutPrsOfProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Nuevos PR del entreno (Entreno completado). Necesita los récords de la
+  /// API: sin red no hay tarjeta de PR (el resto del resumen sí se ve).
+
+  WorkoutPrsOfProvider call(String assignmentId, String dayId) =>
+      WorkoutPrsOfProvider._(argument: (assignmentId, dayId), from: this);
+
+  @override
+  String toString() => r'workoutPrsOfProvider';
+}

@@ -429,8 +429,16 @@ Mockup: pantalla "App · Tu progreso" de https://claude.ai/artifact/WqKHzTWsJgE2
 con `ApiCache` (`progressReportProvider(period)`), lógica pura en
 `data/progress_report.dart` (tests en `test/progress_report_test.dart`).
 - Período (`SelectedProgressPeriod`, keepAlive, lo comparten lista y detalle):
-  Este bloque · Bloque anterior · Últimas 4 / 8 semanas · Últimos 3 meses,
-  con un botón que despliega la lista (sin chips con scroll).
+  Este bloque · Bloque anterior · Últimas 4 / 8 semanas, con un botón que
+  despliega la lista (sin chips con scroll). "Últimos 3 meses" se sacó
+  2026-11-05 (Sergio).
+- **Rango de reps (2026-11-05, "App · primera versión" de
+  https://claude.ai/artifact/9mVgiws7MbFZF9ZZGs733g):** si la API manda
+  `repRange` (el ejercicio va en dos rangos de reps), la lista lo agrupa
+  (`groupTrends`, `_RangeGroup`): nombre + ⓘ (único tooltip: por qué dos
+  filas) + ojito, y una fila por rango ("7–12 reps") que abre el detalle de
+  ese rango (`/perfil/progreso/e/:id?rango=mid`, título "Remo T · 13+ reps",
+  sin selector). Selector de rango en el detalle y récords por rango: después.
 - Constancia (hechos de los que tocaban, racha del `streakProvider`, barrita
   por semana), ejercicios del que más subió al que menos con mini gráfico y
   **ojito** para ocultar (`HiddenExercises`, shared_preferences por usuario;
@@ -439,8 +447,12 @@ con `ApiCache` (`progressReportProvider(period)`), lógica pura en
   abre Peso corporal).
 - **Perfil simplificado (2026-11-04, mockup A de
   https://claude.ai/artifact/1xrhyXt7NRLtQaCxs3MgQv):** header → tarjeta
-  **Tu progreso** (`_ProgressCard`: "Racha: N semanas completas" + "Completá
-  esta y van N+1" / "Esta semana ya está ✓", barritas de las últimas 6
+  **Tu progreso** (`_ProgressCard`: "Racha: N semanas completas" + subtítulo
+  de `streakHintOf` (2026-11-05, usa `required` de cada semana que manda la
+  API): "Te falta 1 entreno para sumar la semana N+1" / "Semana asegurada ·
+  te queda 1 entreno" (llegó al mínimo, quedan días) / "Semana completa ✓" /
+  "Hacé 4 entrenos esta semana para arrancar tu racha"; tests en
+  `test/streak_hint_test.dart`), barritas de las últimas 6
   semanas del `streakProvider` y el último PR; **sin porcentajes**, el período
   se elige en Tu progreso) → Peso y Medidas → Tu coach. Salieron del Perfil la
   racha suelta, Adherencia, Récords y PRs recientes (viven en Tu progreso).
@@ -744,8 +756,10 @@ Tab Programa (`features/program/ui/`, 2026-10-17):
   serie registrada** (2026-10-22: se pueden subir videos después del gym;
   mismo flujo y cola que la Sesión, `queueSetVideo` en
   `session/ui/set_video_flow.dart`, botón `SetCameraButton`). En Hoy, un día
-  completado muestra "Ver entreno · subir videos" → esta pantalla. Falta ver
-  (reproducir) los videos.
+  completado muestra "Ver entreno · subir videos" → esta pantalla. Los videos
+  se ven en el Chat (tarjeta del ejercicio), no acá (decisión de Sergio
+  2026-11-05). Tocar una cámara ya subida graba otro que lo reemplaza, sin
+  confirmar (queda así por ahora).
 - Lógica pura: `currentWeekOf`, `dateOfDay`, `weekRows`, `durationOf`,
   `dayCountsOf` (`program_schedule.dart`) y `assign_dates.dart`; tests en
   `test/program_tab_test.dart` y `test/assign_dates_test.dart`.
@@ -792,8 +806,15 @@ Perfil (`features/profile/` + `features/body/`, 2026-10-18):
 - `/perfil/peso` y `/perfil/medidas/m/:key` (`BodySeriesScreen`, misma
   pantalla para el peso y cada medida): último valor, cambio en el rango
   (4 sem / 3 meses / Todo), gráfico (`BodyLineChart`, `CustomPainter`, sin
-  librería), historial con diferencia y botón Registrar peso (hoja, hoy) o
+  librería), historial con diferencia y botón Registrar peso (hoja con fecha:
+  hoy por defecto, tocarla elige otro día hasta 3 años atrás, 2026-11-06) o
   Registrar medidas.
+- **Solo coach (2026-11-06):** `BodyMeasure.coachOnly` y
+  `AuthMeDto.weightCoachOnly` (de `/auth/me`). Registrar medidas usa
+  `loggableMeasurements` (sin las "Solo coach"); sin ninguna no hay botón
+  Registrar medidas (Medidas, historial) ni se abre un registro anterior; con
+  el peso "Solo coach" no hay Registrar peso. Se siguen viendo en Medidas y
+  en los historiales. La API además ignora lo "Solo coach" que mande la app.
 - `/perfil/medidas` (`MeasuresScreen`): solo las que pidió el coach
   (`bodyMeasurements` de `/auth/me`), último valor de cada una y diferencia con
   su registro anterior; tocar una → su historial. Pull-to-refresh vuelve a
@@ -861,7 +882,14 @@ chat.
 
 Entreno completado (`/completado/:assignmentId/:dayId`): Finalizar hace
 `pushReplacement` acá; muestra duración, series hechas/total y volumen en la
-unidad del día. **Duración (2026-10-27, `workoutDuration` en
+unidad del día. **Nuevo PR y videos (2026-11-05):** una tarjeta dorada
+"NUEVO PR" por ejercicio que superó su marca (tocar → Detalle de ejercicio),
+calculada en el teléfono (`workoutPrs` en `session/data/workout_prs.dart`,
+`workoutPrsOfProvider`): mejor e1RM del día vs. el récord vigente de `GET
+progress/{id}/records` (si el récord ya es de ese día, contra su
+`previousE1RmKg`; primera vez = no es PR; sin red no hay tarjeta). Y la cola
+de videos del día ("Subiendo videos para X · 1 de 2" con barra / "Videos
+enviados a X"). Siguen afuera +XP, RPE y nota al coach (falta backend). **Duración (2026-10-27, `workoutDuration` en
 `session_plan.dart`):** de la primera a la última serie guardada en el
 teléfono (`LocalSets.updatedAt`), sumando el arranque de la sesión y el
 Finalizar solo si están a ≤ 30 min; series separadas más de 4 h = sin
@@ -884,9 +912,9 @@ asume del usuario actual. Ajustes → Cerrar sesión avisa si
 **Pendiente de Sesión:** errores 4xx permanentes que traban la cola,
 aviso "Tu coach actualizó este día", Live Activity de iOS para el timer y
 videos. Del mockup de
-Entreno completado faltan (necesitan backend): +XP, nuevo PR, subida de
-videos, RPE de la sesión y nota al coach (`WorkoutSession` no tiene esos
-campos).
+Entreno completado faltan (necesitan backend): +XP, RPE de la sesión y nota
+al coach (`WorkoutSession` no tiene esos campos). Nuevo PR y subida de videos
+ya están (2026-11-05).
 Flujo de UI acordado: Sergio ajusta el mockup → se traduce a widgets con el kit
 (no FlutterFlow ni generadores Figma/HTML → Flutter).
 

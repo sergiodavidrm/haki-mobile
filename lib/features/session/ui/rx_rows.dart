@@ -10,13 +10,17 @@ import '../../program/data/prescription.dart';
 // 22 px. Sin fondos de color: solo borde + etiqueta (violeta / naranja).
 
 Color kindColor(BuildContext context, String kind) =>
-    kind == ExerciseKinds.cardio ? context.colors.cardio : context.colors.mobility;
+    kind == ExerciseKinds.cardio
+    ? context.colors.cardio
+    : context.colors.mobility;
 
-Color kindTextColor(BuildContext context, String kind) => kind == ExerciseKinds.cardio
+Color kindTextColor(BuildContext context, String kind) =>
+    kind == ExerciseKinds.cardio
     ? context.colors.cardioText
     : context.colors.mobilityText;
 
-String kindName(BuildContext context, String kind) => kind == ExerciseKinds.cardio
+String kindName(BuildContext context, String kind) =>
+    kind == ExerciseKinds.cardio
     ? context.l10n.kindCardio
     : context.l10n.kindMobility;
 
@@ -119,7 +123,10 @@ class CardioCard extends StatelessWidget {
     final c = context.colors;
     final rx = exercise.prescription;
     final minutes = formatPrescription(exercise.kind, rx, withIntensity: false);
-    final title = [exercise.exerciseName, if (minutes.isNotEmpty) minutes].join(' · ');
+    final title = [
+      exercise.exerciseName,
+      if (minutes.isNotEmpty) minutes,
+    ].join(' · ');
     final color = kindColor(context, exercise.kind);
     return Semantics(
       button: true,
@@ -129,7 +136,10 @@ class CardioCard extends StatelessWidget {
         color: c.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: done ? color : color.withValues(alpha: .5), width: 1.5),
+          side: BorderSide(
+            color: done ? color : color.withValues(alpha: .5),
+            width: 1.5,
+          ),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -140,7 +150,10 @@ class CardioCard extends StatelessWidget {
               constraints: const BoxConstraints(minHeight: 36),
               child: Row(
                 children: [
-                  RxCheck(done: done, color: kindTextColor(context, exercise.kind)),
+                  RxCheck(
+                    done: done,
+                    color: kindTextColor(context, exercise.kind),
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -163,7 +176,9 @@ class CardioCard extends StatelessWidget {
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                             color: done ? c.textMuted : c.text,
-                            decoration: done ? TextDecoration.lineThrough : null,
+                            decoration: done
+                                ? TextDecoration.lineThrough
+                                : null,
                           ),
                         ),
                       ],
@@ -171,7 +186,10 @@ class CardioCard extends StatelessWidget {
                   ),
                   if ((rx?.intensity ?? '').isNotEmpty) ...[
                     const SizedBox(width: 8),
-                    Text(rx!.intensity!, style: TextStyle(fontSize: 13, color: c.textMuted)),
+                    Text(
+                      rx!.intensity!,
+                      style: TextStyle(fontSize: 13, color: c.textMuted),
+                    ),
                   ],
                 ],
               ),
@@ -210,8 +228,12 @@ class ComboCard extends StatelessWidget {
     final rxItems = exercises.where((e) => !e.isStrength).toList();
     final kinds = rxItems.map((e) => e.kind).toSet();
     // Solo movilidad = violeta; solo cardio = naranja; mezcla = neutro
-    final border = kinds.length == 1 ? kindColor(context, kinds.first) : c.border;
-    final titleColor = kinds.length == 1 ? kindTextColor(context, kinds.first) : c.textSecondary;
+    final border = kinds.length == 1
+        ? kindColor(context, kinds.first)
+        : c.border;
+    final titleColor = kinds.length == 1
+        ? kindTextColor(context, kinds.first)
+        : c.textSecondary;
     final done = rxItems.where(isDone).length;
 
     return Container(

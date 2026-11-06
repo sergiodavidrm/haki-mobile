@@ -1103,6 +1103,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get measureGroupComposition => 'Composition';
 
   @override
+  String get measureGroupSkinfolds => 'Skinfolds';
+
+  @override
   String get measureGroupOther => 'Other';
 
   @override
@@ -1122,12 +1125,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get measureChest => 'Chest';
-
-  @override
-  String get measureLeftArm => 'Left arm';
-
-  @override
-  String get measureRightArm => 'Right arm';
 
   @override
   String get measureLeftForearm => 'Left forearm';
@@ -1164,6 +1161,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get measureVisceralFat => 'Visceral fat';
+
+  @override
+  String get measureLeftBicep => 'Left biceps';
+
+  @override
+  String get measureRightBicep => 'Right biceps';
+
+  @override
+  String get measureShoulders => 'Shoulders';
+
+  @override
+  String get measureFatMass => 'Fat mass';
+
+  @override
+  String get measureBodyWater => 'Body water';
+
+  @override
+  String get measureTricepsSkinfold => 'Triceps skinfold';
+
+  @override
+  String get measureBicepsSkinfold => 'Biceps skinfold';
+
+  @override
+  String get measureSubscapularSkinfold => 'Subscapular skinfold';
+
+  @override
+  String get measureIliacCrestSkinfold => 'Iliac crest skinfold';
+
+  @override
+  String get measureSupraspinaleSkinfold => 'Supraspinale skinfold';
+
+  @override
+  String get measureAbdominalSkinfold => 'Abdominal skinfold';
+
+  @override
+  String get measureThighSkinfold => 'Thigh skinfold';
+
+  @override
+  String get measureCalfSkinfold => 'Calf skinfold';
+
+  @override
+  String get measureChestSkinfold => 'Chest skinfold';
+
+  @override
+  String get measureMidaxillarySkinfold => 'Midaxillary skinfold';
 
   @override
   String get bodyNoWeightYet => 'You haven\'t logged your weight yet.';
@@ -1963,9 +2005,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get progressPeriodMonths3 => 'Last 3 months';
-
-  @override
   String progressKickerWeek(int week, int total) {
     return 'Week $week of $total';
   }
@@ -2125,10 +2164,54 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get streakThisWeekDone => 'This week is done ✓';
+  String get streakThisWeekDone => 'Week complete ✓';
 
   @override
   String get streakCompleteThisWeek => 'Finish this week';
+
+  @override
+  String streakRemaining(int count, int week) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more workouts to make it $week weeks',
+      one: '1 more workout to make it $week weeks',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakRemainingStart(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more workouts to start your streak',
+      one: '1 more workout to start your streak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakStartWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Do $count workouts this week to start your streak',
+      one: 'Do 1 workout this week to start your streak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakSecured(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Week secured · $count workouts left',
+      one: 'Week secured · 1 workout left',
+    );
+    return '$_temp0';
+  }
 
   @override
   String progressLastPr(String name) {
@@ -2144,4 +2227,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String progressWorkoutsUntilToday(int done, int due) {
     return 'adherence · $done of $due workouts so far';
   }
+
+  @override
+  String get repRangeLow => '≤ 6 reps';
+
+  @override
+  String get repRangeMid => '7–12 reps';
+
+  @override
+  String get repRangeHigh => '13+ reps';
+
+  @override
+  String progressRangeWhy(String name) {
+    return 'Why is $name in two rows?';
+  }
+
+  @override
+  String get progressRangeTip =>
+      'Your coach programs it with different loads (for example heavy for 10 reps and light for 15). Each one is compared with itself, so a week without the heavy day doesn\'t look like you went down.';
+
+  @override
+  String progressRangeOnly(String range) {
+    return 'Only your $range sets. Other rep ranges have their own row in Your progress.';
+  }
+
+  @override
+  String get workoutNewPr => 'NEW PR';
+
+  @override
+  String workoutPrDiff(String diff) {
+    return 'e1RM · +$diff';
+  }
+
+  @override
+  String workoutPrSemantics(String exercise, String value) {
+    return 'New PR in $exercise: e1RM $value. Open the exercise';
+  }
+
+  @override
+  String get workoutVideosUploading => 'Uploading videos';
+
+  @override
+  String workoutVideosUploadingFor(String coach) {
+    return 'Uploading videos for $coach';
+  }
+
+  @override
+  String get workoutVideosSent => 'Videos sent';
+
+  @override
+  String workoutVideosSentTo(String coach) {
+    return 'Videos sent to $coach';
+  }
+
+  @override
+  String workoutVideosCount(int done, int total) {
+    return '$done of $total';
+  }
+
+  @override
+  String get workoutVideosHint =>
+      'You can close the app: they\'ll finish uploading when you\'re back online.';
 }

@@ -4,7 +4,7 @@ import '../../profile/data/coach_profile_dto.dart';
 import '../../settings/data/personal_info.dart';
 
 // GET /auth/me → { exists, userId, role, fullName, preferredWeightUnit, coachName,
-// exerciseFeedbackEnabled, bodyMeasurements, accessEndsAt, coach, personal }. role viene del enum de Postgres ("CLIENT" | "COACH" |
+// exerciseFeedbackEnabled, bodyMeasurements (con coachOnly), weightCoachOnly, accessEndsAt, coach, personal }. role viene del enum de Postgres ("CLIENT" | "COACH" |
 // "ADMIN") o null: comparar sin distinguir mayúsculas. Los últimos tres solo
 // para atletas.
 class AuthMeDto {
@@ -18,6 +18,7 @@ class AuthMeDto {
     this.exerciseFeedbackEnabled = false,
     this.videoFeedbackEnabled = true,
     this.bodyMeasurements = const [],
+    this.weightCoachOnly = false,
     this.accessEndsAt,
     this.coach,
     this.personal,
@@ -45,6 +46,13 @@ class AuthMeDto {
   /// Medidas que pidió el coach (estándar o creadas por él), en el orden del
   /// catálogo.
   final List<BodyMeasure> bodyMeasurements;
+
+  /// El peso lo registra solo el coach: sin "Registrar peso" (se ve igual).
+  final bool weightCoachOnly;
+
+  /// Las que el atleta registra desde la app (sin las "Solo coach").
+  List<BodyMeasure> get loggableMeasurements =>
+      bodyMeasurements.where((m) => !m.coachOnly).toList();
 
   /// El coach lo archivó o eliminó: puede usar la app hasta esta fecha
   /// (7 días después). null = sin límite.
@@ -77,6 +85,7 @@ class AuthMeDto {
       for (final j in json['bodyMeasurements'] as List? ?? const [])
         ?BodyMeasure.fromJson(j),
     ],
+    weightCoachOnly: json['weightCoachOnly'] as bool? ?? false,
     accessEndsAt: json['accessEndsAt'] == null
         ? null
         : DateTime.tryParse(json['accessEndsAt'] as String)?.toLocal(),

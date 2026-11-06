@@ -227,10 +227,9 @@ class SessionSync {
       );
       // Un rechazo de la API (4xx) no frena la cola: antes una nota con 409
       // cortaba la corrida y Finalizar entreno nunca llegaba al coach
-      if (!await _putOrSkip(
-        '/workout-sessions/exercise-logs/$logId/note',
-        {'note': n.note},
-      )) {
+      if (!await _putOrSkip('/workout-sessions/exercise-logs/$logId/note', {
+        'note': n.note,
+      })) {
         continue;
       }
       // Solo marcar si no la editaron mientras se mandaba
@@ -264,10 +263,9 @@ class SessionSync {
         d.dayExerciseId,
         session!.remoteId!,
       );
-      if (!await _putOrSkip(
-        '/workout-sessions/exercise-logs/$logId/done',
-        {'done': d.done},
-      )) {
+      if (!await _putOrSkip('/workout-sessions/exercise-logs/$logId/done', {
+        'done': d.done,
+      })) {
         continue;
       }
       await (_db.update(_db.localDone)..where(
@@ -364,12 +362,13 @@ class SessionSync {
       // Día sin nada registrado: la API responde 200 con la sesión en
       // `pending` (antes 409) y no lo cierra → se reabre en el teléfono en vez
       // de reintentar para siempre
-      Future<void> reopen() => (_db.update(_db.localSessions)..where(
-            (x) =>
-                x.assignmentId.equals(s.assignmentId) &
-                x.dayId.equals(s.dayId),
-          ))
-          .write(const LocalSessionsCompanion(completedAt: Value(null)));
+      Future<void> reopen() =>
+          (_db.update(_db.localSessions)..where(
+                (x) =>
+                    x.assignmentId.equals(s.assignmentId) &
+                    x.dayId.equals(s.dayId),
+              ))
+              .write(const LocalSessionsCompanion(completedAt: Value(null)));
       try {
         final res = await _api.put<Map<String, dynamic>>(
           '/workout-sessions/${s.remoteId}/complete',

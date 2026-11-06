@@ -1,9 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:haki_mobile/features/progress/data/progress_report.dart';
 
-Map<String, dynamic> row(String id, List<num?> values, {bool bw = false}) => {
+Map<String, dynamic> row(
+  String id,
+  List<num?> values, {
+  bool bw = false,
+  String? range,
+}) => {
   'exerciseId': id,
   'name': 'Ej $id',
+  'repRange': range,
   'bodyweight': bw,
   'values': values,
   'best': [
@@ -114,8 +120,25 @@ void main() {
   test('período: query para la API', () {
     expect(ProgressPeriod.block.query, 'period=block&byExercise=true');
     expect(
-      ProgressPeriod.weeks12.query,
-      'period=weeks&weeks=12&byExercise=true',
+      ProgressPeriod.weeks8.query,
+      'period=weeks&weeks=8&byExercise=true',
     );
+  });
+
+  test('rango de reps: un grupo por ejercicio, de pesado a liviano', () {
+    final r = ProgressReport.fromJson(
+      report(
+        rows: [
+          row('remo', [57, 60], range: 'high'),
+          row('banca', [100, 101]),
+          row('remo', [90, 93], range: 'mid'),
+        ],
+      ),
+    );
+    final groups = groupTrends(trendsOf(r));
+    expect(groups.map((g) => g.exerciseId), ['remo', 'banca']);
+    expect(groups.first.byRange, isTrue);
+    expect(groups.first.rows.map((t) => t.exercise.repRange), ['mid', 'high']);
+    expect(groups.last.byRange, isFalse);
   });
 }

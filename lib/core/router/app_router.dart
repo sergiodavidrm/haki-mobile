@@ -81,8 +81,8 @@ abstract final class Routes {
   static const personalInfo = '/perfil/ajustes/datos';
   static const records = '/perfil/records';
   static const progress = '/perfil/progreso';
-  static String progressExercise(String exerciseId) =>
-      '/perfil/progreso/e/$exerciseId';
+  static String progressExercise(String exerciseId, {String? range}) =>
+      '/perfil/progreso/e/$exerciseId${range == null ? '' : '?rango=$range'}';
   static const coach = '/perfil/coach';
   static const chatCoach = '/chat/coach';
   static const chatGeneral = '/chat/general';
@@ -288,6 +288,7 @@ GoRouter appRouter(Ref ref) {
                         path: 'e/:exerciseId',
                         builder: (_, state) => ExerciseProgressScreen(
                           exerciseId: state.pathParameters['exerciseId']!,
+                          range: state.uri.queryParameters['rango'],
                         ),
                       ),
                     ],

@@ -37,8 +37,9 @@ class _BodySeriesScreenState extends ConsumerState<BodySeriesScreen> {
     final logs = ref.watch(bodyLogsProvider);
     final unit = ref.watch(bodyWeightUnitProvider);
     final today = dateOnly(DateTime.now());
+    final me = ref.watch(authMeProvider).value;
     final measure = [
-      ...?ref.watch(authMeProvider).value?.bodyMeasurements,
+      ...?me?.bodyMeasurements,
       ...bodyMeasures,
     ].where((m) => m.key == widget.measureKey).firstOrNull;
     final isWeight = measure == null;
@@ -110,15 +111,19 @@ class _BodySeriesScreenState extends ConsumerState<BodySeriesScreen> {
                 _ => const Center(child: CircularProgressIndicator()),
               },
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: FilledButton(
-                onPressed: () => isWeight
-                    ? showWeightSheet(context)
-                    : context.push(Routes.logMeasures()),
-                child: Text(isWeight ? context.l10n.bodyLogWeightButton : context.l10n.measuresLog),
+            // Sin botón si lo registra solo el coach (peso, o ninguna medida del atleta)
+            if (isWeight
+                ? !(me?.weightCoachOnly ?? false)
+                : (me?.loggableMeasurements.isNotEmpty ?? false))
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: FilledButton(
+                  onPressed: () => isWeight
+                      ? showWeightSheet(context)
+                      : context.push(Routes.logMeasures()),
+                  child: Text(isWeight ? context.l10n.bodyLogWeightButton : context.l10n.measuresLog),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -360,7 +365,8 @@ class _Empty extends StatelessWidget {
   );
 }
 
-/// Hoja "Registrar peso" (hoy). También se abre desde la tarjeta del Perfil.
+/// Hoja "Registrar peso": hoy por defecto; tocar la fecha elige otro día
+/// (hasta 3 años atrás, como Registrar medidas).
 Future<void> showWeightSheet(BuildContext context) => showModalBottomSheet(
   context: context,
   isScrollControlled: true,
@@ -380,6 +386,18 @@ class _WeightSheet extends ConsumerStatefulWidget {
 
 class _WeightSheetState extends ConsumerState<_WeightSheet> {
   final _input = TextEditingController();
+  var _date = dateOnly(DateTime.now());
+
+  Future<void> _pickDate() async {
+    final today = dateOnly(DateTime.now());
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _date,
+      firstDate: today.subtract(const Duration(days: 365 * 3)),
+      lastDate: today,
+    );
+    if (picked != null) setState(() => _date = dateOnly(picked));
+  }
 
   @override
   void dispose() {
@@ -391,7 +409,7 @@ class _WeightSheetState extends ConsumerState<_WeightSheet> {
     final value = parseMeasure(_input.text);
     if (value == null) return;
     final saver = ref.read(bodyLogSaverProvider.notifier);
-    final ok = await saver.save(date: dateOnly(DateTime.now()), weight: value);
+    final ok = await saver.save(date: _date, weight: value);
     if (!mounted) return;
     if (ok) {
       Navigator.pop(context);
@@ -449,9 +467,18 @@ class _WeightSheetState extends ConsumerState<_WeightSheet> {
                   ),
                 ),
               ),
-              Text(
-                '${context.l10n.commonToday} · ${formatDayMonth(DateTime.now())}',
-                style: TextStyle(fontSize: 13, color: c.textMuted),
+              ActionChip(
+                onPressed: _pickDate,
+                avatar: Icon(Icons.calendar_today_outlined, size: 14, color: c.text),
+                label: Text(
+                  _date == dateOnly(DateTime.now())
+                      ? '${context.l10n.commonToday} · ${formatDayMonth(_date)}'
+                      : capitalize(formatShortDate(_date)),
+                ),
+                labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: c.text),
+                backgroundColor: c.surfaceHigh,
+                side: BorderSide(color: c.border),
+                shape: const StadiumBorder(),
               ),
             ],
           ),

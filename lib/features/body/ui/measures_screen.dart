@@ -198,7 +198,7 @@ class MeasuresScreen extends ConsumerWidget {
                 _ => const Center(child: CircularProgressIndicator()),
               },
             ),
-            if (measures.isNotEmpty)
+            if (measures.any((m) => !m.coachOnly))
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 child: FilledButton(

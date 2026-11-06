@@ -66,6 +66,18 @@ void main() {
     expect(BodyMeasure.fromJson('nueva'), isNull);
   });
 
+  test('BodyMeasure.fromJson: Solo coach (sin el campo = la registra el atleta)', () {
+    final coach = BodyMeasure.fromJson({
+      'key': 'bodyFatPercentage',
+      'unit': 'percent',
+      'category': 'composition',
+      'coachOnly': true,
+    })!;
+    expect(coach.coachOnly, isTrue);
+    final both = BodyMeasure.fromJson({'key': 'waist', 'unit': 'cm', 'category': 'trunk'})!;
+    expect(both.coachOnly, isFalse);
+  });
+
   test('seriesOf ordena y salta días sin dato', () {
     final logs = [
       log(9, 24, kg: 85.2),

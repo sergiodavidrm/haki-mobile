@@ -790,6 +790,7 @@
   "measureGroupTorso": "Tronco",
   "measureGroupLimbs": "Brazos y piernas",
   "measureGroupComposition": "Composición",
+  "measureGroupSkinfolds": "Pliegues",
   "measureGroupOther": "Otras",
   "measureUnitLevel": "nivel",
   "range4Weeks": "4 sem",
@@ -797,8 +798,6 @@
   "rangeAll": "Todo",
   "measureNeck": "Cuello",
   "measureChest": "Pecho",
-  "measureLeftArm": "Brazo izquierdo",
-  "measureRightArm": "Brazo derecho",
   "measureLeftForearm": "Antebrazo izquierdo",
   "measureRightForearm": "Antebrazo derecho",
   "measureWaist": "Cintura",
@@ -811,6 +810,21 @@
   "measureBodyFat": "Grasa corporal",
   "measureMuscleMass": "Masa muscular",
   "measureVisceralFat": "Grasa visceral",
+  "measureLeftBicep": "Bíceps izquierdo",
+  "measureRightBicep": "Bíceps derecho",
+  "measureShoulders": "Hombros",
+  "measureFatMass": "Masa grasa",
+  "measureBodyWater": "Agua corporal",
+  "measureTricepsSkinfold": "Pliegue tricipital",
+  "measureBicepsSkinfold": "Pliegue bicipital",
+  "measureSubscapularSkinfold": "Pliegue subescapular",
+  "measureIliacCrestSkinfold": "Pliegue cresta ilíaca",
+  "measureSupraspinaleSkinfold": "Pliegue supraespinal",
+  "measureAbdominalSkinfold": "Pliegue abdominal",
+  "measureThighSkinfold": "Pliegue del muslo",
+  "measureCalfSkinfold": "Pliegue de la pantorrilla",
+  "measureChestSkinfold": "Pliegue pectoral",
+  "measureMidaxillarySkinfold": "Pliegue axilar medio",
   "bodyNoWeightYet": "Todavía no registraste tu peso.",
   "bodyNoMeasureYet": "Todavía no registraste esta medida.",
   "bodyWeightShort": "Peso",
@@ -1367,7 +1381,6 @@
       }
     }
   },
-  "progressPeriodMonths3": "Últimos 3 meses",
   "progressKickerWeek": "Semana {week} de {total}",
   "@progressKickerWeek": {
     "placeholders": {
@@ -1567,8 +1580,43 @@
       }
     }
   },
-  "streakThisWeekDone": "Esta semana ya está ✓",
+  "streakThisWeekDone": "Semana completa ✓",
   "streakCompleteThisWeek": "Completá esta semana",
+  "streakRemaining": "{count, plural, =1{Te falta 1 entreno para sumar la semana {week}} other{Te faltan {count} entrenos para sumar la semana {week}}}",
+  "@streakRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "streakRemainingStart": "{count, plural, =1{Te falta 1 entreno para arrancar tu racha} other{Te faltan {count} entrenos para arrancar tu racha}}",
+  "@streakRemainingStart": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakStartWeek": "{count, plural, =1{Hacé 1 entreno esta semana para arrancar tu racha} other{Hacé {count} entrenos esta semana para arrancar tu racha}}",
+  "@streakStartWeek": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakSecured": "{count, plural, =1{Semana asegurada · te queda 1 entreno} other{Semana asegurada · te quedan {count} entrenos}}",
+  "@streakSecured": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "progressLastPr": "Último PR: {name}",
   "@progressLastPr": {
     "placeholders": {
@@ -1595,5 +1643,27 @@
         "type": "int"
       }
     }
-  }
+  },
+  "repRangeLow": "≤ 6 reps",
+  "repRangeMid": "7–12 reps",
+  "repRangeHigh": "13+ reps",
+  "progressRangeWhy": "¿Por qué {name} va en dos filas?",
+  "@progressRangeWhy": {"placeholders": {"name": {"type": "String"}}},
+  "progressRangeTip": "Tu coach te lo pide con cargas distintas (por ejemplo pesado a 10 reps y liviano a 15). Cada uno se compara consigo mismo, así una semana sin el día pesado no parece que bajaste.",
+  "progressRangeOnly": "Solo tus series de {range}. Las de otro rango tienen su propia fila en Tu progreso.",
+  "@progressRangeOnly": {"placeholders": {"range": {"type": "String"}}},
+  "workoutNewPr": "NUEVO PR",
+  "workoutPrDiff": "e1RM · +{diff}",
+  "@workoutPrDiff": {"placeholders": {"diff": {"type": "String"}}},
+  "workoutPrSemantics": "Nuevo PR en {exercise}: e1RM {value}. Abrir el ejercicio",
+  "@workoutPrSemantics": {"placeholders": {"exercise": {"type": "String"}, "value": {"type": "String"}}},
+  "workoutVideosUploading": "Subiendo videos",
+  "workoutVideosUploadingFor": "Subiendo videos para {coach}",
+  "@workoutVideosUploadingFor": {"placeholders": {"coach": {"type": "String"}}},
+  "workoutVideosSent": "Videos enviados",
+  "workoutVideosSentTo": "Videos enviados a {coach}",
+  "@workoutVideosSentTo": {"placeholders": {"coach": {"type": "String"}}},
+  "workoutVideosCount": "{done} de {total}",
+  "@workoutVideosCount": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}}},
+  "workoutVideosHint": "Podés cerrar la app: se terminan de subir cuando vuelvas a tener señal."
 }

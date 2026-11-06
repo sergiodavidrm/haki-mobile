@@ -153,7 +153,10 @@ class RestTimerBar extends ConsumerWidget {
                               if (next != null)
                                 Expanded(
                                   child: Text(
-                                    context.l10n.restThen(next.badge ?? next.exerciseName, next.setNumber),
+                                    context.l10n.restThen(
+                                      next.badge ?? next.exerciseName,
+                                      next.setNumber,
+                                    ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(

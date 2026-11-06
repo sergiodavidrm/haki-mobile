@@ -11,6 +11,7 @@ enum MeasureGroup {
   torso,
   limbs,
   composition,
+  skinfolds,
   other;
 
   /// `category` de la API (trunk | arms | legs | composition | other).
@@ -18,6 +19,7 @@ enum MeasureGroup {
     'trunk' => torso,
     'arms' || 'legs' => limbs,
     'composition' => composition,
+    'skinfolds' => skinfolds,
     _ => other,
   };
 
@@ -25,6 +27,7 @@ enum MeasureGroup {
     torso => l10n.measureGroupTorso,
     limbs => l10n.measureGroupLimbs,
     composition => l10n.measureGroupComposition,
+    skinfolds => l10n.measureGroupSkinfolds,
     other => l10n.measureGroupOther,
   };
 }
@@ -59,6 +62,7 @@ class BodyMeasure {
     this.name,
     this.group, [
     this.kind = MeasureKind.cm,
+    this.coachOnly = false,
   ]);
 
   /// Elemento de `bodyMeasurements` de /auth/me: `{ key, name, unit,
@@ -75,6 +79,7 @@ class BodyMeasure {
       json['name'] as String?,
       MeasureGroup.parse(json['category'] as String?),
       MeasureKind.parse(json['unit'] as String?),
+      json['coachOnly'] as bool? ?? false,
     );
   }
 
@@ -84,6 +89,10 @@ class BodyMeasure {
   final String? name;
   final MeasureGroup group;
   final MeasureKind kind;
+
+  /// La registra solo el coach (2026-11-06): la app no la pide en Registrar
+  /// medidas, pero el atleta la ve en sus medidas y gráficos.
+  final bool coachOnly;
 
   /// Nombre a mostrar: el del coach o el de la estándar en el idioma activo.
   String get label => name ?? _standardLabel(key) ?? key;
@@ -104,8 +113,24 @@ class BodyMeasure {
 String? _standardLabel(String key) => switch (key) {
   'neck' => l10n.measureNeck,
   'chest' => l10n.measureChest,
-  'leftArm' => l10n.measureLeftArm,
-  'rightArm' => l10n.measureRightArm,
+  'leftBicep' => l10n.measureLeftBicep,
+  'rightBicep' => l10n.measureRightBicep,
+  // claves de antes del SQL v2 (= Bíceps), por si la BD todavía no lo tiene
+  'leftArm' => l10n.measureLeftBicep,
+  'rightArm' => l10n.measureRightBicep,
+  'shoulders' => l10n.measureShoulders,
+  'fatMass' => l10n.measureFatMass,
+  'bodyWater' => l10n.measureBodyWater,
+  'tricepsSkinfold' => l10n.measureTricepsSkinfold,
+  'bicepsSkinfold' => l10n.measureBicepsSkinfold,
+  'subscapularSkinfold' => l10n.measureSubscapularSkinfold,
+  'iliacCrestSkinfold' => l10n.measureIliacCrestSkinfold,
+  'supraspinaleSkinfold' => l10n.measureSupraspinaleSkinfold,
+  'abdominalSkinfold' => l10n.measureAbdominalSkinfold,
+  'thighSkinfold' => l10n.measureThighSkinfold,
+  'calfSkinfold' => l10n.measureCalfSkinfold,
+  'chestSkinfold' => l10n.measureChestSkinfold,
+  'midaxillarySkinfold' => l10n.measureMidaxillarySkinfold,
   'leftForearm' => l10n.measureLeftForearm,
   'rightForearm' => l10n.measureRightForearm,
   'waist' => l10n.measureWaist,
@@ -124,8 +149,8 @@ String? _standardLabel(String key) => switch (key) {
 const bodyMeasures = [
   BodyMeasure('neck', null, MeasureGroup.torso),
   BodyMeasure('chest', null, MeasureGroup.torso),
-  BodyMeasure('leftArm', null, MeasureGroup.limbs),
-  BodyMeasure('rightArm', null, MeasureGroup.limbs),
+  BodyMeasure('leftBicep', null, MeasureGroup.limbs),
+  BodyMeasure('rightBicep', null, MeasureGroup.limbs),
   BodyMeasure('leftForearm', null, MeasureGroup.limbs),
   BodyMeasure('rightForearm', null, MeasureGroup.limbs),
   BodyMeasure('waist', null, MeasureGroup.torso),
@@ -153,6 +178,19 @@ const bodyMeasures = [
     MeasureGroup.composition,
     MeasureKind.level,
   ),
+  BodyMeasure('shoulders', null, MeasureGroup.torso),
+  BodyMeasure('fatMass', null, MeasureGroup.composition, MeasureKind.mass),
+  BodyMeasure('bodyWater', null, MeasureGroup.composition, MeasureKind.percent),
+  BodyMeasure('tricepsSkinfold', null, MeasureGroup.skinfolds, MeasureKind.mm),
+  BodyMeasure('bicepsSkinfold', null, MeasureGroup.skinfolds, MeasureKind.mm),
+  BodyMeasure('subscapularSkinfold', null, MeasureGroup.skinfolds, MeasureKind.mm),
+  BodyMeasure('iliacCrestSkinfold', null, MeasureGroup.skinfolds, MeasureKind.mm),
+  BodyMeasure('supraspinaleSkinfold', null, MeasureGroup.skinfolds, MeasureKind.mm),
+  BodyMeasure('abdominalSkinfold', null, MeasureGroup.skinfolds, MeasureKind.mm),
+  BodyMeasure('thighSkinfold', null, MeasureGroup.skinfolds, MeasureKind.mm),
+  BodyMeasure('calfSkinfold', null, MeasureGroup.skinfolds, MeasureKind.mm),
+  BodyMeasure('chestSkinfold', null, MeasureGroup.skinfolds, MeasureKind.mm),
+  BodyMeasure('midaxillarySkinfold', null, MeasureGroup.skinfolds, MeasureKind.mm),
 ];
 
 /// Valor de una medida en una fecha.

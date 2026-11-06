@@ -1826,6 +1826,12 @@ abstract class AppLocalizations {
   /// **'Composición'**
   String get measureGroupComposition;
 
+  /// No description provided for @measureGroupSkinfolds.
+  ///
+  /// In es, this message translates to:
+  /// **'Pliegues'**
+  String get measureGroupSkinfolds;
+
   /// No description provided for @measureGroupOther.
   ///
   /// In es, this message translates to:
@@ -1867,18 +1873,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Pecho'**
   String get measureChest;
-
-  /// No description provided for @measureLeftArm.
-  ///
-  /// In es, this message translates to:
-  /// **'Brazo izquierdo'**
-  String get measureLeftArm;
-
-  /// No description provided for @measureRightArm.
-  ///
-  /// In es, this message translates to:
-  /// **'Brazo derecho'**
-  String get measureRightArm;
 
   /// No description provided for @measureLeftForearm.
   ///
@@ -1951,6 +1945,96 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Grasa visceral'**
   String get measureVisceralFat;
+
+  /// No description provided for @measureLeftBicep.
+  ///
+  /// In es, this message translates to:
+  /// **'Bíceps izquierdo'**
+  String get measureLeftBicep;
+
+  /// No description provided for @measureRightBicep.
+  ///
+  /// In es, this message translates to:
+  /// **'Bíceps derecho'**
+  String get measureRightBicep;
+
+  /// No description provided for @measureShoulders.
+  ///
+  /// In es, this message translates to:
+  /// **'Hombros'**
+  String get measureShoulders;
+
+  /// No description provided for @measureFatMass.
+  ///
+  /// In es, this message translates to:
+  /// **'Masa grasa'**
+  String get measureFatMass;
+
+  /// No description provided for @measureBodyWater.
+  ///
+  /// In es, this message translates to:
+  /// **'Agua corporal'**
+  String get measureBodyWater;
+
+  /// No description provided for @measureTricepsSkinfold.
+  ///
+  /// In es, this message translates to:
+  /// **'Pliegue tricipital'**
+  String get measureTricepsSkinfold;
+
+  /// No description provided for @measureBicepsSkinfold.
+  ///
+  /// In es, this message translates to:
+  /// **'Pliegue bicipital'**
+  String get measureBicepsSkinfold;
+
+  /// No description provided for @measureSubscapularSkinfold.
+  ///
+  /// In es, this message translates to:
+  /// **'Pliegue subescapular'**
+  String get measureSubscapularSkinfold;
+
+  /// No description provided for @measureIliacCrestSkinfold.
+  ///
+  /// In es, this message translates to:
+  /// **'Pliegue cresta ilíaca'**
+  String get measureIliacCrestSkinfold;
+
+  /// No description provided for @measureSupraspinaleSkinfold.
+  ///
+  /// In es, this message translates to:
+  /// **'Pliegue supraespinal'**
+  String get measureSupraspinaleSkinfold;
+
+  /// No description provided for @measureAbdominalSkinfold.
+  ///
+  /// In es, this message translates to:
+  /// **'Pliegue abdominal'**
+  String get measureAbdominalSkinfold;
+
+  /// No description provided for @measureThighSkinfold.
+  ///
+  /// In es, this message translates to:
+  /// **'Pliegue del muslo'**
+  String get measureThighSkinfold;
+
+  /// No description provided for @measureCalfSkinfold.
+  ///
+  /// In es, this message translates to:
+  /// **'Pliegue de la pantorrilla'**
+  String get measureCalfSkinfold;
+
+  /// No description provided for @measureChestSkinfold.
+  ///
+  /// In es, this message translates to:
+  /// **'Pliegue pectoral'**
+  String get measureChestSkinfold;
+
+  /// No description provided for @measureMidaxillarySkinfold.
+  ///
+  /// In es, this message translates to:
+  /// **'Pliegue axilar medio'**
+  String get measureMidaxillarySkinfold;
 
   /// No description provided for @bodyNoWeightYet.
   ///
@@ -3242,12 +3326,6 @@ abstract class AppLocalizations {
   /// **'Últimas {n} semanas'**
   String progressPeriodWeeks(int n);
 
-  /// No description provided for @progressPeriodMonths3.
-  ///
-  /// In es, this message translates to:
-  /// **'Últimos 3 meses'**
-  String get progressPeriodMonths3;
-
   /// No description provided for @progressKickerWeek.
   ///
   /// In es, this message translates to:
@@ -3455,7 +3533,7 @@ abstract class AppLocalizations {
   /// No description provided for @streakThisWeekDone.
   ///
   /// In es, this message translates to:
-  /// **'Esta semana ya está ✓'**
+  /// **'Semana completa ✓'**
   String get streakThisWeekDone;
 
   /// No description provided for @streakCompleteThisWeek.
@@ -3463,6 +3541,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Completá esta semana'**
   String get streakCompleteThisWeek;
+
+  /// No description provided for @streakRemaining.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{Te falta 1 entreno para sumar la semana {week}} other{Te faltan {count} entrenos para sumar la semana {week}}}'**
+  String streakRemaining(int count, int week);
+
+  /// No description provided for @streakRemainingStart.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{Te falta 1 entreno para arrancar tu racha} other{Te faltan {count} entrenos para arrancar tu racha}}'**
+  String streakRemainingStart(int count);
+
+  /// No description provided for @streakStartWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{Hacé 1 entreno esta semana para arrancar tu racha} other{Hacé {count} entrenos esta semana para arrancar tu racha}}'**
+  String streakStartWeek(int count);
+
+  /// No description provided for @streakSecured.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{Semana asegurada · te queda 1 entreno} other{Semana asegurada · te quedan {count} entrenos}}'**
+  String streakSecured(int count);
 
   /// No description provided for @progressLastPr.
   ///
@@ -3481,6 +3583,96 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'de adherencia · {done} de {due} entrenos hasta hoy'**
   String progressWorkoutsUntilToday(int done, int due);
+
+  /// No description provided for @repRangeLow.
+  ///
+  /// In es, this message translates to:
+  /// **'≤ 6 reps'**
+  String get repRangeLow;
+
+  /// No description provided for @repRangeMid.
+  ///
+  /// In es, this message translates to:
+  /// **'7–12 reps'**
+  String get repRangeMid;
+
+  /// No description provided for @repRangeHigh.
+  ///
+  /// In es, this message translates to:
+  /// **'13+ reps'**
+  String get repRangeHigh;
+
+  /// No description provided for @progressRangeWhy.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Por qué {name} va en dos filas?'**
+  String progressRangeWhy(String name);
+
+  /// No description provided for @progressRangeTip.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu coach te lo pide con cargas distintas (por ejemplo pesado a 10 reps y liviano a 15). Cada uno se compara consigo mismo, así una semana sin el día pesado no parece que bajaste.'**
+  String get progressRangeTip;
+
+  /// No description provided for @progressRangeOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo tus series de {range}. Las de otro rango tienen su propia fila en Tu progreso.'**
+  String progressRangeOnly(String range);
+
+  /// No description provided for @workoutNewPr.
+  ///
+  /// In es, this message translates to:
+  /// **'NUEVO PR'**
+  String get workoutNewPr;
+
+  /// No description provided for @workoutPrDiff.
+  ///
+  /// In es, this message translates to:
+  /// **'e1RM · +{diff}'**
+  String workoutPrDiff(String diff);
+
+  /// No description provided for @workoutPrSemantics.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo PR en {exercise}: e1RM {value}. Abrir el ejercicio'**
+  String workoutPrSemantics(String exercise, String value);
+
+  /// No description provided for @workoutVideosUploading.
+  ///
+  /// In es, this message translates to:
+  /// **'Subiendo videos'**
+  String get workoutVideosUploading;
+
+  /// No description provided for @workoutVideosUploadingFor.
+  ///
+  /// In es, this message translates to:
+  /// **'Subiendo videos para {coach}'**
+  String workoutVideosUploadingFor(String coach);
+
+  /// No description provided for @workoutVideosSent.
+  ///
+  /// In es, this message translates to:
+  /// **'Videos enviados'**
+  String get workoutVideosSent;
+
+  /// No description provided for @workoutVideosSentTo.
+  ///
+  /// In es, this message translates to:
+  /// **'Videos enviados a {coach}'**
+  String workoutVideosSentTo(String coach);
+
+  /// No description provided for @workoutVideosCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{done} de {total}'**
+  String workoutVideosCount(int done, int total);
+
+  /// No description provided for @workoutVideosHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Podés cerrar la app: se terminan de subir cuando vuelvas a tener señal.'**
+  String get workoutVideosHint;
 }
 
 class _AppLocalizationsDelegate

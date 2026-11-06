@@ -139,14 +139,18 @@ class _ProgressCard extends ConsumerWidget {
     final lastPr = (ref.watch(recordsProvider).value ?? const [])
         .where((r) => r.isPr)
         .firstOrNull;
-    final thisWeekDone = s?.weeks.lastOrNull?.state == StreakWeekState.met;
     final streak = s?.currentWeeks ?? 0;
     final title = streak > 0 ? l.streakComplete(streak) : l.streakStart;
-    final subtitle = thisWeekDone
-        ? l.streakThisWeekDone
-        : streak > 0
-        ? l.streakNext(streak + 1)
-        : l.streakCompleteThisWeek;
+    final hint = streakHintOf(s);
+    final subtitle = switch (hint.kind) {
+      StreakHintKind.remaining => l.streakRemaining(hint.n, hint.week),
+      StreakHintKind.remainingStart => l.streakRemainingStart(hint.n),
+      StreakHintKind.start => l.streakStartWeek(hint.n),
+      StreakHintKind.secured => l.streakSecured(hint.n),
+      StreakHintKind.full => l.streakThisWeekDone,
+      StreakHintKind.next => l.streakNext(hint.week),
+      StreakHintKind.finish => l.streakCompleteThisWeek,
+    };
     final weeks = (s?.weeks ?? const <StreakWeekDto>[]).reversed
         .take(6)
         .toList()

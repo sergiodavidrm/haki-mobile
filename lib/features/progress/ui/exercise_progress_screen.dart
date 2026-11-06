@@ -16,9 +16,16 @@ import 'value_line_chart.dart';
 // del período con el número en cada punto, récords en dorado y la mejor
 // serie semana a semana. El período se cambia acá también.
 class ExerciseProgressScreen extends ConsumerWidget {
-  const ExerciseProgressScreen({super.key, required this.exerciseId});
+  const ExerciseProgressScreen({
+    super.key,
+    required this.exerciseId,
+    this.range,
+  });
 
   final String exerciseId;
+
+  /// Fila de un rango de reps (el ejercicio va en dos rangos): solo esas series
+  final String? range;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,8 +34,14 @@ class ExerciseProgressScreen extends ConsumerWidget {
     final report = ref.watch(progressReportProvider(period)).value;
     final unit = ref.watch(bodyWeightUnitProvider);
     final ex = report?.exercises
-        .where((e) => e.exerciseId == exerciseId)
+        .where(
+          (e) =>
+              e.exerciseId == exerciseId &&
+              (range == null || e.repRange == null || e.repRange == range),
+        )
         .firstOrNull;
+    // Con otro período puede que ya no vaya en dos rangos: entonces una fila
+    final rangeShown = ex?.repRange;
 
     return Scaffold(
       body: SafeArea(
@@ -36,7 +49,11 @@ class ExerciseProgressScreen extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
           children: [
             BackHeader(
-              title: ex?.name ?? context.l10n.progressTitle,
+              title: ex == null
+                  ? context.l10n.progressTitle
+                  : rangeShown == null
+                  ? ex.name
+                  : '${ex.name} · ${repRangeLabel(context, rangeShown)}',
               titleSize: 22,
             ),
             const SizedBox(height: 12),
@@ -230,6 +247,15 @@ class ExerciseProgressScreen extends ConsumerWidget {
               context.l10n.progressDetailSub,
               style: TextStyle(fontSize: 12, color: c.textMuted),
             ),
+            if (ex.repRange != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                context.l10n.progressRangeOnly(
+                  repRangeLabel(context, ex.repRange!),
+                ),
+                style: TextStyle(fontSize: 12, color: c.textMuted),
+              ),
+            ],
             const SizedBox(height: 10),
             ValueLineChart(
               values: ex.values,

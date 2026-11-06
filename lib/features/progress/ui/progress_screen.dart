@@ -161,7 +161,6 @@ String periodLabel(BuildContext context, ProgressPeriod p) => switch (p) {
   ProgressPeriod.previous => context.l10n.progressPeriodPrevious,
   ProgressPeriod.weeks4 => context.l10n.progressPeriodWeeks(4),
   ProgressPeriod.weeks8 => context.l10n.progressPeriodWeeks(8),
-  ProgressPeriod.weeks12 => context.l10n.progressPeriodMonths3,
 };
 
 class _PeriodOption extends StatelessWidget {
@@ -440,12 +439,12 @@ class _ExercisesCardState extends ConsumerState<_ExercisesCard> {
     final c = context.colors;
     final unit = ref.watch(bodyWeightUnitProvider);
     final hidden = ref.watch(hiddenExercisesProvider).value ?? const <String>{};
-    final trends = trendsOf(widget.report);
-    final visible = trends
-        .where((t) => !hidden.contains(t.exercise.exerciseId))
+    final groups = groupTrends(trendsOf(widget.report));
+    final visible = groups
+        .where((g) => !hidden.contains(g.exerciseId))
         .toList();
-    final hiddenList = trends
-        .where((t) => hidden.contains(t.exercise.exerciseId))
+    final hiddenList = groups
+        .where((g) => hidden.contains(g.exerciseId))
         .toList();
     void toggle(String id) =>
         ref.read(hiddenExercisesProvider.notifier).toggle(id);
@@ -458,7 +457,7 @@ class _ExercisesCardState extends ConsumerState<_ExercisesCard> {
         children: [
           _Label(context.l10n.progressExercises),
           const SizedBox(height: 4),
-          if (trends.isEmpty)
+          if (groups.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Text(
@@ -466,14 +465,24 @@ class _ExercisesCardState extends ConsumerState<_ExercisesCard> {
                 style: TextStyle(fontSize: 13, color: c.textMuted),
               ),
             ),
-          for (final t in visible)
-            _ExerciseRow(
-              trend: t,
-              unit: ProgressExerciseUnit(unit, t.exercise.bodyweight),
-              onOpen: () =>
-                  context.push(Routes.progressExercise(t.exercise.exerciseId)),
-              onHide: () => toggle(t.exercise.exerciseId),
-            ),
+          for (final g in visible)
+            if (g.byRange)
+              _RangeGroup(
+                group: g,
+                unit: unit,
+                onHide: () => toggle(g.exerciseId),
+              )
+            else
+              _ExerciseRow(
+                trend: g.rows.first,
+                unit: ProgressExerciseUnit(
+                  unit,
+                  g.rows.first.exercise.bodyweight,
+                ),
+                onOpen: () =>
+                    context.push(Routes.progressExercise(g.exerciseId)),
+                onHide: () => toggle(g.exerciseId),
+              ),
           if (hiddenList.isNotEmpty) ...[
             InkWell(
               onTap: () => setState(() => _hiddenOpen = !_hiddenOpen),
@@ -508,20 +517,20 @@ class _ExercisesCardState extends ConsumerState<_ExercisesCard> {
               ),
             ),
             if (_hiddenOpen)
-              for (final t in hiddenList)
+              for (final g in hiddenList)
                 Opacity(
                   opacity: .6,
                   child: Row(
                     children: [
                       Expanded(
                         child: Text(
-                          t.exercise.name,
+                          g.name,
                           style: TextStyle(fontSize: 14, color: c.text),
                         ),
                       ),
                       IconButton(
-                        tooltip: context.l10n.progressShow(t.exercise.name),
-                        onPressed: () => toggle(t.exercise.exerciseId),
+                        tooltip: context.l10n.progressShow(g.name),
+                        onPressed: () => toggle(g.exerciseId),
                         icon: Icon(
                           Icons.visibility_off_outlined,
                           size: 18,
@@ -543,13 +552,19 @@ class _ExerciseRow extends StatelessWidget {
     required this.trend,
     required this.unit,
     required this.onOpen,
-    required this.onHide,
+    this.onHide,
+    this.title,
   });
 
   final ExerciseTrend trend;
   final ProgressExerciseUnit unit;
   final VoidCallback onOpen;
-  final VoidCallback onHide;
+
+  /// null = fila de un rango dentro de [_RangeGroup] (el ojito va en el grupo)
+  final VoidCallback? onHide;
+
+  /// En vez del nombre del ejercicio ("7–12 reps")
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
@@ -573,7 +588,11 @@ class _ExerciseRow extends StatelessWidget {
         Expanded(
           child: Semantics(
             button: true,
-            label: context.l10n.progressOpenChart(trend.exercise.name),
+            label: context.l10n.progressOpenChart(
+              title == null
+                  ? trend.exercise.name
+                  : '${trend.exercise.name} · $title',
+            ),
             excludeSemantics: true,
             child: InkWell(
               onTap: onOpen,
@@ -587,7 +606,7 @@ class _ExerciseRow extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            trend.exercise.name,
+                            title ?? trend.exercise.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -635,11 +654,117 @@ class _ExerciseRow extends StatelessWidget {
             ),
           ),
         ),
-        IconButton(
-          tooltip: context.l10n.progressHide(trend.exercise.name),
-          onPressed: onHide,
-          icon: Icon(Icons.visibility_outlined, size: 18, color: c.textMuted),
+        if (onHide != null)
+          IconButton(
+            tooltip: context.l10n.progressHide(trend.exercise.name),
+            onPressed: onHide,
+            icon: Icon(Icons.visibility_outlined, size: 18, color: c.textMuted),
+          )
+        else
+          const SizedBox(width: 12),
+      ],
+    );
+  }
+}
+
+/// "≤ 6 reps" / "7–12 reps" / "13+ reps"
+String repRangeLabel(BuildContext context, String range) => switch (range) {
+  'low' => context.l10n.repRangeLow,
+  'high' => context.l10n.repRangeHigh,
+  _ => context.l10n.repRangeMid,
+};
+
+/// Un ejercicio que el coach pide en dos rangos de reps: nombre con ⓘ (por qué
+/// va en dos filas) y el ojito, y una fila por rango que abre su detalle.
+class _RangeGroup extends StatefulWidget {
+  const _RangeGroup({
+    required this.group,
+    required this.unit,
+    required this.onHide,
+  });
+
+  final TrendGroup group;
+  final WeightUnit unit;
+  final VoidCallback onHide;
+
+  @override
+  State<_RangeGroup> createState() => _RangeGroupState();
+}
+
+class _RangeGroupState extends State<_RangeGroup> {
+  bool _tip = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final g = widget.group;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Flexible(
+              child: Text(
+                g.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: c.text,
+                ),
+              ),
+            ),
+            IconButton(
+              tooltip: context.l10n.progressRangeWhy(g.name),
+              onPressed: () => setState(() => _tip = !_tip),
+              icon: Icon(
+                Icons.info_outline,
+                size: 17,
+                color: _tip ? c.goldBright : c.textMuted,
+              ),
+            ),
+            const Spacer(),
+            IconButton(
+              tooltip: context.l10n.progressHide(g.name),
+              onPressed: widget.onHide,
+              icon: Icon(
+                Icons.visibility_outlined,
+                size: 18,
+                color: c.textMuted,
+              ),
+            ),
+          ],
         ),
+        if (_tip)
+          Container(
+            margin: const EdgeInsets.only(right: 10, bottom: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: c.goldSurface,
+              border: Border.all(color: c.goldBorder),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              context.l10n.progressRangeTip,
+              style: TextStyle(fontSize: 13, height: 1.4, color: c.text),
+            ),
+          ),
+        for (final t in g.rows)
+          Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: _ExerciseRow(
+              trend: t,
+              title: repRangeLabel(context, t.exercise.repRange!),
+              unit: ProgressExerciseUnit(widget.unit, t.exercise.bodyweight),
+              onOpen: () => context.push(
+                Routes.progressExercise(
+                  g.exerciseId,
+                  range: t.exercise.repRange,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }

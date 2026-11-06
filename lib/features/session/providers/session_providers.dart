@@ -4,8 +4,11 @@ import '../../../core/units/weight_unit.dart';
 import '../../body/providers/body_providers.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../../program/providers/program_providers.dart';
+import '../../profile/data/records.dart';
+import '../../profile/providers/profile_providers.dart';
 import '../data/session_plan.dart';
 import '../data/session_store.dart';
+import '../data/workout_prs.dart';
 import '../../../l10n/l10n.dart';
 
 part 'session_providers.g.dart';
@@ -144,5 +147,32 @@ Future<WorkoutSummary> workoutSummary(
     unit: ref.watch(dayWeightUnitProvider(dayId)),
     startedAt: session?.startedAt,
     completedAt: session?.completedAt,
+  );
+}
+
+/// Nuevos PR del entreno (Entreno completado). Necesita los récords de la
+/// API: sin red no hay tarjeta de PR (el resto del resumen sí se ve).
+@riverpod
+Future<List<WorkoutPr>> workoutPrsOf(
+  Ref ref,
+  String assignmentId,
+  String dayId,
+) async {
+  final s = await ref.watch(sessionDayProvider(assignmentId, dayId).future);
+  final local = await ref.watch(localSetsProvider(assignmentId, dayId).future);
+  final session = await ref.watch(
+    localSessionProvider(assignmentId, dayId).future,
+  );
+  final List<PersonalRecordDto> records;
+  try {
+    records = await ref.watch(recordsProvider.future);
+  } catch (_) {
+    return const [];
+  }
+  return workoutPrs(
+    s.day.exercises,
+    local,
+    records,
+    trainedOn: trainedOnOf(local, session?.startedAt),
   );
 }

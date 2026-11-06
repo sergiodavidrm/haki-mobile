@@ -58,8 +58,9 @@ class MeasureLogsScreen extends ConsumerWidget {
                           .toList();
                       return HakiCard(
                         padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
-                        onTap: () =>
-                            context.push(Routes.logMeasures(date: log.date)),
+                        onTap: measures.any((m) => !m.coachOnly)
+                            ? () => context.push(Routes.logMeasures(date: log.date))
+                            : null,
                         child: Row(
                           children: [
                             Expanded(

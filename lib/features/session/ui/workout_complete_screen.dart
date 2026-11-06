@@ -6,13 +6,18 @@ import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../../core/widgets/haki_card.dart';
+import '../../auth/providers/auth_me_provider.dart';
+import '../../profile/providers/profile_providers.dart';
 import '../../program/providers/program_providers.dart';
 import '../data/session_plan.dart';
+import '../data/workout_prs.dart';
 import '../providers/session_providers.dart';
 import '../../../l10n/l10n.dart';
 
-// Resumen al finalizar el entreno. Del mockup quedan afuera hasta que haya
-// backend: +XP, nuevo PR, subida de videos, RPE de la sesión y nota al coach.
+// Resumen al finalizar el entreno (mockup "Entreno completado" del canvas Haki
+// Mobile): duración, series, volumen, nuevos PR (tocar abre el Detalle de
+// ejercicio) y la subida de videos. Del mockup quedan afuera hasta que haya
+// backend: +XP, RPE de la sesión y nota al coach.
 class WorkoutCompleteScreen extends ConsumerWidget {
   const WorkoutCompleteScreen({
     super.key,
@@ -28,70 +33,98 @@ class WorkoutCompleteScreen extends ConsumerWidget {
     final c = context.colors;
     final day = ref.watch(sessionDayProvider(assignmentId, dayId)).value;
     final summary = ref.watch(workoutSummaryProvider(assignmentId, dayId));
+    final prs =
+        ref.watch(workoutPrsOfProvider(assignmentId, dayId)).value ?? const [];
+    final videos =
+        ref.watch(localVideosProvider(assignmentId, dayId)).value ?? const {};
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 36, 16, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: c.goldSurface,
-                    border: Border.all(color: c.gold, width: 1.5),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 36, 16, 16),
+                children: [
+                  Center(
+                    child: Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: c.goldSurface,
+                        border: Border.all(color: c.gold, width: 1.5),
+                      ),
+                      child: Icon(Icons.check, size: 36, color: c.goldBright),
+                    ),
                   ),
-                  child: Icon(Icons.check, size: 36, color: c.goldBright),
-                ),
+                  const SizedBox(height: 16),
+                  Text(
+                    context.l10n.workoutCompleted,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      height: 1.15,
+                      color: c.text,
+                    ),
+                  ),
+                  if (day != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      '${day.day.title} · ${context.l10n.weekN(day.week.weekNumber)}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, color: c.textMuted),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  switch (summary) {
+                    AsyncData(:final value) => _Stats(summary: value),
+                    AsyncError() => Text(
+                      context.l10n.summaryError,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: c.textMuted),
+                    ),
+                    _ => const SizedBox(
+                      height: 76,
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  },
+                  for (final pr in prs) ...[
+                    const SizedBox(height: 12),
+                    _PrCard(
+                      pr: pr,
+                      onTap: () => context.push(
+                        Routes.exercise(assignmentId, dayId, pr.dayExerciseId),
+                      ),
+                    ),
+                  ],
+                  if (videos.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    _VideosCard(
+                      total: videos.length,
+                      done: videos.values.where((d) => d).length,
+                      coachName: ref.watch(authMeProvider).value?.coachName,
+                    ),
+                  ],
+                ],
               ),
-              const SizedBox(height: 16),
-              Text(
-                context.l10n.workoutCompleted,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  height: 1.15,
-                  color: c.text,
-                ),
-              ),
-              if (day != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  '${day.day.title} · ${context.l10n.weekN(day.week.weekNumber)}',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: c.textMuted),
-                ),
-              ],
-              const SizedBox(height: 24),
-              switch (summary) {
-                AsyncData(:final value) => _Stats(summary: value),
-                AsyncError() => Text(
-                  context.l10n.summaryError,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: c.textMuted),
-                ),
-                _ => const SizedBox(
-                  height: 76,
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-              },
-              const Spacer(),
-              FilledButton(
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              child: FilledButton(
                 onPressed: () {
                   // Recién acá: offline el refresh fallaría y dejaría el
                   // resumen sin datos.
                   ref.invalidate(programSectionsProvider);
+                  ref.invalidate(recordsProvider);
                   context.go(Routes.home);
                 },
                 child: Text(context.l10n.commonDone),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -183,6 +216,192 @@ class _Stat extends StatelessWidget {
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "NUEVO PR · Jalón vertical · 163.8 lb e1RM · +4.9", en la unidad en que
+/// cargó la serie.
+class _PrCard extends StatelessWidget {
+  const _PrCard({required this.pr, required this.onTap});
+
+  final WorkoutPr pr;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final u = pr.unit;
+    final e1rm = formatWeight(u.fromKg(pr.e1RmKg));
+    final diff = formatWeight(
+      u.fromKg(pr.e1RmKg) - u.fromKg(pr.previousE1RmKg),
+    );
+    return Semantics(
+      button: true,
+      label: context.l10n.workoutPrSemantics(
+        pr.exerciseName,
+        '$e1rm ${u.label}',
+      ),
+      excludeSemantics: true,
+      child: Material(
+        color: c.goldSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: BorderSide(color: c.gold),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: c.goldBorder),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.emoji_events_outlined,
+                    size: 20,
+                    color: c.goldBright,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.l10n.workoutNewPr,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.1,
+                          color: c.goldBright,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        pr.exerciseName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: c.text,
+                        ),
+                      ),
+                      Text(
+                        '${formatWeight(pr.weight)} ${u.label} × ${pr.reps}',
+                        style: TextStyle(fontSize: 12, color: c.textMuted),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '$e1rm ${u.label}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: c.goldBright,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    Text(
+                      context.l10n.workoutPrDiff(diff),
+                      style: TextStyle(fontSize: 11, color: c.textMuted),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Videos del entreno en la cola: "Subiendo videos para X · 1 de 2" con barra,
+/// o "Videos enviados a X" cuando terminaron.
+class _VideosCard extends StatelessWidget {
+  const _VideosCard({
+    required this.total,
+    required this.done,
+    required this.coachName,
+  });
+
+  final int total;
+  final int done;
+  final String? coachName;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final l = context.l10n;
+    final finished = done >= total;
+    final coach = coachName?.trim().split(' ').first ?? '';
+    final title = finished
+        ? (coach.isEmpty ? l.workoutVideosSent : l.workoutVideosSentTo(coach))
+        : (coach.isEmpty
+              ? l.workoutVideosUploading
+              : l.workoutVideosUploadingFor(coach));
+    return HakiCard(
+      radius: 18,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(
+                finished ? Icons.check_circle_outline : Icons.videocam_outlined,
+                size: 18,
+                color: c.turquoise,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: c.text,
+                  ),
+                ),
+              ),
+              Text(
+                l.workoutVideosCount(done, total),
+                style: TextStyle(fontSize: 13, color: c.textMuted),
+              ),
+            ],
+          ),
+          if (!finished) ...[
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: LinearProgressIndicator(
+                value: total == 0 ? 0 : done / total,
+                minHeight: 6,
+                color: c.turquoise,
+                backgroundColor: c.surfaceHigh,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l.workoutVideosHint,
+              style: TextStyle(fontSize: 12, height: 1.4, color: c.textMuted),
+            ),
+          ],
         ],
       ),
     );

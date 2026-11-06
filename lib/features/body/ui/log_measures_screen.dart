@@ -14,7 +14,7 @@ import '../providers/body_providers.dart';
 import '../../../l10n/l10n.dart';
 
 // Registrar medidas (pantalla completa): fecha (hoy por defecto) y las medidas
-// del coach agrupadas. Se mandan solo las que tienen valor; la API mergea con
+// del coach agrupadas (sin las "Solo coach", que registra el coach). Se mandan solo las que tienen valor; la API mergea con
 // lo que ya hubiera ese día. Si el día ya tiene registro, arranca cargado.
 class LogMeasuresScreen extends ConsumerStatefulWidget {
   const LogMeasuresScreen({super.key, this.initialDate});
@@ -53,7 +53,7 @@ class _LogMeasuresScreenState extends ConsumerState<LogMeasuresScreen> {
     final logs = ref.read(bodyLogsProvider).value ?? const [];
     final day = logs.where((l) => l.date == _date).firstOrNull;
     for (final m
-        in ref.read(authMeProvider).value?.bodyMeasurements ?? const []) {
+        in ref.read(authMeProvider).value?.loggableMeasurements ?? const []) {
       final v = day?.measures[m.key];
       _input(m.key).text = v == null ? '' : formatMeasure(m.display(v, unit));
     }
@@ -97,7 +97,7 @@ class _LogMeasuresScreenState extends ConsumerState<LogMeasuresScreen> {
     final unit = ref.watch(bodyWeightUnitProvider);
     final saving = ref.watch(bodyLogSaverProvider).isLoading;
     final measures =
-        ref.watch(authMeProvider).value?.bodyMeasurements ?? const [];
+        ref.watch(authMeProvider).value?.loggableMeasurements ?? const [];
     final previous = previousBefore(
       ref.watch(bodyLogsProvider).value ?? const [],
       measures,

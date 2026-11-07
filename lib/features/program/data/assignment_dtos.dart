@@ -461,12 +461,22 @@ class LastPerformanceDto {
     required this.weekNumber,
     required this.date,
     required this.sets,
+    this.dayNumber = 0,
+    this.slot = 1,
+    this.samePlace = true,
   });
 
   final String assignmentId;
   final int weekNumber;
   final DateTime date;
   final List<LoggedSetDto> sets;
+
+  /// De dónde viene (2026-11-07): la API busca primero el mismo lugar (número
+  /// de día + vez en el día); si no hay, la última vez en cualquier día y
+  /// [samePlace] = false ("Lunes, sem. 6" en vez de "Sem. pasada").
+  final int dayNumber;
+  final int slot;
+  final bool samePlace;
 
   factory LastPerformanceDto.fromJson(Map<String, dynamic> j) =>
       LastPerformanceDto(
@@ -477,6 +487,9 @@ class LastPerformanceDto {
           for (final s in j['sets'] as List? ?? const [])
             LoggedSetDto.fromJson(s as Map<String, dynamic>),
         ],
+        dayNumber: j['dayNumber'] as int? ?? 0,
+        slot: j['slot'] as int? ?? 1,
+        samePlace: j['samePlace'] as bool? ?? true,
       );
 }
 

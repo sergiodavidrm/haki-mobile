@@ -17,7 +17,14 @@ class ExerciseHistoryEntryDto {
     required this.date,
     required this.sets,
     this.streamMessageId,
+    this.dayNumber = 0,
+    this.slot = 1,
   });
+
+  /// Lugar del programa de esa vez: número de día + vez en ese día
+  /// (PerformanceReport.Place de la API).
+  final int dayNumber;
+  final int slot;
 
   final String assignmentId;
   final String blockName;
@@ -41,6 +48,8 @@ class ExerciseHistoryEntryDto {
             LoggedSetDto.fromJson(s as Map<String, dynamic>),
         ],
         streamMessageId: j['streamMessageId'] as String?,
+        dayNumber: j['dayNumber'] as int? ?? 0,
+        slot: j['slot'] as int? ?? 1,
       );
 }
 

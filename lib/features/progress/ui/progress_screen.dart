@@ -11,6 +11,7 @@ import '../../../core/widgets/haki_card.dart';
 import '../../../l10n/l10n.dart';
 import '../../body/providers/body_providers.dart';
 import '../../profile/providers/profile_providers.dart';
+import '../../program/data/place_label.dart';
 import '../../program/data/program_schedule.dart' show dateOnly;
 import '../data/progress_report.dart';
 import '../providers/progress_providers.dart';
@@ -466,8 +467,8 @@ class _ExercisesCardState extends ConsumerState<_ExercisesCard> {
               ),
             ),
           for (final g in visible)
-            if (g.byRange)
-              _RangeGroup(
+            if (g.byPlace)
+              _PlaceGroup(
                 group: g,
                 unit: unit,
                 onHide: () => toggle(g.exerciseId),
@@ -560,10 +561,10 @@ class _ExerciseRow extends StatelessWidget {
   final ProgressExerciseUnit unit;
   final VoidCallback onOpen;
 
-  /// null = fila de un rango dentro de [_RangeGroup] (el ojito va en el grupo)
+  /// null = fila de un lugar dentro de [_PlaceGroup] (el ojito va en el grupo)
   final VoidCallback? onHide;
 
-  /// En vez del nombre del ejercicio ("7–12 reps")
+  /// En vez del nombre del ejercicio ("Lunes · 3 × 12")
   final String? title;
 
   @override
@@ -667,17 +668,26 @@ class _ExerciseRow extends StatelessWidget {
   }
 }
 
-/// "≤ 6 reps" / "7–12 reps" / "13+ reps"
-String repRangeLabel(BuildContext context, String range) => switch (range) {
-  'low' => context.l10n.repRangeLow,
-  'high' => context.l10n.repRangeHigh,
-  _ => context.l10n.repRangeMid,
-};
+/// "Lunes · 3 × 12" / "Día 1 · 2.ª · 2 × 12" (fila de un lugar del programa)
+String placeTitle(ExerciseProgress e) {
+  final day = placeDayLabel(
+    dayNumber: e.placeDay!,
+    weekDay: e.placeWeekDay,
+    slot: e.placeSlot,
+  );
+  final rx = rxLabel(
+    sets: e.placeSets,
+    repsMin: e.placeRepsMin,
+    repsMax: e.placeRepsMax,
+  );
+  return rx == null ? day : '$day · $rx';
+}
 
-/// Un ejercicio que el coach pide en dos rangos de reps: nombre con ⓘ (por qué
-/// va en dos filas) y el ojito, y una fila por rango que abre su detalle.
-class _RangeGroup extends StatefulWidget {
-  const _RangeGroup({
+/// Un ejercicio que el coach puso en 2+ lugares (días, o dos veces el mismo
+/// día): nombre con ⓘ (por qué va en dos filas) y el ojito, y una fila por
+/// lugar que abre su detalle.
+class _PlaceGroup extends StatefulWidget {
+  const _PlaceGroup({
     required this.group,
     required this.unit,
     required this.onHide,
@@ -688,10 +698,10 @@ class _RangeGroup extends StatefulWidget {
   final VoidCallback onHide;
 
   @override
-  State<_RangeGroup> createState() => _RangeGroupState();
+  State<_PlaceGroup> createState() => _PlaceGroupState();
 }
 
-class _RangeGroupState extends State<_RangeGroup> {
+class _PlaceGroupState extends State<_PlaceGroup> {
   bool _tip = false;
 
   @override
@@ -716,7 +726,7 @@ class _RangeGroupState extends State<_RangeGroup> {
               ),
             ),
             IconButton(
-              tooltip: context.l10n.progressRangeWhy(g.name),
+              tooltip: context.l10n.progressPlaceWhy(g.name),
               onPressed: () => setState(() => _tip = !_tip),
               icon: Icon(
                 Icons.info_outline,
@@ -746,7 +756,7 @@ class _RangeGroupState extends State<_RangeGroup> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              context.l10n.progressRangeTip,
+              context.l10n.progressPlaceTip,
               style: TextStyle(fontSize: 13, height: 1.4, color: c.text),
             ),
           ),
@@ -755,12 +765,12 @@ class _RangeGroupState extends State<_RangeGroup> {
             padding: const EdgeInsets.only(left: 12),
             child: _ExerciseRow(
               trend: t,
-              title: repRangeLabel(context, t.exercise.repRange!),
+              title: placeTitle(t.exercise),
               unit: ProgressExerciseUnit(widget.unit, t.exercise.bodyweight),
               onOpen: () => context.push(
                 Routes.progressExercise(
                   g.exerciseId,
-                  range: t.exercise.repRange,
+                  place: t.exercise.placeKey,
                 ),
               ),
             ),

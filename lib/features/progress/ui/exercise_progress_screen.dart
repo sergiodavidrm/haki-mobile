@@ -19,13 +19,14 @@ class ExerciseProgressScreen extends ConsumerWidget {
   const ExerciseProgressScreen({
     super.key,
     required this.exerciseId,
-    this.range,
+    this.place,
   });
 
   final String exerciseId;
 
-  /// Fila de un rango de reps (el ejercicio va en dos rangos): solo esas series
-  final String? range;
+  /// Fila de un lugar del programa ("5-1" = día 5, 1.ª vez; el ejercicio está
+  /// en 2+ lugares): solo esas series
+  final String? place;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,11 +38,11 @@ class ExerciseProgressScreen extends ConsumerWidget {
         .where(
           (e) =>
               e.exerciseId == exerciseId &&
-              (range == null || e.repRange == null || e.repRange == range),
+              (place == null || e.placeKey == null || e.placeKey == place),
         )
         .firstOrNull;
-    // Con otro período puede que ya no vaya en dos rangos: entonces una fila
-    final rangeShown = ex?.repRange;
+    // Con otro período puede que ya no esté en dos lugares: entonces una fila
+    final placeShown = ex?.placeKey == null ? null : placeTitle(ex!);
 
     return Scaffold(
       body: SafeArea(
@@ -51,9 +52,9 @@ class ExerciseProgressScreen extends ConsumerWidget {
             BackHeader(
               title: ex == null
                   ? context.l10n.progressTitle
-                  : rangeShown == null
+                  : placeShown == null
                   ? ex.name
-                  : '${ex.name} · ${repRangeLabel(context, rangeShown)}',
+                  : '${ex.name} · $placeShown',
               titleSize: 22,
             ),
             const SizedBox(height: 12),
@@ -247,12 +248,10 @@ class ExerciseProgressScreen extends ConsumerWidget {
               context.l10n.progressDetailSub,
               style: TextStyle(fontSize: 12, color: c.textMuted),
             ),
-            if (ex.repRange != null) ...[
+            if (ex.placeKey != null) ...[
               const SizedBox(height: 4),
               Text(
-                context.l10n.progressRangeOnly(
-                  repRangeLabel(context, ex.repRange!),
-                ),
+                context.l10n.progressPlaceOnly(placeTitle(ex)),
                 style: TextStyle(fontSize: 12, color: c.textMuted),
               ),
             ],

@@ -156,6 +156,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                 e.lastPerformance!,
                 assignmentId: _a,
                 weekNumber: s.week.weekNumber,
+                program: s.program,
               ),
         onOpenDetail: () => context.push(Routes.exercise(_a, _d, e.id)),
         onVideo: (n, requested) =>

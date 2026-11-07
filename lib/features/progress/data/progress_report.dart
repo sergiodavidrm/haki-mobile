@@ -79,15 +79,34 @@ class ExerciseProgress {
     required this.bodyweight,
     required this.values,
     required this.best,
-    this.repRange,
+    this.placeDay,
+    this.placeSlot,
+    this.placeWeekDay,
+    this.placeSets,
+    this.placeRepsMin,
+    this.placeRepsMax,
   });
 
   final String exerciseId;
   final String name;
 
-  /// Rango de reps prescrito (low | mid | high), solo si el ejercicio va en
-  /// 2+ rangos: una fila por rango (haki-api PerformanceReport.RepRangeOf).
-  final String? repRange;
+  /// Lugar del programa (2026-11-07, haki-api PerformanceReport.Place): solo
+  /// si el ejercicio está en 2+ lugares, una fila por lugar = número de día +
+  /// vez en ese día ([placeSlot], null = una sola vez ese día).
+  final int? placeDay;
+  final int? placeSlot;
+
+  /// mon…sun si el programa tiene fechas
+  final String? placeWeekDay;
+
+  /// Prescripción de la última semana ("3 × 12", "3 × 8–10")
+  final int? placeSets;
+  final int? placeRepsMin;
+  final int? placeRepsMax;
+
+  /// Para la ruta del detalle ("5-1"); null = un solo lugar
+  String? get placeKey =>
+      placeDay == null ? null : '$placeDay-${placeSlot ?? 1}';
 
   /// Sin peso: los valores son reps, no e1RM
   final bool bodyweight;
@@ -99,7 +118,12 @@ class ExerciseProgress {
   factory ExerciseProgress.fromJson(Map<String, dynamic> j) => ExerciseProgress(
     exerciseId: j['exerciseId'] as String,
     name: j['name'] as String,
-    repRange: j['repRange'] as String?,
+    placeDay: j['placeDay'] as int?,
+    placeSlot: j['placeSlot'] as int?,
+    placeWeekDay: j['placeWeekDay'] as String?,
+    placeSets: j['placeSets'] as int?,
+    placeRepsMin: j['placeRepsMin'] as int?,
+    placeRepsMax: j['placeRepsMax'] as int?,
     bodyweight: j['bodyweight'] as bool? ?? false,
     values: [
       for (final v in (j['values'] as List? ?? const []))
@@ -289,9 +313,9 @@ List<ExerciseTrend> trendsOf(ProgressReport r) {
   return list;
 }
 
-/// Un ejercicio en la lista: una fila, o una por rango de reps si lo hace en
-/// dos (Remo T pesado a 10 y liviano a 15). Los grupos quedan en el orden de
-/// `trendsOf` (el de su mejor fila) y las filas de pesado a liviano.
+/// Un ejercicio en la lista: una fila, o una por lugar del programa si está
+/// en dos (hack el lunes 3 × 12 y el viernes 5 × 12). Los grupos quedan en el
+/// orden de `trendsOf` (el de su mejor fila) y las filas por día y vez.
 class TrendGroup {
   const TrendGroup(this.rows);
 
@@ -299,10 +323,14 @@ class TrendGroup {
 
   String get exerciseId => rows.first.exercise.exerciseId;
   String get name => rows.first.exercise.name;
-  bool get byRange => rows.first.exercise.repRange != null;
+  bool get byPlace => rows.first.exercise.placeDay != null;
+
+  /// Si alguna fila es 2.ª vez del mismo día (encabezado "2 veces el lunes")
+  bool get sameDay => rows.any((t) => t.exercise.placeSlot != null);
 }
 
-const _rangeOrder = {'low': 0, 'mid': 1, 'high': 2};
+int _placeOrder(ExerciseProgress e) =>
+    (e.placeDay ?? 99) * 10 + (e.placeSlot ?? 1);
 
 List<TrendGroup> groupTrends(List<ExerciseTrend> trends) {
   final byId = <String, List<ExerciseTrend>>{};
@@ -313,9 +341,7 @@ List<TrendGroup> groupTrends(List<ExerciseTrend> trends) {
     for (final rows in byId.values)
       TrendGroup(
         rows..sort(
-          (a, b) => (_rangeOrder[a.exercise.repRange] ?? 3).compareTo(
-            _rangeOrder[b.exercise.repRange] ?? 3,
-          ),
+          (a, b) => _placeOrder(a.exercise).compareTo(_placeOrder(b.exercise)),
         ),
       ),
   ];

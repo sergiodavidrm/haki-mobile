@@ -3,6 +3,8 @@ import 'dart:math';
 import '../../../core/format/dates.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../program/data/assignment_dtos.dart';
+import '../../program/data/place_label.dart';
+import '../../program/data/program_schedule.dart' show mappingsForWeek;
 import '../../session/data/session_plan.dart';
 import '../../session/data/session_store.dart';
 import 'exercise_history.dart';
@@ -45,8 +47,22 @@ String lastTimeLabel(
   LastPerformanceDto lp, {
   required String assignmentId,
   required int weekNumber,
+  AssignmentDetailDto? program,
 }) {
   if (lp.assignmentId != assignmentId) return formatDayMonth(lp.date.toLocal());
+  // De otro día del programa (el ejercicio es nuevo en este): "Lunes, sem. 6"
+  if (!lp.samePlace && lp.dayNumber > 0) {
+    final weekDay = program == null || program.startDate == null
+        ? null
+        : mappingsForWeek(
+            program,
+            lp.weekNumber,
+          ).where((m) => m.dayNumber == lp.dayNumber).firstOrNull?.weekDay;
+    return l10n.lastFromDay(
+      placeDayLabel(dayNumber: lp.dayNumber, weekdayNumber: weekDay),
+      lp.weekNumber,
+    );
+  }
   return lp.weekNumber == weekNumber - 1
       ? l10n.weekLastShort
       : l10n.weekShortN(lp.weekNumber);
@@ -90,6 +106,36 @@ bool isNewPr(List<List<LoggedSetDto>> entries) {
   return before.isNotEmpty && last > before.reduce(max);
 }
 
+/// Lugar del programa: número de día + vez del ejercicio en ese día
+/// (2026-11-07, PerformanceReport.Place de la API).
+typedef ExercisePlace = ({int day, int slot});
+
+/// Lugar de [e] en [day]: la vez se cuenta en el orden del día.
+ExercisePlace placeOf(DayDto day, DayExerciseDto e) {
+  var slot = 1;
+  for (final x in day.exercises) {
+    if (x.id == e.id) break;
+    if (x.exerciseId == e.exerciseId) slot++;
+  }
+  return (day: day.dayNumber, slot: slot);
+}
+
+/// Si el ejercicio está en 2+ lugares de esa semana (días, o dos veces el
+/// mismo día): el Detalle muestra solo el lugar de la sesión.
+bool inSeveralPlaces(WeekDto week, String exerciseId) =>
+    week.days
+        .expand((d) => d.exercises)
+        .where((x) => x.exerciseId == exerciseId)
+        .length >=
+    2;
+
+/// Las del mismo lugar (hoy incluido). Cruzando programas sigue por número de
+/// día, como Tu progreso.
+List<HistoryItem> samePlaceItems(List<HistoryItem> items, ExercisePlace p) => [
+  for (final i in items)
+    if (i.isToday || i.place == p) i,
+];
+
 /// Una tarjeta del historial del Detalle de ejercicio.
 class HistoryItem {
   const HistoryItem({
@@ -97,16 +143,26 @@ class HistoryItem {
     required this.date,
     required this.sets,
     this.isToday = false,
+    this.past = false,
     this.inThisProgram = true,
     this.streamMessageId,
     this.videoCount = 0,
+    this.place,
   });
 
   /// "Semana 3 · hoy", "Semana 2 · 25 sep", "Bloque fuerza · S4 · 2 ago".
   final String title;
+
+  /// Lugar del programa de esa vez (null = no se sabe: caché vieja)
+  final ExercisePlace? place;
   final DateTime date;
   final List<LoggedSetDto> sets;
+
+  /// La sesión desde la que se abrió el Detalle (borde dorado)
   final bool isToday;
+
+  /// Esa sesión es de otro día (Detalle abierto desde la Sesión pasada)
+  final bool past;
   final bool inThisProgram;
 
   /// Hilo de feedback de esa vez (si subió videos).
@@ -128,7 +184,12 @@ List<HistoryItem> historyItems({
   required int weekNumber,
   required List<LoggedSetDto> today,
   required DateTime now,
+  ExercisePlace? place,
+  DateTime? sessionDate,
 }) {
+  // Abierto desde un entreno de otro día: esa sesión con su fecha y la lista
+  // por fecha (puede haber veces posteriores)
+  final past = sessionDate != null && !_sameDay(sessionDate.toLocal(), now);
   String title(String a, String block, int week, DateTime date) =>
       a == assignmentId
       ? '${l10n.weekN(week)} · ${formatDayMonth(date.toLocal())}'
@@ -136,13 +197,17 @@ List<HistoryItem> historyItems({
 
   final lp = exercise.lastPerformance;
   final todayRemote = history?.where((h) => h.blockDayId == dayId).firstOrNull;
-  return [
+  final items = [
     if (today.isNotEmpty)
       HistoryItem(
-        title: '${l10n.weekN(weekNumber)} · ${l10n.commonToday.toLowerCase()}',
-        date: now,
+        title: past
+            ? '${l10n.weekN(weekNumber)} · ${formatDayMonth(sessionDate.toLocal())}'
+            : '${l10n.weekN(weekNumber)} · ${l10n.commonToday.toLowerCase()}',
+        date: past ? sessionDate : now,
         sets: today,
         isToday: true,
+        past: past,
+        place: place,
         streamMessageId:
             exercise.streamMessageId ?? todayRemote?.streamMessageId,
         videoCount: _videos(exercise.loggedSets),
@@ -155,6 +220,7 @@ List<HistoryItem> historyItems({
             date: h.date,
             sets: h.sets,
             inThisProgram: h.assignmentId == assignmentId,
+            place: (day: h.dayNumber, slot: h.slot),
             streamMessageId: h.streamMessageId,
             videoCount: _videos(h.sets),
           ),
@@ -166,6 +232,12 @@ List<HistoryItem> historyItems({
         date: lp.date,
         sets: lp.sets,
         inThisProgram: lp.assignmentId == assignmentId,
+        place: (day: lp.dayNumber, slot: lp.slot),
       ),
   ];
+  if (past) items.sort((a, b) => b.date.compareTo(a.date));
+  return items;
 }
+
+bool _sameDay(DateTime a, DateTime b) =>
+    a.year == b.year && a.month == b.month && a.day == b.day;

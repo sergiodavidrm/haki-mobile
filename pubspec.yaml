@@ -57,6 +57,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.3
+  youtube_player_iframe: ^6.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

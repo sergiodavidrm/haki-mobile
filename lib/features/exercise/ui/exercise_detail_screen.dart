@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
@@ -12,6 +14,10 @@ import '../../body/ui/body_widgets.dart';
 import '../../chat/ui/feedback_links.dart';
 import '../../session/providers/session_providers.dart';
 import '../data/exercise_stats.dart';
+import '../data/exercise_video.dart';
+import '../../program/data/place_label.dart';
+import '../../program/data/program_schedule.dart' show mappingsForWeek;
+import '../../../core/router/app_router.dart';
 import '../providers/exercise_providers.dart';
 import '../../../l10n/l10n.dart';
 
@@ -71,6 +77,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
     final local =
         ref.watch(localSetsProvider(assignmentId, dayId)).value ?? const {};
     final history = ref.watch(exerciseHistoryProvider(e.exerciseId));
+    final place = placeOf(day.day, e);
     final items = historyItems(
       history: history.value,
       exercise: e,
@@ -79,7 +86,28 @@ class ExerciseDetailScreen extends ConsumerWidget {
       weekNumber: day.week.weekNumber,
       today: todaySets(e, local),
       now: DateTime.now(),
+      place: place,
+      sessionDate: day.day.completedAt,
     );
+    // En 2+ lugares (2026-11-07): e1RM e historial solo del lugar de la
+    // sesión (el viernes, los viernes); comparar días vive en Tu progreso.
+    final several = inSeveralPlaces(day.week, e.exerciseId);
+    final shown = several ? samePlaceItems(items, place) : items;
+    String dayLabelOf(int dayNumber, {int? slot}) => placeDayLabel(
+      dayNumber: dayNumber,
+      weekdayNumber: day.program.startDate == null
+          ? null
+          : mappingsForWeek(
+              day.program,
+              day.week.weekNumber,
+            ).where((m) => m.dayNumber == dayNumber).firstOrNull?.weekDay,
+      slot: slot,
+    );
+    final repeatedToday =
+        day.day.exercises.where((x) => x.exerciseId == e.exerciseId).length > 1;
+    final placeLabel = several
+        ? dayLabelOf(place.day, slot: repeatedToday ? place.slot : null)
+        : null;
     final video = e.coachVideoUrl ?? e.techniqueVideoUrl;
     // El feedback más reciente (mockup: arriba de todo)
     final withFeedback = items
@@ -111,13 +139,15 @@ class ExerciseDetailScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               _CoachNoteCard(note: e.coachNote!.trim()),
             ],
-            if (items.any((i) => bestE1rmKg(i.sets) != null)) ...[
+            if (shown.any((i) => bestE1rmKg(i.sets) != null)) ...[
               const SizedBox(height: 16),
-              _E1rmCard(items: items, unit: unit),
+              _E1rmCard(items: shown, unit: unit, placeLabel: placeLabel),
             ],
             const SizedBox(height: 20),
             Text(
-              context.l10n.exerciseHistory,
+              placeLabel == null
+                  ? context.l10n.exerciseHistory
+                  : context.l10n.exerciseHistoryOf(placeLabel),
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -133,7 +163,30 @@ class ExerciseDetailScreen extends ConsumerWidget {
                 style: TextStyle(fontSize: 13, color: c.textMuted),
               )
             else
-              _HistoryList(items: items, unit: unit),
+              _HistoryList(
+                items: shown,
+                unit: unit,
+                // Al terminar las de este lugar: "Ver todos los días", con el
+                // día en cada tarjeta
+                all: several ? items : null,
+                dayOf: (i) => i.place == null || i.place!.day <= 0
+                    ? null
+                    : dayLabelOf(i.place!.day),
+              ),
+            if (several)
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => context.push(
+                    Routes.progressExercise(
+                      e.exerciseId,
+                      place: '${place.day}-${place.slot}',
+                    ),
+                  ),
+                  style: TextButton.styleFrom(foregroundColor: c.gold),
+                  child: Text('${context.l10n.exerciseSeeProgress} →'),
+                ),
+              ),
             if (history.hasError)
               Text(
                 context.l10n.exerciseOfflineHistory,
@@ -146,8 +199,114 @@ class ExerciseDetailScreen extends ConsumerWidget {
   }
 }
 
+/// YouTube: miniatura que al tocarla reproduce ahí mismo (pantalla completa
+/// con el botón del reproductor, girando el teléfono o deslizando hacia
+/// arriba) + "Abrir en YouTube". Otro sitio: se abre afuera, como antes.
 class _VideoCard extends StatelessWidget {
   const _VideoCard({required this.url});
+
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    final id = youtubeIdOf(url);
+    return id == null
+        ? _ExternalVideoCard(url: url)
+        : _YoutubeVideoCard(videoId: id, url: url);
+  }
+}
+
+class _YoutubeVideoCard extends StatefulWidget {
+  const _YoutubeVideoCard({required this.videoId, required this.url});
+
+  final String videoId;
+  final String url;
+
+  @override
+  State<_YoutubeVideoCard> createState() => _YoutubeVideoCardState();
+}
+
+class _YoutubeVideoCardState extends State<_YoutubeVideoCard> {
+  YoutubePlayerController? _controller;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // El webview recién se crea al tocar la miniatura (YoutubePlayerThumbnail)
+    _controller ??= YoutubePlayerController.fromVideoId(
+      videoId: widget.videoId,
+      params: YoutubePlayerParams(
+        showFullscreenButton: true,
+        strictRelatedVideos: true,
+        showVideoAnnotations: false,
+        interfaceLanguage: Localizations.localeOf(context).languageCode,
+        captionLanguage: Localizations.localeOf(context).languageCode,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller?.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          button: true,
+          label: context.l10n.exercisePlayTechnique,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: YoutubePlayerThumbnail(
+              controller: _controller!,
+              backgroundColor: c.surface,
+              playIcon: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: c.gold,
+                ),
+                child: Icon(
+                  Icons.play_arrow_rounded,
+                  size: 32,
+                  color: c.onAccent,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: () => _openExternally(context, widget.url),
+            style: TextButton.styleFrom(foregroundColor: c.textMuted),
+            icon: const Icon(Icons.open_in_new, size: 16),
+            label: Text(context.l10n.exerciseOpenYoutube),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+Future<void> _openExternally(BuildContext context, String url) async {
+  final uri = Uri.tryParse(url);
+  final ok =
+      uri != null && await launchUrl(uri, mode: LaunchMode.externalApplication);
+  if (!ok && context.mounted) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(context.l10n.trimOpenError)));
+  }
+}
+
+class _ExternalVideoCard extends StatelessWidget {
+  const _ExternalVideoCard({required this.url});
 
   final String url;
 
@@ -159,17 +318,7 @@ class _VideoCard extends StatelessWidget {
       label: context.l10n.exercisePlayTechnique,
       child: HakiCard(
         padding: const EdgeInsets.symmetric(vertical: 28),
-        onTap: () async {
-          final uri = Uri.tryParse(url);
-          final ok =
-              uri != null &&
-              await launchUrl(uri, mode: LaunchMode.externalApplication);
-          if (!ok && context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.l10n.trimOpenError)),
-            );
-          }
-        },
+        onTap: () => _openExternally(context, url),
         child: Column(
           children: [
             Container(
@@ -249,7 +398,9 @@ class _HowToState extends State<_HowTo> {
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(0, 36),
                   ),
-                  child: Text(_open ? context.l10n.seeLess : context.l10n.seeMore),
+                  child: Text(
+                    _open ? context.l10n.seeLess : context.l10n.seeMore,
+                  ),
                 ),
             ],
           );
@@ -295,11 +446,14 @@ class _CoachNoteCard extends StatelessWidget {
 }
 
 class _E1rmCard extends StatelessWidget {
-  const _E1rmCard({required this.items, required this.unit});
+  const _E1rmCard({required this.items, required this.unit, this.placeLabel});
 
   /// Del más nuevo al más viejo.
   final List<HistoryItem> items;
   final WeightUnit unit;
+
+  /// "Viernes" si el ejercicio está en 2+ lugares (solo ese lugar)
+  final String? placeLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -332,7 +486,11 @@ class _E1rmCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      context.l10n.exerciseE1rmEstimated,
+                      placeLabel == null
+                          ? context.l10n.exerciseE1rmEstimated
+                          : context.l10n.exerciseE1rmOf(
+                              placeLabel!.toUpperCase(),
+                            ),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -377,12 +535,11 @@ class _E1rmCard extends StatelessWidget {
             BodyLineChart(
               points: points,
               height: 72,
-              semanticLabel:
-                  context.l10n.exerciseTrend(
-                    formatWeight(points.first.value),
-                    '${formatWeight(latest)} ${unit.label}',
-                    points.length,
-                  ),
+              semanticLabel: context.l10n.exerciseTrend(
+                formatWeight(points.first.value),
+                '${formatWeight(latest)} ${unit.label}',
+                points.length,
+              ),
             ),
           ],
           const SizedBox(height: 10),
@@ -393,13 +550,19 @@ class _E1rmCard extends StatelessWidget {
               children: [
                 if (inProgram.length >= 2)
                   Text(
-                    context.l10n.exerciseInBlock('${formatDelta(inProgram.last - inProgram.first)} ${unit.label}'),
+                    context.l10n.exerciseInBlock(
+                      '${formatDelta(inProgram.last - inProgram.first)} ${unit.label}',
+                    ),
                   )
                 else
                   const SizedBox(),
                 if (today != null)
                   Text(
-                    context.l10n.exerciseVolumeToday('${formatWeight(unit.fromKg(volumeKg(today.sets)))} ${unit.label}'),
+                    (today.past
+                        ? context.l10n.exerciseVolumeThatDay
+                        : context.l10n.exerciseVolumeToday)(
+                      '${formatWeight(unit.fromKg(volumeKg(today.sets)))} ${unit.label}',
+                    ),
                   ),
               ],
             ),
@@ -413,10 +576,21 @@ class _E1rmCard extends StatelessWidget {
 /// Arranca con las 2 más nuevas (hoy y la última vez, que es lo que se mira
 /// para decidir la carga) y "Cargar más" suma de a 5.
 class _HistoryList extends StatefulWidget {
-  const _HistoryList({required this.items, required this.unit});
+  const _HistoryList({
+    required this.items,
+    required this.unit,
+    this.all,
+    this.dayOf,
+  });
 
   final List<HistoryItem> items;
   final WeightUnit unit;
+
+  /// Todas las veces (todos los días); null = [items] ya son todas
+  final List<HistoryItem>? all;
+
+  /// "Lunes" para el título de cada tarjeta al ver todos los días
+  final String? Function(HistoryItem)? dayOf;
 
   @override
   State<_HistoryList> createState() => _HistoryListState();
@@ -426,17 +600,24 @@ class _HistoryListState extends State<_HistoryList> {
   static const _initial = 2;
   static const _step = 5;
   var _shown = _initial;
+  var _allDays = false;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final items = widget.items;
+    final items = _allDays ? widget.all! : widget.items;
     final rest = items.length - _shown;
+    final canSeeAll =
+        !_allDays && widget.all != null && widget.all!.length > items.length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final i in items.take(_shown)) ...[
-          _HistoryCard(item: i, unit: widget.unit),
+          _HistoryCard(
+            item: i,
+            unit: widget.unit,
+            day: _allDays ? widget.dayOf?.call(i) : null,
+          ),
           const SizedBox(height: 10),
         ],
         if (rest > 0)
@@ -444,6 +625,15 @@ class _HistoryListState extends State<_HistoryList> {
             onPressed: () => setState(() => _shown += _step),
             style: TextButton.styleFrom(foregroundColor: c.gold),
             child: Text(context.l10n.loadMore(rest)),
+          )
+        else if (canSeeAll)
+          TextButton(
+            onPressed: () => setState(() {
+              _allDays = true;
+              _shown = items.length + _step;
+            }),
+            style: TextButton.styleFrom(foregroundColor: c.gold),
+            child: Text(context.l10n.exerciseSeeAllDays),
           ),
       ],
     );
@@ -451,10 +641,13 @@ class _HistoryListState extends State<_HistoryList> {
 }
 
 class _HistoryCard extends StatelessWidget {
-  const _HistoryCard({required this.item, required this.unit});
+  const _HistoryCard({required this.item, required this.unit, this.day});
 
   final HistoryItem item;
   final WeightUnit unit;
+
+  /// "Lunes" al ver todos los días (va al final del título)
+  final String? day;
 
   @override
   Widget build(BuildContext context) {
@@ -470,7 +663,7 @@ class _HistoryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            item.title,
+            day == null ? item.title : '${item.title} · $day',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/router/app_router.dart';
 
 import '../../../core/format/dates.dart';
 import '../../../core/theme/haki_colors.dart';
@@ -103,31 +106,35 @@ class PastSessionScreen extends ConsumerWidget {
                                       ),
                                 )
                               : _ExerciseCard(
-                            exercise: e,
-                            badge: g.badgeOf(e),
-                            local: local,
-                            videos: videos,
-                            fallbackUnit: fallbackUnit,
-                            onVideo: (n, saved, requested) => queueSetVideo(
-                              context: context,
-                              ref: ref,
-                              assignmentId: assignmentId,
-                              dayId: dayId,
-                              dayExerciseId: e.id,
-                              setNumber: n,
-                              saved: saved,
-                              requested: requested,
-                            ),
-                            notes: notes,
-                            onSaveNote: (note) => ref
-                                .read(sessionStoreProvider)
-                                .saveNote(
-                                  assignmentId: assignmentId,
-                                  dayId: dayId,
-                                  dayExerciseId: e.id,
-                                  note: note,
+                                  exercise: e,
+                                  badge: g.badgeOf(e),
+                                  local: local,
+                                  videos: videos,
+                                  fallbackUnit: fallbackUnit,
+                                  onOpenDetail: () => context.push(
+                                    Routes.exercise(assignmentId, dayId, e.id),
+                                  ),
+                                  onVideo: (n, saved, requested) =>
+                                      queueSetVideo(
+                                        context: context,
+                                        ref: ref,
+                                        assignmentId: assignmentId,
+                                        dayId: dayId,
+                                        dayExerciseId: e.id,
+                                        setNumber: n,
+                                        saved: saved,
+                                        requested: requested,
+                                      ),
+                                  notes: notes,
+                                  onSaveNote: (note) => ref
+                                      .read(sessionStoreProvider)
+                                      .saveNote(
+                                        assignmentId: assignmentId,
+                                        dayId: dayId,
+                                        dayExerciseId: e.id,
+                                        note: note,
+                                      ),
                                 ),
-                          ),
                         ),
                   ],
                 ),
@@ -276,7 +283,12 @@ class _ExerciseCard extends StatelessWidget {
     required this.onVideo,
     required this.notes,
     required this.onSaveNote,
+    required this.onOpenDetail,
   });
+
+  /// Tocar el nombre → Detalle de ejercicio (video, historial), también en
+  /// un entreno ya completado
+  final VoidCallback onOpenDetail;
 
   /// Notas del teléfono (ganan sobre la de la API).
   final Map<String, String?> notes;
@@ -338,12 +350,19 @@ class _ExerciseCard extends StatelessWidget {
                 const SizedBox(width: 8),
               ],
               Expanded(
-                child: Text(
-                  e.exerciseName,
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: c.text,
+                child: Semantics(
+                  button: true,
+                  child: GestureDetector(
+                    onTap: onOpenDetail,
+                    behavior: HitTestBehavior.opaque,
+                    child: Text(
+                      e.exerciseName,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: c.text,
+                      ),
+                    ),
                   ),
                 ),
               ),

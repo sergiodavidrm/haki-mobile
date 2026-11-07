@@ -918,6 +918,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get exerciseTechniqueVideo => 'Video técnico';
 
   @override
+  String get exerciseOpenYoutube => 'Abrir en YouTube';
+
+  @override
   String get exerciseHowTo => 'Cómo se hace';
 
   @override
@@ -2226,29 +2229,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get repRangeLow => '≤ 6 reps';
-
-  @override
-  String get repRangeMid => '7–12 reps';
-
-  @override
-  String get repRangeHigh => '13+ reps';
-
-  @override
-  String progressRangeWhy(String name) {
-    return '¿Por qué $name va en dos filas?';
-  }
-
-  @override
-  String get progressRangeTip =>
-      'Tu coach te lo pide con cargas distintas (por ejemplo pesado a 10 reps y liviano a 15). Cada uno se compara consigo mismo, así una semana sin el día pesado no parece que bajaste.';
-
-  @override
-  String progressRangeOnly(String range) {
-    return 'Solo tus series de $range. Las de otro rango tienen su propia fila en Tu progreso.';
-  }
-
-  @override
   String get workoutNewPr => 'NUEVO PR';
 
   @override
@@ -2285,4 +2265,49 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get workoutVideosHint =>
       'Podés cerrar la app: se terminan de subir cuando vuelvas a tener señal.';
+
+  @override
+  String placeSlot(int n) {
+    return '$n.ª';
+  }
+
+  @override
+  String progressPlaceWhy(String name) {
+    return '¿Por qué $name va en dos filas?';
+  }
+
+  @override
+  String get progressPlaceTip =>
+      'Tu coach lo puso en más de un lugar de tu semana. Cada uno se compara con el mismo día de la semana anterior, así un día más liviano no queda tapado por el otro.';
+
+  @override
+  String progressPlaceOnly(String place) {
+    return 'Solo tus series de $place. Los otros días tienen su propia fila en Tu progreso.';
+  }
+
+  @override
+  String lastFromDay(String day, int week) {
+    return '$day, sem. $week';
+  }
+
+  @override
+  String exerciseE1rmOf(String place) {
+    return 'e1RM · $place';
+  }
+
+  @override
+  String exerciseHistoryOf(String place) {
+    return 'Historial · $place';
+  }
+
+  @override
+  String get exerciseSeeAllDays => 'Ver todos los días';
+
+  @override
+  String get exerciseSeeProgress => 'Ver tu progreso';
+
+  @override
+  String exerciseVolumeThatDay(String volume) {
+    return 'Volumen ese día $volume';
+  }
 }

@@ -1538,6 +1538,12 @@ abstract class AppLocalizations {
   /// **'Video técnico'**
   String get exerciseTechniqueVideo;
 
+  /// No description provided for @exerciseOpenYoutube.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir en YouTube'**
+  String get exerciseOpenYoutube;
+
   /// No description provided for @exerciseHowTo.
   ///
   /// In es, this message translates to:
@@ -3584,42 +3590,6 @@ abstract class AppLocalizations {
   /// **'de adherencia · {done} de {due} entrenos hasta hoy'**
   String progressWorkoutsUntilToday(int done, int due);
 
-  /// No description provided for @repRangeLow.
-  ///
-  /// In es, this message translates to:
-  /// **'≤ 6 reps'**
-  String get repRangeLow;
-
-  /// No description provided for @repRangeMid.
-  ///
-  /// In es, this message translates to:
-  /// **'7–12 reps'**
-  String get repRangeMid;
-
-  /// No description provided for @repRangeHigh.
-  ///
-  /// In es, this message translates to:
-  /// **'13+ reps'**
-  String get repRangeHigh;
-
-  /// No description provided for @progressRangeWhy.
-  ///
-  /// In es, this message translates to:
-  /// **'¿Por qué {name} va en dos filas?'**
-  String progressRangeWhy(String name);
-
-  /// No description provided for @progressRangeTip.
-  ///
-  /// In es, this message translates to:
-  /// **'Tu coach te lo pide con cargas distintas (por ejemplo pesado a 10 reps y liviano a 15). Cada uno se compara consigo mismo, así una semana sin el día pesado no parece que bajaste.'**
-  String get progressRangeTip;
-
-  /// No description provided for @progressRangeOnly.
-  ///
-  /// In es, this message translates to:
-  /// **'Solo tus series de {range}. Las de otro rango tienen su propia fila en Tu progreso.'**
-  String progressRangeOnly(String range);
-
   /// No description provided for @workoutNewPr.
   ///
   /// In es, this message translates to:
@@ -3673,6 +3643,66 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Podés cerrar la app: se terminan de subir cuando vuelvas a tener señal.'**
   String get workoutVideosHint;
+
+  /// No description provided for @placeSlot.
+  ///
+  /// In es, this message translates to:
+  /// **'{n}.ª'**
+  String placeSlot(int n);
+
+  /// No description provided for @progressPlaceWhy.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Por qué {name} va en dos filas?'**
+  String progressPlaceWhy(String name);
+
+  /// No description provided for @progressPlaceTip.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu coach lo puso en más de un lugar de tu semana. Cada uno se compara con el mismo día de la semana anterior, así un día más liviano no queda tapado por el otro.'**
+  String get progressPlaceTip;
+
+  /// No description provided for @progressPlaceOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo tus series de {place}. Los otros días tienen su propia fila en Tu progreso.'**
+  String progressPlaceOnly(String place);
+
+  /// No description provided for @lastFromDay.
+  ///
+  /// In es, this message translates to:
+  /// **'{day}, sem. {week}'**
+  String lastFromDay(String day, int week);
+
+  /// No description provided for @exerciseE1rmOf.
+  ///
+  /// In es, this message translates to:
+  /// **'e1RM · {place}'**
+  String exerciseE1rmOf(String place);
+
+  /// No description provided for @exerciseHistoryOf.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial · {place}'**
+  String exerciseHistoryOf(String place);
+
+  /// No description provided for @exerciseSeeAllDays.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver todos los días'**
+  String get exerciseSeeAllDays;
+
+  /// No description provided for @exerciseSeeProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver tu progreso'**
+  String get exerciseSeeProgress;
+
+  /// No description provided for @exerciseVolumeThatDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Volumen ese día {volume}'**
+  String exerciseVolumeThatDay(String volume);
 }
 
 class _AppLocalizationsDelegate

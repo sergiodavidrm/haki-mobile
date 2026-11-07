@@ -345,6 +345,41 @@ es cuánto cortar del final**, en iOS lo que dura: `compressTrimArgs` en
 `video_trim.dart`, tests en `test/video_trim_test.dart`). `pendingCount` cuenta videos sin subir y el wipe borra los archivos.
 Pendiente: verificar el borrado a los 30 días en Cloudinary.
 
+**Compresión trabada con HEVC + audio (2026-11-06, sin commitear; falta
+probar en el teléfono de Sergio):** en el Samsung S25 de Sergio (SM-S938B,
+firmware S938BXXSDDZJ1) el Transcoder de `video_compress` 3.1.4 se traba con
+**cualquier** video HEVC de la cámara si lleva audio (repite "can't read AUDIO
+right now", sin error ni fin; probado con videos de 6, 21 y 50 s). Los mismos
+videos pasaban la semana anterior (el plugin no cambió: probablemente una
+actualización de Samsung). El Future nunca terminaba y **la cola entera
+quedaba frenada**, aun reiniciando el teléfono. Sin audio el de 50 s comprime
+en 3 s (47 → 24,6 MB). Una vez trabado, el encoder no se libera hasta cerrar
+la app: cancelar y reintentar (con o sin audio, aun reseteando
+`setProcessingStatus`) se vuelve a trabar.
+- `_compressOrStall` (`session_sync.dart`): vigila `compressProgress$`; 30 s
+  sin progreso → `cancelCompression()` y se sube el original (los siguientes
+  videos de esa sesión de la app también van originales: el plugin queda
+  "comprimiendo"). Un encoder lento (emulador, ~1 min) sigue avisando
+  progreso y no se corta.
+- Si el trabado era HEVC, el teléfono queda marcado
+  (`video_compress_no_audio`, `SharedPreferencesAsync`) y desde la próxima vez
+  que se abra la app sus videos **HEVC** se comprimen **sin audio**. Los H.264
+  (HEVC apagado en la cámara: Cámara → ⚙ → Opciones de video avanzadas →
+  "Videos de alta eficiencia") y los teléfonos que nunca se traban siguen con
+  audio. Decisión de Sergio (opción 2; descartados "siempre sin audio" y
+  "siempre el original").
+- `isHevcVideo` (`video_codec.dart`, tests en `test/video_codec_test.dart`):
+  lee solo el box `moov` del MP4 y busca `hvc1`/`hev1` (no todo el archivo:
+  falsos positivos con bytes del video). Probado con archivos reales de
+  ffmpeg.
+- Pendiente: el original HEVC puede no reproducirse en todos los navegadores
+  (sin verificar en Firefox); si hace falta, que Cloudinary lo pase a H.264.
+- Diagnóstico: con el teléfono por USB, una build **debug** instalada encima
+  de la APK de test (misma firma y versión) conserva los datos y deja leer
+  la BD con `adb exec-out run-as com.hakifit.haki_mobile cat
+  app_flutter/haki.sqlite` (la release no deja: `not debuggable`). En Git
+  Bash usar `MSYS_NO_PATHCONV=1` para las rutas del teléfono.
+
 ## Chat (2026-10-20)
 
 Tab `/chat` (`features/chat/`): canal general con el coach. Se usa
@@ -432,13 +467,22 @@ con `ApiCache` (`progressReportProvider(period)`), lógica pura en
   Este bloque · Bloque anterior · Últimas 4 / 8 semanas, con un botón que
   despliega la lista (sin chips con scroll). "Últimos 3 meses" se sacó
   2026-11-05 (Sergio).
-- **Rango de reps (2026-11-05, "App · primera versión" de
-  https://claude.ai/artifact/9mVgiws7MbFZF9ZZGs733g):** si la API manda
-  `repRange` (el ejercicio va en dos rangos de reps), la lista lo agrupa
-  (`groupTrends`, `_RangeGroup`): nombre + ⓘ (único tooltip: por qué dos
-  filas) + ojito, y una fila por rango ("7–12 reps") que abre el detalle de
-  ese rango (`/perfil/progreso/e/:id?rango=mid`, título "Remo T · 13+ reps",
-  sin selector). Selector de rango en el detalle y récords por rango: después.
+- **Lugar del programa (2026-11-07, reemplaza al rango de reps; fila "v2"
+  de https://claude.ai/artifact/9mVgiws7MbFZF9ZZGs733g):** si la API manda
+  `placeDay` (el ejercicio está en 2+ lugares = número de día + vez en el
+  día), la lista lo agrupa (`groupTrends`, `_PlaceGroup`): nombre + ⓘ + ojito
+  y una fila por lugar ("Lunes · 3 × 12", "Día 1 · 2.ª · 2 × 12";
+  `placeTitle`, etiquetas en `program/data/place_label.dart`) que abre su
+  detalle (`/perfil/progreso/e/:id?lugar=5-1`, título "Hack · Viernes · 5 ×
+  12"). Récords siguen por ejercicio (por ahora, decisión de Sergio).
+- **"Sem. pasada" del mismo lugar (2026-11-07):** la API lo busca primero en
+  el mismo día + vez; si viene de otro día (`samePlace` false) la Sesión dice
+  "Lunes, sem. 6" (`lastTimeLabel` con `program`).
+- **Detalle de ejercicio por lugar (2026-11-07):** si el ejercicio está 2+
+  veces en la semana (`inSeveralPlaces`), e1RM ("e1RM · VIERNES"), gráfico,
+  "+X en el bloque" e historial solo del lugar de la sesión (`placeOf`,
+  `samePlaceItems`); al terminar "Ver todos los días" (con el día en cada
+  tarjeta) y "Ver tu progreso →". Sin selector de días.
 - Constancia (hechos de los que tocaban, racha del `streakProvider`, barrita
   por semana), ejercicios del que más subió al que menos con mini gráfico y
   **ojito** para ocultar (`HiddenExercises`, shared_preferences por usuario;
@@ -723,7 +767,13 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
 
 Detalle de ejercicio (`/ejercicio/:assignmentId/:dayId/:dayExerciseId`, sin
 tabs, `features/exercise/`): video técnico (`videoUrl` del coach o
-`exerciseVideoUrl` del catálogo, se abre afuera con `url_launcher`), "Cómo se
+`exerciseVideoUrl` del catálogo). **YouTube se reproduce adentro**
+(2026-11-07, `youtube_player_iframe` 6, webview): miniatura → tocar =
+reproduce en el cuadro (`YoutubePlayerThumbnail`, el webview se crea recién
+ahí), pantalla completa con el botón del reproductor, girando o deslizando
+hacia arriba; abajo "Abrir en YouTube" (`url_launcher`). `youtubeIdOf`
+(`exercise/data/exercise_video.dart`, tests en `test/exercise_video_test.dart`).
+Otros sitios se siguen abriendo afuera. "Cómo se
 hace" (`exerciseDescription`, 3 líneas + Ver más), nota del coach, e1RM (último,
 NUEVO PR si supera a todos los anteriores, tendencia con `BodyLineChart`,
 "+X en el bloque", volumen de hoy) e historial (hoy con borde dorado + `GET
@@ -758,7 +808,10 @@ Tab Programa (`features/program/ui/`, 2026-10-17):
   `session/ui/set_video_flow.dart`, botón `SetCameraButton`). En Hoy, un día
   completado muestra "Ver entreno · subir videos" → esta pantalla. Los videos
   se ven en el Chat (tarjeta del ejercicio), no acá (decisión de Sergio
-  2026-11-05). Tocar una cámara ya subida graba otro que lo reemplaza, sin
+  2026-11-05). Tocar el nombre de un ejercicio abre el Detalle de
+  ejercicio (2026-11-07); ahí esa sesión va con su fecha ("Semana 2 · 27
+  oct", borde dorado, "Volumen ese día") y el historial por fecha
+  (`historyItems(sessionDate:)`). Tocar una cámara ya subida graba otro que lo reemplaza, sin
   confirmar (queda así por ahora).
 - Lógica pura: `currentWeekOf`, `dateOfDay`, `weekRows`, `durationOf`,
   `dayCountsOf` (`program_schedule.dart`) y `assign_dates.dart`; tests en

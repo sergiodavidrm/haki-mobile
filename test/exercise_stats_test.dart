@@ -58,6 +58,67 @@ void main() {
     );
   });
 
+  test(
+    'historyItems: abierto desde un entreno pasado, con su fecha y por fecha',
+    () {
+      const e = DayExerciseDto(
+        id: 'x',
+        exerciseName: 'Hack',
+        supersetGroupId: null,
+      );
+      final api = [
+        ExerciseHistoryEntryDto(
+          assignmentId: 'a',
+          blockName: 'B',
+          weekNumber: 3,
+          blockDayId: 'd3',
+          date: DateTime.utc(2026, 11, 3, 23),
+          sets: [set(1, 85, 12)],
+        ),
+        ExerciseHistoryEntryDto(
+          assignmentId: 'a',
+          blockName: 'B',
+          weekNumber: 1,
+          blockDayId: 'd1',
+          date: DateTime.utc(2026, 10, 20, 23),
+          sets: [set(1, 85, 12)],
+        ),
+      ];
+      final items = historyItems(
+        history: api,
+        exercise: e,
+        assignmentId: 'a',
+        dayId: 'd2',
+        weekNumber: 2,
+        today: [set(1, 85, 12)],
+        now: DateTime(2026, 11, 7, 12),
+        sessionDate: DateTime(2026, 10, 27, 18),
+      );
+      expect(items.map((i) => i.title), [
+        'Semana 3 · 3 nov',
+        'Semana 2 · 27 oct',
+        'Semana 1 · 20 oct',
+      ]);
+      expect(items[1].isToday, isTrue);
+      expect(items[1].past, isTrue);
+    },
+  );
+
+  test('lastTimeLabel: de otro día del programa (sin fechas)', () {
+    final other = LastPerformanceDto(
+      assignmentId: 'a',
+      weekNumber: 6,
+      date: DateTime.utc(2026, 11, 2),
+      sets: const [],
+      dayNumber: 1,
+      samePlace: false,
+    );
+    expect(
+      lastTimeLabel(other, assignmentId: 'a', weekNumber: 6),
+      'Día 1, sem. 6',
+    );
+  });
+
   test('setChip: peso × reps @RIR, sin peso y en lb', () {
     expect(setChip(set(1, 50, 12, 1), WeightUnit.kg), '50 kg × 12 @1');
     expect(setChip(set(1, 50, 12), WeightUnit.kg), '50 kg × 12');

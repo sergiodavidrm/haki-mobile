@@ -5,11 +5,13 @@ Map<String, dynamic> row(
   String id,
   List<num?> values, {
   bool bw = false,
-  String? range,
+  int? day,
+  int? slot,
 }) => {
   'exerciseId': id,
   'name': 'Ej $id',
-  'repRange': range,
+  'placeDay': day,
+  'placeSlot': slot,
   'bodyweight': bw,
   'values': values,
   'best': [
@@ -119,26 +121,28 @@ void main() {
 
   test('período: query para la API', () {
     expect(ProgressPeriod.block.query, 'period=block&byExercise=true');
-    expect(
-      ProgressPeriod.weeks8.query,
-      'period=weeks&weeks=8&byExercise=true',
-    );
+    expect(ProgressPeriod.weeks8.query, 'period=weeks&weeks=8&byExercise=true');
   });
 
-  test('rango de reps: un grupo por ejercicio, de pesado a liviano', () {
+  test('lugar del programa: un grupo por ejercicio, por día y vez', () {
     final r = ProgressReport.fromJson(
       report(
         rows: [
-          row('remo', [57, 60], range: 'high'),
+          row('hack', [91, 98], day: 5),
           row('banca', [100, 101]),
-          row('remo', [90, 93], range: 'mid'),
+          row('hack', [119, 126], day: 1),
+          row('press', [104, 112], day: 1, slot: 2),
+          row('press', [114, 120], day: 1, slot: 1),
         ],
       ),
     );
     final groups = groupTrends(trendsOf(r));
-    expect(groups.map((g) => g.exerciseId), ['remo', 'banca']);
-    expect(groups.first.byRange, isTrue);
-    expect(groups.first.rows.map((t) => t.exercise.repRange), ['mid', 'high']);
-    expect(groups.last.byRange, isFalse);
+    expect(groups.map((g) => g.exerciseId), ['hack', 'press', 'banca']);
+    expect(groups.first.byPlace, isTrue);
+    expect(groups.first.rows.map((t) => t.exercise.placeKey), ['1-1', '5-1']);
+    expect(groups[1].rows.map((t) => t.exercise.placeKey), ['1-1', '1-2']);
+    expect(groups[1].sameDay, isTrue);
+    expect(groups.last.byPlace, isFalse);
+    expect(groups.last.rows.first.exercise.placeKey, isNull);
   });
 }

@@ -6,11 +6,13 @@ import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/widgets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_compress/video_compress.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/network/api_client.dart';
 import 'video_files.dart';
+import 'video_codec.dart';
 import 'video_trim.dart';
 
 part 'session_sync.g.dart';
@@ -493,10 +495,8 @@ class SessionSync {
           );
         }
       }
-      out = await VideoCompress.compressVideo(
+      out = await _compressOrStall(
         path,
-        quality: VideoQuality.Res1280x720Quality,
-        includeAudio: true,
         startTime: trim?.start,
         duration: trim?.duration,
       );
@@ -523,6 +523,69 @@ class SessionSync {
     }
     await deleteVideoFile(path);
     return kept;
+  }
+
+  /// Sin avance de la compresión durante este tiempo = trabada.
+  static const _compressStall = Duration(seconds: 30);
+
+  /// Este teléfono comprime sin audio (se trabó alguna vez con audio).
+  static const _noAudioKey = 'video_compress_no_audio';
+
+  /// Comprime vigilando el progreso: el Transcoder de Android se queda
+  /// esperando el audio para siempre con videos HEVC de algunos teléfonos
+  /// (Samsung S25, 2026-11-06: "can't read AUDIO right now", con cualquier
+  /// duración; sin audio comprime en 3 s) y el Future nunca termina: la cola
+  /// entera quedaba frenada, aun reiniciando. Si pasan [_compressStall] sin
+  /// progreso se cancela y devuelve null (se sube el original). Si el video
+  /// era HEVC, el teléfono queda marcado y desde la próxima vez que se abra
+  /// la app sus videos **HEVC** se comprimen **sin audio** (el encoder trabado
+  /// no se libera hasta cerrarla; probado: cancelar y reintentar sin audio
+  /// también se traba). Los H.264 de ese teléfono (HEVC apagado en la cámara)
+  /// y los de teléfonos que nunca se traban siguen con audio. Un encoder lento
+  /// (emulador) sigue avisando progreso.
+  Future<MediaInfo?> _compressOrStall(
+    String path, {
+    int? startTime,
+    int? duration,
+  }) async {
+    final prefs = SharedPreferencesAsync();
+    final hevc = await isHevcVideo(path);
+    final noAudio = hevc && (await prefs.getBool(_noAudioKey) ?? false);
+    final stalled = Completer<MediaInfo?>();
+    Timer? watchdog;
+    void arm() {
+      watchdog?.cancel();
+      watchdog = Timer(_compressStall, () {
+        if (!stalled.isCompleted) stalled.complete(null);
+      });
+    }
+
+    final progress = VideoCompress.compressProgress$.subscribe((_) => arm());
+    arm();
+    final job = VideoCompress.compressVideo(
+      path,
+      quality: VideoQuality.Res1280x720Quality,
+      includeAudio: !noAudio,
+      startTime: startTime,
+      duration: duration,
+    );
+    try {
+      final out = await Future.any([job, stalled.future]);
+      if (stalled.isCompleted) {
+        debugPrint(
+          'SessionSync: compresión trabada (hevc: $hevc, audio: ${!noAudio}), '
+          'va el original',
+        );
+        job.ignore();
+        await VideoCompress.cancelCompression();
+        if (hevc && !noAudio) await prefs.setBool(_noAudioKey, true);
+        return null;
+      }
+      return out;
+    } finally {
+      watchdog?.cancel();
+      progress.unsubscribe();
+    }
   }
 
   /// Id del set-log: el que se guardó al grabar o el que devolvió el upsert.

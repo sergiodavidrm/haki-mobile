@@ -4,7 +4,8 @@ import '../theme/haki_colors.dart';
 
 enum HakiCardTone { neutral, gold, turquoise }
 
-/// Tarjeta base del mockup: superficie oscura, borde de 1 px y esquinas grandes.
+/// Tarjeta base del mockup: superficie, borde de 1 px, esquinas grandes y, en
+/// el tema claro, sombra suave (`cardShadow`).
 /// [tone] gold = destacada (día de hoy, PR); turquoise = aviso del coach.
 /// Con [onTap] es tocable (ripple dentro de la forma).
 class HakiCard extends StatelessWidget {
@@ -15,6 +16,8 @@ class HakiCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(16),
     this.radius = 20,
     this.onTap,
+    this.borderColor,
+    this.borderWidth = 1,
   });
 
   final Widget child;
@@ -22,6 +25,10 @@ class HakiCard extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final double radius;
   final VoidCallback? onTap;
+
+  /// Pisa el borde del [tone] (día de hoy en Programa: 2 px `todayBorder`).
+  final Color? borderColor;
+  final double borderWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +40,10 @@ class HakiCard extends StatelessWidget {
     };
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(radius),
-      side: BorderSide(color: border),
+      side: BorderSide(color: borderColor ?? border, width: borderWidth),
     );
 
-    return Material(
+    final card = Material(
       color: bg,
       shape: shape,
       clipBehavior: Clip.antiAlias,
@@ -44,6 +51,15 @@ class HakiCard extends StatelessWidget {
         onTap: onTap,
         child: Padding(padding: padding, child: child),
       ),
+    );
+    // Tema claro: la sombra separa la card del fondo (en el oscuro no hay).
+    if (c.cardShadow.isEmpty) return card;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(radius),
+        boxShadow: c.cardShadow,
+      ),
+      child: card,
     );
   }
 }

@@ -16,11 +16,21 @@ class LocalSessionInfo {
     required this.dayId,
     required this.startedAt,
     this.completedAt,
+    this.skippedAt,
+    this.skipNote,
+    this.skipSynced = true,
   });
 
   final String dayId;
   final DateTime startedAt;
   final DateTime? completedAt;
+
+  /// "No voy a hacer este día": null = no está marcado.
+  final DateTime? skippedAt;
+  final String? skipNote;
+
+  /// false = marcar o deshacer todavía no llegó a la API (lo local manda).
+  final bool skipSynced;
 }
 
 class LocalSetEntry {
@@ -53,6 +63,9 @@ LocalSessionInfo _session(LocalSession s) => LocalSessionInfo(
   dayId: s.dayId,
   startedAt: s.startedAt,
   completedAt: s.completedAt,
+  skippedAt: s.skippedAt,
+  skipNote: s.skipNote,
+  skipSynced: s.skipSynced,
 );
 
 LocalSetEntry _set(LocalSet s) => LocalSetEntry(
@@ -191,6 +204,68 @@ class SessionStore {
     _sync.kick();
   }
 
+  /// "No voy a hacer este día" (offline, como las series). Solo si el día no
+  /// tiene nada registrado (la UI lo ofrece así; la API responde 409 si no).
+  Future<bool> skip(String assignmentId, String dayId, {String? note}) async {
+    final value = note?.trim();
+    bool ofDay(String a, String d) => a == assignmentId && d == dayId;
+    final sets = await (_db.select(
+      _db.localSets,
+    )..where((s) => s.assignmentId.equals(assignmentId))).get();
+    final done = await (_db.select(_db.localDone)..where(
+          (x) => x.assignmentId.equals(assignmentId) & x.done.equals(true),
+        ))
+        .get();
+    if (sets.any((s) => ofDay(s.assignmentId, s.dayId)) ||
+        done.any((x) => ofDay(x.assignmentId, x.dayId))) {
+      return false;
+    }
+    await start(assignmentId, dayId);
+    await (_db.update(_db.localSessions)..where(
+          (s) => s.assignmentId.equals(assignmentId) & s.dayId.equals(dayId),
+        ))
+        .write(
+          LocalSessionsCompanion(
+            skippedAt: Value(DateTime.now()),
+            skipNote: Value(value == null || value.isEmpty ? null : value),
+            skipSynced: const Value(false),
+          ),
+        );
+    _sync.kick();
+    return true;
+  }
+
+  /// Deshacer "No voy a hacer este día" (también al registrar algo ese día).
+  /// [force] = aunque en el teléfono no figure marcado (vino marcado de la
+  /// API).
+  Future<void> unskip(
+    String assignmentId,
+    String dayId, {
+    bool force = false,
+  }) async {
+    final row =
+        await (_db.select(_db.localSessions)..where(
+              (s) =>
+                  s.assignmentId.equals(assignmentId) & s.dayId.equals(dayId),
+            ))
+            .getSingleOrNull();
+    if (row == null || (row.skippedAt == null && !force)) {
+      if (!force) return;
+      await start(assignmentId, dayId);
+    }
+    await (_db.update(_db.localSessions)..where(
+          (s) => s.assignmentId.equals(assignmentId) & s.dayId.equals(dayId),
+        ))
+        .write(
+          const LocalSessionsCompanion(
+            skippedAt: Value(null),
+            skipNote: Value(null),
+            skipSynced: Value(false),
+          ),
+        );
+    _sync.kick();
+  }
+
   Future<void> saveSet({
     required String assignmentId,
     required String dayId,
@@ -218,6 +293,9 @@ class SessionStore {
             synced: const Value(false),
           ),
         );
+    // Registrar algo deshace "no lo hago" (después de la serie: así la serie
+    // sube primero y la API ya lo reabre sola)
+    await unskip(assignmentId, dayId);
     _sync.kick();
   }
 
@@ -267,6 +345,7 @@ class SessionStore {
             synced: const Value(false),
           ),
         );
+    if (done) await unskip(assignmentId, dayId);
     _sync.kick();
   }
 
@@ -291,13 +370,15 @@ class SessionStore {
                   (s) =>
                       s.remoteId.isNull() |
                       (s.completedAt.isNotNull() &
-                          s.completeSynced.equals(false)),
+                          s.completeSynced.equals(false)) |
+                      s.skipSynced.equals(false),
                 ))
                 .get())
             .where(
               (s) =>
                   s.remoteId != null ||
                   s.completedAt != null ||
+                  !s.skipSynced ||
                   sets.any((x) => sameDay(x.assignmentId, x.dayId, s)) ||
                   notes.any((n) => sameDay(n.assignmentId, n.dayId, s)) ||
                   done.any((d) => sameDay(d.assignmentId, d.dayId, s)),

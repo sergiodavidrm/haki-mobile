@@ -15,6 +15,7 @@ import '../../chat/ui/feedback_links.dart';
 import '../../session/providers/session_providers.dart';
 import '../data/exercise_stats.dart';
 import '../data/exercise_video.dart';
+import '../../program/data/assignment_dtos.dart' show LoggedSetDto;
 import '../../program/data/place_label.dart';
 import '../../program/data/program_schedule.dart' show mappingsForWeek;
 import '../../../core/router/app_router.dart';
@@ -657,7 +658,11 @@ class _HistoryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: c.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: item.isToday ? c.gold : c.border),
+        border: Border.all(
+          color: item.isToday ? c.gold : c.border,
+          width: item.isToday ? 1.5 : 1,
+        ),
+        boxShadow: c.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -671,31 +676,8 @@ class _HistoryCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              for (final s in item.sets)
-                Container(
-                  height: 26,
-                  padding: const EdgeInsets.symmetric(horizontal: 9),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: c.surfaceHigh,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    setChip(s, unit),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: c.text,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
-                  ),
-                ),
-            ],
-          ),
+          // Tabla Serie · peso · Reps · RIR (tema v2; antes chips)
+          _SetTable(sets: item.sets, unit: unit),
           if (item.streamMessageId != null) ...[
             const SizedBox(height: 8),
             FeedbackLink(
@@ -706,6 +688,86 @@ class _HistoryCard extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+class _SetTable extends StatelessWidget {
+  const _SetTable({required this.sets, required this.unit});
+
+  final List<LoggedSetDto> sets;
+  final WeightUnit unit;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final l = context.l10n;
+    final head = TextStyle(
+      fontSize: 10,
+      fontWeight: FontWeight.w700,
+      letterSpacing: .8,
+      color: c.textMuted,
+    );
+    const num = [FontFeature.tabularFigures()];
+    Widget row(List<Widget> cells, {bool line = true}) => Container(
+      padding: const EdgeInsets.symmetric(vertical: 7),
+      decoration: BoxDecoration(
+        border: line ? Border(top: BorderSide(color: c.track)) : null,
+      ),
+      child: Row(
+        children: [
+          SizedBox(width: 40, child: cells[0]),
+          for (final cell in cells.skip(1))
+            Expanded(
+              child: Align(alignment: Alignment.centerRight, child: cell),
+            ),
+        ],
+      ),
+    );
+    return Column(
+      children: [
+        row([
+          Text(l.setHeader, style: head),
+          Text(unit.label.toUpperCase(), style: head),
+          Text(l.repsHeader, style: head),
+          Text('RIR', style: head),
+        ], line: false),
+        for (final s in sets)
+          row([
+            Text(
+              '${s.setNumber}',
+              style: TextStyle(fontSize: 14, color: c.textMuted),
+            ),
+            Text(
+              s.weightKg == null || s.weightKg! <= 0
+                  ? '–'
+                  : formatWeight(unit.fromKg(s.weightKg!)),
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: c.text,
+                fontFeatures: num,
+              ),
+            ),
+            Text(
+              '${s.reps ?? '–'}',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: c.text,
+                fontFeatures: num,
+              ),
+            ),
+            Text(
+              '${s.rir ?? '–'}',
+              style: TextStyle(
+                fontSize: 14,
+                color: c.textSecondary,
+                fontFeatures: num,
+              ),
+            ),
+          ]),
+      ],
     );
   }
 }

@@ -77,6 +77,43 @@ class $LocalSessionsTable extends LocalSessions
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _skippedAtMeta = const VerificationMeta(
+    'skippedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> skippedAt = GeneratedColumn<DateTime>(
+    'skipped_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _skipNoteMeta = const VerificationMeta(
+    'skipNote',
+  );
+  @override
+  late final GeneratedColumn<String> skipNote = GeneratedColumn<String>(
+    'skip_note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _skipSyncedMeta = const VerificationMeta(
+    'skipSynced',
+  );
+  @override
+  late final GeneratedColumn<bool> skipSynced = GeneratedColumn<bool>(
+    'skip_synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("skip_synced" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     assignmentId,
@@ -85,6 +122,9 @@ class $LocalSessionsTable extends LocalSessions
     startedAt,
     completedAt,
     completeSynced,
+    skippedAt,
+    skipNote,
+    skipSynced,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -149,6 +189,24 @@ class $LocalSessionsTable extends LocalSessions
         ),
       );
     }
+    if (data.containsKey('skipped_at')) {
+      context.handle(
+        _skippedAtMeta,
+        skippedAt.isAcceptableOrUnknown(data['skipped_at']!, _skippedAtMeta),
+      );
+    }
+    if (data.containsKey('skip_note')) {
+      context.handle(
+        _skipNoteMeta,
+        skipNote.isAcceptableOrUnknown(data['skip_note']!, _skipNoteMeta),
+      );
+    }
+    if (data.containsKey('skip_synced')) {
+      context.handle(
+        _skipSyncedMeta,
+        skipSynced.isAcceptableOrUnknown(data['skip_synced']!, _skipSyncedMeta),
+      );
+    }
     return context;
   }
 
@@ -182,6 +240,18 @@ class $LocalSessionsTable extends LocalSessions
         DriftSqlType.bool,
         data['${effectivePrefix}complete_synced'],
       )!,
+      skippedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}skipped_at'],
+      ),
+      skipNote: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}skip_note'],
+      ),
+      skipSynced: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}skip_synced'],
+      )!,
     );
   }
 
@@ -200,6 +270,13 @@ class LocalSession extends DataClass implements Insertable<LocalSession> {
   final DateTime startedAt;
   final DateTime? completedAt;
   final bool completeSynced;
+
+  /// "No voy a hacer este día" (schema 7): cuándo lo marcó (null = no está
+  /// marcado) y la nota opcional para el coach. [skipSynced] false = marcar o
+  /// deshacer todavía no llegó a la API.
+  final DateTime? skippedAt;
+  final String? skipNote;
+  final bool skipSynced;
   const LocalSession({
     required this.assignmentId,
     required this.dayId,
@@ -207,6 +284,9 @@ class LocalSession extends DataClass implements Insertable<LocalSession> {
     required this.startedAt,
     this.completedAt,
     required this.completeSynced,
+    this.skippedAt,
+    this.skipNote,
+    required this.skipSynced,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -221,6 +301,13 @@ class LocalSession extends DataClass implements Insertable<LocalSession> {
       map['completed_at'] = Variable<DateTime>(completedAt);
     }
     map['complete_synced'] = Variable<bool>(completeSynced);
+    if (!nullToAbsent || skippedAt != null) {
+      map['skipped_at'] = Variable<DateTime>(skippedAt);
+    }
+    if (!nullToAbsent || skipNote != null) {
+      map['skip_note'] = Variable<String>(skipNote);
+    }
+    map['skip_synced'] = Variable<bool>(skipSynced);
     return map;
   }
 
@@ -236,6 +323,13 @@ class LocalSession extends DataClass implements Insertable<LocalSession> {
           ? const Value.absent()
           : Value(completedAt),
       completeSynced: Value(completeSynced),
+      skippedAt: skippedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(skippedAt),
+      skipNote: skipNote == null && nullToAbsent
+          ? const Value.absent()
+          : Value(skipNote),
+      skipSynced: Value(skipSynced),
     );
   }
 
@@ -251,6 +345,9 @@ class LocalSession extends DataClass implements Insertable<LocalSession> {
       startedAt: serializer.fromJson<DateTime>(json['startedAt']),
       completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
       completeSynced: serializer.fromJson<bool>(json['completeSynced']),
+      skippedAt: serializer.fromJson<DateTime?>(json['skippedAt']),
+      skipNote: serializer.fromJson<String?>(json['skipNote']),
+      skipSynced: serializer.fromJson<bool>(json['skipSynced']),
     );
   }
   @override
@@ -263,6 +360,9 @@ class LocalSession extends DataClass implements Insertable<LocalSession> {
       'startedAt': serializer.toJson<DateTime>(startedAt),
       'completedAt': serializer.toJson<DateTime?>(completedAt),
       'completeSynced': serializer.toJson<bool>(completeSynced),
+      'skippedAt': serializer.toJson<DateTime?>(skippedAt),
+      'skipNote': serializer.toJson<String?>(skipNote),
+      'skipSynced': serializer.toJson<bool>(skipSynced),
     };
   }
 
@@ -273,6 +373,9 @@ class LocalSession extends DataClass implements Insertable<LocalSession> {
     DateTime? startedAt,
     Value<DateTime?> completedAt = const Value.absent(),
     bool? completeSynced,
+    Value<DateTime?> skippedAt = const Value.absent(),
+    Value<String?> skipNote = const Value.absent(),
+    bool? skipSynced,
   }) => LocalSession(
     assignmentId: assignmentId ?? this.assignmentId,
     dayId: dayId ?? this.dayId,
@@ -280,6 +383,9 @@ class LocalSession extends DataClass implements Insertable<LocalSession> {
     startedAt: startedAt ?? this.startedAt,
     completedAt: completedAt.present ? completedAt.value : this.completedAt,
     completeSynced: completeSynced ?? this.completeSynced,
+    skippedAt: skippedAt.present ? skippedAt.value : this.skippedAt,
+    skipNote: skipNote.present ? skipNote.value : this.skipNote,
+    skipSynced: skipSynced ?? this.skipSynced,
   );
   LocalSession copyWithCompanion(LocalSessionsCompanion data) {
     return LocalSession(
@@ -295,6 +401,11 @@ class LocalSession extends DataClass implements Insertable<LocalSession> {
       completeSynced: data.completeSynced.present
           ? data.completeSynced.value
           : this.completeSynced,
+      skippedAt: data.skippedAt.present ? data.skippedAt.value : this.skippedAt,
+      skipNote: data.skipNote.present ? data.skipNote.value : this.skipNote,
+      skipSynced: data.skipSynced.present
+          ? data.skipSynced.value
+          : this.skipSynced,
     );
   }
 
@@ -306,7 +417,10 @@ class LocalSession extends DataClass implements Insertable<LocalSession> {
           ..write('remoteId: $remoteId, ')
           ..write('startedAt: $startedAt, ')
           ..write('completedAt: $completedAt, ')
-          ..write('completeSynced: $completeSynced')
+          ..write('completeSynced: $completeSynced, ')
+          ..write('skippedAt: $skippedAt, ')
+          ..write('skipNote: $skipNote, ')
+          ..write('skipSynced: $skipSynced')
           ..write(')'))
         .toString();
   }
@@ -319,6 +433,9 @@ class LocalSession extends DataClass implements Insertable<LocalSession> {
     startedAt,
     completedAt,
     completeSynced,
+    skippedAt,
+    skipNote,
+    skipSynced,
   );
   @override
   bool operator ==(Object other) =>
@@ -329,7 +446,10 @@ class LocalSession extends DataClass implements Insertable<LocalSession> {
           other.remoteId == this.remoteId &&
           other.startedAt == this.startedAt &&
           other.completedAt == this.completedAt &&
-          other.completeSynced == this.completeSynced);
+          other.completeSynced == this.completeSynced &&
+          other.skippedAt == this.skippedAt &&
+          other.skipNote == this.skipNote &&
+          other.skipSynced == this.skipSynced);
 }
 
 class LocalSessionsCompanion extends UpdateCompanion<LocalSession> {
@@ -339,6 +459,9 @@ class LocalSessionsCompanion extends UpdateCompanion<LocalSession> {
   final Value<DateTime> startedAt;
   final Value<DateTime?> completedAt;
   final Value<bool> completeSynced;
+  final Value<DateTime?> skippedAt;
+  final Value<String?> skipNote;
+  final Value<bool> skipSynced;
   final Value<int> rowid;
   const LocalSessionsCompanion({
     this.assignmentId = const Value.absent(),
@@ -347,6 +470,9 @@ class LocalSessionsCompanion extends UpdateCompanion<LocalSession> {
     this.startedAt = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.completeSynced = const Value.absent(),
+    this.skippedAt = const Value.absent(),
+    this.skipNote = const Value.absent(),
+    this.skipSynced = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   LocalSessionsCompanion.insert({
@@ -356,6 +482,9 @@ class LocalSessionsCompanion extends UpdateCompanion<LocalSession> {
     required DateTime startedAt,
     this.completedAt = const Value.absent(),
     this.completeSynced = const Value.absent(),
+    this.skippedAt = const Value.absent(),
+    this.skipNote = const Value.absent(),
+    this.skipSynced = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : assignmentId = Value(assignmentId),
        dayId = Value(dayId),
@@ -367,6 +496,9 @@ class LocalSessionsCompanion extends UpdateCompanion<LocalSession> {
     Expression<DateTime>? startedAt,
     Expression<DateTime>? completedAt,
     Expression<bool>? completeSynced,
+    Expression<DateTime>? skippedAt,
+    Expression<String>? skipNote,
+    Expression<bool>? skipSynced,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -376,6 +508,9 @@ class LocalSessionsCompanion extends UpdateCompanion<LocalSession> {
       if (startedAt != null) 'started_at': startedAt,
       if (completedAt != null) 'completed_at': completedAt,
       if (completeSynced != null) 'complete_synced': completeSynced,
+      if (skippedAt != null) 'skipped_at': skippedAt,
+      if (skipNote != null) 'skip_note': skipNote,
+      if (skipSynced != null) 'skip_synced': skipSynced,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -387,6 +522,9 @@ class LocalSessionsCompanion extends UpdateCompanion<LocalSession> {
     Value<DateTime>? startedAt,
     Value<DateTime?>? completedAt,
     Value<bool>? completeSynced,
+    Value<DateTime?>? skippedAt,
+    Value<String?>? skipNote,
+    Value<bool>? skipSynced,
     Value<int>? rowid,
   }) {
     return LocalSessionsCompanion(
@@ -396,6 +534,9 @@ class LocalSessionsCompanion extends UpdateCompanion<LocalSession> {
       startedAt: startedAt ?? this.startedAt,
       completedAt: completedAt ?? this.completedAt,
       completeSynced: completeSynced ?? this.completeSynced,
+      skippedAt: skippedAt ?? this.skippedAt,
+      skipNote: skipNote ?? this.skipNote,
+      skipSynced: skipSynced ?? this.skipSynced,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -421,6 +562,15 @@ class LocalSessionsCompanion extends UpdateCompanion<LocalSession> {
     if (completeSynced.present) {
       map['complete_synced'] = Variable<bool>(completeSynced.value);
     }
+    if (skippedAt.present) {
+      map['skipped_at'] = Variable<DateTime>(skippedAt.value);
+    }
+    if (skipNote.present) {
+      map['skip_note'] = Variable<String>(skipNote.value);
+    }
+    if (skipSynced.present) {
+      map['skip_synced'] = Variable<bool>(skipSynced.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -436,6 +586,9 @@ class LocalSessionsCompanion extends UpdateCompanion<LocalSession> {
           ..write('startedAt: $startedAt, ')
           ..write('completedAt: $completedAt, ')
           ..write('completeSynced: $completeSynced, ')
+          ..write('skippedAt: $skippedAt, ')
+          ..write('skipNote: $skipNote, ')
+          ..write('skipSynced: $skipSynced, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3278,6 +3431,9 @@ typedef $$LocalSessionsTableCreateCompanionBuilder =
       required DateTime startedAt,
       Value<DateTime?> completedAt,
       Value<bool> completeSynced,
+      Value<DateTime?> skippedAt,
+      Value<String?> skipNote,
+      Value<bool> skipSynced,
       Value<int> rowid,
     });
 typedef $$LocalSessionsTableUpdateCompanionBuilder =
@@ -3288,6 +3444,9 @@ typedef $$LocalSessionsTableUpdateCompanionBuilder =
       Value<DateTime> startedAt,
       Value<DateTime?> completedAt,
       Value<bool> completeSynced,
+      Value<DateTime?> skippedAt,
+      Value<String?> skipNote,
+      Value<bool> skipSynced,
       Value<int> rowid,
     });
 
@@ -3327,6 +3486,21 @@ class $$LocalSessionsTableFilterComposer
 
   ColumnFilters<bool> get completeSynced => $composableBuilder(
     column: $table.completeSynced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get skippedAt => $composableBuilder(
+    column: $table.skippedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get skipNote => $composableBuilder(
+    column: $table.skipNote,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get skipSynced => $composableBuilder(
+    column: $table.skipSynced,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -3369,6 +3543,21 @@ class $$LocalSessionsTableOrderingComposer
     column: $table.completeSynced,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get skippedAt => $composableBuilder(
+    column: $table.skippedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get skipNote => $composableBuilder(
+    column: $table.skipNote,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get skipSynced => $composableBuilder(
+    column: $table.skipSynced,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$LocalSessionsTableAnnotationComposer
@@ -3401,6 +3590,17 @@ class $$LocalSessionsTableAnnotationComposer
 
   GeneratedColumn<bool> get completeSynced => $composableBuilder(
     column: $table.completeSynced,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get skippedAt =>
+      $composableBuilder(column: $table.skippedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get skipNote =>
+      $composableBuilder(column: $table.skipNote, builder: (column) => column);
+
+  GeneratedColumn<bool> get skipSynced => $composableBuilder(
+    column: $table.skipSynced,
     builder: (column) => column,
   );
 }
@@ -3442,6 +3642,9 @@ class $$LocalSessionsTableTableManager
                 Value<DateTime> startedAt = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
                 Value<bool> completeSynced = const Value.absent(),
+                Value<DateTime?> skippedAt = const Value.absent(),
+                Value<String?> skipNote = const Value.absent(),
+                Value<bool> skipSynced = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalSessionsCompanion(
                 assignmentId: assignmentId,
@@ -3450,6 +3653,9 @@ class $$LocalSessionsTableTableManager
                 startedAt: startedAt,
                 completedAt: completedAt,
                 completeSynced: completeSynced,
+                skippedAt: skippedAt,
+                skipNote: skipNote,
+                skipSynced: skipSynced,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3460,6 +3666,9 @@ class $$LocalSessionsTableTableManager
                 required DateTime startedAt,
                 Value<DateTime?> completedAt = const Value.absent(),
                 Value<bool> completeSynced = const Value.absent(),
+                Value<DateTime?> skippedAt = const Value.absent(),
+                Value<String?> skipNote = const Value.absent(),
+                Value<bool> skipSynced = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalSessionsCompanion.insert(
                 assignmentId: assignmentId,
@@ -3468,6 +3677,9 @@ class $$LocalSessionsTableTableManager
                 startedAt: startedAt,
                 completedAt: completedAt,
                 completeSynced: completeSynced,
+                skippedAt: skippedAt,
+                skipNote: skipNote,
+                skipSynced: skipSynced,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

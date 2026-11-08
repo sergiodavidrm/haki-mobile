@@ -225,6 +225,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get stripNone => 'sin entreno';
 
   @override
+  String get stripSkipped => 'día marcado como no hecho';
+
+  @override
   String get stripPartial => 'entreno hecho en parte';
 
   @override
@@ -2310,4 +2313,55 @@ class AppLocalizationsEs extends AppLocalizations {
   String exerciseVolumeThatDay(String volume) {
     return 'Volumen ese día $volume';
   }
+
+  @override
+  String get skipMarkedToday => 'Marcaste que no lo hacés';
+
+  @override
+  String get skipUndoTrain => 'Deshacer · lo voy a entrenar';
+
+  @override
+  String get skipSwipeAction => 'No lo haré';
+
+  @override
+  String get skipUndo => 'Deshacer';
+
+  @override
+  String skipSheetTitle(String day) {
+    return '¿No vas a hacer el $day?';
+  }
+
+  @override
+  String get skipSheetCounts => 'Cuenta como no hecho en tu constancia.';
+
+  @override
+  String get skipSheetNext => 'Pasás al siguiente día del programa.';
+
+  @override
+  String get skipSheetUndo =>
+      'Podés deshacerlo deslizando el día otra vez, o entrenarlo igual: al registrar una serie vuelve a ser un entreno normal.';
+
+  @override
+  String skipNoteLabel(String coach) {
+    return 'Contale a $coach por qué (opcional)';
+  }
+
+  @override
+  String get skipNoteLabelNoCoach => 'Contale a tu coach por qué (opcional)';
+
+  @override
+  String get skipConfirm => 'Marcar como no hecho';
+
+  @override
+  String get skipSessionButton => 'No voy a hacer este día';
+
+  @override
+  String get skipSessionHint =>
+      'Cuando registres una serie, acá aparece Finalizar entreno';
+
+  @override
+  String get skipDayRowSub => 'No lo hiciste';
+
+  @override
+  String get progressSame => 'igual';
 }

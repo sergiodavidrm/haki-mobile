@@ -27,6 +27,17 @@ class HakiColors extends ThemeExtension<HakiColors> {
     required this.cardio,
     required this.cardioText,
     required this.onAccent,
+    required this.primary,
+    required this.onPrimary,
+    required this.track,
+    required this.todayBorder,
+    required this.cardShadow,
+    required this.onTurquoise,
+    required this.weekTabSelected,
+    required this.weekTabSelectedText,
+    required this.weekTabSelectedBorder,
+    required this.currentWeekFill,
+    required this.currentWeekTrack,
   });
 
   final Color background;
@@ -62,6 +73,37 @@ class HakiColors extends ThemeExtension<HakiColors> {
   /// en los dos temas.
   final Color onAccent;
 
+  /// Tema v2 (2026-11-07, canvas "Haki · Tema v2"): botón primario y "hoy" de
+  /// la tira. Dorado en el oscuro, obsidiana en el claro (el dorado relleno se
+  /// veía mostaza sobre claro).
+  final Color primary;
+  final Color onPrimary;
+
+  /// Parte vacía de barras, anillos y grillas de gráficos.
+  final Color track;
+
+  /// Borde del día de hoy en la lista de días (tab Programa): dorado fino.
+  final Color todayBorder;
+
+  /// Sombra de las tarjetas: el claro separa las cards del fondo con sombra;
+  /// el oscuro solo con el borde.
+  final List<BoxShadow> cardShadow;
+
+  /// Texto e íconos sobre turquesa relleno (día hecho, check): blanco en el
+  /// claro (el turquesa es oscuro), obsidiana en el oscuro.
+  final Color onTurquoise;
+
+  /// Selector S1…SN: la semana elegida. Oscuro = dorado (como antes del tema
+  /// v2, Sergio); claro = blanco sobre el gris.
+  final Color weekTabSelected;
+  final Color weekTabSelectedText;
+  final Color weekTabSelectedBorder;
+
+  /// Barra del bloque: la semana en curso. Oscuro = dorado; claro = turquesa
+  /// como las demás.
+  final Color currentWeekFill;
+  final Color currentWeekTrack;
+
   /// Paleta vigente del atleta: Obsidian / Gold / Turquoise.
   static const obsidian = HakiColors(
     background: Color(0xFF0D0D0D),
@@ -86,28 +128,38 @@ class HakiColors extends ThemeExtension<HakiColors> {
     cardio: Color(0xFFFF7A45),
     cardioText: Color(0xFFFF7A45),
     onAccent: Color(0xFF0D0D0D),
+    primary: Color(0xFFB8922A),
+    onPrimary: Color(0xFF0D0D0D),
+    track: Color(0xFF2A2A2A),
+    todayBorder: Color(0xFFB8922A),
+    cardShadow: [],
+    onTurquoise: Color(0xFF0D0D0D),
+    weekTabSelected: Color(0xFF1F1A0E),
+    weekTabSelectedText: Color(0xFFE0B64A),
+    weekTabSelectedBorder: Color(0xFFB8922A),
+    currentWeekFill: Color(0xFFB8922A),
+    currentWeekTrack: Color(0xFF3A2F12),
   );
 
-  /// Tema claro (mockup "Tema claro · propuesta", 2026-10-20): mismo dorado de
-  /// botones; dorado y turquesa más oscuros donde son texto. Texto tenue,
-  /// turquesa y dorado de texto oscurecidos un escalón más tras probarlo en el
-  /// emulador (el texto chico no se leía bien).
+  /// Tema claro v2 (2026-11-07, canvas "Haki · Tema v2"): fondo gris frío
+  /// (el crema se veía pálido), cards blancas con sombra, botón primario
+  /// obsidiana. Dorado y turquesa más oscuros donde son texto.
   static const light = HakiColors(
-    background: Color(0xFFF7F6F3),
+    background: Color(0xFFEEF0F3),
     surface: Color(0xFFFFFFFF),
-    surfaceHigh: Color(0xFFF0EEE9),
+    surfaceHigh: Color(0xFFF4F5F7),
     navBar: Color(0xFFFFFFFF),
-    border: Color(0xFFE3E0D8),
-    text: Color(0xFF141414),
-    textSecondary: Color(0xFF3D3D3D),
-    textMuted: Color(0xFF575757),
+    border: Color(0xFFE2E5EA),
+    text: Color(0xFF111316),
+    textSecondary: Color(0xFF3B4048),
+    textMuted: Color(0xFF5E646E),
     gold: Color(0xFFB8922A),
     goldBright: Color(0xFF7A5C0C),
-    goldSurface: Color(0xFFFBF4E2),
+    goldSurface: Color(0xFFFBF3DF),
     goldBorder: Color(0xFFEAD9A8),
     turquoise: Color(0xFF00766C),
-    turquoiseSurface: Color(0xFFE3F5F3),
-    turquoiseBorder: Color(0xFFBFE6E2),
+    turquoiseSurface: Color(0xFFE0F2F0),
+    turquoiseBorder: Color(0xFFBFE3DF),
     turquoiseMuted: Color(0xFF3F7A75),
     danger: Color(0xFFD93036),
     mobility: Color(0xFF8B6FD6),
@@ -115,6 +167,21 @@ class HakiColors extends ThemeExtension<HakiColors> {
     cardio: Color(0xFFFF7A45),
     cardioText: Color(0xFFB4501A),
     onAccent: Color(0xFF141414),
+    primary: Color(0xFF141414),
+    onPrimary: Color(0xFFFFFFFF),
+    track: Color(0xFFE4E7EC),
+    // Dorado como en el oscuro (el borde obsidiana se veía pesado, Sergio)
+    todayBorder: Color(0xFFB8922A),
+    cardShadow: [
+      BoxShadow(color: Color(0x0D111316), blurRadius: 2, offset: Offset(0, 1)),
+      BoxShadow(color: Color(0x0F111316), blurRadius: 14, offset: Offset(0, 4)),
+    ],
+    onTurquoise: Color(0xFFFFFFFF),
+    weekTabSelected: Color(0xFFFFFFFF),
+    weekTabSelectedText: Color(0xFF111316),
+    weekTabSelectedBorder: Color(0x00000000),
+    currentWeekFill: Color(0xFF00766C),
+    currentWeekTrack: Color(0xFFE4E7EC),
   );
 
   @override
@@ -141,6 +208,17 @@ class HakiColors extends ThemeExtension<HakiColors> {
     Color? cardio,
     Color? cardioText,
     Color? onAccent,
+    Color? primary,
+    Color? onPrimary,
+    Color? track,
+    Color? todayBorder,
+    List<BoxShadow>? cardShadow,
+    Color? onTurquoise,
+    Color? weekTabSelected,
+    Color? weekTabSelectedText,
+    Color? weekTabSelectedBorder,
+    Color? currentWeekFill,
+    Color? currentWeekTrack,
   }) {
     return HakiColors(
       background: background ?? this.background,
@@ -165,6 +243,18 @@ class HakiColors extends ThemeExtension<HakiColors> {
       cardio: cardio ?? this.cardio,
       cardioText: cardioText ?? this.cardioText,
       onAccent: onAccent ?? this.onAccent,
+      primary: primary ?? this.primary,
+      onPrimary: onPrimary ?? this.onPrimary,
+      track: track ?? this.track,
+      todayBorder: todayBorder ?? this.todayBorder,
+      cardShadow: cardShadow ?? this.cardShadow,
+      onTurquoise: onTurquoise ?? this.onTurquoise,
+      weekTabSelected: weekTabSelected ?? this.weekTabSelected,
+      weekTabSelectedText: weekTabSelectedText ?? this.weekTabSelectedText,
+      weekTabSelectedBorder:
+          weekTabSelectedBorder ?? this.weekTabSelectedBorder,
+      currentWeekFill: currentWeekFill ?? this.currentWeekFill,
+      currentWeekTrack: currentWeekTrack ?? this.currentWeekTrack,
     );
   }
 
@@ -198,6 +288,29 @@ class HakiColors extends ThemeExtension<HakiColors> {
       cardio: Color.lerp(cardio, other.cardio, t)!,
       cardioText: Color.lerp(cardioText, other.cardioText, t)!,
       onAccent: Color.lerp(onAccent, other.onAccent, t)!,
+      primary: Color.lerp(primary, other.primary, t)!,
+      onPrimary: Color.lerp(onPrimary, other.onPrimary, t)!,
+      track: Color.lerp(track, other.track, t)!,
+      todayBorder: Color.lerp(todayBorder, other.todayBorder, t)!,
+      cardShadow: BoxShadow.lerpList(cardShadow, other.cardShadow, t)!,
+      onTurquoise: Color.lerp(onTurquoise, other.onTurquoise, t)!,
+      weekTabSelected: Color.lerp(weekTabSelected, other.weekTabSelected, t)!,
+      weekTabSelectedText: Color.lerp(
+        weekTabSelectedText,
+        other.weekTabSelectedText,
+        t,
+      )!,
+      weekTabSelectedBorder: Color.lerp(
+        weekTabSelectedBorder,
+        other.weekTabSelectedBorder,
+        t,
+      )!,
+      currentWeekFill: Color.lerp(currentWeekFill, other.currentWeekFill, t)!,
+      currentWeekTrack: Color.lerp(
+        currentWeekTrack,
+        other.currentWeekTrack,
+        t,
+      )!,
     );
   }
 }

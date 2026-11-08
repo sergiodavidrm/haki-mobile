@@ -110,6 +110,37 @@ void main() {
   });
 
   group('resolveToday', () {
+    test('sin fechas: un día marcado "no lo hago" pasa al siguiente', () {
+      final p = detail(
+        weeks: [
+          WeekDto(
+            weekNumber: 1,
+            days: [
+              day(1, status: SessionStatus.completed),
+              day(2, status: SessionStatus.skipped),
+              day(3),
+            ],
+          ),
+        ],
+      );
+      final plan = resolveToday(p, friday) as TrainingDay;
+      expect(plan.day.dayNumber, 3);
+    });
+
+    test('weekRows: el marcado sale como skipped, no como el que toca', () {
+      final p = detail(
+        weeks: [
+          WeekDto(
+            weekNumber: 1,
+            days: [day(1, status: SessionStatus.skipped), day(2)],
+          ),
+        ],
+      );
+      final rows = weekRows(p, p.weeks.first, friday);
+      expect(rows[0].kind, DayRowKind.skipped);
+      expect(rows[1].kind, DayRowKind.next);
+    });
+
     test(
       'con mappings: hoy viernes = día mapeado a FRI de la semana actual',
       () {

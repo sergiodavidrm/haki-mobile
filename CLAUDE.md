@@ -996,6 +996,43 @@ en `ios/Runner.xcodeproj/project.pbxproj` (bug): descartar ese cambio con
 Pendiente de marca: fuente Raleway para el wordmark "haki" (el web la usa) y
 el dorado del logo del web es `#C9A84C` vs. `gold` `#B8922A` del tema.
 
+### Tema v2 y "No voy a hacer este día" (2026-11-07, sin probar)
+
+Canvas "Haki · Tema v2" https://claude.ai/artifact/KJi5b1ccQG1MsktWV9uwwx.
+- **Tokens nuevos** en `HakiColors`: `primary`/`onPrimary` (botón primario y
+  "hoy" de la tira: dorado en oscuro, obsidiana en claro), `track` (partes
+  vacías, grillas), `todayBorder` (borde dorado fino del día que toca en Programa, en los dos temas; el obsidiana de 2 px se descartó),
+  `cardShadow` (solo claro; `HakiCard` la aplica) y `onTurquoise`. Claro:
+  fondo `#EEF0F3`, borde `#E2E5EA`, textos `#111316`/`#3B4048`/`#5E646E`.
+  `FilledButton` del tema usa `primary`. Misma estructura en los dos temas.
+- Tira de Hoy: hecho = turquesa relleno + ✓ abajo; parcial = anillo + ✓;
+  marcado = aro gris + ✕; con entreno = aro punteado. Programa: barra del
+  bloque por semana llena en proporción (`WeekFillBar`), S1…SN segmentado con
+  ✓ en las terminadas, el que toca con borde dorado fino. **Tema oscuro:** semana elegida y semana en curso de la barra en dorado (tokens `weekTabSelected*`, `currentWeek*`; en el claro blanco / turquesa). Gráficos
+  (`ValueLineChart`, `BodyLineChart`): relleno, 2 líneas de grilla con valor,
+  punto por registro, semana sin dato en punteado. Historial del Detalle de
+  ejercicio como tabla (`_SetTable`). Tu progreso: card del bloque neutra,
+  constancia en turquesa, mini gráficos sube = turquesa / igual = gris + pastilla.
+- **No voy a hacer este día:** `SessionStatus.skipped` (`DayDto.isSkipped`,
+  `isResolved`, `skipNote`, `hasLoggedWork`). drift **schema 7**:
+  `LocalSessions.skippedAt/skipNote/skipSynced`. `SessionStore.skip` (false si
+  el día ya tiene series/Hecho en el teléfono) / `unskip`; guardar una serie o
+  un Hecho lo deshace. `SessionSync._pushSkips` (después de las series): `PUT
+  workout-sessions/{id}/skip {note}` o `DELETE`; 400/404/409 = se desmarca en
+  el teléfono. `mergeLocalSessions`: lo local manda mientras no subió.
+  `resolveToday`/`currentWeekOf` saltean los marcados; `weekRows` →
+  `DayRowKind.skipped`; adherencia/racha sin cambios (no es `completed`).
+  UI en `program/ui/skip_day.dart`: `SkipSwipe` (deslizar a la izquierda en
+  Programa: hoy y pendientes que ya tocaban, o el que toca sin fechas; sobre
+  uno marcado = Deshacer; pista de 48 px **una sola vez**, `swipe_hint_shown`)
+  y `confirmSkipDay` (hoja con nota opcional). Sesión sin nada registrado:
+  "No voy a hacer este día" + "Cuando registres una serie, acá aparece
+  Finalizar entreno". Hoy: tarjeta "Marcaste que no lo hacés" + "Deshacer ·
+  lo voy a entrenar". Falta: "Próximo: Día N · fecha" en esa tarjeta (está en
+  el mockup) y que un marcado hoy cuente para adherencia el mismo día (hoy
+  cuenta desde mañana, igual que en la API). Tests en `session_sync_test` y
+  `program_schedule_test`.
+
 ### Día parcial (2026-11-05)
 
 Completado con menos de la mitad de las series de fuerza con reps (misma

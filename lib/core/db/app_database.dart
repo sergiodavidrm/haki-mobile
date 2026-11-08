@@ -21,6 +21,13 @@ class LocalSessions extends Table {
   BoolColumn get completeSynced =>
       boolean().withDefault(const Constant(false))();
 
+  /// "No voy a hacer este día" (schema 7): cuándo lo marcó (null = no está
+  /// marcado) y la nota opcional para el coach. [skipSynced] false = marcar o
+  /// deshacer todavía no llegó a la API.
+  DateTimeColumn get skippedAt => dateTime().nullable()();
+  TextColumn get skipNote => text().nullable()();
+  BoolColumn get skipSynced => boolean().withDefault(const Constant(true))();
+
   @override
   Set<Column> get primaryKey => {assignmentId, dayId};
 }
@@ -142,7 +149,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'haki'));
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -158,6 +165,11 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 5) await m.createTable(localNotes);
       if (from < 6) await m.createTable(localDone);
+      if (from < 7) {
+        await m.addColumn(localSessions, localSessions.skippedAt);
+        await m.addColumn(localSessions, localSessions.skipNote);
+        await m.addColumn(localSessions, localSessions.skipSynced);
+      }
     },
   );
 

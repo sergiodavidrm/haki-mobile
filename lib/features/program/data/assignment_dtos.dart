@@ -168,11 +168,16 @@ class WeekDto {
 enum SessionStatus {
   pending,
   inProgress,
-  completed;
+  completed,
+
+  /// "No voy a hacer este día" (2026-11-07): resuelve el día (pasa al
+  /// siguiente) pero cuenta como no hecho en adherencia y racha.
+  skipped;
 
   static SessionStatus parse(String? s) => switch (s) {
     'in_progress' => inProgress,
     'completed' => completed,
+    'skipped' => skipped,
     _ => pending,
   };
 }
@@ -189,6 +194,7 @@ class DayDto {
     this.completedAt,
     this.setsDone,
     this.setsTotal,
+    this.skipNote,
   });
 
   final String id;
@@ -207,6 +213,21 @@ class DayDto {
   /// lo arma `mergeLocalSessions`). null = sin calcular.
   final int? setsDone;
   final int? setsTotal;
+
+  /// "No voy a hacer este día" ([sessionStatus] skipped): nota para el coach.
+  final String? skipNote;
+
+  bool get isSkipped => sessionStatus == SessionStatus.skipped;
+
+  /// La API ya tiene algo registrado ese día (series o un Hecho): no se puede
+  /// marcar "no lo hago".
+  bool get hasLoggedWork => exercises.any(
+    (e) => e.loggedSets.isNotEmpty || e.completedAt != null,
+  );
+
+  /// Completado o marcado "no lo hago": el día ya no es "el que toca".
+  bool get isResolved =>
+      sessionStatus == SessionStatus.completed || isSkipped;
 
   /// Día parcial (2026-11-05): completado con menos de la mitad de las series.
   /// Misma regla que `SessionCompletion.IsPartial` en haki-api. Cuenta igual
@@ -233,6 +254,7 @@ class DayDto {
     SessionStatus status, {
     DateTime? startedAt,
     DateTime? completedAt,
+    String? skipNote,
   }) => DayDto(
     id: id,
     dayNumber: dayNumber,
@@ -244,6 +266,9 @@ class DayDto {
     completedAt: completedAt ?? this.completedAt,
     setsDone: setsDone,
     setsTotal: setsTotal,
+    skipNote: status == SessionStatus.skipped
+        ? skipNote ?? this.skipNote
+        : null,
   );
 
   DayDto withSetProgress(int done, int total) => DayDto(
@@ -257,6 +282,7 @@ class DayDto {
     completedAt: completedAt,
     setsDone: done,
     setsTotal: total,
+    skipNote: skipNote,
   );
 
   int get supersetCount => exercises
@@ -280,6 +306,7 @@ class DayDto {
     ],
     startedAt: _dateTime(j['startedAt']),
     completedAt: _dateTime(j['completedAt']),
+    skipNote: j['skipNote'] as String?,
   );
 }
 

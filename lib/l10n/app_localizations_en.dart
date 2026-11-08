@@ -226,6 +226,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stripNone => 'no workout';
 
   @override
+  String get stripSkipped => 'marked as skipped';
+
+  @override
   String get stripPartial => 'workout partly done';
 
   @override
@@ -2313,4 +2316,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String exerciseVolumeThatDay(String volume) {
     return 'Volume that day $volume';
   }
+
+  @override
+  String get skipMarkedToday => 'You marked it as skipped';
+
+  @override
+  String get skipUndoTrain => 'Undo · I\'ll train it';
+
+  @override
+  String get skipSwipeAction => 'Skip';
+
+  @override
+  String get skipUndo => 'Undo';
+
+  @override
+  String skipSheetTitle(String day) {
+    return 'Skip $day?';
+  }
+
+  @override
+  String get skipSheetCounts => 'It counts as missed in your consistency.';
+
+  @override
+  String get skipSheetNext => 'You move on to the next day of the program.';
+
+  @override
+  String get skipSheetUndo =>
+      'You can undo it by swiping the day again, or train it anyway: logging a set turns it back into a normal workout.';
+
+  @override
+  String skipNoteLabel(String coach) {
+    return 'Tell $coach why (optional)';
+  }
+
+  @override
+  String get skipNoteLabelNoCoach => 'Tell your coach why (optional)';
+
+  @override
+  String get skipConfirm => 'Mark as skipped';
+
+  @override
+  String get skipSessionButton => 'I won\'t do this day';
+
+  @override
+  String get skipSessionHint =>
+      'Once you log a set, Finish workout shows up here';
+
+  @override
+  String get skipDayRowSub => 'Skipped';
+
+  @override
+  String get progressSame => 'same';
 }

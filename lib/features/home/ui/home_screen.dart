@@ -13,6 +13,7 @@ import '../../auth/providers/auth_me_provider.dart';
 import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
 import '../../questionnaire/providers/questionnaire_providers.dart';
+import '../../session/data/session_store.dart';
 import '../../questionnaire/ui/pending_questionnaire_card.dart';
 import '../../questionnaire/data/questionnaire_dtos.dart';
 import '../providers/selected_day_provider.dart';
@@ -180,6 +181,9 @@ class HomeScreen extends ConsumerWidget {
                 context,
                 Routes.pastSession(program.assignmentId, plan.day.id),
               ),
+              onUnskip: () => ref
+                  .read(sessionStoreProvider)
+                  .unskip(program.assignmentId, plan.day.id, force: true),
             ),
             RestDay(:final next, :final nextDate) => TodayInfoCard(
               label: selected == null

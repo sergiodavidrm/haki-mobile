@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/format/dates.dart';
 import '../../../core/theme/haki_colors.dart';
+import '../../../core/widgets/dashed_border.dart';
 import '../../../core/widgets/haki_card.dart';
 import '../../../core/widgets/partial_ring.dart';
 import '../../../core/widgets/pill_chip.dart';
@@ -12,9 +13,10 @@ import '../../program/data/assignment_dtos.dart';
 import '../../program/data/program_schedule.dart';
 import '../../../l10n/l10n.dart';
 
-/// Tira L–D de la semana (programas con fechas por día). Punto = hay entreno;
-/// relleno turquesa = hecho; dorado = el día elegido (hoy si no se tocó otro);
-/// aro dorado = hoy cuando se eligió otro día. Tocar un día muestra lo que toca
+/// Tira L–D de la semana (programas con fechas por día). Turquesa relleno +
+/// ✓ = hecho; anillo + ✓ = parcial; aro gris + ✕ = "no lo hago"; punteado =
+/// hay entreno; primario = el día elegido (hoy si no se tocó otro); aro dorado
+/// = hoy cuando se eligió otro día. Tocar un día muestra lo que toca
 /// ese día; las flechas cambian de semana dentro del programa.
 class WeekStrip extends StatelessWidget {
   const WeekStrip({
@@ -100,15 +102,91 @@ class _StripDayCell extends StatelessWidget {
     final c = context.colors;
     final d = day;
     final selected = d.isSelected;
+    final partial = d.kind == StripDayKind.done && d.partialProgress != null;
+    final done = d.kind == StripDayKind.done && !partial;
+
+    // Tema v2 (2026-11-07): elegido = primario (dorado / obsidiana); hecho =
+    // turquesa relleno + ✓ abajo; parcial = anillo + ✓; "no lo hago" = aro
+    // gris + ✕; con entreno = aro punteado; hoy sin elegir = aro dorado.
+    final Color bg = selected
+        ? c.primary
+        : done
+        ? c.turquoise
+        : Colors.transparent;
+    final Color fg = selected
+        ? c.onPrimary
+        : done
+        ? c.onTurquoise
+        : partial
+        ? c.turquoise
+        : d.kind == StripDayKind.skipped
+        ? c.textMuted
+        : c.textSecondary;
+    final Border? border = selected || done || partial
+        ? null
+        : d.isToday
+        ? Border.all(color: c.goldBright, width: 1.5)
+        : d.kind == StripDayKind.skipped
+        ? Border.all(color: c.track, width: 2)
+        : null;
+
+    Widget circle = Container(
+      width: 40,
+      height: 40,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: bg,
+        border: border,
+      ),
+      child: Text(
+        '${d.date.day}',
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: d.kind == StripDayKind.none && !selected
+              ? FontWeight.w500
+              : FontWeight.w700,
+          color: fg,
+        ),
+      ),
+    );
+    if (partial && !selected) {
+      circle = PartialRing(
+        size: 40,
+        progress: d.partialProgress!,
+        child: circle,
+      );
+    } else if (d.kind == StripDayKind.planned && !selected && !d.isToday) {
+      circle = DashedBorder(
+        color: c.textMuted,
+        radius: 20,
+        strokeWidth: 1.2,
+        dash: 3,
+        gap: 3,
+        child: circle,
+      );
+    }
+
+    final Widget mark = switch (d.kind) {
+      StripDayKind.done => Icon(Icons.check_rounded, size: 13, color: c.turquoise),
+      StripDayKind.skipped => Icon(Icons.close_rounded, size: 13, color: c.textMuted),
+      StripDayKind.planned when selected => Container(
+        width: 6,
+        height: 6,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: c.gold),
+      ),
+      _ => const SizedBox.shrink(),
+    };
+
     return Semantics(
       button: true,
       selected: selected,
       label:
           '${formatShortDate(d.date)}: ${switch (d.kind) {
-            StripDayKind.done when d.partialProgress != null =>
-              context.l10n.stripPartial,
+            StripDayKind.done when partial => context.l10n.stripPartial,
             StripDayKind.done => context.l10n.stripDone,
             StripDayKind.planned => context.l10n.stripPlanned,
+            StripDayKind.skipped => context.l10n.stripSkipped,
             StripDayKind.none => context.l10n.stripNone,
           }}',
       excludeSemantics: true,
@@ -123,78 +201,20 @@ class _StripDayCell extends StatelessWidget {
                 weekdayInitial(d.date),
                 style: TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: selected || d.isToday ? c.goldBright : c.textMuted,
                 ),
               ),
               const SizedBox(height: 6),
-              _PartialWrap(
-                progress: selected ? null : d.partialProgress,
-                child: Container(
-                width: 40,
-                height: 40,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: selected
-                      ? c.gold
-                      : (d.kind == StripDayKind.done
-                            ? c.turquoiseSurface
-                            : Colors.transparent),
-                  border: d.isToday && !selected
-                      ? Border.all(color: c.goldBright, width: 1.5)
-                      : null,
-                ),
-                child: Text(
-                  '${d.date.day}',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                    color: selected
-                        ? c.onAccent
-                        : (d.kind == StripDayKind.done
-                              ? c.turquoise
-                              : c.textSecondary),
-                  ),
-                ),
-              ),
-              ),
-              const SizedBox(height: 6),
-              Container(
-                width: 5,
-                height: 5,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: switch (d.kind) {
-                    StripDayKind.done => c.turquoise,
-                    StripDayKind.planned =>
-                      selected ? c.goldBright : Colors.transparent,
-                    StripDayKind.none => Colors.transparent,
-                  },
-                  border: d.kind == StripDayKind.planned && !selected
-                      ? Border.all(color: c.goldBright)
-                      : null,
-                ),
-              ),
+              circle,
+              const SizedBox(height: 4),
+              SizedBox(height: 14, child: Center(child: mark)),
             ],
           ),
         ),
       ),
     );
   }
-}
-
-/// Día parcial: el círculo de la tira con el anillo a medias.
-class _PartialWrap extends StatelessWidget {
-  const _PartialWrap({required this.progress, required this.child});
-
-  final double? progress;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => progress == null
-      ? child
-      : PartialRing(size: 40, progress: progress!, child: child);
 }
 
 /// "Semana 2 del programa · 2 de 4 entrenos" (programas sin día de la semana
@@ -249,11 +269,15 @@ class TrainingDayCard extends StatelessWidget {
     required this.plan,
     required this.onStart,
     required this.onOpenDone,
+    this.onUnskip,
     this.date,
   });
 
   final AssignmentDetailDto program;
   final TrainingDay plan;
+
+  /// Día marcado "No voy a hacer este día" → Deshacer.
+  final VoidCallback? onUnskip;
 
   /// Día elegido en la tira si no es hoy: la etiqueta dice la fecha.
   final DateTime? date;
@@ -374,6 +398,49 @@ class TrainingDayCard extends StatelessWidget {
                     ),
                     icon: const Icon(Icons.videocam_outlined, size: 18),
                     label: Text(l.workoutViewUploadVideos),
+                  ),
+                ],
+              ),
+              SessionStatus.skipped => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: c.track, width: 2),
+                        ),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 16,
+                          color: c.textMuted,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          l.skipMarkedToday,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: c.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    onPressed: onUnskip,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(46),
+                      foregroundColor: c.text,
+                      side: BorderSide(color: c.primary, width: 1.5),
+                    ),
+                    child: Text(l.skipUndoTrain),
                   ),
                 ],
               ),

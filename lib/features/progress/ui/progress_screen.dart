@@ -243,13 +243,10 @@ class _RangeCard extends StatelessWidget {
         : ended
         ? context.l10n.progressNoteEnded(report.columns.length)
         : context.l10n.progressNoteBlock;
-    return Container(
+    // Tema v2: card normal (antes caja dorada pálida)
+    return HakiCard(
+      radius: 18,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: c.goldSurface,
-        border: Border.all(color: c.goldBorder),
-        borderRadius: BorderRadius.circular(18),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -355,30 +352,22 @@ class _ConstancyCard extends ConsumerWidget {
                 Expanded(
                   child: Column(
                     children: [
+                      // Tema v2: un solo color (hecho), lleno en
+                      // proporción a los entrenos hechos; vacío = track
                       Container(
-                        height: 6,
+                        height: 8,
                         clipBehavior: Clip.antiAlias,
                         alignment: Alignment.centerLeft,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(3),
-                          color: col.state == ColumnState.future
-                              ? Colors.transparent
-                              : c.goldSurface,
-                          border: col.state == ColumnState.future
-                              ? Border.all(color: c.border)
-                              : null,
+                          borderRadius: BorderRadius.circular(4),
+                          color: c.track,
                         ),
-                        // Llena en proporción a los entrenos hechos
                         child: col.state == ColumnState.future
                             ? null
                             : FractionallySizedBox(
                                 widthFactor: report.weekFill[i],
                                 heightFactor: 1,
-                                child: ColoredBox(
-                                  color: report.weekFull[i]
-                                      ? c.goldBright
-                                      : c.goldBorder,
-                                ),
+                                child: ColoredBox(color: c.turquoise),
                               ),
                       ),
                       const SizedBox(height: 4),
@@ -387,8 +376,11 @@ class _ConstancyCard extends ConsumerWidget {
                           columnLabel(context, report, i),
                           style: TextStyle(
                             fontSize: 10,
+                            fontWeight: col.state == ColumnState.partial
+                                ? FontWeight.w700
+                                : FontWeight.w400,
                             color: col.state == ColumnState.partial
-                                ? c.goldBright
+                                ? c.text
                                 : c.textMuted,
                           ),
                         ),
@@ -627,27 +619,34 @@ class _ExerciseRow extends StatelessWidget {
                       width: 56,
                       height: 24,
                       child: CustomPaint(
+                        // Tema v2: sube = turquesa; igual o baja = gris
                         painter: _Spark(
                           trend.points,
-                          up ? c.turquoise : c.textMuted,
+                          up ? c.turquoise : c.textMuted.withValues(alpha: .6),
                         ),
                       ),
                     ),
+                    const SizedBox(width: 8),
                     SizedBox(
-                      width: 48,
-                      child: Text(
-                        pct == null
-                            ? ''
-                            : up
-                            ? '+$pct%'
-                            : '=',
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: up ? c.turquoise : c.textMuted,
-                        ),
-                      ),
+                      width: 52,
+                      child: pct == null
+                          ? null
+                          : Container(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: up ? c.turquoiseSurface : c.surfaceHigh,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                up ? '+$pct%' : context.l10n.progressSame,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: up ? c.turquoise : c.textSecondary,
+                                ),
+                              ),
+                            ),
                     ),
                   ],
                 ),
@@ -808,6 +807,16 @@ class _Spark extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round,
+    );
+    // Punto al final (dónde está hoy)
+    final last = points.last;
+    canvas.drawCircle(
+      Offset(
+        size.width - 2,
+        size.height - 3 - (last - min) * (size.height - 6) / span,
+      ),
+      3,
+      Paint()..color = color,
     );
   }
 

@@ -65,6 +65,7 @@ class SessionSync {
         _again = false;
         await _startSessions();
         await _pushSets();
+        await _pushSkips();
         if (retryRejected) {
           await _pushNotes();
           await _pushDone();
@@ -160,6 +161,7 @@ class SessionSync {
       for (final n in notes) n.updatedAt,
       for (final d in done) d.updatedAt,
       ?s.completedAt,
+      ?s.skippedAt,
     ];
     if (times.isEmpty) return null;
     return times.reduce((a, b) => a.isBefore(b) ? a : b);
@@ -284,6 +286,52 @@ class SessionSync {
   /// queda sin subir y se reintenta en la próxima corrida, pero sin cortar
   /// esta (las series y Finalizar siguen). Red caída o 401/5xx: se propaga y
   /// la corrida entera reintenta con backoff.
+  /// "No voy a hacer este día": marcar (`PUT …/skip` con la nota) o deshacer
+  /// (`DELETE …/skip`). Va después de las series: registrar algo ya lo
+  /// deshace en la API. Un 409 (el día ya tenía series en la API) deja el
+  /// día sin marcar también en el teléfono.
+  Future<void> _pushSkips() async {
+    final pending =
+        await (_db.select(_db.localSessions)..where(
+              (s) => s.skipSynced.equals(false) & s.remoteId.isNotNull(),
+            ))
+            .get();
+    for (final s in pending) {
+      final path = '/workout-sessions/${s.remoteId}/skip';
+      var drop = false;
+      try {
+        if (s.skippedAt != null) {
+          await _api.put<void>(path, data: {'note': s.skipNote});
+        } else {
+          await _api.delete<void>(path);
+        }
+      } on DioException catch (e) {
+        final code = e.response?.statusCode;
+        if (code != 400 && code != 404 && code != 409) rethrow;
+        debugPrint('SessionSync: skip rechazado ($code) ${e.response?.data}');
+        drop = true;
+      }
+      // Solo si no lo cambiaron mientras se mandaba
+      await (_db.update(_db.localSessions)..where(
+            (x) =>
+                x.assignmentId.equals(s.assignmentId) &
+                x.dayId.equals(s.dayId) &
+                (s.skippedAt == null
+                    ? x.skippedAt.isNull()
+                    : x.skippedAt.equals(s.skippedAt!)),
+          ))
+          .write(
+            drop
+                ? const LocalSessionsCompanion(
+                    skippedAt: Value(null),
+                    skipNote: Value(null),
+                    skipSynced: Value(true),
+                  )
+                : const LocalSessionsCompanion(skipSynced: Value(true)),
+          );
+    }
+  }
+
   Future<bool> _putOrSkip(String path, Map<String, dynamic> data) async {
     try {
       await _api.put<void>(path, data: data);

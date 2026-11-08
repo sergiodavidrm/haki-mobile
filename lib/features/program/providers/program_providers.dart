@@ -83,6 +83,14 @@ AssignmentDetailDto mergeLocalSessions(
   DayDto merged(DayDto d) {
     final s = byDay[d.id];
     if (s == null) return d;
+    // "No voy a hacer este día": lo del teléfono manda mientras no llegó a la
+    // API; después, lo que diga la API (pudo deshacerse en otro lado)
+    if (s.completedAt == null && d.sessionStatus != SessionStatus.completed) {
+      if (s.skippedAt != null) {
+        return d.withStatus(SessionStatus.skipped, skipNote: s.skipNote);
+      }
+      if (d.isSkipped && s.skipSynced) return d;
+    }
     if (s.completedAt == null) {
       return d.sessionStatus == SessionStatus.completed
           ? d

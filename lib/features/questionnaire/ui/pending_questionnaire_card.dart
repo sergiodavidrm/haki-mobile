@@ -68,10 +68,15 @@ class PendingQuestionnaireCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            FilledButton(
+            OutlinedButton(
               onPressed: open,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 36),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: c.text,
+                side: BorderSide(color: c.primary, width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                minimumSize: const Size(0, 40),
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 textStyle: const TextStyle(
                   fontSize: 13,

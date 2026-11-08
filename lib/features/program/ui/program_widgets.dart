@@ -6,7 +6,6 @@ import '../../../core/widgets/dashed_border.dart';
 import '../../../core/widgets/haki_card.dart';
 import '../../../core/widgets/partial_ring.dart';
 import '../../../core/widgets/section_label.dart';
-import '../../../core/widgets/segmented_progress.dart';
 import '../data/assignment_dtos.dart';
 import '../data/program_schedule.dart';
 import '../../../l10n/l10n.dart';
@@ -103,27 +102,79 @@ class BlockCard extends StatelessWidget {
           ),
           if (weeks > 0) ...[
             const SizedBox(height: 12),
-            SegmentedProgress(
-              total: weeks,
-              done: finished ? _completedWeeks(program) : week - 1,
-              highlightCurrent: !finished,
-            ),
+            WeekFillBar(program: program, current: finished ? null : week),
           ],
         ],
       ),
     );
   }
 
-  static int _completedWeeks(AssignmentDetailDto p) => p.weeks
-      .where(
-        (w) =>
-            w.days.isNotEmpty &&
-            w.days.every((d) => d.sessionStatus == SessionStatus.completed),
-      )
-      .length;
 }
 
-/// Selector de semana S1…SN. Si son más de 6 se desplaza en horizontal.
+/// Barra por semanas del bloque (tema v2): cada semana se llena en
+/// proporción a los entrenos hechos, en un solo color.
+class WeekFillBar extends StatelessWidget {
+  const WeekFillBar({
+    super.key,
+    required this.program,
+    this.current,
+    this.height = 8,
+  });
+
+  final AssignmentDetailDto program;
+
+  /// Semana en curso (dorada en el tema oscuro). null = programa terminado.
+  final int? current;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final total = program.totalWeeks;
+    double fillOf(int n) {
+      final w = program.weeks.where((w) => w.weekNumber == n).firstOrNull;
+      if (w == null || w.days.isEmpty) return 0;
+      final done = w.days
+          .where((d) => d.sessionStatus == SessionStatus.completed)
+          .length;
+      return done / w.days.length;
+    }
+
+    return Row(
+      children: [
+        for (var n = 1; n <= total; n++) ...[
+          if (n > 1) const SizedBox(width: 4),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(height / 2),
+              child: SizedBox(
+                height: height,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    ColoredBox(
+                      color: n == current ? c.currentWeekTrack : c.track,
+                    ),
+                    FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: fillOf(n),
+                      child: ColoredBox(
+                        color: n == current ? c.currentWeekFill : c.turquoise,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Selector de semana S1…SN, segmentado en una sola pieza (tema v2), con ✓
+/// en las semanas terminadas. Si son más de 6 se desplaza en horizontal.
 class WeekTabs extends StatelessWidget {
   const WeekTabs({
     super.key,
@@ -131,6 +182,7 @@ class WeekTabs extends StatelessWidget {
     required this.selected,
     required this.onSelect,
     this.isEnabled,
+    this.isDone,
   });
 
   final int total;
@@ -140,8 +192,12 @@ class WeekTabs extends StatelessWidget {
   /// null = todas se pueden elegir.
   final bool Function(int week)? isEnabled;
 
+  /// Semana con todos sus días hechos (lleva ✓).
+  final bool Function(int week)? isDone;
+
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     Widget tab(int w) {
       final enabled = isEnabled?.call(w) ?? true;
       return Opacity(
@@ -149,29 +205,36 @@ class WeekTabs extends StatelessWidget {
         child: _WeekTab(
           week: w,
           selected: w == selected,
+          done: isDone?.call(w) ?? false,
           onTap: enabled ? () => onSelect(w) : null,
         ),
       );
     }
 
-    if (total <= 6) {
-      return Row(
-        children: [
-          for (var w = 1; w <= total; w++) ...[
-            if (w > 1) const SizedBox(width: 8),
-            Expanded(child: tab(w)),
-          ],
-        ],
-      );
-    }
-    return SizedBox(
-      height: 40,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: total,
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
-        itemBuilder: (_, i) => SizedBox(width: 52, child: tab(i + 1)),
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: c.track,
+        borderRadius: BorderRadius.circular(14),
       ),
+      child: total <= 6
+          ? Row(
+              children: [
+                for (var w = 1; w <= total; w++) ...[
+                  if (w > 1) const SizedBox(width: 4),
+                  Expanded(child: tab(w)),
+                ],
+              ],
+            )
+          : SizedBox(
+              height: 38,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: total,
+                separatorBuilder: (_, _) => const SizedBox(width: 4),
+                itemBuilder: (_, i) => SizedBox(width: 56, child: tab(i + 1)),
+              ),
+            ),
     );
   }
 }
@@ -180,11 +243,13 @@ class _WeekTab extends StatelessWidget {
   const _WeekTab({
     required this.week,
     required this.selected,
+    required this.done,
     required this.onTap,
   });
 
   final int week;
   final bool selected;
+  final bool done;
   final VoidCallback? onTap;
 
   @override
@@ -196,25 +261,38 @@ class _WeekTab extends StatelessWidget {
       enabled: onTap != null,
       label: context.l10n.weekN(week),
       excludeSemantics: true,
-      child: Material(
-        color: selected ? c.goldSurface : Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: selected ? c.gold : c.border),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: selected ? c.weekTabSelected : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: selected
+              ? Border.all(color: c.weekTabSelectedBorder)
+              : null,
+          boxShadow: selected ? c.cardShadow : null,
         ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onTap,
-          child: SizedBox(
-            height: 40,
-            child: Center(
-              child: Text(
-                'S$week',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                  color: selected ? c.goldBright : c.textMuted,
-                ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: onTap,
+            child: SizedBox(
+              height: 38,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'S$week',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                      color: selected ? c.weekTabSelectedText : c.textSecondary,
+                    ),
+                  ),
+                  if (done) ...[
+                    const SizedBox(width: 3),
+                    Icon(Icons.check_rounded, size: 13, color: c.turquoise),
+                  ],
+                ],
               ),
             ),
           ),
@@ -270,9 +348,12 @@ class DayRowTile extends StatelessWidget {
       );
     }
 
+    final skipped = row.kind == DayRowKind.skipped;
     return HakiCard(
-      tone: next ? HakiCardTone.gold : HakiCardTone.neutral,
       radius: 20,
+      // El que toca: borde dorado fino
+      borderColor: next ? c.todayBorder : null,
+      borderWidth: next ? 1.5 : 1,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       onTap: onTap,
       child: Row(
@@ -283,10 +364,8 @@ class DayRowTile extends StatelessWidget {
             child: _Texts(
               title: day.title,
               subtitle: _subtitle(context.l10n),
-              titleColor: c.text,
-              subtitleColor: next
-                  ? c.goldBright.withValues(alpha: .75)
-                  : c.textMuted,
+              titleColor: skipped ? c.textSecondary : c.text,
+              subtitleColor: c.textMuted,
             ),
           ),
           if (onTap != null)
@@ -309,8 +388,10 @@ class DayRowTile extends StatelessWidget {
       DayRowKind.done => dated ? date : l.dayDone,
       DayRowKind.next => row.isToday ? l.commonToday : (date ?? l.commonNext),
       DayRowKind.inProgress => l.programInProgress,
+      DayRowKind.skipped => [?date, l.skipDayRowSub].join(' · '),
       _ => date ?? (dated ? null : l.commonNoDate),
     };
+    if (row.kind == DayRowKind.skipped) return when!;
     final n = d.exercises.length;
     final duration = row.kind == DayRowKind.done ? durationOf(d) : null;
     final ss = d.supersetCount;
@@ -391,7 +472,18 @@ class _Badge extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(shape: BoxShape.circle, color: c.turquoise),
-        child: Icon(Icons.check_rounded, size: 20, color: c.onAccent),
+        child: Icon(Icons.check_rounded, size: 20, color: c.onTurquoise),
+      );
+    }
+    if (row.kind == DayRowKind.skipped) {
+      return Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: c.track, width: 2),
+        ),
+        child: Icon(Icons.close_rounded, size: 18, color: c.textMuted),
       );
     }
     final (border, width, fg, weight) = switch (row.kind) {

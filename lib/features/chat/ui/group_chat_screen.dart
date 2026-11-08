@@ -276,9 +276,10 @@ class _GroupMessagesState extends ConsumerState<_GroupMessages> {
                         : TextBubble(
                             text: m.text ?? '',
                             mine: mine,
+                            // Solo el primer nombre ("Sergio · Coach", "Laura")
                             authorName: m.user?.id == coachId
-                                ? '${m.user?.name ?? ''} · ${context.l10n.chatGroupCoachTag}'
-                                : m.user?.name,
+                                ? '${firstNameOf(m.user?.name)} · ${context.l10n.chatGroupCoachTag}'
+                                : firstNameOf(m.user?.name),
                             showAuthorName: true,
                             time: at,
                             failed: m.state.isFailed,
@@ -513,4 +514,10 @@ Future<void> _confirmLeave(BuildContext context, WidgetRef ref, GroupChat group)
       );
     }
   }
+}
+
+/// "Sergio Rodríguez" → "Sergio" (autor de cada mensaje del grupo).
+String firstNameOf(String? name) {
+  final n = name?.trim() ?? '';
+  return n.isEmpty ? '' : n.split(RegExp(r'\s+')).first;
 }

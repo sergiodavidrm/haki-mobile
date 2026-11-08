@@ -494,6 +494,12 @@ abstract class AppLocalizations {
   /// **'sin entreno'**
   String get stripNone;
 
+  /// No description provided for @stripSkipped.
+  ///
+  /// In es, this message translates to:
+  /// **'día marcado como no hecho'**
+  String get stripSkipped;
+
   /// No description provided for @stripPartial.
   ///
   /// In es, this message translates to:
@@ -3703,6 +3709,96 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Volumen ese día {volume}'**
   String exerciseVolumeThatDay(String volume);
+
+  /// No description provided for @skipMarkedToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcaste que no lo hacés'**
+  String get skipMarkedToday;
+
+  /// No description provided for @skipUndoTrain.
+  ///
+  /// In es, this message translates to:
+  /// **'Deshacer · lo voy a entrenar'**
+  String get skipUndoTrain;
+
+  /// No description provided for @skipSwipeAction.
+  ///
+  /// In es, this message translates to:
+  /// **'No lo haré'**
+  String get skipSwipeAction;
+
+  /// No description provided for @skipUndo.
+  ///
+  /// In es, this message translates to:
+  /// **'Deshacer'**
+  String get skipUndo;
+
+  /// No description provided for @skipSheetTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿No vas a hacer el {day}?'**
+  String skipSheetTitle(String day);
+
+  /// No description provided for @skipSheetCounts.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuenta como no hecho en tu constancia.'**
+  String get skipSheetCounts;
+
+  /// No description provided for @skipSheetNext.
+  ///
+  /// In es, this message translates to:
+  /// **'Pasás al siguiente día del programa.'**
+  String get skipSheetNext;
+
+  /// No description provided for @skipSheetUndo.
+  ///
+  /// In es, this message translates to:
+  /// **'Podés deshacerlo deslizando el día otra vez, o entrenarlo igual: al registrar una serie vuelve a ser un entreno normal.'**
+  String get skipSheetUndo;
+
+  /// No description provided for @skipNoteLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Contale a {coach} por qué (opcional)'**
+  String skipNoteLabel(String coach);
+
+  /// No description provided for @skipNoteLabelNoCoach.
+  ///
+  /// In es, this message translates to:
+  /// **'Contale a tu coach por qué (opcional)'**
+  String get skipNoteLabelNoCoach;
+
+  /// No description provided for @skipConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcar como no hecho'**
+  String get skipConfirm;
+
+  /// No description provided for @skipSessionButton.
+  ///
+  /// In es, this message translates to:
+  /// **'No voy a hacer este día'**
+  String get skipSessionButton;
+
+  /// No description provided for @skipSessionHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuando registres una serie, acá aparece Finalizar entreno'**
+  String get skipSessionHint;
+
+  /// No description provided for @skipDayRowSub.
+  ///
+  /// In es, this message translates to:
+  /// **'No lo hiciste'**
+  String get skipDayRowSub;
+
+  /// No description provided for @progressSame.
+  ///
+  /// In es, this message translates to:
+  /// **'igual'**
+  String get progressSame;
 }
 
 class _AppLocalizationsDelegate

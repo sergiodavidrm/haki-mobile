@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/haki_colors.dart';
 
-/// Línea por semana con el número arriba de cada punto (no hay eje Y: así se
-/// lee sin adivinar). Los récords van en dorado y más grandes. Una semana sin
-/// dato no corta la línea: une con la siguiente.
+/// Línea por semana con el número arriba de cada punto (tema v2, 2026-11-07):
+/// relleno suave, 2 líneas de grilla con su valor, récords en dorado. Una
+/// semana sin dato une con la siguiente en punteado (no se inventa el valor).
 class ValueLineChart extends StatelessWidget {
   const ValueLineChart({
     super.key,
@@ -41,7 +41,7 @@ class ValueLineChart extends StatelessWidget {
             format: format,
             line: c.turquoise,
             pr: c.goldBright,
-            grid: c.surfaceHigh,
+            grid: c.track,
             label: c.textSecondary,
             axis: c.textMuted,
             background: c.surface,
@@ -88,52 +88,95 @@ class _Painter extends CustomPainter {
     final pad = (max - min) * 0.15;
     min -= pad == 0 ? 1 : pad;
     max += pad == 0 ? 1 : pad;
+
+    // Tema v2: 2 líneas de grilla con su valor a la izquierda
+    TextPainter text(String t, double size, Color color, [FontWeight? w]) =>
+        TextPainter(
+          text: TextSpan(
+            text: t,
+            style: TextStyle(fontSize: size, fontWeight: w, color: color),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout();
+    final gridValues = [min + (max - min) * .75, min + (max - min) * .25];
+    final gridLabels = [for (final v in gridValues) text(format(v), 10, axis)];
+    final gutter =
+        gridLabels.map((t) => t.width).reduce((a, b) => a > b ? a : b) + 8;
+
     final h = size.height - _top - _bottom;
-    final w = size.width - _side * 2;
+    final left = gutter + _side / 2;
+    final w = size.width - left - _side;
     double x(int i) =>
-        _side + (values.length <= 1 ? w / 2 : i * w / (values.length - 1));
+        left + (values.length <= 1 ? w / 2 : i * w / (values.length - 1));
     double y(double v) => _top + h - (v - min) * h / (max - min);
 
     final gridPaint = Paint()
       ..color = grid
       ..strokeWidth = 1;
-    for (final f in [0.0, 0.5, 1.0]) {
-      final gy = _top + h * f;
-      canvas.drawLine(Offset(0, gy), Offset(size.width, gy), gridPaint);
+    for (final (k, v) in gridValues.indexed) {
+      final gy = y(v);
+      canvas.drawLine(Offset(gutter, gy), Offset(size.width, gy), gridPaint);
+      gridLabels[k].paint(canvas, Offset(0, gy - gridLabels[k].height / 2));
     }
-
-    final path = Path();
-    for (final (k, p) in points.indexed) {
-      final o = Offset(x(p.$1), y(p.$2));
-      k == 0 ? path.moveTo(o.dx, o.dy) : path.lineTo(o.dx, o.dy);
-    }
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = line
-        ..strokeWidth = 2.5
-        ..style = PaintingStyle.stroke
-        ..strokeJoin = StrokeJoin.round
-        ..strokeCap = StrokeCap.round,
+    canvas.drawLine(
+      Offset(gutter, _top + h),
+      Offset(size.width, _top + h),
+      gridPaint,
     );
 
+    // Relleno suave debajo de la línea
+    final offsets = [for (final p in points) Offset(x(p.$1), y(p.$2))];
+    if (offsets.length > 1) {
+      final area = Path()..moveTo(offsets.first.dx, _top + h);
+      for (final o in offsets) {
+        area.lineTo(o.dx, o.dy);
+      }
+      area
+        ..lineTo(offsets.last.dx, _top + h)
+        ..close();
+      canvas.drawPath(area, Paint()..color = line.withValues(alpha: .10));
+    }
+
+    // Línea: tramo punteado si hay semanas sin dato en el medio (no se
+    // inventan)
+    final stroke = Paint()
+      ..color = line
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    for (var k = 1; k < points.length; k++) {
+      final a = offsets[k - 1], b = offsets[k];
+      if (points[k].$1 - points[k - 1].$1 == 1) {
+        canvas.drawLine(a, b, stroke);
+      } else {
+        _dashed(canvas, a, b, stroke);
+      }
+    }
+
     final small = values.length > 8;
-    for (final p in points) {
+    for (final (k, p) in points.indexed) {
       final isPr = p.$1 < prs.length && prs[p.$1];
-      final o = Offset(x(p.$1), y(p.$2));
-      canvas.drawCircle(o, isPr ? 6 : 4, Paint()..color = background);
-      canvas.drawCircle(o, isPr ? 5 : 3.5, Paint()..color = isPr ? pr : line);
-      final tp = TextPainter(
-        text: TextSpan(
-          text: format(p.$2),
-          style: TextStyle(
-            fontSize: small ? 10 : 12,
-            fontWeight: isPr ? FontWeight.w800 : FontWeight.w600,
-            color: isPr ? pr : label,
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
+      final o = offsets[k];
+      if (isPr) {
+        canvas.drawCircle(o, 7, Paint()..color = background);
+        canvas.drawCircle(o, 5.5, Paint()..color = pr);
+      } else {
+        canvas.drawCircle(o, 4.5, Paint()..color = background);
+        canvas.drawCircle(
+          o,
+          4,
+          Paint()
+            ..color = line
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2.2,
+        );
+      }
+      final tp = text(
+        format(p.$2),
+        small ? 10 : 12,
+        isPr ? pr : label,
+        isPr ? FontWeight.w800 : FontWeight.w600,
+      );
       // Arriba del punto; abajo si está pegado al techo
       final above = o.dy - tp.height - 8;
       final dy = above < 2 ? o.dy + 8 : above;
@@ -141,19 +184,25 @@ class _Painter extends CustomPainter {
       tp.paint(canvas, Offset(dx, dy));
     }
 
-    // Fechas: hasta ~5 para que no se pisen
+    // Semanas: hasta ~5 para que no se pisen
     final step = (values.length / 5).ceil().clamp(1, 99);
     for (var i = 0; i < xLabels.length; i++) {
       if (i % step != 0 && i != xLabels.length - 1) continue;
-      final tp = TextPainter(
-        text: TextSpan(
-          text: xLabels[i],
-          style: TextStyle(fontSize: 10, color: axis),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
+      final tp = text(xLabels[i], 10, axis);
       final dx = (x(i) - tp.width / 2).clamp(0.0, size.width - tp.width);
       tp.paint(canvas, Offset(dx, size.height - tp.height));
+    }
+  }
+
+  static void _dashed(Canvas canvas, Offset a, Offset b, Paint paint) {
+    const dash = 5.0, gap = 5.0;
+    final d = b - a;
+    final len = d.distance;
+    if (len == 0) return;
+    final dir = d / len;
+    for (var t = 0.0; t < len; t += dash + gap) {
+      final end = (t + dash).clamp(0.0, len);
+      canvas.drawLine(a + dir * t, a + dir * end, paint);
     }
   }
 

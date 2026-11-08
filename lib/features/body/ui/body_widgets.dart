@@ -4,10 +4,9 @@ import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
 import '../data/body_measures.dart';
 
-/// Línea turquesa de una serie (x proporcional a la fecha). [grid] = las 3
-/// líneas horizontales y el punto dorado final con su valor (gráfico de
-/// Peso); sin grid
-/// es el sparkline de la tarjeta del Perfil.
+/// Línea turquesa de una serie (x proporcional a la fecha). [grid] (tema v2)
+/// = relleno suave, punto por registro, 2 líneas de grilla con su valor y el
+/// punto dorado final con su valor; sin grid es el sparkline del Perfil.
 class BodyLineChart extends StatelessWidget {
   const BodyLineChart({
     super.key,
@@ -35,8 +34,10 @@ class BodyLineChart extends StatelessWidget {
             points: points,
             grid: grid,
             line: c.turquoise,
-            gridColor: c.surfaceHigh,
+            gridColor: c.track,
             labelColor: c.text,
+            axisColor: c.textMuted,
+            background: c.surface,
             dot: c.goldBright,
           ),
         ),
@@ -52,6 +53,8 @@ class _LinePainter extends CustomPainter {
     required this.line,
     required this.gridColor,
     required this.labelColor,
+    required this.axisColor,
+    required this.background,
     required this.dot,
   });
 
@@ -60,23 +63,16 @@ class _LinePainter extends CustomPainter {
   final Color line;
   final Color gridColor;
   final Color labelColor;
+  final Color axisColor;
+  final Color background;
   final Color dot;
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (grid) {
-      final g = Paint()
-        ..color = gridColor
-        ..strokeWidth = 1;
-      for (final f in const [0.2, 0.5, 0.8]) {
-        canvas.drawLine(
-          Offset(0, size.height * f),
-          Offset(size.width, size.height * f),
-          g,
-        );
-      }
+    if (points.isEmpty) {
+      if (grid) _gridLines(canvas, size, 0, size.height, null);
+      return;
     }
-    if (points.isEmpty) return;
 
     final t0 = points.first.date.millisecondsSinceEpoch;
     final span = points.last.date.millisecondsSinceEpoch - t0;
@@ -88,20 +84,34 @@ class _LinePainter extends CustomPainter {
       lo = mid - 0.5;
       hi = mid + 0.5;
     }
-    const pad = 6.0;
+    // Con grilla: aire arriba para el valor y a la izquierda para la escala
+    final top = grid ? 24.0 : 6.0;
+    const bottom = 6.0;
+    final h = size.height - top - bottom;
+    double yOf(double v) => top + h * (1 - (v - lo) / (hi - lo));
+    final left = grid ? _gridLines(canvas, size, top, h, (lo, hi, yOf)) : 6.0;
+    const right = 8.0;
     Offset at(DatedValue p) => Offset(
       span == 0
-          ? size.width / 2
-          : pad +
-                (size.width - 2 * pad) *
+          ? (left + size.width - right) / 2
+          : left +
+                (size.width - left - right) *
                     (p.date.millisecondsSinceEpoch - t0) /
                     span,
-      pad + (size.height - 2 * pad) * (1 - (p.value - lo) / (hi - lo)),
+      yOf(p.value),
     );
 
     final path = Path()..moveTo(at(points.first).dx, at(points.first).dy);
     for (final p in points.skip(1)) {
       path.lineTo(at(p).dx, at(p).dy);
+    }
+    if (grid && points.length > 1) {
+      // Relleno suave debajo de la línea (tema v2)
+      final area = Path.from(path)
+        ..lineTo(at(points.last).dx, top + h)
+        ..lineTo(at(points.first).dx, top + h)
+        ..close();
+      canvas.drawPath(area, Paint()..color = line.withValues(alpha: .10));
     }
     canvas.drawPath(
       path,
@@ -112,8 +122,26 @@ class _LinePainter extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round,
     );
+    if (grid && points.length <= 16) {
+      // Un punto por registro (con muchos se vuelve ruido)
+      for (final p in points.take(points.length - 1)) {
+        final o = at(p);
+        canvas.drawCircle(o, 4, Paint()..color = background);
+        canvas.drawCircle(
+          o,
+          3.5,
+          Paint()
+            ..color = line
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2,
+        );
+      }
+    }
     if (grid || points.length == 1) {
-      canvas.drawCircle(at(points.last), grid ? 4.5 : 3, Paint()..color = dot);
+      if (grid) {
+        canvas.drawCircle(at(points.last), 6.5, Paint()..color = background);
+      }
+      canvas.drawCircle(at(points.last), grid ? 5 : 3, Paint()..color = dot);
     }
     if (grid) {
       // Valor del último punto, arriba del punto (o abajo si no entra)
@@ -123,8 +151,8 @@ class _LinePainter extends CustomPainter {
           text: formatWeight(points.last.value),
           style: TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: labelColor,
+            fontWeight: FontWeight.w800,
+            color: dot,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
@@ -139,6 +167,46 @@ class _LinePainter extends CustomPainter {
         ),
       );
     }
+  }
+
+  /// 2 líneas de grilla con su valor a la izquierda + la base. Devuelve dónde
+  /// empieza el gráfico (después de los valores).
+  double _gridLines(
+    Canvas canvas,
+    Size size,
+    double top,
+    double h,
+    (double, double, double Function(double))? scale,
+  ) {
+    final g = Paint()
+      ..color = gridColor
+      ..strokeWidth = 1;
+    if (scale == null) {
+      for (final f in const [0.25, 0.75, 1.0]) {
+        canvas.drawLine(Offset(0, h * f), Offset(size.width, h * f), g);
+      }
+      return 0;
+    }
+    final (lo, hi, yOf) = scale;
+    final values = [lo + (hi - lo) * .75, lo + (hi - lo) * .25];
+    final labels = [
+      for (final v in values)
+        TextPainter(
+          text: TextSpan(
+            text: formatWeight(v),
+            style: TextStyle(fontSize: 10, color: axisColor),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout(),
+    ];
+    final gutter = labels.map((t) => t.width).reduce((a, b) => a > b ? a : b) + 6;
+    for (final (k, v) in values.indexed) {
+      final y = yOf(v);
+      canvas.drawLine(Offset(gutter, y), Offset(size.width, y), g);
+      labels[k].paint(canvas, Offset(0, y - labels[k].height / 2));
+    }
+    canvas.drawLine(Offset(gutter, top + h), Offset(size.width, top + h), g);
+    return gutter + 8;
   }
 
   @override

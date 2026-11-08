@@ -11,9 +11,11 @@ import '../../../core/widgets/dashed_border.dart';
 import '../../home/ui/today_widgets.dart';
 import '../data/assignment_dtos.dart';
 import '../data/program_schedule.dart';
+import '../../session/data/session_store.dart';
 import '../providers/program_providers.dart';
 import 'program_widgets.dart';
 import 'programs_list_screen.dart';
+import 'skip_day.dart';
 import '../../../l10n/l10n.dart';
 
 // Tab Programa: semanas y días del bloque. Sin [assignmentId] muestra el
@@ -142,30 +144,14 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
           total: p.totalWeeks,
           selected: selected,
           onSelect: (w) => setState(() => _week = w),
+          isDone: (w) => _weekDone(p, w),
         ),
         const SizedBox(height: 18),
       ],
       if (weekDto == null || weekDto.days.isEmpty)
         _WeekPreparing()
       else
-        for (final row in weekRows(p, weekDto, now, highlightNext: isCurrent))
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: DayRowTile(
-              row: row,
-              dated: p.hasDates,
-              onTap: switch (row.kind) {
-                DayRowKind.done => () => context.push(
-                  Routes.pastSession(id, row.day.id),
-                ),
-                DayRowKind.preparing => null,
-                _ when isCurrent => () => context.push(
-                  Routes.session(id, row.day.id),
-                ),
-                _ => null,
-              },
-            ),
-          ),
+        ..._dayRows(p, weekDto, now, isCurrent),
       const SizedBox(height: 8),
       if (widget.assignmentId == null)
         AllProgramsLink(
@@ -173,6 +159,95 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
           onTap: () => context.push(Routes.programs),
         ),
     ];
+  }
+
+  /// Días de la semana. En el programa en curso, los que se pueden marcar
+  /// "No voy a hacer este día" se deslizan a la izquierda (y los marcados,
+  /// para deshacer); el primero lleva la pista de una sola vez.
+  List<Widget> _dayRows(
+    AssignmentDetailDto p,
+    WeekDto week,
+    DateTime now,
+    bool isCurrent,
+  ) {
+    final id = p.assignmentId;
+    final today = dateOnly(now);
+    var hinted = false;
+    return [
+      for (final row in weekRows(p, week, now, highlightNext: isCurrent))
+        () {
+          final tile = DayRowTile(
+            row: row,
+            dated: p.hasDates,
+            onTap: switch (row.kind) {
+              DayRowKind.done => () => context.push(
+                Routes.pastSession(id, row.day.id),
+              ),
+              DayRowKind.preparing => null,
+              _ when isCurrent => () => context.push(
+                Routes.session(id, row.day.id),
+              ),
+              _ => null,
+            },
+          );
+          final skipped = row.kind == DayRowKind.skipped;
+          final canSkip = isCurrent && !skipped && _canSkip(row, today);
+          Widget child = tile;
+          if (canSkip || (isCurrent && skipped)) {
+            final hint = canSkip && !hinted;
+            if (hint) hinted = true;
+            child = SkipSwipe(
+              id: row.day.id,
+              skipped: skipped,
+              hint: hint,
+              onSwipe: () async {
+                if (skipped) {
+                  await ref
+                      .read(sessionStoreProvider)
+                      .unskip(id, row.day.id, force: true);
+                } else {
+                  await confirmSkipDay(
+                    context,
+                    ref,
+                    assignmentId: id,
+                    day: row.day,
+                  );
+                }
+              },
+              child: tile,
+            );
+          }
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: child,
+          );
+        }(),
+    ];
+  }
+
+  /// Hoy y los pendientes que ya tocaban (con fecha), o el que toca (sin
+  /// fecha), sin nada registrado.
+  static bool _canSkip(DayRow row, DateTime today) {
+    if (row.day.exercises.isEmpty || row.day.hasLoggedWork) return false;
+    return switch (row.kind) {
+      DayRowKind.next || DayRowKind.pending || DayRowKind.inProgress =>
+        row.date != null
+            ? !row.date!.isAfter(today)
+            : row.kind == DayRowKind.next,
+      _ => false,
+    };
+  }
+
+  static bool _weekDone(AssignmentDetailDto p, int w) {
+    final days = p.weeks
+            .where((x) => x.weekNumber == w)
+            .firstOrNull
+            ?.days
+            .where((d) => d.exercises.isNotEmpty)
+            .toList() ??
+        const [];
+    return days.isNotEmpty &&
+        days.every((d) => d.sessionStatus == SessionStatus.completed);
   }
 
   Widget _offline() => TodayInfoCard(

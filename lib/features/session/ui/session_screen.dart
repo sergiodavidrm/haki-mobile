@@ -10,6 +10,7 @@ import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../../core/widgets/haki_card.dart';
 import '../../exercise/data/exercise_stats.dart';
+import '../../program/ui/skip_day.dart';
 import '../../program/data/assignment_dtos.dart';
 import '../data/session_plan.dart';
 import '../data/session_store.dart';
@@ -297,9 +298,73 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                   icon: const Icon(Icons.check_circle),
                   label: Text(context.l10n.sessionDoneSeeSummary),
                 )
+              else if (!canFinish && s.day.isSkipped)
+                // Marcado "no lo hago": registrar una serie lo deshace solo
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.close_rounded,
+                      size: 18,
+                      color: context.colors.textMuted,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      context.l10n.skipMarkedToday,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: context.colors.textMuted,
+                      ),
+                    ),
+                  ],
+                )
+              else if (!canFinish)
+                // Sin nada registrado: en vez de Finalizar deshabilitado
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        final ok = await confirmSkipDay(
+                          context,
+                          ref,
+                          assignmentId: _a,
+                          day: s.day,
+                        );
+                        if (ok && mounted) context.pop();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                        foregroundColor: context.colors.text,
+                        side: BorderSide(
+                          color: context.colors.textMuted,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        textStyle: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      icon: const Icon(Icons.close_rounded, size: 18),
+                      label: Text(context.l10n.skipSessionButton),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      context.l10n.skipSessionHint,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: context.colors.textMuted,
+                      ),
+                    ),
+                  ],
+                )
               else
                 OutlinedButton(
-                  onPressed: canFinish ? () => _finish(missingSets) : null,
+                  onPressed: () => _finish(missingSets),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(50),
                     foregroundColor: context.colors.text,

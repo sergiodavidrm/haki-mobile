@@ -316,4 +316,58 @@ void main() {
       );
     },
   );
+
+  group('No voy a hacer este día', () {
+    test('marcar crea la sesión y manda el skip con la nota', () async {
+      expect(await store.skip('a1', 'd1', note: ' Me duele el hombro '), isTrue);
+      await settle();
+
+      expect(api.calls, [
+        'POST /workout-sessions',
+        'PUT /workout-sessions/ses-1/skip',
+      ]);
+      final s = await db.select(db.localSessions).getSingle();
+      expect(s.skippedAt, isNotNull);
+      expect(s.skipNote, 'Me duele el hombro');
+      expect(s.skipSynced, isTrue);
+      expect(await store.pendingCount(), 0);
+    });
+
+    test('registrar una serie lo deshace (series primero, después DELETE)', () async {
+      await store.skip('a1', 'd1');
+      await settle();
+      api.calls.clear();
+
+      await saveSet(1);
+      await settle();
+
+      expect(api.calls.first, 'POST /workout-sessions/ses-1/exercise-logs');
+      expect(api.calls.last, 'DELETE /workout-sessions/ses-1/skip');
+      final s = await db.select(db.localSessions).getSingle();
+      expect(s.skippedAt, isNull);
+      expect(s.skipSynced, isTrue);
+    });
+
+    test('no se marca un día con series en el teléfono', () async {
+      await saveSet(1);
+      expect(await store.skip('a1', 'd1'), isFalse);
+    });
+
+    test('un 409 de la API (ya tenía series) lo desmarca en el teléfono', () async {
+      api.errors['/workout-sessions/ses-1/skip'] = 409;
+      await store.skip('a1', 'd1');
+      await settle();
+
+      final s = await db.select(db.localSessions).getSingle();
+      expect(s.skippedAt, isNull);
+      expect(s.skipSynced, isTrue);
+    });
+
+    test('sin señal queda pendiente', () async {
+      api.offline = true;
+      await store.skip('a1', 'd1');
+      await settle();
+      expect(await store.pendingCount(), greaterThan(0));
+    });
+  });
 }

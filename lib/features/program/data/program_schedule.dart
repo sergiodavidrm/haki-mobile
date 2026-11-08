@@ -141,11 +141,12 @@ int weekNumberFor(DateTime startDate, DateTime today) =>
 TodayPlan resolveToday(AssignmentDetailDto p, DateTime today) {
   final t = dateOnly(today);
 
-  // Sin fechas: el primer día sin completar de todo el programa
+  // Sin fechas: el primer día sin completar (ni marcado "no lo hago") de todo
+  // el programa
   if (!p.hasDates) {
     for (final w in p.weeks) {
       for (final d in w.days) {
-        if (d.sessionStatus != SessionStatus.completed) {
+        if (!d.isResolved) {
           return TrainingDay(week: w, day: d, isScheduledToday: false);
         }
       }
@@ -177,7 +178,7 @@ TodayPlan resolveToday(AssignmentDetailDto p, DateTime today) {
   // Una semana que el coach todavía no creó cuenta como "lo está preparando".
   if (week == null) return const RestDay(week: null);
   for (final d in week.days) {
-    if (d.sessionStatus != SessionStatus.completed) {
+    if (!d.isResolved) {
       return TrainingDay(week: week, day: d, isScheduledToday: false);
     }
   }
@@ -207,7 +208,9 @@ TodayPlan resolveToday(AssignmentDetailDto p, DateTime today) {
   return (null, null);
 }
 
-enum StripDayKind { none, done, planned }
+/// none = sin entreno; done = hecho; planned = hay entreno sin hacer;
+/// skipped = "No voy a hacer este día".
+enum StripDayKind { none, done, planned, skipped }
 
 class StripDay {
   const StripDay({
@@ -256,6 +259,8 @@ List<StripDay>? weekStrip(
               ? StripDayKind.none
               : day.sessionStatus == SessionStatus.completed
               ? StripDayKind.done
+              : day.isSkipped
+              ? StripDayKind.skipped
               : StripDayKind.planned,
           isToday: d == t,
           isSelected: d == s,
@@ -303,7 +308,7 @@ int currentWeekOf(AssignmentDetailDto p, DateTime today) {
     return weekNumberFor(p.startDate!, today).clamp(1, total);
   }
   for (final w in p.weeks) {
-    if (w.days.any((d) => d.sessionStatus != SessionStatus.completed)) {
+    if (w.days.any((d) => !d.isResolved)) {
       return w.weekNumber;
     }
   }
@@ -456,6 +461,9 @@ enum DayRowKind {
   /// Sin hacer todavía.
   pending,
 
+  /// "No voy a hacer este día" (✕ gris; deslizar de nuevo lo deshace).
+  skipped,
+
   /// Sin ejercicios: "Tu coach lo está preparando".
   preparing,
 }
@@ -501,6 +509,14 @@ List<DayRow> weekRows(
               ? scheduled
               : dateOnly(d.completedAt!);
           return DayRow(day: d, kind: DayRowKind.done, date: doneOn);
+        }
+        if (d.isSkipped) {
+          return DayRow(
+            day: d,
+            kind: DayRowKind.skipped,
+            date: scheduled,
+            isToday: scheduled == t,
+          );
         }
         final kind = d.exercises.isEmpty
             ? DayRowKind.preparing

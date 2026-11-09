@@ -128,7 +128,18 @@ class ChatPush {
       final res = await channel.client.getMessage(messageId);
       // Mensaje de un grupo: abrir el grupo
       if (res.channel?.type == groupChannelType && res.channel?.id != null) {
-        router.push(Routes.chatGroup(res.channel!.id));
+        final id = res.channel!.id;
+        // Un grupo que la lista no tiene: lo agregaron con la app en segundo
+        // plano (Stream desconectado, se perdió el evento) → recargar antes
+        // de abrirlo; si no, decía "Ya no estás en este grupo"
+        final known =
+            _ref
+                .read(chatGroupsProvider)
+                .value
+                ?.any((g) => g.channel.id == id) ??
+            false;
+        if (!known) _ref.invalidate(chatGroupsProvider);
+        router.push(Routes.chatGroup(id));
         return;
       }
       final message = res.message;

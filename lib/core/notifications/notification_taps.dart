@@ -4,9 +4,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/chat/providers/chat_push.dart';
+import '../../features/home/providers/selected_day_provider.dart';
 import '../../features/session/providers/rest_timer.dart';
 import '../router/app_router.dart';
 import 'local_notifications.dart';
+import 'questionnaire_reminders.dart';
 
 part 'notification_taps.g.dart';
 
@@ -15,7 +17,10 @@ part 'notification_taps.g.dart';
 // - timer de descanso (payload [restNotificationPayload]) → pantalla Descanso
 //   si el timer sigue activo; si no, la app queda donde estaba (la Sesión).
 // - chat (payload = id del mensaje) → Chat o el hilo de feedback.
-// - cuestionario (sin payload) → la app abre donde estaba (Hoy al arrancar).
+// - cuestionario (payload `questionnaire:…`) → Hoy, donde está la tarjeta
+//   (antes iba sin payload y la app volvía a donde estaba, p. ej. el Chat).
+//   Los avisos programados antes de esta versión siguen sin payload hasta
+//   que se reprograman al abrir la app.
 
 const _lastLaunchKey = 'last_launch_notification';
 
@@ -46,6 +51,11 @@ class NotificationTaps {
     if (payload == null) return;
     if (payload == restNotificationPayload) {
       _openRest();
+      return;
+    }
+    if (payload.startsWith(questionnairePayloadPrefix)) {
+      _ref.read(selectedDayProvider.notifier).reset();
+      _ref.read(appRouterProvider).go(Routes.home);
       return;
     }
     unawaited(_ref.read(chatPushProvider).openMessage(payload));

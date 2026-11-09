@@ -18,7 +18,12 @@ part 'questionnaire_reminders.g.dart';
 // Se programan las próximas [_weeksAhead] semanas de cada uno sin repetir y se
 // reprograman cada vez que llegan los cuestionarios (abrir la app, volver a
 // primer plano): si el coach saca uno, deja de avisar en la próxima apertura.
-// Sin payload: al tocarla la app abre en Hoy, donde está la tarjeta.
+// Payload `questionnaire:<fecha>` ([questionnairePayloadPrefix]): tocarla
+// lleva a Hoy, donde está la tarjeta (sin payload la app volvía a donde
+// estaba, p. ej. el Chat).
+/// Prefijo del payload de los avisos de cuestionario (NotificationTaps → Hoy).
+const questionnairePayloadPrefix = 'questionnaire:';
+
 class QuestionnaireReminders {
   static const _baseId = 3000;
   static const _maxQuestionnaires = 10;
@@ -79,6 +84,9 @@ class QuestionnaireReminders {
             scheduledDate: tz.TZDateTime.from(at.toUtc(), tz.UTC),
             notificationDetails: _details,
             androidScheduleMode: mode,
+            // Distinto en cada aviso: el control de "ya atendida" de
+            // NotificationTaps compara el payload
+            payload: '$questionnairePayloadPrefix${at.toIso8601String()}',
           );
         }
       }

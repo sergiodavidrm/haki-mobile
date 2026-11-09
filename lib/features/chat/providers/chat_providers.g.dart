@@ -206,3 +206,50 @@ final class ChatGroupsProvider
 }
 
 String _$chatGroupsHash() => r'8dc9a2e7c4f7e48876feb9aa61c8dcf95cea7e76';
+
+/// No leídos del tab Chat: el chat con el coach + los grupos que conoce esta
+/// API (2026-11-09). Antes era `totalUnreadCount` de la cuenta de Stream, que
+/// también sumaba canales que la app no muestra (dev y test comparten Stream:
+/// un grupo creado en dev quedaba con no leídos imposibles de abrir).
+
+@ProviderFor(chatUnread)
+final chatUnreadProvider = ChatUnreadProvider._();
+
+/// No leídos del tab Chat: el chat con el coach + los grupos que conoce esta
+/// API (2026-11-09). Antes era `totalUnreadCount` de la cuenta de Stream, que
+/// también sumaba canales que la app no muestra (dev y test comparten Stream:
+/// un grupo creado en dev quedaba con no leídos imposibles de abrir).
+
+final class ChatUnreadProvider
+    extends $FunctionalProvider<AsyncValue<int>, int, Stream<int>>
+    with $FutureModifier<int>, $StreamProvider<int> {
+  /// No leídos del tab Chat: el chat con el coach + los grupos que conoce esta
+  /// API (2026-11-09). Antes era `totalUnreadCount` de la cuenta de Stream, que
+  /// también sumaba canales que la app no muestra (dev y test comparten Stream:
+  /// un grupo creado en dev quedaba con no leídos imposibles de abrir).
+  ChatUnreadProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'chatUnreadProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$chatUnreadHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<int> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<int> create(Ref ref) {
+    return chatUnread(ref);
+  }
+}
+
+String _$chatUnreadHash() => r'04746eb20f359989bc1780429ff1e0f51c0fc28a';

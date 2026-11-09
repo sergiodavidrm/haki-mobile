@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
@@ -99,3 +101,37 @@ Future<List<GroupChat>> chatGroups(Ref ref) async {
 
 /// Tipo de canal de Stream de los grupos (`ChatGroupService.ChannelType`).
 const groupChannelType = 'haki_group';
+
+/// No leídos del tab Chat: el chat con el coach + los grupos que conoce esta
+/// API (2026-11-09). Antes era `totalUnreadCount` de la cuenta de Stream, que
+/// también sumaba canales que la app no muestra (dev y test comparten Stream:
+/// un grupo creado en dev quedaba con no leídos imposibles de abrir).
+@riverpod
+Stream<int> chatUnread(Ref ref) {
+  final general = ref.watch(generalChannelProvider).value;
+  final groups = ref.watch(chatGroupsProvider).value ?? const [];
+  final channels = [?general, for (final g in groups) g.channel];
+  if (channels.isEmpty) return Stream.value(0);
+
+  final counts = <String, int>{
+    for (final ch in channels) ch.cid ?? '': ch.state?.unreadCount ?? 0,
+  };
+  int sum() => counts.values.fold(0, (a, b) => a + b);
+  final out = StreamController<int>();
+  out.add(sum());
+  final subs = [
+    for (final ch in channels)
+      if (ch.state != null)
+        ch.state!.unreadCountStream.listen((n) {
+          counts[ch.cid ?? ''] = n;
+          out.add(sum());
+        }),
+  ];
+  ref.onDispose(() {
+    for (final s in subs) {
+      unawaited(s.cancel());
+    }
+    unawaited(out.close());
+  });
+  return out.stream.distinct();
+}

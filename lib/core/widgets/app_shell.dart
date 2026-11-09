@@ -16,10 +16,8 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Conecta el chat al entrar (para el badge de no leídos del tab). El
-    // badge suma el chat con el coach y los grupos (no leídos de la cuenta).
-    final channel = ref.watch(generalChannelProvider).value;
-    ref.watch(chatGroupsProvider);
-    final state = channel?.client.state;
+    // badge suma el chat con el coach y los grupos que la app conoce.
+    final unread = ref.watch(chatUnreadProvider).value ?? 0;
     return Scaffold(
       body: shell,
       bottomNavigationBar: DecoratedBox(
@@ -41,19 +39,12 @@ class AppShell extends ConsumerWidget {
               label: context.l10n.tabProgram,
             ),
             NavigationDestination(
-              icon: StreamBuilder<int>(
-                stream: state?.totalUnreadCountStream,
-                initialData: state?.totalUnreadCount ?? 0,
-                builder: (context, snap) {
-                  final n = snap.data ?? 0;
-                  return Badge(
-                    isLabelVisible: n > 0,
-                    label: Text(n > 9 ? '9+' : '$n'),
-                    backgroundColor: context.colors.gold,
-                    textColor: context.colors.onAccent,
-                    child: const Icon(Icons.chat_bubble_outline),
-                  );
-                },
+              icon: Badge(
+                isLabelVisible: unread > 0,
+                label: Text(unread > 9 ? '9+' : '$unread'),
+                backgroundColor: context.colors.gold,
+                textColor: context.colors.onAccent,
+                child: const Icon(Icons.chat_bubble_outline),
               ),
               label: context.l10n.tabChat,
             ),

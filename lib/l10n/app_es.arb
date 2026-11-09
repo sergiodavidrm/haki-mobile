@@ -1693,5 +1693,16 @@
   "skipSessionButton": "No voy a hacer este día",
   "skipSessionHint": "Cuando registres una serie, acá aparece Finalizar entreno",
   "skipDayRowSub": "No lo hiciste",
-  "progressSame": "igual"
+  "progressSame": "igual",
+  "voicePlay": "Reproducir audio",
+  "voicePause": "Pausar audio",
+  "voiceUnheard": "Sin escuchar",
+  "voiceRecord": "Grabar audio",
+  "voiceDiscard": "Descartar audio",
+  "voiceStopToListen": "Terminar y escucharlo",
+  "voiceSend": "Mandar audio",
+  "voiceHint": "Máximo 2:00 · tocá ⏸ para escucharlo antes de mandar",
+  "voiceMicDenied": "Para mandar audios, dale permiso al micrófono en los ajustes del teléfono.",
+  "voicePreview": "Audio · {duration}",
+  "@voicePreview": {"placeholders": {"duration": {"type": "String"}}}
 }

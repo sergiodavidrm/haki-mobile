@@ -1,3 +1,4 @@
+import 'voice.dart';
 import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -82,9 +83,12 @@ Future<void> showChatNotification(
 
     final name = msg.user?.name ?? l10n.yourCoach;
     final card = VideoCard.of(msg);
+    final voice = voiceOf(msg);
     final text = (msg.text ?? '').trim();
     final body = text.isNotEmpty
         ? text
+        : voice != null
+        ? l10n.voicePreview(formatVoiceDuration(voice.duration))
         : card != null
         ? l10n.notifVideosOf(card.exerciseName)
         : l10n.notifSentMessage;

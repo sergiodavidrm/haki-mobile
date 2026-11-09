@@ -616,5 +616,15 @@
   "skipSessionButton": "I won't do this day",
   "skipSessionHint": "Once you log a set, Finish workout shows up here",
   "skipDayRowSub": "Skipped",
-  "progressSame": "same"
+  "progressSame": "same",
+  "voicePlay": "Play voice message",
+  "voicePause": "Pause voice message",
+  "voiceUnheard": "Not listened yet",
+  "voiceRecord": "Record voice message",
+  "voiceDiscard": "Discard recording",
+  "voiceStopToListen": "Stop and listen",
+  "voiceSend": "Send voice message",
+  "voiceHint": "Up to 2:00 · tap ⏸ to listen before sending",
+  "voiceMicDenied": "To send voice messages, allow the microphone in your phone settings.",
+  "voicePreview": "Voice message · {duration}"
 }

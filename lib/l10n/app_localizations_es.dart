@@ -2364,4 +2364,38 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get progressSame => 'igual';
+
+  @override
+  String get voicePlay => 'Reproducir audio';
+
+  @override
+  String get voicePause => 'Pausar audio';
+
+  @override
+  String get voiceUnheard => 'Sin escuchar';
+
+  @override
+  String get voiceRecord => 'Grabar audio';
+
+  @override
+  String get voiceDiscard => 'Descartar audio';
+
+  @override
+  String get voiceStopToListen => 'Terminar y escucharlo';
+
+  @override
+  String get voiceSend => 'Mandar audio';
+
+  @override
+  String get voiceHint =>
+      'Máximo 2:00 · tocá ⏸ para escucharlo antes de mandar';
+
+  @override
+  String get voiceMicDenied =>
+      'Para mandar audios, dale permiso al micrófono en los ajustes del teléfono.';
+
+  @override
+  String voicePreview(String duration) {
+    return 'Audio · $duration';
+  }
 }

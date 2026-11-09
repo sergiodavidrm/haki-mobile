@@ -1,3 +1,4 @@
+import '../data/voice.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -104,7 +105,8 @@ class _FeedbackRowState extends State<FeedbackRow> {
                     ),
                     Expanded(
                       child: Text(
-                        last.text ?? '',
+                        // Un audio: "Audio · 0:35"
+                        messagePreview(last),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontSize: 13, color: c.text),
@@ -301,6 +303,7 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
             const SizedBox(height: 4),
             TextBubble(
               text: m.text ?? '',
+              voice: voiceOf(m),
               mine: mine,
               authorName: who,
               time: at,
@@ -446,6 +449,9 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
               hint: context.l10n.feedbackReplyTo(widget.coachName),
               onSend: (text) => channel.sendMessage(
                 Message(text: text, parentId: widget.parent.id),
+              ),
+              onSendVoice: (voice) => channel.sendMessage(
+                Message(attachments: [voice], parentId: widget.parent.id),
               ),
             ),
           ],

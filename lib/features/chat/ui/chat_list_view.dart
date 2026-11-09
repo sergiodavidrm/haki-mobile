@@ -1,3 +1,4 @@
+import '../data/voice.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -130,6 +131,10 @@ class _ChannelRow extends StatelessWidget {
                 builder: (context, snap) {
                   final last = snap.data?.where((m) => !m.isDeleted).lastOrNull;
                   var preview = last?.text?.trim() ?? '';
+                  final voice = last == null ? null : voiceOf(last);
+                  if (preview.isEmpty && voice != null) {
+                    preview = context.l10n.voicePreview(formatVoiceDuration(voice.duration));
+                  }
                   if (preview.isEmpty && last != null && VideoCard.of(last) != null) {
                     preview = VideoCard.of(last)!.exerciseName;
                   }

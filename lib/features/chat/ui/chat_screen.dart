@@ -1,3 +1,4 @@
+import '../data/voice.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -251,6 +252,8 @@ class _ChatViewState extends ConsumerState<_ChatView> {
         ChatComposer(
           hint: context.l10n.chatMessageHint,
           onSend: (text) => channel.sendMessage(Message(text: text)),
+          onSendVoice: (voice) =>
+              channel.sendMessage(Message(attachments: [voice])),
         ),
       ],
     );
@@ -291,6 +294,7 @@ class _ChatViewState extends ConsumerState<_ChatView> {
     final quotedCard = quoted == null ? null : VideoCard.of(quoted);
     return TextBubble(
       text: m.text ?? '',
+      voice: voiceOf(m),
       mine: mine,
       authorName: mine ? null : (m.user?.name ?? widget.coachName),
       time: m.createdAt.toLocal(),

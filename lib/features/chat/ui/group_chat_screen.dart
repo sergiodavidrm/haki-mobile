@@ -1,3 +1,4 @@
+import '../data/voice.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -60,6 +61,8 @@ class GroupChatScreen extends ConsumerWidget {
                     hint: context.l10n.chatGroupHint,
                     onSend: (text) =>
                         group.channel.sendMessage(Message(text: text)),
+                    onSendVoice: (voice) =>
+                        group.channel.sendMessage(Message(attachments: [voice])),
                   )
                 else
                   _LockedNotice(coachName: group.group.coachName),
@@ -275,6 +278,7 @@ class _GroupMessagesState extends ConsumerState<_GroupMessages> {
                         ? SystemNotice(text: m.text ?? '')
                         : TextBubble(
                             text: m.text ?? '',
+                            voice: voiceOf(m),
                             mine: mine,
                             // Solo el primer nombre ("Sergio · Coach", "Laura")
                             authorName: m.user?.id == coachId

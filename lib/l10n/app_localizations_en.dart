@@ -2367,4 +2367,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get progressSame => 'same';
+
+  @override
+  String get voicePlay => 'Play voice message';
+
+  @override
+  String get voicePause => 'Pause voice message';
+
+  @override
+  String get voiceUnheard => 'Not listened yet';
+
+  @override
+  String get voiceRecord => 'Record voice message';
+
+  @override
+  String get voiceDiscard => 'Discard recording';
+
+  @override
+  String get voiceStopToListen => 'Stop and listen';
+
+  @override
+  String get voiceSend => 'Send voice message';
+
+  @override
+  String get voiceHint => 'Up to 2:00 · tap ⏸ to listen before sending';
+
+  @override
+  String get voiceMicDenied =>
+      'To send voice messages, allow the microphone in your phone settings.';
+
+  @override
+  String voicePreview(String duration) {
+    return 'Voice message · $duration';
+  }
 }

@@ -1,4 +1,7 @@
+import '../data/voice.dart';
+import 'voice_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart' show Attachment;
 
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/units/weight_unit.dart';
@@ -73,10 +76,14 @@ class TextBubble extends StatelessWidget {
     this.showAuthorName = false,
     this.below,
     this.onLongPress,
+    this.voice,
   });
 
   final String text;
   final bool mine;
+
+  /// Mensaje de voz: va el reproductor en vez del texto.
+  final VoiceInfo? voice;
   final DateTime time;
   final String? authorName;
   final String? quote;
@@ -111,10 +118,12 @@ class TextBubble extends StatelessWidget {
           bottomRight: const Radius.circular(16),
         ),
       ),
-      child: Text(
-        text,
-        style: TextStyle(fontSize: 14, height: 1.45, color: c.text),
-      ),
+      child: voice != null
+          ? VoiceMessageView(voice: voice!, mine: mine)
+          : Text(
+              text,
+              style: TextStyle(fontSize: 14, height: 1.45, color: c.text),
+            ),
     );
     final bubble = onLongPress == null
         ? box
@@ -383,10 +392,19 @@ class VideoThumb extends StatelessWidget {
 
 /// Caja de texto + botón dorado de enviar.
 class ChatComposer extends StatefulWidget {
-  const ChatComposer({super.key, required this.hint, required this.onSend});
+  const ChatComposer({
+    super.key,
+    required this.hint,
+    required this.onSend,
+    this.onSendVoice,
+  });
 
   final String hint;
   final Future<Object?> Function(String text) onSend;
+
+  /// Mensajes de voz: con la caja vacía el botón es un micrófono. null = sin
+  /// audios.
+  final Future<Object?> Function(Attachment voice)? onSendVoice;
 
   @override
   State<ChatComposer> createState() => _ChatComposerState();
@@ -394,6 +412,14 @@ class ChatComposer extends StatefulWidget {
 
 class _ChatComposerState extends State<ChatComposer> {
   final _text = TextEditingController();
+  bool _recording = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Micrófono ↔ mandar según haya texto
+    _text.addListener(() => setState(() {}));
+  }
 
   @override
   void dispose() {
@@ -412,6 +438,24 @@ class _ChatComposerState extends State<ChatComposer> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final onVoice = widget.onSendVoice;
+    if (_recording && onVoice != null) {
+      return VoiceRecorderBar(
+        onCancel: ({bool denied = false}) {
+          setState(() => _recording = false);
+          if (denied) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(context.l10n.voiceMicDenied)),
+            );
+          }
+        },
+        onSend: (a) {
+          setState(() => _recording = false);
+          onVoice(a).catchError((_) => null);
+        },
+      );
+    }
+    final mic = onVoice != null && _text.text.trim().isEmpty;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
       decoration: BoxDecoration(
@@ -456,13 +500,16 @@ class _ChatComposerState extends State<ChatComposer> {
             width: 44,
             height: 44,
             child: IconButton.filled(
-              tooltip: context.l10n.chatSend,
-              onPressed: _send,
+              tooltip: mic ? context.l10n.voiceRecord : context.l10n.chatSend,
+              onPressed: mic ? () => setState(() => _recording = true) : _send,
               style: IconButton.styleFrom(
-                backgroundColor: c.gold,
-                foregroundColor: c.onAccent,
+                backgroundColor: c.primary,
+                foregroundColor: c.onPrimary,
               ),
-              icon: const Icon(Icons.send_rounded, size: 18),
+              icon: Icon(
+                mic ? Icons.mic_none_rounded : Icons.send_rounded,
+                size: mic ? 22 : 18,
+              ),
             ),
           ),
         ],

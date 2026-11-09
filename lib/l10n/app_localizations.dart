@@ -3799,6 +3799,66 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'igual'**
   String get progressSame;
+
+  /// No description provided for @voicePlay.
+  ///
+  /// In es, this message translates to:
+  /// **'Reproducir audio'**
+  String get voicePlay;
+
+  /// No description provided for @voicePause.
+  ///
+  /// In es, this message translates to:
+  /// **'Pausar audio'**
+  String get voicePause;
+
+  /// No description provided for @voiceUnheard.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin escuchar'**
+  String get voiceUnheard;
+
+  /// No description provided for @voiceRecord.
+  ///
+  /// In es, this message translates to:
+  /// **'Grabar audio'**
+  String get voiceRecord;
+
+  /// No description provided for @voiceDiscard.
+  ///
+  /// In es, this message translates to:
+  /// **'Descartar audio'**
+  String get voiceDiscard;
+
+  /// No description provided for @voiceStopToListen.
+  ///
+  /// In es, this message translates to:
+  /// **'Terminar y escucharlo'**
+  String get voiceStopToListen;
+
+  /// No description provided for @voiceSend.
+  ///
+  /// In es, this message translates to:
+  /// **'Mandar audio'**
+  String get voiceSend;
+
+  /// No description provided for @voiceHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Máximo 2:00 · tocá ⏸ para escucharlo antes de mandar'**
+  String get voiceHint;
+
+  /// No description provided for @voiceMicDenied.
+  ///
+  /// In es, this message translates to:
+  /// **'Para mandar audios, dale permiso al micrófono en los ajustes del teléfono.'**
+  String get voiceMicDenied;
+
+  /// No description provided for @voicePreview.
+  ///
+  /// In es, this message translates to:
+  /// **'Audio · {duration}'**
+  String voicePreview(String duration);
 }
 
 class _AppLocalizationsDelegate

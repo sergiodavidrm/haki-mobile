@@ -4,6 +4,8 @@
     <!-- Timer de descanso: aviso con sonido a la hora exacta (Android 14 lo
          deja apagado por defecto; sin él la notificación llega "inexacta") -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- Mensajes de voz del chat -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <application
         android:label="Haki"
         android:name="${applicationName}"

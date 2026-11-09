@@ -537,6 +537,26 @@ https://claude.ai/artifact/4nRtimX6AqMUKyqNnzbxNx. Backend en
   `PillChip(dotColor:)`. Colores `mobility*` / `cardio*` en `HakiColors`.
 - Tests en `test/cardio_mobility_test.dart`. Falta probar en el emulador.
 
+## Mensajes de voz (2026-11-09, sin probar)
+
+Canvas "Haki · Mensajes de voz" https://claude.ai/artifact/9Mg7AGcvFPuSW3Sktk9AA6.
+Adjunto `voiceRecording` de Stream (archivo al CDN de Stream, lo sube el SDK
+al mandar) con `duration` (s) y `waveform_data` (40 valores 0–1); el web usa
+los mismos campos. `record` (AAC m4a, 64 kbps, mono) + `just_audio`.
+- `chat/data/voice.dart`: `voiceOf`, `levelOf` (dBFS → 0–1), `downsample`,
+  `messagePreview` ("Audio · 0:35" en lista, push y última respuesta del
+  hilo). Tests en `test/voice_test.dart`.
+- `VoicePlayback` (keepAlive): un audio a la vez, velocidad 1x/1.5x/2x y
+  "escuchados" (`voice_heard` en shared_preferences, punto turquesa).
+- `ChatComposer(onSendVoice:)`: con la caja vacía el botón es un micrófono →
+  `VoiceRecorderBar` (graba al aparecer, 🗑, ⏸ = terminar y revisar, mandar;
+  para sola a los 2:00; < 0,6 s no se manda). Chat general, grupos (con
+  "Solo yo" no hay caja) e hilos de feedback. `TextBubble(voice:)` dibuja
+  `VoiceMessageView`.
+- Sin señal: Stream marca el mensaje como fallido y "No se envió ·
+  Reintentar" lo vuelve a subir (no hay cola propia como con los videos).
+- Permisos: `RECORD_AUDIO` (Android); iOS ya tenía `NSMicrophoneUsageDescription`.
+
 ## Chat grupal (2026-11-03)
 
 Mockup: fila "App del atleta" de https://claude.ai/artifact/NqRaMmBnKvJZPRXtGJJoiN.

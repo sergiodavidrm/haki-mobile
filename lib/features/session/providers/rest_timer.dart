@@ -117,8 +117,15 @@ class RestTimer extends _$RestTimer {
     if (!state.active) state = state.copyWith(info: () => info);
   }
 
-  /// Arranca de cero con la duración elegida (siempre a mano).
+  /// Arranca de cero con la duración elegida (a mano, desde el header).
   void start() => _run(state.totalSeconds);
+
+  /// "Descanso automático": arranca solo al guardar una serie, con lo que
+  /// viene después. Si ya corría otro descanso, vuelve a arrancar.
+  void autoStart(RestInfo info) {
+    state = state.copyWith(info: () => info);
+    _run(state.totalSeconds, total: state.totalSeconds);
+  }
 
   void toggle() {
     final now = DateTime.now();

@@ -9,7 +9,11 @@ import '../../../core/theme/haki_colors.dart';
 import '../../../core/widgets/haki_loader.dart';
 import '../../../core/widgets/haki_logo.dart';
 import '../../../core/widgets/user_avatar.dart';
+import '../../agenda/data/agenda_dtos.dart';
+import '../../agenda/providers/agenda_providers.dart';
+import '../../agenda/ui/agenda_event_card.dart';
 import '../../auth/providers/auth_me_provider.dart';
+import '../../inbox/providers/inbox_providers.dart';
 import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
 import '../../questionnaire/providers/questionnaire_providers.dart';
@@ -41,6 +45,11 @@ class HomeScreen extends ConsumerWidget {
     );
     // El coach lo archivó o eliminó: aviso hasta que se cierra el acceso
     final accessEndsAt = ref.watch(authMeProvider).value?.accessEndsAt;
+    // Sesiones con el coach del día elegido (debajo del entreno)
+    final events = eventsOn(
+      ref.watch(myAgendaProvider).value ?? const [],
+      selected ?? DateTime.now(),
+    );
 
     return Scaffold(
       body: SafeArea(
@@ -50,6 +59,7 @@ class HomeScreen extends ConsumerWidget {
             ref.invalidate(programSectionsProvider);
             ref.invalidate(programDetailProvider);
             ref.invalidate(myQuestionnairesProvider);
+            ref.invalidate(myAgendaProvider);
             return ref.read(todayProvider.future);
           },
           child: ListView(
@@ -99,6 +109,10 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ],
               },
+              for (final e in events) ...[
+                const SizedBox(height: 12),
+                AgendaEventCard(event: e),
+              ],
               // Debajo de la tarjeta del entreno, el más viejo primero
               for (final q in pending) ...[
                 const SizedBox(height: 12),
@@ -251,14 +265,15 @@ class _AccessEndingCard extends StatelessWidget {
   }
 }
 
-class _Header extends StatelessWidget {
+class _Header extends ConsumerWidget {
   const _Header({required this.name});
 
   final String name;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
+    final unread = ref.watch(myInboxProvider).value?.unread ?? 0;
     return Row(
       children: [
         const HakiLogoMark(size: 30, pulse: false),
@@ -273,6 +288,8 @@ class _Header extends StatelessWidget {
           ),
         ),
         const Spacer(),
+        _InboxButton(unread: unread),
+        const SizedBox(width: 10),
         Semantics(
           button: true,
           label: context.l10n.homeYourProfile,
@@ -282,6 +299,72 @@ class _Header extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Campana de avisos con el número de no leídos.
+class _InboxButton extends StatelessWidget {
+  const _InboxButton({required this.unread});
+
+  final int unread;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Semantics(
+      button: true,
+      label: context.l10n.inboxButton(unread),
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: () => context.push(Routes.inbox),
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: c.surface,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: c.border),
+                  ),
+                  child: Icon(
+                    Icons.notifications_none,
+                    size: 21,
+                    color: c.textSecondary,
+                  ),
+                ),
+              ),
+              if (unread > 0)
+                Positioned(
+                  top: -2,
+                  right: -2,
+                  child: Container(
+                    constraints: const BoxConstraints(minWidth: 18),
+                    height: 18,
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    decoration: BoxDecoration(
+                      color: c.gold,
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      unread > 9 ? '9+' : '$unread',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: c.onAccent,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

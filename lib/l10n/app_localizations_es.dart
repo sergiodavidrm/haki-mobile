@@ -2398,4 +2398,214 @@ class AppLocalizationsEs extends AppLocalizations {
   String voicePreview(String duration) {
     return 'Audio · $duration';
   }
+
+  @override
+  String get settingsAutoRest => 'Descanso automático';
+
+  @override
+  String get settingsAutoRestHint =>
+      'El timer arranca solo entre series del mismo ejercicio';
+
+  @override
+  String get notifRemindersChannel => 'Recordatorios';
+
+  @override
+  String get notifRemindersChannelDesc =>
+      'Recordatorios de pagos y avisos de tu coach';
+
+  @override
+  String get notifPaymentDueTodayTitle => 'Hoy vence tu pago';
+
+  @override
+  String notifPaymentDueInTitle(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'en $days días',
+      one: 'mañana',
+    );
+    return 'Tu pago vence $_temp0';
+  }
+
+  @override
+  String notifPaymentDueTodayBody(String coach, String amount) {
+    return 'Pago a $coach de $amount.';
+  }
+
+  @override
+  String notifPaymentDueInBody(String coach, String amount, String date) {
+    return 'Pago a $coach de $amount el $date.';
+  }
+
+  @override
+  String get notifTestTitle => 'Haki';
+
+  @override
+  String get notifTestBody => 'Las notificaciones funcionan ✓';
+
+  @override
+  String get agendaInPerson => 'Sesión presencial';
+
+  @override
+  String get agendaVirtual => 'Sesión virtual';
+
+  @override
+  String get agendaToday => 'Hoy';
+
+  @override
+  String agendaCancelledLabel(String when) {
+    return 'Cancelada · $when';
+  }
+
+  @override
+  String agendaCancelledBody(String coach) {
+    return '$coach canceló esta sesión.';
+  }
+
+  @override
+  String get agendaDirections => 'Cómo llegar';
+
+  @override
+  String get agendaJoin => 'Unirme';
+
+  @override
+  String get agendaMessage => 'Escribirle';
+
+  @override
+  String get agendaCantGo => 'No puedo ir';
+
+  @override
+  String agendaDeclined(String coach) {
+    return 'Le avisaste a $coach que no podés ir.';
+  }
+
+  @override
+  String get agendaUndoDecline => 'Deshacer · sí voy';
+
+  @override
+  String get agendaDeclineTitle => '¿No podés ir?';
+
+  @override
+  String agendaDeclineInfo(String coach) {
+    return '$coach va a ver el aviso en su agenda. La sesión no se cancela: si quieren otro horario, escribile.';
+  }
+
+  @override
+  String get agendaDeclineReason => 'Motivo (opcional)';
+
+  @override
+  String agendaDeclineConfirm(String coach) {
+    return 'Avisar a $coach';
+  }
+
+  @override
+  String get agendaOpenError => 'No se pudo abrir el link';
+
+  @override
+  String notifEventInvitedTitle(String coach) {
+    return '$coach te invitó a una sesión';
+  }
+
+  @override
+  String notifEventInvitedSeriesTitle(String coach) {
+    return '$coach te invitó a sesiones semanales';
+  }
+
+  @override
+  String notifEventChangedTitle(String coach) {
+    return '$coach cambió tu sesión';
+  }
+
+  @override
+  String get notifEventTimeChangedTitle => 'Cambió la hora de tu sesión';
+
+  @override
+  String get notifEventPlaceChangedTitle => 'Cambió el lugar de tu sesión';
+
+  @override
+  String get notifEventLinkChangedTitle => 'Cambió el link de tu sesión';
+
+  @override
+  String get notifEventCancelledTitle => 'Se canceló tu sesión';
+
+  @override
+  String get notifEventCancelledSeriesTitle =>
+      'Se cancelaron tus sesiones semanales';
+
+  @override
+  String notifEventEvery(String days) {
+    return 'Los $days';
+  }
+
+  @override
+  String notifEventUntil(String date) {
+    return 'hasta el $date';
+  }
+
+  @override
+  String notifEventFrom(String date) {
+    return 'desde el $date';
+  }
+
+  @override
+  String get agendaKindInPerson => 'Presencial';
+
+  @override
+  String get agendaKindVirtual => 'Virtual';
+
+  @override
+  String get inboxTitle => 'Avisos';
+
+  @override
+  String get inboxMarkRead => 'Marcar leídos';
+
+  @override
+  String get inboxEmptyTitle => 'No tenés avisos';
+
+  @override
+  String get inboxEmptyBody =>
+      'Acá te avisamos cuando tu coach te invite a una sesión, la cambie o la cancele, y de tus pagos.';
+
+  @override
+  String inboxButton(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Avisos, $count sin leer',
+      one: 'Avisos, 1 sin leer',
+      zero: 'Avisos',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get agoNow => 'Ahora';
+
+  @override
+  String agoMinutes(int n) {
+    return 'Hace $n min';
+  }
+
+  @override
+  String agoHours(int n) {
+    return 'Hace $n h';
+  }
+
+  @override
+  String notifEventReminderTitle(String coach, String time) {
+    return 'Tu sesión con $coach es a las $time';
+  }
+
+  @override
+  String notifEventReminderTomorrowTitle(String coach) {
+    return 'Mañana tenés sesión con $coach';
+  }
+
+  @override
+  String get agendaGoing => 'Voy';
+
+  @override
+  String agendaConfirmed(String coach) {
+    return 'Le confirmaste a $coach que vas.';
+  }
 }

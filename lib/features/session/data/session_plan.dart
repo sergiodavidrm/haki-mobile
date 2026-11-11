@@ -288,6 +288,16 @@ AfterSave afterSave(
   return AfterSave(rest: !wasSaved && endOfRound && next != null, next: next);
 }
 
+/// "Descanso automático" (Ajustes, 2026-11-09): el timer arranca solo entre
+/// series del mismo ejercicio (o entre rondas de la misma superserie), no al
+/// pasar a otro ejercicio. [exercise] = el de la serie recién guardada.
+bool autoRestBetweenSets(AfterSave after, DayExerciseDto exercise) {
+  final next = after.next;
+  if (!after.rest || next == null) return false;
+  return next.exercise.id == exercise.id ||
+      next.group.exercises.any((e) => e.id == exercise.id);
+}
+
 /// Resumen para Entreno completado.
 class WorkoutSummary {
   const WorkoutSummary({

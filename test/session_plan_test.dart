@@ -29,6 +29,32 @@ void main() {
         isSaved: (r) => saved.contains(r.key),
       );
 
+  group('Descanso automático (autoRestBetweenSets)', () {
+    test('entre series del mismo ejercicio: arranca', () {
+      expect(autoRestBetweenSets(after(jalon, 1), jalon), isTrue);
+    });
+
+    test('al terminar el ejercicio y pasar a otro: no arranca', () {
+      final a = after(jalon, 2, saved: {setKey(jalon.id, 1)});
+      expect(a.next?.exercise.id, remo.id);
+      expect(autoRestBetweenSets(a, jalon), isFalse);
+    });
+
+    test('superserie a mitad de ronda: no (va sin pausa)', () {
+      expect(autoRestBetweenSets(after(remo, 1), remo), isFalse);
+    });
+
+    test('superserie al terminar la ronda: arranca (sigue la misma superserie)', () {
+      final a = after(curl, 1, saved: {setKey(remo.id, 1)});
+      expect(autoRestBetweenSets(a, curl), isTrue);
+    });
+
+    test('editar una serie ya guardada: no arranca', () {
+      final a = after(jalon, 1, saved: {setKey(jalon.id, 1)});
+      expect(autoRestBetweenSets(a, jalon), isFalse);
+    });
+  });
+
   test('agrupa superseries y les pone letra', () {
     expect(groups.map((g) => g.letter), [null, 'A']);
     expect(groups[1].badgeOf(curl), 'A2');

@@ -483,6 +483,10 @@ con `ApiCache` (`progressReportProvider(period)`), lógica pura en
   "+X en el bloque" e historial solo del lugar de la sesión (`placeOf`,
   `samePlaceItems`); al terminar "Ver todos los días" (con el día en cada
   tarjeta) y "Ver tu progreso →". Sin selector de días.
+  "Ver tu progreso →" va a `/progreso/e/:id` (`Routes.progressExerciseStandalone`,
+  fuera de los tabs; 2026-11-11): el push a `/perfil/progreso/e/…` desde el
+  Detalle (que está fuera del shell) reconstruía el shell encima y dejaba la
+  pantalla negra. Cuenta como pantalla de entreno (`isTrainingRoute`).
 - Constancia (hechos de los que tocaban, racha del `streakProvider`, barrita
   por semana), ejercicios del que más subió al que menos con mini gráfico y
   **ojito** para ocultar (`HiddenExercises`, shared_preferences por usuario;
@@ -916,6 +920,14 @@ Lógica pura de la sesión en `features/session/data/session_plan.dart`
 (`groupSupersets`, `setCountOf`, `savedSetFor`, `workOrder` por rondas en
 superseries, `afterSave`, `summarize`; tests en `test/session_plan_test.dart`).
 
+**Descanso automático (2026-11-09, Ajustes, apagado por defecto,
+`AutoRest` / `rest_auto`):** al guardar una serie nueva el timer arranca solo
+con la última duración (`RestTimer.autoStart`, sin abrir la pantalla: queda la
+barra) si la serie quedó **con reps** (el peso anotado antes de levantar no lo
+dispara) y sigue otra serie del mismo ejercicio o la próxima ronda de la misma
+superserie (`autoRestBetweenSets`); al pasar a otro ejercicio, no. Tests en
+`session_plan_test.dart`.
+
 Timer de descanso (`providers/rest_timer.dart`, keepAlive, basado en `endsAt`):
 **manual** (decisión de Sergio 2026-10-16): no arranca al guardar una serie;
 el atleta lo abre desde el botón del header y toca Iniciar (cierra la
@@ -1015,6 +1027,67 @@ en `ios/Runner.xcodeproj/project.pbxproj` (bug): descartar ese cambio con
 
 Pendiente de marca: fuente Raleway para el wordmark "haki" (el web la usa) y
 el dorado del logo del web es `#C9A84C` vs. `gold` `#B8922A` del tema.
+
+### Agenda: sesión con el coach en Hoy (2026-11-11, sin probar)
+
+Mockup "Hoy con sesión" de https://claude.ai/artifact/BV9Bc1brRbsgh398zQfrZT.
+`features/agenda/`: `GET agenda/me` (con `ApiCache`, se ve sin señal) para
+la semana pasada y las 5 que vienen (`agendaRange`; la API acepta hasta 62
+días) → `myAgendaProvider` (se recarga al volver a primer plano y con el
+pull-to-refresh de Hoy). Hoy muestra `AgendaEventCard` por cada evento del
+día elegido en la tira (`eventsOn`), **debajo** de la tarjeta del entreno y
+antes de los cuestionarios. Borde turquesa = presencial, violeta (`mobility`)
+= virtual. Botones: "Cómo llegar" (Google Maps con el lugar) o "Unirme"
+(`meetingUri`: solo http/https; relleno si es hoy), "Escribirle" (chat con el
+coach) y "No puedo ir" (hoja con motivo opcional, 300 caracteres → `PUT
+agenda/me/{id}/decline`; "Deshacer · sí voy" = `DELETE`). Cancelada: tachada,
+sin botones. Ya terminada: sin botones. **"Voy" (2026-11-11):** botón relleno
+junto a "No puedo ir" (`PUT agenda/me/{id}/confirm`); confirmado = "✓ Le
+confirmaste a Andrés que vas" + "No puedo ir"; después de un "No puedo ir",
+"Deshacer · sí voy" confirma. Falta: campana de avisos y badge
+"NUEVA" (con el push de eventos). Tests en `test/agenda_test.dart`.
+
+### Campana de avisos (2026-11-11, sin probar)
+
+Mockup "Avisos del atleta" de https://claude.ai/artifact/BV9Bc1brRbsgh398zQfrZT.
+`features/inbox/`: `GET inbox/me` (con `ApiCache`) → `myInboxProvider`
+(recarga al volver a primer plano y cuando llega un push de la API con la
+app abierta, `ChatPush`; ese push también recarga `myAgendaProvider`).
+Campana en el header de Hoy (`_InboxButton`, badge dorado con los no
+leídos) → `/avisos` (`InboxScreen`): icono, título y texto en negrita +
+punto dorado si no está leído, "Hace 2 h" (`formatAgo`), "Marcar leídos"
+(`POST inbox/me/read`, se marca al instante en el teléfono). Tocar un aviso
+lo marca leído y, si es de una sesión, abre Hoy en ese día. Tipos:
+`event_invited` / `event_changed` / `event_cancelled` / `payment_reminder`.
+El texto sale de `hakiPushText` (el mismo del push, en el idioma de la app):
+"Andrés te invitó a una sesión · Presencial · vie 13 nov · 06:00 · Gym
+Escazú"; serie = "Los lunes y jueves 06:00 · hasta el 20 dic"; cambio según
+`fields` ("Cambió la hora de tu sesión"). El push de una sesión abre Hoy en
+ese día (`hakiDayPayload`, `NotificationTaps`). Tests en
+`test/haki_push_test.dart`.
+"Avisarme" del coach (`event_reminder`, solo push, no va a la campana): "Tu
+sesión con Andrés es a las 10:30" (1 h) / "Mañana tenés sesión con Andrés"
+(1 día); tocarlo abre Hoy en ese día.
+
+### Push de la API (2026-11-10, sin probar)
+
+`core/notifications/haki_push.dart`. La API manda por FCM mensajes solo de
+datos con `sender: haki` (`haki-api/CLAUDE.md` § Push desde la API); la app
+arma el texto en su idioma (`hakiPushText`; tipo desconocido = no se muestra).
+Canal Android `haki_reminders` ("Recordatorios"). Se muestran también con la
+app abierta (`onMessage` en `ChatPush.init`; los del chat no). En segundo
+plano los atiende el mismo `chatPushBackgroundHandler` (desvía con
+`isHakiPush`). Tocar = Hoy (`hakiPushPayload`).
+- Registro: `ChatPush.register` (al conectar el chat) además hace `PUT
+  push/devices` con el token de FCM (y en `onTokenRefresh`). Al cerrar sesión
+  `AuthRepository.beforeSignOut` → `DELETE push/devices` (con el JWT todavía
+  válido; sin red no frena el cierre).
+- Tipos: `test` (`POST push/test`) y `payment_reminder`, con el mismo texto
+  que la vista previa del cobro en el web: "Tu pago vence mañana · Pago a
+  Andrés Solano de ₡45 000 el 13 nov." / "Hoy vence tu pago · Pago a … de …."
+  (`coach` del push; sin él, "tu coach"). `formatPaymentAmount`. El handler de
+  fondo llama `initializeDateFormatting` (otro isolate). Tests en
+  `test/haki_push_test.dart`.
 
 ### Tema v2 y "No voy a hacer este día" (2026-11-07, sin probar)
 

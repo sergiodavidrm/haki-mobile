@@ -94,7 +94,14 @@ class AuthRepository {
     return true;
   }
 
+  /// Lo que hay que hacer con la sesión todavía abierta (p. ej. borrar este
+  /// teléfono de los push de la API, que necesita el JWT). Sin red no frena.
+  Future<void> Function()? beforeSignOut;
+
   Future<void> signOut() async {
+    try {
+      await beforeSignOut?.call().timeout(const Duration(seconds: 4));
+    } catch (_) {}
     // Para que la próxima vez vuelva a mostrar el selector de cuentas
     if (_googleInit != null) await GoogleSignIn.instance.signOut();
     await _auth.signOut();

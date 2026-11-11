@@ -33,6 +33,7 @@ import '../../features/session/ui/workout_complete_screen.dart';
 import '../../features/chat/ui/chat_screen.dart';
 import '../../features/chat/ui/group_chat_screen.dart';
 import '../../features/questionnaire/ui/questionnaire_screen.dart';
+import '../../features/inbox/ui/inbox_screen.dart';
 import '../widgets/app_shell.dart';
 
 part 'app_router.g.dart';
@@ -83,6 +84,12 @@ abstract final class Routes {
   static const progress = '/perfil/progreso';
   static String progressExercise(String exerciseId, {String? place}) =>
       '/perfil/progreso/e/$exerciseId${place == null ? '' : '?lugar=$place'}';
+
+  /// La misma pantalla fuera de los tabs: desde el Detalle de ejercicio (que
+  /// está fuera del shell) un push a la ruta del tab Perfil reconstruía el
+  /// shell encima y quedaba la pantalla negra.
+  static String progressExerciseStandalone(String exerciseId, {String? place}) =>
+      '/progreso/e/$exerciseId${place == null ? '' : '?lugar=$place'}';
   static const coach = '/perfil/coach';
   static const chatCoach = '/chat/coach';
   static const chatGeneral = '/chat/general';
@@ -106,6 +113,7 @@ abstract final class Routes {
 
   /// Responder un cuestionario pendiente ([responseId] = id del envío).
   static String questionnaire(String responseId) => '/cuestionario/$responseId';
+  static const inbox = '/avisos';
 }
 
 // Rutas + guard de auth (equivalente a app.routes.ts + authGuard del web).
@@ -150,6 +158,14 @@ GoRouter appRouter(Ref ref) {
         ),
       ),
       GoRoute(path: Routes.rest, builder: (_, _) => const RestTimerScreen()),
+      GoRoute(
+        path: '/progreso/e/:exerciseId',
+        builder: (_, state) => ExerciseProgressScreen(
+          exerciseId: state.pathParameters['exerciseId']!,
+          place: state.uri.queryParameters['lugar'],
+        ),
+      ),
+      GoRoute(path: Routes.inbox, builder: (_, _) => const InboxScreen()),
       GoRoute(
         path: '/ejercicio/:assignmentId/:dayId/:dayExerciseId',
         builder: (_, state) => ExerciseDetailScreen(

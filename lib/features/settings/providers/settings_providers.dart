@@ -37,6 +37,30 @@ class RestVibration extends _$RestVibration {
   }
 }
 
+const _autoRestKey = 'rest_auto';
+
+/// Ajustes → Descanso automático: el timer arranca solo al guardar una serie
+/// si sigue otra del mismo ejercicio (no al cambiar de ejercicio). Preferencia
+/// del teléfono, arranca apagado (2026-11-09).
+@Riverpod(keepAlive: true)
+class AutoRest extends _$AutoRest {
+  @override
+  bool build() {
+    unawaited(_load());
+    return false;
+  }
+
+  Future<void> _load() async {
+    final saved = await SharedPreferencesAsync().getBool(_autoRestKey);
+    if (saved != null) state = saved;
+  }
+
+  void set(bool on) {
+    state = on;
+    unawaited(SharedPreferencesAsync().setBool(_autoRestKey, on));
+  }
+}
+
 const _themeKey = 'theme_mode';
 
 /// Ajustes → Tema: Sistema (default), Claro u Oscuro. Preferencia del

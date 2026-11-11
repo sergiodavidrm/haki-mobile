@@ -9,7 +9,12 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
+import '../../../core/network/api_client.dart';
+import '../../../core/notifications/haki_push.dart';
+import '../../agenda/providers/agenda_providers.dart';
+import '../../inbox/providers/inbox_providers.dart';
 import '../../../core/notifications/local_notifications.dart';
+import '../../auth/data/auth_repository.dart';
 import '../../../core/router/app_router.dart';
 import '../../auth/providers/auth_me_provider.dart';
 import '../data/chat_notifications.dart';
@@ -38,6 +43,8 @@ class ChatPush {
   var _askChecked = false;
   String? _token;
   StreamSubscription<String>? _refreshSub;
+  StreamSubscription<RemoteMessage>? _foregroundSub;
+  String? _apiToken;
 
   Future<void> init() async {
     // Firebase.initializeApp va en main(); sin config (iOS sin plist) no hay push
@@ -51,7 +58,25 @@ class ChatPush {
             AndroidFlutterLocalNotificationsPlugin
           >()
           ?.createNotificationChannel(chatChannel);
+      await localNotifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.createNotificationChannel(remindersChannel);
     }
+
+    // Push de la API con la app abierta: se muestra igual (los del chat no,
+    // ahí el aviso es el badge)
+    _foregroundSub = FirebaseMessaging.onMessage.listen((m) {
+      if (!isHakiPush(m.data)) return;
+      unawaited(showHakiPush(m.data));
+      // Campana y sesiones al día sin esperar a volver a la app
+      _ref.invalidate(myInboxProvider);
+      if (eventInboxKinds.contains(m.data['type'])) {
+        _ref.invalidate(myAgendaProvider);
+      }
+    });
+    _ref.read(authRepositoryProvider).beforeSignOut = _unregisterApi;
 
     // El toque en la notificación lo reparte NotificationTaps
     // (core/notifications/notification_taps.dart) → openMessage.
@@ -74,6 +99,7 @@ class ChatPush {
     final fcm = await FirebaseMessaging.instance.getToken();
     if (fcm == null) return;
     _token = fcm;
+    unawaited(_registerApi(fcm));
     await client.addDevice(
       fcm,
       PushProvider.firebase,
@@ -82,6 +108,7 @@ class ChatPush {
     // ignore: deprecated_member_use
     _refreshSub ??= FirebaseMessaging.instance.onTokenRefresh.listen((t) {
       _token = t;
+      unawaited(_registerApi(t));
       unawaited(
         client
             .addDevice(
@@ -92,6 +119,33 @@ class ChatPush {
             .catchError((_) => EmptyResponse()),
       );
     });
+  }
+
+  /// Este teléfono recibe los push de la API (recordatorios de pago…).
+  Future<void> _registerApi(String token) async {
+    try {
+      await _ref.read(apiClientProvider).put<void>(
+        '/push/devices',
+        data: {
+          'token': token,
+          'platform': Platform.isIOS ? 'ios' : 'android',
+        },
+      );
+      _apiToken = token;
+    } catch (e) {
+      debugPrint('ChatPush: no se pudo registrar en la API ($e)');
+    }
+  }
+
+  /// Antes de cerrar sesión (con el JWT todavía válido).
+  Future<void> _unregisterApi() async {
+    final token = _apiToken;
+    if (token == null) return;
+    await _ref.read(apiClientProvider).delete<void>(
+      '/push/devices',
+      queryParameters: {'token': token},
+    );
+    _apiToken = null;
   }
 
   /// Al cerrar sesión: que no le lleguen al teléfono los mensajes del usuario.
@@ -164,6 +218,7 @@ class ChatPush {
 
   void dispose() {
     unawaited(_refreshSub?.cancel());
+    unawaited(_foregroundSub?.cancel());
   }
 }
 

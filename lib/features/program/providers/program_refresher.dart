@@ -15,6 +15,8 @@ const _trainingRoutes = [
   '/descanso',
   '/ejercicio/',
   '/completado/',
+  // Tu progreso abierto desde el Detalle de ejercicio (encima de la Sesión)
+  '/progreso/',
 ];
 
 bool isTrainingRoute(String path) =>

@@ -32,6 +32,7 @@ class SettingsScreen extends ConsumerWidget {
         ref.watch(authMeProvider).value?.preferredWeightUnit ?? WeightUnit.kg;
     final savingUnit = ref.watch(weightUnitSaverProvider).isLoading;
     final vibrate = ref.watch(restVibrationProvider);
+    final autoRest = ref.watch(autoRestProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -84,6 +85,15 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                       visualDensity: VisualDensity.compact,
                     ),
+                  ),
+                ),
+                _Row(
+                  title: l.settingsAutoRest,
+                  subtitle: l.settingsAutoRestHint,
+                  trailing: Switch(
+                    value: autoRest,
+                    activeTrackColor: c.turquoise,
+                    onChanged: ref.read(autoRestProvider.notifier).set,
                   ),
                 ),
                 _Row(

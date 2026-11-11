@@ -28,6 +28,27 @@ String weekdayLetter(int weekday) => (_en ? 'MTWTFSS' : 'LMXJVSD')[weekday - 1];
 String weekdayName(int weekday) =>
     DateFormat('EEEE', _lang).format(DateTime(2024, 1, weekday));
 
+/// "06:00" / "18:30" (24 h en los dos idiomas, como el web)
+String formatTime(DateTime d) => DateFormat('HH:mm', _lang).format(d);
+
+/// Hace cuánto (campana de avisos): "Ahora", "Hace 5 min", "Hace 2 h",
+/// "ayer", "lun" (esta semana) o "14 sep".
+String formatAgo(DateTime at, {DateTime? now}) {
+  final n = now ?? DateTime.now();
+  final diff = n.difference(at);
+  if (diff.inMinutes < 1) return l10n.agoNow;
+  if (diff.inHours < 1) return l10n.agoMinutes(diff.inMinutes);
+  final days = DateTime(n.year, n.month, n.day)
+      .difference(DateTime(at.year, at.month, at.day))
+      .inDays;
+  if (days == 0) return l10n.agoHours(diff.inHours);
+  if (days == 1) return capitalize(l10n.commonYesterday);
+  if (days < 7) {
+    return capitalize(_clean(DateFormat('EEE', _lang).format(at)));
+  }
+  return formatDayMonth(at);
+}
+
 /// "14 sep" / "Sep 14"
 String formatDayMonth(DateTime d) =>
     _clean(DateFormat(_en ? 'MMM d' : 'd MMM', _lang).format(d));

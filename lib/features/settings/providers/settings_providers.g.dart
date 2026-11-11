@@ -70,6 +70,71 @@ abstract class _$RestVibration extends $Notifier<bool> {
   }
 }
 
+/// Ajustes → Descanso automático: el timer arranca solo al guardar una serie
+/// si sigue otra del mismo ejercicio (no al cambiar de ejercicio). Preferencia
+/// del teléfono, arranca apagado (2026-11-09).
+
+@ProviderFor(AutoRest)
+final autoRestProvider = AutoRestProvider._();
+
+/// Ajustes → Descanso automático: el timer arranca solo al guardar una serie
+/// si sigue otra del mismo ejercicio (no al cambiar de ejercicio). Preferencia
+/// del teléfono, arranca apagado (2026-11-09).
+final class AutoRestProvider extends $NotifierProvider<AutoRest, bool> {
+  /// Ajustes → Descanso automático: el timer arranca solo al guardar una serie
+  /// si sigue otra del mismo ejercicio (no al cambiar de ejercicio). Preferencia
+  /// del teléfono, arranca apagado (2026-11-09).
+  AutoRestProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'autoRestProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$autoRestHash();
+
+  @$internal
+  @override
+  AutoRest create() => AutoRest();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$autoRestHash() => r'f38970870e1ecffe9efba3948e2e752a66e38d10';
+
+/// Ajustes → Descanso automático: el timer arranca solo al guardar una serie
+/// si sigue otra del mismo ejercicio (no al cambiar de ejercicio). Preferencia
+/// del teléfono, arranca apagado (2026-11-09).
+
+abstract class _$AutoRest extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// Ajustes → Tema: Sistema (default), Claro u Oscuro. Preferencia del
 /// teléfono (shared_preferences `theme_mode`: system | light | dark).
 

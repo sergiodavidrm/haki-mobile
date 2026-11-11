@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../settings/providers/settings_providers.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
@@ -188,7 +189,19 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                 reps: reps,
                 rir: rir,
               );
-          _prepareRest(groups, e, n, rest: after.rest, next: after.next);
+          _prepareRest(
+            groups,
+            e,
+            n,
+            rest: after.rest,
+            next: after.next,
+            // Solo con reps: una serie sin reps (p. ej. el peso anotado
+            // antes de levantar) todavía no está hecha
+            autoStart:
+                reps != null &&
+                ref.read(autoRestProvider) &&
+                autoRestBetweenSets(after, e),
+          );
         },
       );
     }
@@ -411,6 +424,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     int setNumber, {
     required bool rest,
     required SetRef? next,
+    bool autoStart = false,
   }) {
     if (next == null) return;
     final g = groups.firstWhere((g) => g.exercises.contains(e));
@@ -432,11 +446,17 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       title = context.l10n.supersetN(g.letter!);
       subtitle = context.l10n.restBeforeRepeat(done);
     }
-    ref
-        .read(restTimerProvider.notifier)
-        .prepare(
-          RestInfo(title: title, subtitle: subtitle, next: _nextInfo(next)),
-        );
+    final info = RestInfo(
+      title: title,
+      subtitle: subtitle,
+      next: _nextInfo(next),
+    );
+    final timer = ref.read(restTimerProvider.notifier);
+    if (autoStart) {
+      timer.autoStart(info);
+    } else {
+      timer.prepare(info);
+    }
   }
 
   NextSetInfo? _nextInfo(SetRef? r) {

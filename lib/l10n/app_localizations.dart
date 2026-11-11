@@ -3859,6 +3859,312 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Audio · {duration}'**
   String voicePreview(String duration);
+
+  /// No description provided for @settingsAutoRest.
+  ///
+  /// In es, this message translates to:
+  /// **'Descanso automático'**
+  String get settingsAutoRest;
+
+  /// No description provided for @settingsAutoRestHint.
+  ///
+  /// In es, this message translates to:
+  /// **'El timer arranca solo entre series del mismo ejercicio'**
+  String get settingsAutoRestHint;
+
+  /// No description provided for @notifRemindersChannel.
+  ///
+  /// In es, this message translates to:
+  /// **'Recordatorios'**
+  String get notifRemindersChannel;
+
+  /// No description provided for @notifRemindersChannelDesc.
+  ///
+  /// In es, this message translates to:
+  /// **'Recordatorios de pagos y avisos de tu coach'**
+  String get notifRemindersChannelDesc;
+
+  /// No description provided for @notifPaymentDueTodayTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy vence tu pago'**
+  String get notifPaymentDueTodayTitle;
+
+  /// No description provided for @notifPaymentDueInTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu pago vence {days, plural, =1{mañana} other{en {days} días}}'**
+  String notifPaymentDueInTitle(int days);
+
+  /// No description provided for @notifPaymentDueTodayBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Pago a {coach} de {amount}.'**
+  String notifPaymentDueTodayBody(String coach, String amount);
+
+  /// No description provided for @notifPaymentDueInBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Pago a {coach} de {amount} el {date}.'**
+  String notifPaymentDueInBody(String coach, String amount, String date);
+
+  /// No description provided for @notifTestTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Haki'**
+  String get notifTestTitle;
+
+  /// No description provided for @notifTestBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Las notificaciones funcionan ✓'**
+  String get notifTestBody;
+
+  /// No description provided for @agendaInPerson.
+  ///
+  /// In es, this message translates to:
+  /// **'Sesión presencial'**
+  String get agendaInPerson;
+
+  /// No description provided for @agendaVirtual.
+  ///
+  /// In es, this message translates to:
+  /// **'Sesión virtual'**
+  String get agendaVirtual;
+
+  /// No description provided for @agendaToday.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy'**
+  String get agendaToday;
+
+  /// No description provided for @agendaCancelledLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelada · {when}'**
+  String agendaCancelledLabel(String when);
+
+  /// No description provided for @agendaCancelledBody.
+  ///
+  /// In es, this message translates to:
+  /// **'{coach} canceló esta sesión.'**
+  String agendaCancelledBody(String coach);
+
+  /// No description provided for @agendaDirections.
+  ///
+  /// In es, this message translates to:
+  /// **'Cómo llegar'**
+  String get agendaDirections;
+
+  /// No description provided for @agendaJoin.
+  ///
+  /// In es, this message translates to:
+  /// **'Unirme'**
+  String get agendaJoin;
+
+  /// No description provided for @agendaMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribirle'**
+  String get agendaMessage;
+
+  /// No description provided for @agendaCantGo.
+  ///
+  /// In es, this message translates to:
+  /// **'No puedo ir'**
+  String get agendaCantGo;
+
+  /// No description provided for @agendaDeclined.
+  ///
+  /// In es, this message translates to:
+  /// **'Le avisaste a {coach} que no podés ir.'**
+  String agendaDeclined(String coach);
+
+  /// No description provided for @agendaUndoDecline.
+  ///
+  /// In es, this message translates to:
+  /// **'Deshacer · sí voy'**
+  String get agendaUndoDecline;
+
+  /// No description provided for @agendaDeclineTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿No podés ir?'**
+  String get agendaDeclineTitle;
+
+  /// No description provided for @agendaDeclineInfo.
+  ///
+  /// In es, this message translates to:
+  /// **'{coach} va a ver el aviso en su agenda. La sesión no se cancela: si quieren otro horario, escribile.'**
+  String agendaDeclineInfo(String coach);
+
+  /// No description provided for @agendaDeclineReason.
+  ///
+  /// In es, this message translates to:
+  /// **'Motivo (opcional)'**
+  String get agendaDeclineReason;
+
+  /// No description provided for @agendaDeclineConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Avisar a {coach}'**
+  String agendaDeclineConfirm(String coach);
+
+  /// No description provided for @agendaOpenError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo abrir el link'**
+  String get agendaOpenError;
+
+  /// No description provided for @notifEventInvitedTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'{coach} te invitó a una sesión'**
+  String notifEventInvitedTitle(String coach);
+
+  /// No description provided for @notifEventInvitedSeriesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'{coach} te invitó a sesiones semanales'**
+  String notifEventInvitedSeriesTitle(String coach);
+
+  /// No description provided for @notifEventChangedTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'{coach} cambió tu sesión'**
+  String notifEventChangedTitle(String coach);
+
+  /// No description provided for @notifEventTimeChangedTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambió la hora de tu sesión'**
+  String get notifEventTimeChangedTitle;
+
+  /// No description provided for @notifEventPlaceChangedTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambió el lugar de tu sesión'**
+  String get notifEventPlaceChangedTitle;
+
+  /// No description provided for @notifEventLinkChangedTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambió el link de tu sesión'**
+  String get notifEventLinkChangedTitle;
+
+  /// No description provided for @notifEventCancelledTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Se canceló tu sesión'**
+  String get notifEventCancelledTitle;
+
+  /// No description provided for @notifEventCancelledSeriesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Se cancelaron tus sesiones semanales'**
+  String get notifEventCancelledSeriesTitle;
+
+  /// No description provided for @notifEventEvery.
+  ///
+  /// In es, this message translates to:
+  /// **'Los {days}'**
+  String notifEventEvery(String days);
+
+  /// No description provided for @notifEventUntil.
+  ///
+  /// In es, this message translates to:
+  /// **'hasta el {date}'**
+  String notifEventUntil(String date);
+
+  /// No description provided for @notifEventFrom.
+  ///
+  /// In es, this message translates to:
+  /// **'desde el {date}'**
+  String notifEventFrom(String date);
+
+  /// No description provided for @agendaKindInPerson.
+  ///
+  /// In es, this message translates to:
+  /// **'Presencial'**
+  String get agendaKindInPerson;
+
+  /// No description provided for @agendaKindVirtual.
+  ///
+  /// In es, this message translates to:
+  /// **'Virtual'**
+  String get agendaKindVirtual;
+
+  /// No description provided for @inboxTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Avisos'**
+  String get inboxTitle;
+
+  /// No description provided for @inboxMarkRead.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcar leídos'**
+  String get inboxMarkRead;
+
+  /// No description provided for @inboxEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No tenés avisos'**
+  String get inboxEmptyTitle;
+
+  /// No description provided for @inboxEmptyBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Acá te avisamos cuando tu coach te invite a una sesión, la cambie o la cancele, y de tus pagos.'**
+  String get inboxEmptyBody;
+
+  /// No description provided for @inboxButton.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =0{Avisos} =1{Avisos, 1 sin leer} other{Avisos, {count} sin leer}}'**
+  String inboxButton(int count);
+
+  /// No description provided for @agoNow.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahora'**
+  String get agoNow;
+
+  /// No description provided for @agoMinutes.
+  ///
+  /// In es, this message translates to:
+  /// **'Hace {n} min'**
+  String agoMinutes(int n);
+
+  /// No description provided for @agoHours.
+  ///
+  /// In es, this message translates to:
+  /// **'Hace {n} h'**
+  String agoHours(int n);
+
+  /// No description provided for @notifEventReminderTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu sesión con {coach} es a las {time}'**
+  String notifEventReminderTitle(String coach, String time);
+
+  /// No description provided for @notifEventReminderTomorrowTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Mañana tenés sesión con {coach}'**
+  String notifEventReminderTomorrowTitle(String coach);
+
+  /// No description provided for @agendaGoing.
+  ///
+  /// In es, this message translates to:
+  /// **'Voy'**
+  String get agendaGoing;
+
+  /// No description provided for @agendaConfirmed.
+  ///
+  /// In es, this message translates to:
+  /// **'Le confirmaste a {coach} que vas.'**
+  String agendaConfirmed(String coach);
 }
 
 class _AppLocalizationsDelegate

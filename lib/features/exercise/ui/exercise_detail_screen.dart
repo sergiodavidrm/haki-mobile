@@ -179,7 +179,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () => context.push(
-                    Routes.progressExercise(
+                    Routes.progressExerciseStandalone(
                       e.exerciseId,
                       place: '${place.day}-${place.slot}',
                     ),

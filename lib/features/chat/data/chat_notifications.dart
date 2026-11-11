@@ -6,9 +6,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
 import '../../../core/config/env.dart';
+import '../../../core/notifications/haki_push.dart';
 import '../../../core/notifications/local_notifications.dart';
 import 'chat_message.dart';
 import '../../../l10n/l10n.dart';
@@ -43,6 +45,12 @@ Future<void> chatPushBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   // Otro isolate: el idioma de la app hay que leerlo de nuevo
   setAppLocale(localeFor(await loadAppLanguage()) ?? deviceLocale);
+  // Los de la API (recordatorios) traen sender: haki; el resto es de Stream
+  if (isHakiPush(message.data)) {
+    await initializeDateFormatting(); // fechas en español (otro isolate)
+    await showHakiPush(message.data);
+    return;
+  }
   await showChatNotification(message.data);
 }
 

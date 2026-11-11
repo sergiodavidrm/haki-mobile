@@ -483,7 +483,9 @@ con `ApiCache` (`progressReportProvider(period)`), lógica pura en
   "+X en el bloque" e historial solo del lugar de la sesión (`placeOf`,
   `samePlaceItems`); al terminar "Ver todos los días" (con el día en cada
   tarjeta) y "Ver tu progreso →". Sin selector de días.
-  "Ver tu progreso →" va a `/progreso/e/:id` (`Routes.progressExerciseStandalone`,
+  "Ver tu progreso →" sale **siempre** (2026-11-11; antes solo con el
+  ejercicio en 2+ lugares): en 2+ lugares abre la fila de ese lugar, en uno
+  solo Tu progreso del ejercicio sin filtrar. Va a `/progreso/e/:id` (`Routes.progressExerciseStandalone`,
   fuera de los tabs; 2026-11-11): el push a `/perfil/progreso/e/…` desde el
   Detalle (que está fuera del shell) reconstruía el shell encima y dejaba la
   pantalla negra. Cuenta como pantalla de entreno (`isTrainingRoute`).

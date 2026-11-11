@@ -174,20 +174,21 @@ class ExerciseDetailScreen extends ConsumerWidget {
                     ? null
                     : dayLabelOf(i.place!.day),
               ),
-            if (several)
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => context.push(
-                    Routes.progressExerciseStandalone(
-                      e.exerciseId,
-                      place: '${place.day}-${place.slot}',
-                    ),
+            // Siempre (2026-11-11, Sergio): en 2+ lugares abre la fila de este
+            // lugar; en uno solo, Tu progreso del ejercicio sin filtrar
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => context.push(
+                  Routes.progressExerciseStandalone(
+                    e.exerciseId,
+                    place: several ? '${place.day}-${place.slot}' : null,
                   ),
-                  style: TextButton.styleFrom(foregroundColor: c.gold),
-                  child: Text('${context.l10n.exerciseSeeProgress} →'),
                 ),
+                style: TextButton.styleFrom(foregroundColor: c.gold),
+                child: Text('${context.l10n.exerciseSeeProgress} →'),
               ),
+            ),
             if (history.hasError)
               Text(
                 context.l10n.exerciseOfflineHistory,

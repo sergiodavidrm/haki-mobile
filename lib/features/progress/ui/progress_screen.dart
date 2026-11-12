@@ -13,6 +13,7 @@ import '../../body/providers/body_providers.dart';
 import '../../profile/providers/profile_providers.dart';
 import '../../program/data/place_label.dart';
 import '../../program/data/program_schedule.dart' show dateOnly;
+import '../../program/providers/program_providers.dart';
 import '../data/progress_report.dart';
 import '../providers/progress_providers.dart';
 
@@ -25,11 +26,12 @@ class ProgressScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final period = ref.watch(selectedProgressPeriodProvider);
-    final report = ref.watch(progressReportProvider(period));
+    final program = ref.watch(selectedProgressProgramProvider);
+    final report = ref.watch(progressReportProvider(period, program));
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () => ref.refresh(progressReportProvider(period).future),
+          onRefresh: () => ref.refresh(progressReportProvider(period, program).future),
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
@@ -87,6 +89,17 @@ class _ProgressPeriodPickerState extends ConsumerState<ProgressPeriodPicker> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final selected = ref.watch(selectedProgressPeriodProvider);
+    final program = ref.watch(selectedProgressProgramProvider);
+    // Programas en paralelo: un "Este bloque" por programa en curso
+    final currents =
+        ref.watch(programSectionsProvider).value?.currents ?? const [];
+    final parallel = currents.length > 1;
+    final selectedProgram = parallel
+        ? (currents.where((a) => a.assignmentId == program).firstOrNull ?? currents.first)
+        : null;
+    final label = selected == ProgressPeriod.block && selectedProgram != null
+        ? selectedProgram.blockName
+        : periodLabel(context, selected);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -113,7 +126,7 @@ class _ProgressPeriodPickerState extends ConsumerState<ProgressPeriodPicker> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      periodLabel(context, selected),
+                      label,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -140,14 +153,26 @@ class _ProgressPeriodPickerState extends ConsumerState<ProgressPeriodPicker> {
             child: Column(
               children: [
                 for (final p in ProgressPeriod.values)
-                  _PeriodOption(
-                    label: periodLabel(context, p),
-                    selected: p == selected,
-                    onTap: () {
-                      ref.read(selectedProgressPeriodProvider.notifier).set(p);
-                      setState(() => _open = false);
-                    },
-                  ),
+                  if (p == ProgressPeriod.block && parallel)
+                    for (final a in currents)
+                      _PeriodOption(
+                        label: a.blockName,
+                        selected: p == selected && a.assignmentId == selectedProgram?.assignmentId,
+                        onTap: () {
+                          ref.read(selectedProgressProgramProvider.notifier).set(a.assignmentId);
+                          ref.read(selectedProgressPeriodProvider.notifier).set(p);
+                          setState(() => _open = false);
+                        },
+                      )
+                  else
+                    _PeriodOption(
+                      label: periodLabel(context, p),
+                      selected: p == selected,
+                      onTap: () {
+                        ref.read(selectedProgressPeriodProvider.notifier).set(p);
+                        setState(() => _open = false);
+                      },
+                    ),
               ],
             ),
           ),

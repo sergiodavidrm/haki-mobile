@@ -163,6 +163,12 @@
   "programsLoadError": "No pudimos cargar tus programas",
   "programsYours": "Tus programas",
   "programsNoneTitle": "Todavía no tenés programas",
+  "programWaitsFor": "Empieza cuando termines {name}, o asignale fechas para hacerlo en paralelo.",
+  "@programWaitsFor": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
   "programInProgress": "En curso",
   "programsUpcoming": "{count, plural, =1{Próximo} other{Próximos}}",
   "@programsUpcoming": {

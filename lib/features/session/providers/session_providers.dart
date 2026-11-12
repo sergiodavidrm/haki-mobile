@@ -32,10 +32,12 @@ Future<SessionDay> sessionDay(
   String assignmentId,
   String dayId,
 ) async {
-  final program = await ref.watch(currentProgramDetailProvider.future);
-  if (program == null || program.assignmentId != assignmentId) {
+  // Programas en paralelo: cualquiera de los que están en curso
+  final sections = await ref.watch(programSectionsProvider.future);
+  if (!sections.isCurrent(assignmentId)) {
     throw StateError(l10n.sessionProgramNotCurrent);
   }
+  final program = await ref.watch(programDetailProvider(assignmentId).future);
   for (final w in program.weeks) {
     for (final d in w.days) {
       if (d.id == dayId) return SessionDay(program: program, week: w, day: d);

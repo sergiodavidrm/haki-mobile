@@ -35,7 +35,7 @@ void _reload(Ref ref) {
   ref.invalidateSelf();
 }
 
-/// Detalle del programa en curso; null si no hay.
+/// Detalle del programa en curso (el primero si hay varios); null si no hay.
 @riverpod
 Future<AssignmentDetailDto?> currentProgramDetail(Ref ref) async {
   final current = (await ref.watch(programSectionsProvider.future)).current;

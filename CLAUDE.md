@@ -871,7 +871,7 @@ Perfil (`features/profile/` + `features/body/`, 2026-10-18):
   `recordsProvider`; lógica pura en `profile/data/records.dart` (tests en
   `test/records_test.dart`). Niveles del mockup **oculto** hasta que tenga
   backend. Engranaje → Ajustes.
-- `/perfil/ajustes/datos` (`PersonalInfoScreen`, 2026-10-26, mockup "Mis datos"): se entra tocando el nombre en Ajustes → Cuenta (no desde el Perfil, decisión de Sergio). Nombre, género (`M`/`F`/`Other`), estatura en cm o ft+in (se guarda en cm, `personal_info.dart`), lesiones; email y objetivo solo lectura ("Escribile" → Chat); peso = último `body_log` → Peso corporal. `PATCH auth/me/personal` vía `PersonalInfoSaver` (expira la caché y recarga `/auth/me`).
+- `/perfil/ajustes/datos` (`PersonalInfoScreen`, 2026-10-26, mockup "Mis datos"; desde 2026-11-12 muestra **todos** los objetivos, `personal.goals` + los propios del coach `personal.customGoals`): se entra tocando el nombre en Ajustes → Cuenta (no desde el Perfil, decisión de Sergio). Nombre, género (`M`/`F`/`Other`), estatura en cm o ft+in (se guarda en cm, `personal_info.dart`), lesiones; email y objetivo solo lectura ("Escribile" → Chat); peso = último `body_log` → Peso corporal. `PATCH auth/me/personal` vía `PersonalInfoSaver` (expira la caché y recarga `/auth/me`).
 - `/perfil/ajustes` (`SettingsScreen`, `features/settings/`): cuenta (nombre,
   email, Cambiar contraseña con Supabase `updateUser` — solo si tiene identidad
   `email`, no con solo Google), unidad de peso (`PATCH auth/me/weight-unit` →
@@ -1127,6 +1127,29 @@ Canvas "Haki · Tema v2" https://claude.ai/artifact/KJi5b1ccQG1MsktWV9uwwx.
   el mockup) y que un marcado hoy cuente para adherencia el mismo día (hoy
   cuenta desde mañana, igual que en la API). Tests en `session_sync_test` y
   `program_schedule_test`.
+
+### Programas en paralelo (2026-11-11, sin probar)
+
+Canvas https://claude.ai/artifact/64Zw7u8hRfDGZe6AoP6x5L; reglas en
+`../CLAUDE.md` § Programas en paralelo.
+- `ProgramSections.currents` (todos los con fechas que cubren hoy, por
+  `activatedAt`; si no hay, uno sin fechas) + `current` = el primero +
+  `isCurrent(id)`. Los sin fechas siguen de a uno (PRÓXIMO, "Empieza cuando
+  termines X, o asignale fechas para hacerlo en paralelo").
+- Hoy: `WithProgram.others`; una tarjeta por programa con entreno ese día
+  (si el primero descansa y otro entrena, no se muestra el descanso). Tira
+  combinada (`combineStrips`): hecho cuando están todos los del día, "1/2"
+  (`StripDay.fraction`) si falta alguno.
+- Sesión (`sessionDay`) acepta cualquier programa en curso.
+- Tab Programa: `ProgramPicker` arriba con 2+ en curso (cada uno con su
+  "Cambiar fechas"). Mis programas: EN CURSO lista todos (el segundo abre
+  `/programa/p/:id`, que ya deja entrenar porque es en curso).
+- Adherencia del Perfil (`currentAdherence`) suma los en curso; Récords
+  "Este bloque" = cualquiera de los en curso (`currentAssignmentIds`); Tu
+  progreso: "Este bloque" se reemplaza por un ítem por programa
+  (`SelectedProgressProgram` → `assignmentId` en el reporte).
+- La pantalla Adherencia (sin enlazar) sigue con el primero.
+- Tests en `test/parallel_programs_test.dart`.
 
 ### Día parcial (2026-11-05)
 

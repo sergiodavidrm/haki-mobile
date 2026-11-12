@@ -24,7 +24,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final records = ref.watch(recordsProvider);
-    final current = ref.watch(currentAssignmentIdProvider).value;
+    final current = ref.watch(currentAssignmentIdsProvider).value;
     // Sin programa en curso no hay "Este bloque"
     final blockOnly = current != null && (_blockOnly ?? true);
     final today = DateTime.now();
@@ -84,7 +84,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                   final s = recordSections(
                     value,
                     today: today,
-                    currentAssignmentId: current,
+                    currentAssignmentIds: current ?? const {},
                     blockOnly: blockOnly,
                   );
                   return [

@@ -310,6 +310,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get programsNoneTitle => 'You don\'t have any programs yet';
 
   @override
+  String programWaitsFor(String name) {
+    return 'Starts when you finish $name, or give it dates to do both in parallel.';
+  }
+
+  @override
   String get programInProgress => 'In progress';
 
   @override

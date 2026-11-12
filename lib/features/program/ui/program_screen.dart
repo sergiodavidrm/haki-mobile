@@ -35,6 +35,9 @@ class ProgramScreen extends ConsumerStatefulWidget {
 }
 
 class _ProgramScreenState extends ConsumerState<ProgramScreen> {
+  /// Programas en paralelo: el elegido arriba (null = el primero en curso).
+  String? _program;
+
   /// Semana elegida en el selector, por programa (null = la actual).
   int? _week;
   String? _weekOf;
@@ -48,7 +51,11 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   @override
   Widget build(BuildContext context) {
     final sections = ref.watch(programSectionsProvider);
-    final id = widget.assignmentId ?? sections.value?.current?.assignmentId;
+    final currents = sections.value?.currents ?? const [];
+    final id = widget.assignmentId ??
+        (currents.any((a) => a.assignmentId == _program)
+            ? _program
+            : sections.value?.current?.assignmentId);
 
     // Sin programa en curso el tab muestra directo Mis programas
     if (widget.assignmentId == null &&
@@ -90,17 +97,29 @@ class _ProgramScreenState extends ConsumerState<ProgramScreen> {
   List<Widget> _body(ProgramSections sections, String? id) {
     if (id == null) return const [];
     final detail = ref.watch(programWithLocalProvider(id));
-    return switch (detail) {
-      AsyncData(:final value) => _program(sections, value),
-      AsyncError() => [_offline()],
-      _ => [_loading()],
-    };
+    final currents = sections.currents;
+    return [
+      // Programas en paralelo: elegir cuál se ve
+      if (widget.assignmentId == null && currents.length > 1) ...[
+        ProgramPicker(
+          names: [for (final a in currents) a.blockName],
+          selected: currents.indexWhere((a) => a.assignmentId == id).clamp(0, currents.length - 1),
+          onSelect: (i) => setState(() => _program = currents[i].assignmentId),
+        ),
+        const SizedBox(height: 14),
+      ],
+      ...switch (detail) {
+        AsyncData(:final value) => _programView(sections, value),
+        AsyncError() => [_offline()],
+        _ => [_loading()],
+      },
+    ];
   }
 
-  List<Widget> _program(ProgramSections sections, AssignmentDetailDto p) {
+  List<Widget> _programView(ProgramSections sections, AssignmentDetailDto p) {
     final now = DateTime.now();
     final id = p.assignmentId;
-    final isCurrent = sections.current?.assignmentId == id;
+    final isCurrent = sections.isCurrent(id);
     final finished = sections.isPast(id) || p.status == 'completed';
     final week = finished ? p.totalWeeks : currentWeekOf(p, now);
     if (_weekOf != id) {

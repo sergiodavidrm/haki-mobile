@@ -83,7 +83,7 @@ class PersonalRecordDto {
 recordSections(
   List<PersonalRecordDto> records, {
   required DateTime today,
-  String? currentAssignmentId,
+  Set<String> currentAssignmentIds = const {},
   required bool blockOnly,
 }) {
   final day = dateOnly(today);
@@ -93,7 +93,7 @@ recordSections(
   final thisWeek = records.where(inWeek).toList();
   final rest = records
       .where((r) => !inWeek(r))
-      .where((r) => !blockOnly || r.assignmentId == currentAssignmentId)
+      .where((r) => !blockOnly || currentAssignmentIds.contains(r.assignmentId))
       .toList();
   return (thisWeek: thisWeek, rest: rest);
 }

@@ -24,10 +24,20 @@ class OnlyUpcoming extends TodayState {
 }
 
 class WithProgram extends TodayState {
-  const WithProgram({required this.program, required this.plan});
+  const WithProgram({
+    required this.program,
+    required this.plan,
+    this.others = const [],
+  });
 
   final AssignmentDetailDto program;
   final TodayPlan plan;
+
+  /// Programas en paralelo (2026-11-11): los demás en curso, en orden de
+  /// activación. Hoy muestra una tarjeta por programa.
+  final List<AssignmentDetailDto> others;
+
+  List<AssignmentDetailDto> get all => [program, ...others];
 }
 
 @riverpod
@@ -39,12 +49,14 @@ Future<TodayState> today(Ref ref) async {
         : OnlyUpcoming(sections.upcoming.first);
   }
   // Con las sesiones del teléfono (pueden no haber llegado a la API todavía)
-  final program = await ref.watch(
-    programWithLocalProvider(sections.current!.assignmentId).future,
-  );
+  final programs = [
+    for (final a in sections.currents)
+      await ref.watch(programWithLocalProvider(a.assignmentId).future),
+  ];
 
   return WithProgram(
-    program: program,
-    plan: resolveToday(program, DateTime.now()),
+    program: programs.first,
+    plan: resolveToday(programs.first, DateTime.now()),
+    others: programs.skip(1).toList(),
   );
 }

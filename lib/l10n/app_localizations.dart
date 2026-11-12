@@ -590,6 +590,12 @@ abstract class AppLocalizations {
   /// **'Todavía no tenés programas'**
   String get programsNoneTitle;
 
+  /// No description provided for @programWaitsFor.
+  ///
+  /// In es, this message translates to:
+  /// **'Empieza cuando termines {name}, o asignale fechas para hacerlo en paralelo.'**
+  String programWaitsFor(String name);
+
   /// No description provided for @programInProgress.
   ///
   /// In es, this message translates to:

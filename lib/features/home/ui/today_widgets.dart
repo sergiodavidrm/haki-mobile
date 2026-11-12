@@ -167,7 +167,14 @@ class _StripDayCell extends StatelessWidget {
       );
     }
 
-    final Widget mark = switch (d.kind) {
+    // Programas en paralelo: "1/2" = hizo uno de los dos entrenos del día
+    final fraction = d.fraction;
+    final Widget mark = fraction != null
+        ? Text(
+            '${fraction.$1}/${fraction.$2}',
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: c.textMuted),
+          )
+        : switch (d.kind) {
       StripDayKind.done => Icon(Icons.check_rounded, size: 13, color: c.turquoise),
       StripDayKind.skipped => Icon(Icons.close_rounded, size: 13, color: c.textMuted),
       StripDayKind.planned when selected => Container(

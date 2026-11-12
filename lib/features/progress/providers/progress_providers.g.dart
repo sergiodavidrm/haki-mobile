@@ -67,12 +67,77 @@ abstract class _$SelectedProgressPeriod extends $Notifier<ProgressPeriod> {
   }
 }
 
+/// Programas en paralelo (2026-11-11): programa elegido para "Este bloque"
+/// (null = el primero en curso).
+
+@ProviderFor(SelectedProgressProgram)
+final selectedProgressProgramProvider = SelectedProgressProgramProvider._();
+
+/// Programas en paralelo (2026-11-11): programa elegido para "Este bloque"
+/// (null = el primero en curso).
+final class SelectedProgressProgramProvider
+    extends $NotifierProvider<SelectedProgressProgram, String?> {
+  /// Programas en paralelo (2026-11-11): programa elegido para "Este bloque"
+  /// (null = el primero en curso).
+  SelectedProgressProgramProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'selectedProgressProgramProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$selectedProgressProgramHash();
+
+  @$internal
+  @override
+  SelectedProgressProgram create() => SelectedProgressProgram();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String?>(value),
+    );
+  }
+}
+
+String _$selectedProgressProgramHash() =>
+    r'55ca3e07bb0625ace5da3335174146919beee661';
+
+/// Programas en paralelo (2026-11-11): programa elegido para "Este bloque"
+/// (null = el primero en curso).
+
+abstract class _$SelectedProgressProgram extends $Notifier<String?> {
+  String? build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<String?, String?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<String?, String?>,
+              String?,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// Reporte del período, con caché (se ve sin señal con la última copia).
+/// [program] = programa de "Este bloque" cuando hay varios en curso.
 
 @ProviderFor(progressReport)
 final progressReportProvider = ProgressReportFamily._();
 
 /// Reporte del período, con caché (se ve sin señal con la última copia).
+/// [program] = programa de "Este bloque" cuando hay varios en curso.
 
 final class ProgressReportProvider
     extends
@@ -83,9 +148,10 @@ final class ProgressReportProvider
         >
     with $FutureModifier<ProgressReport>, $FutureProvider<ProgressReport> {
   /// Reporte del período, con caché (se ve sin señal con la última copia).
+  /// [program] = programa de "Este bloque" cuando hay varios en curso.
   ProgressReportProvider._({
     required ProgressReportFamily super.from,
-    required ProgressPeriod super.argument,
+    required (ProgressPeriod, String?) super.argument,
   }) : super(
          retry: null,
          name: r'progressReportProvider',
@@ -101,7 +167,7 @@ final class ProgressReportProvider
   String toString() {
     return r'progressReportProvider'
         ''
-        '($argument)';
+        '$argument';
   }
 
   @$internal
@@ -112,8 +178,8 @@ final class ProgressReportProvider
 
   @override
   FutureOr<ProgressReport> create(Ref ref) {
-    final argument = this.argument as ProgressPeriod;
-    return progressReport(ref, argument);
+    final argument = this.argument as (ProgressPeriod, String?);
+    return progressReport(ref, argument.$1, argument.$2);
   }
 
   @override
@@ -127,12 +193,17 @@ final class ProgressReportProvider
   }
 }
 
-String _$progressReportHash() => r'0d1b036da6f9f45b9a1b62486cf3062be67c1cf2';
+String _$progressReportHash() => r'd35e2c0b4209f4b22b85711d119b3559a12ae608';
 
 /// Reporte del período, con caché (se ve sin señal con la última copia).
+/// [program] = programa de "Este bloque" cuando hay varios en curso.
 
 final class ProgressReportFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<ProgressReport>, ProgressPeriod> {
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<ProgressReport>,
+          (ProgressPeriod, String?)
+        > {
   ProgressReportFamily._()
     : super(
         retry: null,
@@ -143,9 +214,10 @@ final class ProgressReportFamily extends $Family
       );
 
   /// Reporte del período, con caché (se ve sin señal con la última copia).
+  /// [program] = programa de "Este bloque" cuando hay varios en curso.
 
-  ProgressReportProvider call(ProgressPeriod period) =>
-      ProgressReportProvider._(argument: period, from: this);
+  ProgressReportProvider call(ProgressPeriod period, [String? program]) =>
+      ProgressReportProvider._(argument: (period, program), from: this);
 
   @override
   String toString() => r'progressReportProvider';

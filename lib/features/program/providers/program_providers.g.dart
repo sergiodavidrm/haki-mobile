@@ -138,12 +138,12 @@ final class ProgramDetailFamily extends $Family
   String toString() => r'programDetailProvider';
 }
 
-/// Detalle del programa en curso; null si no hay.
+/// Detalle del programa en curso (el primero si hay varios); null si no hay.
 
 @ProviderFor(currentProgramDetail)
 final currentProgramDetailProvider = CurrentProgramDetailProvider._();
 
-/// Detalle del programa en curso; null si no hay.
+/// Detalle del programa en curso (el primero si hay varios); null si no hay.
 
 final class CurrentProgramDetailProvider
     extends
@@ -155,7 +155,7 @@ final class CurrentProgramDetailProvider
     with
         $FutureModifier<AssignmentDetailDto?>,
         $FutureProvider<AssignmentDetailDto?> {
-  /// Detalle del programa en curso; null si no hay.
+  /// Detalle del programa en curso (el primero si hay varios); null si no hay.
   CurrentProgramDetailProvider._()
     : super(
         from: null,

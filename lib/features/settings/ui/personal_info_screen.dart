@@ -258,25 +258,37 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (goalLabel(_initial?.primaryGoal) case final goal?)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: c.goldSurface,
-                        border: Border.all(color: c.goldBorder),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        goal,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: c.goldBright,
-                        ),
-                      ),
+                  if ([
+                        for (final g in _initial?.allGoals ?? const <String>[])
+                          ?goalLabel(g),
+                        ...?_initial?.customGoals,
+                      ]
+                      case final goals when goals.isNotEmpty)
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        for (final goal in goals)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: c.goldSurface,
+                              border: Border.all(color: c.goldBorder),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              goal,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: c.goldBright,
+                              ),
+                            ),
+                          ),
+                      ],
                     )
                   else
                     Text(

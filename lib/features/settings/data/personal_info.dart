@@ -39,6 +39,8 @@ class PersonalInfoDto {
     this.heightUnit,
     this.injuries,
     this.primaryGoal,
+    this.goals = const [],
+    this.customGoals = const [],
   });
 
   final String email;
@@ -50,6 +52,14 @@ class PersonalInfoDto {
   /// Clave del enum FitnessGoal de la API ("MuscleGain"…); solo lectura.
   final String? primaryGoal;
 
+  /// Varios objetivos (2026-11-12); una API vieja manda solo [primaryGoal].
+  final List<String> goals;
+
+  /// Objetivos propios del coach (nombres, no se traducen).
+  final List<String> customGoals;
+
+  List<String> get allGoals => goals.isNotEmpty ? goals : [?primaryGoal];
+
   factory PersonalInfoDto.fromJson(Map<String, dynamic> j) => PersonalInfoDto(
     email: j['email'] as String? ?? '',
     gender: Gender.parse(j['gender'] as String?),
@@ -57,6 +67,8 @@ class PersonalInfoDto {
     heightUnit: HeightUnit.parse(j['heightUnit'] as String?),
     injuries: j['injuriesText'] as String?,
     primaryGoal: j['primaryGoal'] as String?,
+    goals: [...?(j['goals'] as List?)?.whereType<String>()],
+    customGoals: [...?(j['customGoals'] as List?)?.whereType<String>()],
   );
 }
 

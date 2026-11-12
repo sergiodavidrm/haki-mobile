@@ -34,7 +34,7 @@ void main() {
     final block = recordSections(
       all,
       today: today,
-      currentAssignmentId: 'a1',
+      currentAssignmentIds: const {'a1'},
       blockOnly: true,
     );
     expect(block.thisWeek.map((r) => r.exerciseId), ['jalon']);
@@ -43,7 +43,7 @@ void main() {
     final hist = recordSections(
       all,
       today: today,
-      currentAssignmentId: 'a1',
+      currentAssignmentIds: const {'a1'},
       blockOnly: false,
     );
     expect(hist.rest.map((r) => r.exerciseId), ['remo', 'press', 'sentadilla']);

@@ -87,13 +87,19 @@ class ProgramsListScreen extends ConsumerWidget {
     }
     const gap = SizedBox(height: 10);
     return [
-      if (s.current != null) ...[
+      if (s.currents.isNotEmpty) ...[
         SectionLabel(context.l10n.programInProgress),
         gap,
-        _CurrentCard(
-          program: s.current!,
-          onTap: () => context.go(Routes.program),
-        ),
+        // Programas en paralelo: todos los en curso; el primero abre el tab
+        for (final (i, a) in s.currents.indexed) ...[
+          if (i > 0) gap,
+          _CurrentCard(
+            program: a,
+            onTap: () => i == 0
+                ? context.go(Routes.program)
+                : context.push(Routes.programView(a.assignmentId)),
+          ),
+        ],
         const SizedBox(height: 20),
       ],
       if (s.upcoming.isNotEmpty) ...[
@@ -102,6 +108,7 @@ class ProgramsListScreen extends ConsumerWidget {
         for (final a in s.upcoming) ...[
           _UpcomingCard(
             program: a,
+            after: s.current?.blockName,
             onTap: () => context.push(
               a.hasDates
                   ? Routes.programView(a.assignmentId)
@@ -197,10 +204,13 @@ class _CurrentCard extends StatelessWidget {
 }
 
 class _UpcomingCard extends StatelessWidget {
-  const _UpcomingCard({required this.program, required this.onTap});
+  const _UpcomingCard({required this.program, required this.onTap, this.after});
 
   final AssignmentSummaryDto program;
   final VoidCallback onTap;
+
+  /// Sin fechas y con otro en curso: el que tiene que terminar antes
+  final String? after;
 
   @override
   Widget build(BuildContext context) {
@@ -241,6 +251,13 @@ class _UpcomingCard extends StatelessWidget {
                     : '${_weeks(p.totalWeeks)} · ${context.l10n.commonNoDates}',
                 style: TextStyle(fontSize: 12, color: c.textMuted),
               ),
+              if (!p.hasDates && after != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  context.l10n.programWaitsFor(after!),
+                  style: TextStyle(fontSize: 12, color: c.textSecondary),
+                ),
+              ],
             ],
           ),
         ),

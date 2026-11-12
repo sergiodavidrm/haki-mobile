@@ -17,13 +17,19 @@ typedef ProgramAdherence = ({int done, int? due, int total});
 
 @riverpod
 Future<ProgramAdherence?> currentAdherence(Ref ref) async {
-  final current = (await ref.watch(programSectionsProvider.future)).current;
-  if (current == null) return null;
-  final p = await ref.watch(
-    programWithLocalProvider(current.assignmentId).future,
-  );
-  final (done, total) = dayCountsOf(p);
-  final (dueDone, due) = adherenceOf(p, dateOnly(DateTime.now()));
+  final currents = (await ref.watch(programSectionsProvider.future)).currents;
+  if (currents.isEmpty) return null;
+  // Programas en paralelo: suma los entrenos de todos los en curso
+  var done = 0, total = 0, dueDone = 0, due = 0;
+  for (final a in currents) {
+    final p = await ref.watch(programWithLocalProvider(a.assignmentId).future);
+    final (d, t) = dayCountsOf(p);
+    final (dd, du) = adherenceOf(p, dateOnly(DateTime.now()));
+    done += d;
+    total += t;
+    dueDone += dd;
+    due += du;
+  }
   // Todavía no tocaba ninguno (semana 1 sin cerrar): hechos / total
   return due == 0
       ? (done: done, due: null, total: total)
@@ -66,3 +72,11 @@ Future<List<PersonalRecordDto>> records(Ref ref) async {
 @riverpod
 Future<String?> currentAssignmentId(Ref ref) async =>
     (await ref.watch(programSectionsProvider.future)).current?.assignmentId;
+
+/// Programas en curso (en paralelo puede haber varios): "Este bloque" de Récords.
+/// null si no hay ninguno.
+@riverpod
+Future<Set<String>?> currentAssignmentIds(Ref ref) async {
+  final currents = (await ref.watch(programSectionsProvider.future)).currents;
+  return currents.isEmpty ? null : {for (final a in currents) a.assignmentId};
+}

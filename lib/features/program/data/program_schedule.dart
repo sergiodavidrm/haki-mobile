@@ -8,13 +8,21 @@ DateTime dateOnly(DateTime d) => DateTime.utc(d.year, d.month, d.day);
 
 class ProgramSections {
   const ProgramSections({
-    this.current,
+    this.currents = const [],
     this.upcoming = const [],
     this.past = const [],
   });
 
-  /// EN CURSO. Sin fechas = modo "SIGUIENTE".
-  final AssignmentSummaryDto? current;
+  /// EN CURSO. Programas en paralelo (2026-11-11): todos los con fechas que
+  /// cubren hoy, por orden de activación; si no hay, uno sin fechas (modo
+  /// "SIGUIENTE"). Los sin fechas siguen de a uno.
+  final List<AssignmentSummaryDto> currents;
+
+  /// El primero en curso (el que se activó antes); null si no hay.
+  AssignmentSummaryDto? get current => currents.firstOrNull;
+
+  bool isCurrent(String assignmentId) =>
+      currents.any((a) => a.assignmentId == assignmentId);
 
   /// PRÓXIMO, en el orden en que se van a hacer.
   final List<AssignmentSummaryDto> upcoming;
@@ -22,10 +30,10 @@ class ProgramSections {
   /// ANTERIORES, el más reciente primero.
   final List<AssignmentSummaryDto> past;
 
-  int get count => (current == null ? 0 : 1) + upcoming.length + past.length;
+  int get count => currents.length + upcoming.length + past.length;
 
   AssignmentSummaryDto? find(String assignmentId) => [
-    ?current,
+    ...currents,
     ...upcoming,
     ...past,
   ].where((a) => a.assignmentId == assignmentId).firstOrNull;
@@ -65,19 +73,26 @@ ProgramSections classifyPrograms(
     (a, b) => (a.activatedAt ?? epoch).compareTo(b.activatedAt ?? epoch),
   );
   datedFuture.sort((a, b) => a.startDate!.compareTo(b.startDate!));
+  datedNow.sort(
+    (a, b) => (a.activatedAt ?? epoch).compareTo(b.activatedAt ?? epoch),
+  );
   past.sort(
     (a, b) => (b.endDate ?? b.blockUpdatedAt).compareTo(
       a.endDate ?? a.blockUpdatedAt,
     ),
   );
 
-  // La API no deja superponer fechas, así que hay a lo sumo uno con fechas en curso
-  final current = datedNow.isNotEmpty
-      ? datedNow.first
-      : (undated.isNotEmpty ? undated.first : null);
-  final upcoming = [...datedFuture, ...undated.where((a) => a != current)];
+  // Programas en paralelo: todos los con fechas que cubren hoy; los sin fechas
+  // solo si no hay ninguno con fechas, y de a uno (cola)
+  final currents = datedNow.isNotEmpty
+      ? datedNow
+      : (undated.isNotEmpty ? [undated.first] : <AssignmentSummaryDto>[]);
+  final upcoming = [
+    ...datedFuture,
+    ...undated.where((a) => !currents.contains(a)),
+  ];
 
-  return ProgramSections(current: current, upcoming: upcoming, past: past);
+  return ProgramSections(currents: currents, upcoming: upcoming, past: past);
 }
 
 /// Resultado de "qué toca hoy" dentro del programa en curso.
@@ -219,6 +234,7 @@ class StripDay {
     required this.isToday,
     this.isSelected = false,
     this.partialProgress,
+    this.fraction,
   });
 
   final DateTime date;
@@ -233,6 +249,51 @@ class StripDay {
 
   /// El día que el atleta tocó en Hoy (hoy si no tocó ninguno).
   final bool isSelected;
+
+  /// Programas en paralelo: entrenos hechos / del día cuando hay 2+ y falta
+  /// alguno ("1/2" debajo). null = uno solo, o todos hechos.
+  final (int done, int total)? fraction;
+
+  StripDay copyWith({StripDayKind? kind, (int, int)? fraction, double? partialProgress}) => StripDay(
+    date: date,
+    kind: kind ?? this.kind,
+    isToday: isToday,
+    isSelected: isSelected,
+    partialProgress: partialProgress ?? this.partialProgress,
+    fraction: fraction ?? this.fraction,
+  );
+}
+
+/// Tira de la semana con varios programas en paralelo: un día cuenta como hecho
+/// cuando están hechos los entrenos de todos los programas; si falta alguno
+/// queda pendiente con "1/2". Con un solo programa devuelve su tira.
+List<StripDay>? combineStrips(List<List<StripDay>?> strips) {
+  final list = strips.whereType<List<StripDay>>().toList();
+  if (list.isEmpty) return null;
+  if (list.length == 1) return list.first;
+  return [
+    for (var i = 0; i < list.first.length; i++)
+      () {
+        final days = [for (final s in list) s[i]];
+        final withWork = days.where((d) => d.kind != StripDayKind.none).toList();
+        final base = list.first[i];
+        if (withWork.isEmpty) return base.copyWith(kind: StripDayKind.none);
+        final done = withWork.where((d) => d.kind == StripDayKind.done).length;
+        final skipped = withWork.where((d) => d.kind == StripDayKind.skipped).length;
+        if (done == withWork.length) {
+          final partial = withWork.map((d) => d.partialProgress).whereType<double>().firstOrNull;
+          return base.copyWith(kind: StripDayKind.done, partialProgress: partial);
+        }
+        if (skipped == withWork.length) return base.copyWith(kind: StripDayKind.skipped);
+        return StripDay(
+          date: base.date,
+          kind: StripDayKind.planned,
+          isToday: base.isToday,
+          isSelected: base.isSelected,
+          fraction: withWork.length > 1 && done > 0 ? (done, withWork.length) : null,
+        );
+      }(),
+  ];
 }
 
 DateTime _mondayOf(DateTime d) => d.subtract(Duration(days: d.weekday - 1));

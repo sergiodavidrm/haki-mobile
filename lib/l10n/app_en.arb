@@ -82,6 +82,7 @@
   "programsLoadError": "We couldn't load your programs",
   "programsYours": "Your programs",
   "programsNoneTitle": "You don't have any programs yet",
+  "programWaitsFor": "Starts when you finish {name}, or give it dates to do both in parallel.",
   "programInProgress": "In progress",
   "programsUpcoming": "{count, plural, =1{Upcoming} other{Upcoming}}",
   "programsPast": "Past",

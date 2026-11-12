@@ -48,7 +48,7 @@ final class CurrentAdherenceProvider
   }
 }
 
-String _$currentAdherenceHash() => r'af781295b2e3e4b593f390599f38e79d695f232e';
+String _$currentAdherenceHash() => r'd8715d1a7e26ab3108a7303147932240ab933089';
 
 /// Pantalla Adherencia: el programa en curso + el anterior (para comparar).
 /// null si no hay programa en curso.
@@ -238,3 +238,51 @@ final class CurrentAssignmentIdProvider
 
 String _$currentAssignmentIdHash() =>
     r'2124e61a11ae703dd63751fbd74008f5c35a4a02';
+
+/// Programas en curso (en paralelo puede haber varios): "Este bloque" de Récords.
+/// null si no hay ninguno.
+
+@ProviderFor(currentAssignmentIds)
+final currentAssignmentIdsProvider = CurrentAssignmentIdsProvider._();
+
+/// Programas en curso (en paralelo puede haber varios): "Este bloque" de Récords.
+/// null si no hay ninguno.
+
+final class CurrentAssignmentIdsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Set<String>?>,
+          Set<String>?,
+          FutureOr<Set<String>?>
+        >
+    with $FutureModifier<Set<String>?>, $FutureProvider<Set<String>?> {
+  /// Programas en curso (en paralelo puede haber varios): "Este bloque" de Récords.
+  /// null si no hay ninguno.
+  CurrentAssignmentIdsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentAssignmentIdsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentAssignmentIdsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<Set<String>?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Set<String>?> create(Ref ref) {
+    return currentAssignmentIds(ref);
+  }
+}
+
+String _$currentAssignmentIdsHash() =>
+    r'8370bda3fcc20d469549f937f68d47bef07588b3';

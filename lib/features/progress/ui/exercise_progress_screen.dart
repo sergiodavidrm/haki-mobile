@@ -32,7 +32,8 @@ class ExerciseProgressScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
     final period = ref.watch(selectedProgressPeriodProvider);
-    final report = ref.watch(progressReportProvider(period)).value;
+    final program = ref.watch(selectedProgressProgramProvider);
+    final report = ref.watch(progressReportProvider(period, program)).value;
     final unit = ref.watch(bodyWeightUnitProvider);
     final ex = report?.exercises
         .where(

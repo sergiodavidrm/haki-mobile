@@ -63,7 +63,7 @@ final class SessionDayProvider
   }
 }
 
-String _$sessionDayHash() => r'3244d4abeb72b001f6b0180f8e0f2655e5fc446e';
+String _$sessionDayHash() => r'd48238e5566e7b57bcaa0a165256117f50cb0ba9';
 
 final class SessionDayFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<SessionDay>, (String, String)> {

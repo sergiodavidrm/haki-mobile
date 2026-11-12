@@ -152,7 +152,7 @@ class HomeScreen extends ConsumerWidget {
                 : l.homeStartsOn(formatShortDate(next.startDate!)),
           ),
         ];
-      case WithProgram(:final program, plan: final todayPlan):
+      case WithProgram(:final program, plan: final todayPlan, :final others, :final all):
         final now = DateTime.now();
         final day = selected ?? dateOnly(now);
         // Otro día de la tira: lo que toca ese día
@@ -160,7 +160,14 @@ class HomeScreen extends ConsumerWidget {
             ? todayPlan
             : resolveToday(program, selected);
         final picker = ref.read(selectedDayProvider.notifier);
-        final strip = weekStrip(program, now, selected: selected);
+        // Programas en paralelo: una sola tira con los entrenos de todos
+        final strip = combineStrips([
+          for (final p in all) weekStrip(p, now, selected: selected),
+        ]);
+        bool canMove(int delta) => all.any((p) => canMoveStrip(p, day, delta));
+        // Descanso en el primero pero otro programa tiene entreno: no se muestra el descanso
+        final otherTraining = others.any((o) => resolveToday(o, selected ?? now) is TrainingDay);
+        final hideFirst = otherTraining && plan is! TrainingDay;
         final weekForProgress = switch (plan) {
           TrainingDay(:final week) => week,
           WeekDone(:final week) => week,
@@ -171,10 +178,10 @@ class HomeScreen extends ConsumerWidget {
             WeekStrip(
               days: strip,
               onSelect: picker.select,
-              onPrevWeek: canMoveStrip(program, day, -1)
+              onPrevWeek: canMove(-1)
                   ? () => picker.select(day.subtract(const Duration(days: 7)))
                   : null,
-              onNextWeek: canMoveStrip(program, day, 1)
+              onNextWeek: canMove(1)
                   ? () => picker.select(day.add(const Duration(days: 7)))
                   : null,
               onToday: selected == null ? null : picker.reset,
@@ -182,7 +189,7 @@ class HomeScreen extends ConsumerWidget {
           else if (weekForProgress != null)
             WeekProgressCard(week: weekForProgress),
           gap,
-          switch (plan) {
+          if (!hideFirst) switch (plan) {
             TrainingDay() => TrainingDayCard(
               program: program,
               plan: plan,
@@ -219,6 +226,27 @@ class HomeScreen extends ConsumerWidget {
               body: l.homeProgramDoneBody,
             ),
           },
+          // Programas en paralelo: una tarjeta más por cada programa con entreno ese día
+          for (final other in others)
+            if (resolveToday(other, selected ?? now) case final TrainingDay p) ...[
+              const SizedBox(height: 12),
+              TrainingDayCard(
+                program: other,
+                plan: p,
+                date: selected,
+                onStart: () => _openOverProgram(
+                  context,
+                  Routes.session(other.assignmentId, p.day.id),
+                ),
+                onOpenDone: () => _openOverProgram(
+                  context,
+                  Routes.pastSession(other.assignmentId, p.day.id),
+                ),
+                onUnskip: () => ref
+                    .read(sessionStoreProvider)
+                    .unskip(other.assignmentId, p.day.id, force: true),
+              ),
+            ],
         ];
     }
   }

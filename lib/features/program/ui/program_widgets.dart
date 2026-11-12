@@ -239,6 +239,81 @@ class WeekTabs extends StatelessWidget {
   }
 }
 
+/// Programas en paralelo (2026-11-11): selector entre los programas en curso,
+/// con el mismo estilo que S1…SN. Solo se muestra con 2+.
+class ProgramPicker extends StatelessWidget {
+  const ProgramPicker({
+    super.key,
+    required this.names,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  final List<String> names;
+  final int selected;
+  final ValueChanged<int> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: c.track,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          for (var i = 0; i < names.length; i++) ...[
+            if (i > 0) const SizedBox(width: 4),
+            Expanded(
+              child: Semantics(
+                selected: i == selected,
+                button: true,
+                label: names[i],
+                excludeSemantics: true,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: i == selected ? c.weekTabSelected : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                    border: i == selected ? Border.all(color: c.weekTabSelectedBorder) : null,
+                    boxShadow: i == selected ? c.cardShadow : null,
+                  ),
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      onTap: () => onSelect(i),
+                      child: SizedBox(
+                        height: 40,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              names[i],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: i == selected ? FontWeight.w800 : FontWeight.w600,
+                                color: i == selected ? c.weekTabSelectedText : c.textSecondary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 class _WeekTab extends StatelessWidget {
   const _WeekTab({
     required this.week,

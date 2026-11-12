@@ -16,14 +16,32 @@ class SelectedProgressPeriod extends _$SelectedProgressPeriod {
   void set(ProgressPeriod p) => state = p;
 }
 
+/// Programas en paralelo (2026-11-11): programa elegido para "Este bloque"
+/// (null = el primero en curso).
+@Riverpod(keepAlive: true)
+class SelectedProgressProgram extends _$SelectedProgressProgram {
+  @override
+  String? build() => null;
+
+  void set(String? assignmentId) => state = assignmentId;
+}
+
 /// Reporte del período, con caché (se ve sin señal con la última copia).
+/// [program] = programa de "Este bloque" cuando hay varios en curso.
 @riverpod
-Future<ProgressReport> progressReport(Ref ref, ProgressPeriod period) async {
+Future<ProgressReport> progressReport(
+  Ref ref,
+  ProgressPeriod period, [
+  String? program,
+]) async {
   final me = await ref.watch(authMeProvider.future);
+  final assignment = period == ProgressPeriod.block && program != null
+      ? '&assignmentId=$program'
+      : '';
   return ref
       .watch(apiCacheProvider)
       .get(
-        '/progress/${me.userId}/performance-report?${period.query}',
+        '/progress/${me.userId}/performance-report?${period.query}$assignment',
         (j) => ProgressReport.fromJson(j as Map<String, dynamic>),
         onUpdated: () {
           if (ref.mounted) ref.invalidateSelf();

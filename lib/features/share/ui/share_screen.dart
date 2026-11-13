@@ -257,8 +257,14 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
           child: Row(
             children: [
               SizedBox(
-                width: 64,
-                child: Text(l.shareBackground, style: _label(c)),
+                width: 80,
+                // Una sola línea aunque el texto sea largo ("Background") o el
+                // teléfono tenga letra grande: se achica en vez de cortarse
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(l.shareBackground, maxLines: 1, style: _label(c)),
+                ),
               ),
               _Choice(
                 label: l.shareNoBackground,
@@ -304,8 +310,14 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
             child: Row(
               children: [
                 SizedBox(
-                  width: 64,
-                  child: Text(l.shareOpacity, style: _label(c)),
+                  width: 80,
+                  // Una sola línea aunque el texto sea largo ("Background") o el
+                  // teléfono tenga letra grande: se achica en vez de cortarse
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(l.shareOpacity, maxLines: 1, style: _label(c)),
+                  ),
                 ),
                 Expanded(
                   child: Slider(

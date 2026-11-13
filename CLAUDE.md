@@ -613,6 +613,19 @@ Los arma el coach en el web; reglas y backend en `../haki-api/CLAUDE.md`
 
 ## Nota del atleta por ejercicio (2026-11-02)
 
+**Nota chica y columnas sin cámara (2026-11-12, canvas
+https://claude.ai/artifact/3PrQxDXazxPxDCAtJq1Kjp, opción B):** sin nota, una
+pastilla "✎ Nota" a la derecha de la línea "Sem. pasada: … · e1RM …"
+(`AthleteNote(leading:)`; sin esa línea va sola a la derecha) en vez del botón
+a todo el ancho; con nota, una línea gris en itálica "✎ Tu nota: «…»" debajo
+que se toca para editar. La nota del coach sigue arriba. **Sin videos** (coach
+con "Pedir feedback con videos" apagado): `SetCols.of(camera: false)` saca la
+columna de la cámara y reparte su ancho entre KG / REPS / RIR (mismo tamaño de
+letra; decisión de Sergio). Una serie con video viejo ya no muestra la cámara
+en ese caso (el video sigue en el chat). Sin videos, Hoy tampoco muestra el chip "N videos pedidos" y el día
+completado dice "Ver entreno" en vez de "Ver entreno · subir videos". Entre la
+serie y el objetivo hay `SetCols.afterSet` (14 px; antes 6).
+
 Mockup: pantalla Sesión del canvas Haki Mobile. Al final de cada ejercicio
 (Sesión y Sesión pasada) `AthleteNote` (`session/ui/athlete_note.dart`):
 botón "Agregar nota para tu coach" → campo + Cancelar/Guardar nota →
@@ -1127,6 +1140,48 @@ Canvas "Haki · Tema v2" https://claude.ai/artifact/KJi5b1ccQG1MsktWV9uwwx.
   el mockup) y que un marcado hoy cuente para adherencia el mismo día (hoy
   cuenta desde mañana, igual que en la API). Tests en `session_sync_test` y
   `program_schedule_test`.
+
+### Compartir: stickers para historias (2026-11-12, sin probar)
+
+Canvas https://claude.ai/artifact/XgxAnMeTfAh9gdVjzmFy2t (reemplaza a la v2
+con foto, descartada: el atleta pega el sticker en Instagram sobre su foto).
+**Apagado por defecto:** Ajustes → Entreno → "Compartir entrenos"
+(`ShareWorkoutsEnabled`, shared_preferences `share_workouts`).
+- Entradas: "Compartir en historias" en Entreno completado y Sesión pasada
+  (`/compartir/:assignmentId/:dayId`) y el ícono de compartir de la tarjeta Tu
+  progreso del Perfil (`/compartir?periodo=semana`, `Routes.shareWeek`).
+- `ShareScreen`: **Día · Semana · Mes** (Mes con punto dorado del 1 al 7) →
+  grilla de stickers del período (solo los que tienen datos,
+  `availableStickers`) → vista previa sobre cuadriculado → Fondo (sin fondo u
+  obsidiana / dorado / turquesa / blanco + opacidad 20–100 %; con blanco el
+  texto va oscuro, `StickerPalette`) → **Compartir** (PNG al menú del
+  teléfono, `share_plus`) y **Guardar** (galería, `gal`). Un sticker a la vez
+  (decisión de Sergio). Sticker de 300 de ancho exportado a 1080 px.
+- Abre en Día si vino de un entreno; en Semana si ese entreno cerró la semana
+  ("¡Cumpliste tu semana!") o si vino del Perfil. Sin entrenos, Día queda
+  deshabilitado.
+- Stickers (`share/ui/stickers.dart`): **Día** Récord (PR que más subió o el
+  mejor e1RM) · Resumen (volumen + % vs. el mismo día de la semana anterior
+  en los ejercicios en común, series "20 de 20", récords o mejor e1RM) ·
+  Músculos · Ejercicios (series × y e1RM). **Semana** (lunes–domingo de ese
+  entreno; desde el Perfil, la actual o la anterior si todavía no entrenó)
+  Mi semana (hechos de los que tocaban, L–D ✓/✕/pendiente/descanso, racha) ·
+  Números (vs. la anterior) · Récords · Músculos (todos los entrenados + los
+  que pide el programa, con la línea del objetivo `muscleTargets`) ·
+  Programa (semana N de M, barra por semana, % de los que tocaban, ejercicio
+  que más subió en el bloque). **Mes** (del 1 al 7 el que terminó; después
+  el en curso "hasta hoy") Músculos · Entrenos · Récords.
+- Datos: `shareDataProvider` (todos los programas con entrenos, con lo del
+  teléfono; récords y racha de la API, sin red no salen) → lógica pura en
+  `share/data/share_stickers.dart` (`trainedDaysOf`, `buildShareDay/Week/Month`;
+  fechas en UTC sin hora como `dateOnly`) y textos en `share_format.dart`.
+  Series por músculo: principal 1, secundario ½ (como el web); los músculos
+  vienen en el detalle del programa (`primaryMuscles`/`secondaryMuscles`, ya
+  como músculo raíz) y el nombre de `muscle_names.dart` (45 claves, mismas que
+  el web; una clave nueva se muestra legible igual). Tests en
+  `test/share_stickers_test.dart`.
+- Falta: aviso en la campana el 1 del mes ("Tu octubre está listo para
+  compartir"; necesita la API).
 
 ### Programas en paralelo (2026-11-11, sin probar)
 

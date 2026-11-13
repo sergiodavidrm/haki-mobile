@@ -3,12 +3,22 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../../../l10n/l10n.dart';
 
-/// Nota del atleta para el coach sobre un ejercicio (mockup "Sesión"): sin
-/// nota = botón punteado "Agregar nota para tu coach"; al tocarlo, campo con
-/// Cancelar / Guardar nota; guardada = "Tu nota: …" con Editar. La ve el coach
-/// en el web (builder y detalle del día del Resumen). Sesión y Sesión pasada.
+/// Nota del atleta para el coach sobre un ejercicio. Desde 2026-11-12 (canvas
+/// https://claude.ai/artifact/3PrQxDXazxPxDCAtJq1Kjp, opción B): sin nota =
+/// pastilla chica "✎ Nota" a la derecha de [leading] (la línea de Sem.
+/// pasada) en vez del botón a todo el ancho; con nota = una línea "Tu nota: …"
+/// debajo, que se toca para editar. Al tocar, campo con Cancelar / Guardar
+/// nota. La ve el coach en el web. Sesión y Sesión pasada.
 class AthleteNote extends StatefulWidget {
-  const AthleteNote({super.key, required this.note, required this.onSave});
+  const AthleteNote({
+    super.key,
+    required this.note,
+    required this.onSave,
+    this.leading,
+  });
+
+  /// Lo que va a la izquierda de la pastilla (la línea de Sem. pasada)
+  final Widget? leading;
 
   /// Nota actual (null = sin nota).
   final String? note;
@@ -53,6 +63,10 @@ class _AthleteNoteState extends State<AthleteNote> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (widget.leading != null) ...[
+            widget.leading!,
+            const SizedBox(height: 10),
+          ],
           Text(
             l.noteLabel,
             style: TextStyle(
@@ -115,72 +129,97 @@ class _AthleteNoteState extends State<AthleteNote> {
     }
 
     final note = widget.note;
-    if (note == null) {
-      return OutlinedButton.icon(
-        onPressed: _start,
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size.fromHeight(44),
-          foregroundColor: c.textSecondary,
-          side: BorderSide(color: c.border),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    final leading = widget.leading;
+    // Sin nota: pastilla chica a la derecha de la línea de Sem. pasada
+    final chip = Semantics(
+      button: true,
+      label: l.noteAdd,
+      excludeSemantics: true,
+      child: Material(
+        color: c.surfaceHigh,
+        shape: const StadiumBorder(),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: _start,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.edit_outlined, size: 13, color: c.textSecondary),
+                const SizedBox(width: 5),
+                Text(
+                  l.noteShort,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: c.textSecondary,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        icon: const Icon(Icons.edit_outlined, size: 16),
-        label: Text(l.noteAdd),
+      ),
+    );
+    if (note == null) {
+      return Row(
+        children: [
+          Expanded(child: leading ?? const SizedBox.shrink()),
+          const SizedBox(width: 8),
+          chip,
+        ],
       );
     }
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
-      decoration: BoxDecoration(
-        color: c.surfaceHigh,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Icon(
-              Icons.chat_bubble_outline,
-              size: 16,
-              color: c.turquoise,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: '${l.sessionYourNote}: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: c.turquoise,
+    // Con nota: una línea debajo, tocarla la edita
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (leading != null) ...[leading, const SizedBox(height: 6)],
+        Semantics(
+          button: true,
+          hint: l.noteEdit,
+          child: InkWell(
+            onTap: _start,
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 5),
+                        child: Icon(
+                          Icons.edit_outlined,
+                          size: 13,
+                          color: c.textMuted,
+                        ),
+                      ),
                     ),
-                  ),
-                  TextSpan(text: note),
-                ],
-              ),
-              style: TextStyle(
-                fontSize: 13,
-                height: 1.45,
-                color: c.textSecondary,
+                    TextSpan(
+                      text: '${l.sessionYourNote}: ',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: c.textSecondary,
+                      ),
+                    ),
+                    TextSpan(text: '"$note"'),
+                  ],
+                ),
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.4,
+                  fontStyle: FontStyle.italic,
+                  color: c.textMuted,
+                ),
               ),
             ),
           ),
-          TextButton(
-            onPressed: _start,
-            style: TextButton.styleFrom(
-              foregroundColor: c.goldBright,
-              minimumSize: const Size(0, 32),
-              visualDensity: VisualDensity.compact,
-            ),
-            child: Text(l.noteEdit),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

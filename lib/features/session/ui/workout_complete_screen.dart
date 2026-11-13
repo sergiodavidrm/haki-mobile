@@ -9,6 +9,7 @@ import '../../../core/widgets/haki_card.dart';
 import '../../auth/providers/auth_me_provider.dart';
 import '../../profile/providers/profile_providers.dart';
 import '../../program/providers/program_providers.dart';
+import '../../share/providers/share_providers.dart';
 import '../data/session_plan.dart';
 import '../data/workout_prs.dart';
 import '../providers/session_providers.dart';
@@ -111,6 +112,16 @@ class WorkoutCompleteScreen extends ConsumerWidget {
                 ],
               ),
             ),
+            if (ref.watch(shareWorkoutsEnabledProvider))
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: OutlinedButton.icon(
+                  onPressed: () =>
+                      context.push(Routes.share(assignmentId, dayId)),
+                  icon: const Icon(Icons.ios_share, size: 18),
+                  label: Text(context.l10n.shareButton),
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               child: FilledButton(

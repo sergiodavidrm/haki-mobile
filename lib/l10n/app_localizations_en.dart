@@ -289,6 +289,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workoutCompleted => 'Workout completed';
 
   @override
+  String get workoutView => 'View workout';
+
+  @override
   String get workoutViewUploadVideos => 'View workout · upload videos';
 
   @override
@@ -506,6 +509,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sessionYourNote => 'Your note';
+
+  @override
+  String get noteShort => 'Note';
 
   @override
   String get noteAdd => 'Add a note for your coach';
@@ -2615,4 +2621,374 @@ class AppLocalizationsEn extends AppLocalizations {
   String agendaConfirmed(String coach) {
     return 'You confirmed to $coach that you\'re going.';
   }
+
+  @override
+  String get shareTitle => 'Share workout';
+
+  @override
+  String get shareAction => 'Share';
+
+  @override
+  String get shareButton => 'Share to stories';
+
+  @override
+  String shareReps(int count) {
+    return '$count reps';
+  }
+
+  @override
+  String get settingsShare => 'Share workouts';
+
+  @override
+  String get settingsShareHint => 'Button to share your workout to stories';
+
+  @override
+  String get muscleAbductors => 'Abductors';
+
+  @override
+  String get muscleAbs => 'Abs';
+
+  @override
+  String get muscleAdductors => 'Adductors';
+
+  @override
+  String get muscleArms => 'Arms';
+
+  @override
+  String get muscleBack => 'Back';
+
+  @override
+  String get muscleBiceps => 'Biceps';
+
+  @override
+  String get muscleBrachialis => 'Brachialis';
+
+  @override
+  String get muscleBrachioradialis => 'Brachioradialis';
+
+  @override
+  String get muscleCalves => 'Calves';
+
+  @override
+  String get muscleChest => 'Chest';
+
+  @override
+  String get muscleCore => 'Core';
+
+  @override
+  String get muscleForearms => 'Forearms';
+
+  @override
+  String get muscleFrontDelts => 'Front delts';
+
+  @override
+  String get muscleGastrocnemius => 'Gastrocnemius';
+
+  @override
+  String get muscleGluteMedius => 'Glute medius';
+
+  @override
+  String get muscleGluteMinimus => 'Glute minimus';
+
+  @override
+  String get muscleGlutes => 'Glute max';
+
+  @override
+  String get muscleHamstrings => 'Hamstrings';
+
+  @override
+  String get muscleHipFlexors => 'Hip flexors';
+
+  @override
+  String get muscleLats => 'Lats';
+
+  @override
+  String get muscleLegs => 'Legs';
+
+  @override
+  String get muscleLowerBack => 'Lower back';
+
+  @override
+  String get muscleLowerChest => 'Lower chest';
+
+  @override
+  String get muscleLowerTraps => 'Lower traps';
+
+  @override
+  String get muscleMidChest => 'Mid chest';
+
+  @override
+  String get muscleMidTraps => 'Mid traps';
+
+  @override
+  String get muscleNeck => 'Neck';
+
+  @override
+  String get muscleObliques => 'Obliques';
+
+  @override
+  String get muscleQuads => 'Quads';
+
+  @override
+  String get muscleRearDelts => 'Rear delts';
+
+  @override
+  String get muscleRhomboids => 'Rhomboids';
+
+  @override
+  String get muscleRotatorCuff => 'Rotator cuff';
+
+  @override
+  String get muscleSerratus => 'Serratus anterior';
+
+  @override
+  String get muscleShoulders => 'Shoulders';
+
+  @override
+  String get muscleSideDelts => 'Side delts';
+
+  @override
+  String get muscleSoleus => 'Soleus';
+
+  @override
+  String get muscleTeresMajor => 'Teres major';
+
+  @override
+  String get muscleTibialis => 'Tibialis anterior';
+
+  @override
+  String get muscleTransverseAbs => 'Transverse abdominis';
+
+  @override
+  String get muscleTraps => 'Traps';
+
+  @override
+  String get muscleTriceps => 'Triceps';
+
+  @override
+  String get muscleTricepsLongHead => 'Triceps long head';
+
+  @override
+  String get muscleUpperBack => 'Upper back';
+
+  @override
+  String get muscleUpperChest => 'Upper chest';
+
+  @override
+  String get muscleUpperTraps => 'Upper traps';
+
+  @override
+  String get sharePeriodDay => 'Day';
+
+  @override
+  String get sharePeriodWeek => 'Week';
+
+  @override
+  String get sharePeriodMonth => 'Month';
+
+  @override
+  String get sharePeriodDaySub => 'This workout';
+
+  @override
+  String get shareBackground => 'Background';
+
+  @override
+  String get shareNoBackground => 'None';
+
+  @override
+  String get shareOpacity => 'Opacity';
+
+  @override
+  String get shareSave => 'Save';
+
+  @override
+  String get shareSaved => 'Saved to your gallery';
+
+  @override
+  String get shareSaveError => 'Couldn\'t save to your gallery';
+
+  @override
+  String get shareColorObsidian => 'Obsidian';
+
+  @override
+  String get shareColorGold => 'Gold';
+
+  @override
+  String get shareColorTurquoise => 'Turquoise';
+
+  @override
+  String get shareColorWhite => 'White';
+
+  @override
+  String get shareStRecord => 'Record';
+
+  @override
+  String get shareStSummary => 'Summary';
+
+  @override
+  String get shareStMuscles => 'Muscles';
+
+  @override
+  String get shareStExercises => 'Exercises';
+
+  @override
+  String get shareStWeek => 'My week';
+
+  @override
+  String get shareStNumbers => 'Numbers';
+
+  @override
+  String get shareStRecords => 'Records';
+
+  @override
+  String get shareStProgram => 'Program';
+
+  @override
+  String get shareStWorkouts => 'Workouts';
+
+  @override
+  String shareNewRecordGain(String gain) {
+    return 'New record · e1RM · +$gain';
+  }
+
+  @override
+  String get shareBestE1Rm => 'Best e1RM of the day';
+
+  @override
+  String get shareVolume => 'Volume';
+
+  @override
+  String get shareSetsLabel => 'Sets';
+
+  @override
+  String get shareRecordsLabel => 'Records';
+
+  @override
+  String get shareDuration => 'Duration';
+
+  @override
+  String get shareTime => 'Time';
+
+  @override
+  String get shareWorkoutsLabel => 'Workouts';
+
+  @override
+  String shareVsLastWeek(String delta) {
+    return '$delta vs. last week';
+  }
+
+  @override
+  String shareSetsOf(int done, int total) {
+    return '$done of $total';
+  }
+
+  @override
+  String get shareAllSetsDone => 'All done';
+
+  @override
+  String get shareE1RmNote => 'Best e1RM per exercise';
+
+  @override
+  String shareOfTotal(int count) {
+    return 'of $count';
+  }
+
+  @override
+  String get shareWorkoutsDone => 'workouts done';
+
+  @override
+  String get shareWeekLegend => '✓ done · ✕ missed · grey = rest';
+
+  @override
+  String shareStreak(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Streak: $count weeks in a row',
+      one: 'Streak: 1 week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shareMyWeek => 'My week';
+
+  @override
+  String get shareSame => '= same';
+
+  @override
+  String get shareVsLastWeekShort => 'vs. last week';
+
+  @override
+  String shareRecordsThisWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count records this week',
+      one: '1 record this week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shareSetsPerMuscle => 'Sets per muscle';
+
+  @override
+  String get shareTargetLine => 'Line = what your program asks for';
+
+  @override
+  String shareWeekOf(int week, int total) {
+    return 'Week $week of $total';
+  }
+
+  @override
+  String shareProgramWorkouts(int done, int total) {
+    return '$done of $total program workouts';
+  }
+
+  @override
+  String get shareOfDue => 'of the workouts due';
+
+  @override
+  String shareBlockGain(String name, String gain) {
+    return '$name +$gain this block';
+  }
+
+  @override
+  String shareE1RmGain(String gain) {
+    return 'e1RM · +$gain';
+  }
+
+  @override
+  String get shareRecordsOfMonth => 'Records this month';
+
+  @override
+  String shareMoreRecords(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+ $count more records',
+      one: '+ 1 more record',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String shareVsMonth(String month) {
+    return 'vs. $month';
+  }
+
+  @override
+  String shareToDate(String month) {
+    return '$month · so far';
+  }
+
+  @override
+  String get shareWeekDone => 'You completed your week!';
+
+  @override
+  String get shareNothing => 'No workouts to share yet';
+
+  @override
+  String get progressShare => 'Share';
 }

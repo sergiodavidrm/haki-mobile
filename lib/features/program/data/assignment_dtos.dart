@@ -89,7 +89,12 @@ class AssignmentDetailDto {
     required this.weeks,
     required this.dayMappings,
     required this.blockUpdatedAt,
+    this.muscleTargets = const {},
   });
+
+  /// Series por semana que pide el programa por músculo (clave → series).
+  /// Sticker "Músculos" de la semana (2026-11-12).
+  final Map<String, int> muscleTargets;
 
   final String assignmentId;
   final String blockName;
@@ -126,6 +131,7 @@ class AssignmentDetailDto {
     ],
     dayMappings: dayMappings,
     blockUpdatedAt: blockUpdatedAt,
+    muscleTargets: muscleTargets,
   );
 
   factory AssignmentDetailDto.fromJson(Map<String, dynamic> j) =>
@@ -145,6 +151,11 @@ class AssignmentDetailDto {
             DayMappingDto.fromJson(m as Map<String, dynamic>),
         ],
         blockUpdatedAt: DateTime.parse(j['blockUpdatedAt'] as String),
+        muscleTargets: {
+          for (final m in j['muscleTargets'] as List? ?? const [])
+            if ((m as Map<String, dynamic>)['muscleKey'] is String)
+              m['muscleKey'] as String: (m['targetSets'] as num?)?.toInt() ?? 0,
+        },
       );
 }
 
@@ -331,7 +342,14 @@ class DayExerciseDto {
     this.groupName,
     this.groupNote,
     this.completedAt,
+    this.primaryMuscles = const [],
+    this.secondaryMuscles = const [],
   });
+
+  /// Músculos (raíz: las porciones van a su músculo) para series por músculo.
+  /// Principal = 1 serie, secundario = ½ (como el web). Vacíos en APIs viejas.
+  final List<String> primaryMuscles;
+  final List<String> secondaryMuscles;
 
   /// strength | cardio | mobility. Cardio y movilidad no tienen series: llevan
   /// [prescription] y el atleta marca Hecho ([completedAt]).
@@ -413,6 +431,8 @@ class DayExerciseDto {
     groupName: j['groupName'] as String?,
     groupNote: j['groupNote'] as String?,
     completedAt: DateTime.tryParse(j['completedAt'] as String? ?? ''),
+    primaryMuscles: [...?(j['primaryMuscles'] as List?)?.whereType<String>()],
+    secondaryMuscles: [...?(j['secondaryMuscles'] as List?)?.whereType<String>()],
   );
 }
 

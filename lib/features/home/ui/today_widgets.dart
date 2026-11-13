@@ -1,5 +1,9 @@
 import '../../program/data/prescription.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../auth/providers/auth_me_provider.dart';
 
 import '../../../core/format/dates.dart';
 import '../../../core/theme/haki_colors.dart';
@@ -172,18 +176,30 @@ class _StripDayCell extends StatelessWidget {
     final Widget mark = fraction != null
         ? Text(
             '${fraction.$1}/${fraction.$2}',
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: c.textMuted),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: c.textMuted,
+            ),
           )
         : switch (d.kind) {
-      StripDayKind.done => Icon(Icons.check_rounded, size: 13, color: c.turquoise),
-      StripDayKind.skipped => Icon(Icons.close_rounded, size: 13, color: c.textMuted),
-      StripDayKind.planned when selected => Container(
-        width: 6,
-        height: 6,
-        decoration: BoxDecoration(shape: BoxShape.circle, color: c.gold),
-      ),
-      _ => const SizedBox.shrink(),
-    };
+            StripDayKind.done => Icon(
+              Icons.check_rounded,
+              size: 13,
+              color: c.turquoise,
+            ),
+            StripDayKind.skipped => Icon(
+              Icons.close_rounded,
+              size: 13,
+              color: c.textMuted,
+            ),
+            StripDayKind.planned when selected => Container(
+              width: 6,
+              height: 6,
+              decoration: BoxDecoration(shape: BoxShape.circle, color: c.gold),
+            ),
+            _ => const SizedBox.shrink(),
+          };
 
     return Semantics(
       button: true,
@@ -269,7 +285,7 @@ class WeekProgressCard extends StatelessWidget {
 }
 
 /// Tarjeta grande de Hoy para un día con entreno.
-class TrainingDayCard extends StatelessWidget {
+class TrainingDayCard extends ConsumerWidget {
   const TrainingDayCard({
     super.key,
     required this.program,
@@ -294,7 +310,9 @@ class TrainingDayCard extends StatelessWidget {
   final VoidCallback onOpenDone;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Sin "Pedir feedback con videos" del coach: ni chip ni "subir videos"
+    final videos = ref.watch(videosEnabledProvider);
     final c = context.colors;
     final day = plan.day;
     final l = context.l10n;
@@ -340,21 +358,35 @@ class TrainingDayCard extends StatelessWidget {
               children: [
                 // La tarjeta no crece: fuerza como siempre + chips de movilidad y cardio
                 if (day.exercises.any((e) => e.isStrength))
-                  PillChip(l.exercisesCount(day.exercises.where((e) => e.isStrength).length)),
+                  PillChip(
+                    l.exercisesCount(
+                      day.exercises.where((e) => e.isStrength).length,
+                    ),
+                  ),
                 if (day.supersetCount > 0)
                   PillChip(
                     l.supersetsCount(day.supersetCount),
                     tone: PillTone.turquoise,
                   ),
-                if (day.exercises.where((e) => e.kind == ExerciseKinds.mobility).length case final n when n > 0)
+                if (day.exercises
+                        .where((e) => e.kind == ExerciseKinds.mobility)
+                        .length
+                    case final n when n > 0)
                   PillChip(l.todayChipMobility(n), dotColor: c.mobilityText),
-                ...switch (day.exercises.where((e) => e.kind == ExerciseKinds.cardio).toList()) {
+                ...switch (day.exercises
+                    .where((e) => e.kind == ExerciseKinds.cardio)
+                    .toList()) {
                   [] => const <Widget>[],
                   [final one] => [
                     PillChip(
-                      [one.exerciseName, formatPrescription(one.kind, one.prescription, withIntensity: false)]
-                          .where((s) => s.isNotEmpty)
-                          .join(' '),
+                      [
+                        one.exerciseName,
+                        formatPrescription(
+                          one.kind,
+                          one.prescription,
+                          withIntensity: false,
+                        ),
+                      ].where((s) => s.isNotEmpty).join(' '),
                       dotColor: c.cardioText,
                     ),
                   ],
@@ -362,13 +394,16 @@ class TrainingDayCard extends StatelessWidget {
                     PillChip(
                       l.todayChipCardios(
                         many.length,
-                        many.fold<int>(0, (a, e) => a + (e.prescription?.minutes ?? 0)),
+                        many.fold<int>(
+                          0,
+                          (a, e) => a + (e.prescription?.minutes ?? 0),
+                        ),
                       ),
                       dotColor: c.cardioText,
                     ),
                   ],
                 },
-                if (day.videoRequestCount > 0)
+                if (videos && day.videoRequestCount > 0)
                   PillChip(
                     l.videosRequestedCount(day.videoRequestCount),
                     tone: PillTone.gold,
@@ -403,8 +438,15 @@ class TrainingDayCard extends StatelessWidget {
                       foregroundColor: c.turquoise,
                       side: BorderSide(color: c.turquoiseBorder),
                     ),
-                    icon: const Icon(Icons.videocam_outlined, size: 18),
-                    label: Text(l.workoutViewUploadVideos),
+                    icon: Icon(
+                      videos
+                          ? Icons.videocam_outlined
+                          : Icons.visibility_outlined,
+                      size: 18,
+                    ),
+                    label: Text(
+                      videos ? l.workoutViewUploadVideos : l.workoutView,
+                    ),
                   ),
                 ],
               ),

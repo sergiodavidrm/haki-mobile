@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../share/providers/share_providers.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -82,6 +85,17 @@ class PastSessionScreen extends ConsumerWidget {
                 (_, final DayDto d) => ListView(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                   children: [
+                    if (ref.watch(shareWorkoutsEnabledProvider) &&
+                        d.sessionStatus == SessionStatus.completed)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: OutlinedButton.icon(
+                          onPressed: () =>
+                              context.push(Routes.share(assignmentId, dayId)),
+                          icon: const Icon(Icons.ios_share, size: 18),
+                          label: Text(context.l10n.shareButton),
+                        ),
+                      ),
                     if (d.isPartial)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 14),
@@ -107,6 +121,7 @@ class PastSessionScreen extends ConsumerWidget {
                                 )
                               : _ExerciseCard(
                                   exercise: e,
+                                  camera: ref.watch(videosEnabledProvider),
                                   badge: g.badgeOf(e),
                                   local: local,
                                   videos: videos,
@@ -276,6 +291,7 @@ class _StatusPill extends StatelessWidget {
 class _ExerciseCard extends StatelessWidget {
   const _ExerciseCard({
     required this.exercise,
+    required this.camera,
     required this.badge,
     required this.local,
     required this.videos,
@@ -295,6 +311,9 @@ class _ExerciseCard extends StatelessWidget {
   final ValueChanged<String?> onSaveNote;
 
   final DayExerciseDto exercise;
+
+  /// false = el coach no pide videos: sin columna de la cámara
+  final bool camera;
   final String? badge;
   final Map<String, LocalSetEntry> local;
   final Map<String, bool> videos;
@@ -385,7 +404,10 @@ class _ExerciseCard extends StatelessWidget {
               style: TextStyle(fontSize: 13, color: c.textMuted),
             )
           else ...[
-            SetTableHeader(cols: SetCols.normal, unit: unit),
+            SetTableHeader(
+              cols: SetCols.of(compact: false, camera: camera),
+              unit: unit,
+            ),
             for (var n = 1; n <= count; n++)
               _PastSetRow(
                 setNumber: n,
@@ -393,6 +415,7 @@ class _ExerciseCard extends StatelessWidget {
                 saved: saved[n - 1],
                 weight: inUnit(saved[n - 1]),
                 unit: unit,
+                camera: camera,
                 onVideo: (requested) => onVideo(n, saved[n - 1], requested),
               ),
           ],
@@ -408,6 +431,7 @@ class _ExerciseCard extends StatelessWidget {
 class _PastSetRow extends StatelessWidget {
   const _PastSetRow({
     required this.setNumber,
+    required this.camera,
     required this.target,
     required this.saved,
     required this.weight,
@@ -426,10 +450,13 @@ class _PastSetRow extends StatelessWidget {
   /// [requested] = el coach pidió video de esta serie.
   final void Function(bool requested) onVideo;
 
+  /// false = sin columna de la cámara
+  final bool camera;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    const cols = SetCols.normal;
+    final cols = SetCols.of(compact: false, camera: camera);
     final t = target;
     final objective = [
       if (t?.weightKg != null) formatWeight(unit.fromKg(t!.weightKg!)),
@@ -463,7 +490,7 @@ class _PastSetRow extends StatelessWidget {
               style: TextStyle(color: c.textMuted),
             ),
           ),
-          const SizedBox(width: SetCols.gap),
+          const SizedBox(width: SetCols.afterSet),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -498,22 +525,23 @@ class _PastSetRow extends StatelessWidget {
           value(cols.reps, saved?.reps?.toString()),
           const SizedBox(width: SetCols.gap),
           value(cols.rir, saved?.rir?.toString()),
-          const SizedBox(width: SetCols.gap),
-          SizedBox(
-            width: cols.action,
-            // Solo series registradas: el video se cuelga de su set-log
-            child: saved == null
-                ? null
-                : Center(
-                    child: SetCameraButton(
-                      setNumber: setNumber,
-                      requested: t?.requestVideo ?? false,
-                      sent: saved!.hasVideo,
-                      uploading: saved!.videoUploading,
-                      onTap: () => onVideo(t?.requestVideo ?? false),
+          if (cols.hasAction) const SizedBox(width: SetCols.gap),
+          if (cols.hasAction)
+            SizedBox(
+              width: cols.action,
+              // Solo series registradas: el video se cuelga de su set-log
+              child: saved == null
+                  ? null
+                  : Center(
+                      child: SetCameraButton(
+                        setNumber: setNumber,
+                        requested: t?.requestVideo ?? false,
+                        sent: saved!.hasVideo,
+                        uploading: saved!.videoUploading,
+                        onTap: () => onVideo(t?.requestVideo ?? false),
+                      ),
                     ),
-                  ),
-          ),
+            ),
         ],
       ),
     );

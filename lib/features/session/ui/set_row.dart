@@ -18,6 +18,29 @@ class SetCols {
   static const compact = SetCols._(28, 54, 44, 36, 36);
   static const gap = 6.0;
 
+  /// Entre la serie y el objetivo, un poco más (2026-11-12, Sergio: el
+  /// objetivo quedaba pegado al número). Se descuenta del objetivo, que es
+  /// la columna flexible.
+  static const afterSet = 14.0;
+
+  /// Sin la columna de la cámara (el coach no pide videos, 2026-11-12): su
+  /// ancho y su espacio van a KG / REPS / RIR (mismo tamaño de letra, celdas
+  /// más anchas para tocar). Igual en todos los ejercicios: quedan alineados.
+  static SetCols of({required bool compact, required bool camera}) {
+    final base = compact ? SetCols.compact : SetCols.normal;
+    if (camera) return base;
+    final extra = base.action + gap;
+    return SetCols._(
+      base.set,
+      base.weight + extra * .4,
+      base.reps + extra * .35,
+      base.rir + extra * .25,
+      0,
+    );
+  }
+
+  bool get hasAction => action > 0;
+
   /// Padding lateral de cada fila (deja lugar al fondo de la fila "Siguiente").
   static const inset = 6.0;
 
@@ -88,7 +111,7 @@ class SetTableHeader extends StatelessWidget {
         child: Row(
           children: [
             cell(compact ? '#' : context.l10n.setHeader, cols.set),
-            const SizedBox(width: SetCols.gap),
+            const SizedBox(width: SetCols.afterSet),
             Expanded(
               child: ExcludeSemantics(
                 child: Text(
@@ -107,8 +130,10 @@ class SetTableHeader extends StatelessWidget {
             cell(context.l10n.repsHeader, cols.reps),
             const SizedBox(width: SetCols.gap),
             cell('RIR', cols.rir),
-            const SizedBox(width: SetCols.gap),
-            SizedBox(width: cols.action),
+            if (cols.hasAction) ...[
+              const SizedBox(width: SetCols.gap),
+              SizedBox(width: cols.action),
+            ],
           ],
         ),
       ),
@@ -409,7 +434,7 @@ class _SetRowState extends State<SetRow> {
               style: TextStyle(fontWeight: FontWeight.w600, color: c.textMuted),
             ),
           ),
-          const SizedBox(width: SetCols.gap),
+          const SizedBox(width: SetCols.afterSet),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -454,19 +479,21 @@ class _SetRowState extends State<SetRow> {
           reps,
           const SizedBox(width: SetCols.gap),
           rir,
-          const SizedBox(width: SetCols.gap),
-          SizedBox(
-            width: cols.action,
-            child: Center(
-              child: SetCameraButton(
-                setNumber: widget.setNumber,
-                requested: t?.requestVideo ?? false,
-                sent: widget.saved?.hasVideo ?? false,
-                uploading: widget.saved?.videoUploading ?? false,
-                onTap: () => widget.onVideo(t?.requestVideo ?? false),
+          if (cols.hasAction) ...[
+            const SizedBox(width: SetCols.gap),
+            SizedBox(
+              width: cols.action,
+              child: Center(
+                child: SetCameraButton(
+                  setNumber: widget.setNumber,
+                  requested: t?.requestVideo ?? false,
+                  sent: widget.saved?.hasVideo ?? false,
+                  uploading: widget.saved?.videoUploading ?? false,
+                  onTap: () => widget.onVideo(t?.requestVideo ?? false),
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );

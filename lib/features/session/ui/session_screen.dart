@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import '../../auth/providers/auth_me_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -140,6 +142,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       final unit = overrides[e.id] ?? dayUnit;
       return ExerciseBlock(
         exercise: e,
+        camera: ref.watch(videosEnabledProvider),
         badge: badge,
         showRail: showRail,
         onCollapse: onCollapse,

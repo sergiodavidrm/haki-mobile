@@ -14,6 +14,7 @@ import '../../auth/data/auth_repository.dart';
 import '../../auth/providers/auth_me_provider.dart';
 import '../../session/data/session_store.dart';
 import '../providers/settings_providers.dart';
+import '../../share/providers/share_providers.dart';
 import '../../../l10n/l10n.dart';
 
 // Ajustes: cuenta (Mis datos, cambiar contraseña), unidad de peso, vibración del timer,
@@ -33,6 +34,7 @@ class SettingsScreen extends ConsumerWidget {
     final savingUnit = ref.watch(weightUnitSaverProvider).isLoading;
     final vibrate = ref.watch(restVibrationProvider);
     final autoRest = ref.watch(autoRestProvider);
+    final share = ref.watch(shareWorkoutsEnabledProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -94,6 +96,15 @@ class SettingsScreen extends ConsumerWidget {
                     value: autoRest,
                     activeTrackColor: c.turquoise,
                     onChanged: ref.read(autoRestProvider.notifier).set,
+                  ),
+                ),
+                _Row(
+                  title: l.settingsShare,
+                  subtitle: l.settingsShareHint,
+                  trailing: Switch(
+                    value: share,
+                    activeTrackColor: c.turquoise,
+                    onChanged: ref.read(shareWorkoutsEnabledProvider.notifier).set,
                   ),
                 ),
                 _Row(

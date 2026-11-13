@@ -117,9 +117,24 @@
   "stripSkipped": "día marcado como no hecho",
   "stripPartial": "entreno hecho en parte",
   "daySetsOf": "{done} de {total} series",
-  "@daySetsOf": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}}},
+  "@daySetsOf": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "pastSessionUnlogged": "{count, plural, =1{1 ejercicio sin registrar} other{{count} ejercicios sin registrar}}",
-  "@pastSessionUnlogged": {"placeholders": {"count": {"type": "int"}}},
+  "@pastSessionUnlogged": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "workoutsDoneOf": "{done} de {total} entrenos",
   "@workoutsDoneOf": {
     "placeholders": {
@@ -156,6 +171,7 @@
     }
   },
   "workoutCompleted": "Entreno completado",
+  "workoutView": "Ver entreno",
   "workoutViewUploadVideos": "Ver entreno · subir videos",
   "workoutContinue": "Continuar entreno",
   "workoutStart": "Empezar entreno",
@@ -166,7 +182,9 @@
   "programWaitsFor": "Empieza cuando termines {name}, o asignale fechas para hacerlo en paralelo.",
   "@programWaitsFor": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "programInProgress": "En curso",
@@ -293,6 +311,7 @@
   "sessionCompleted": "Completada",
   "sessionNoSets": "Sin series registradas",
   "sessionYourNote": "Tu nota",
+  "noteShort": "Nota",
   "noteAdd": "Agregar nota para tu coach",
   "noteLabel": "Nota para tu coach",
   "noteHint": "¿Algo que tu coach deba saber? Molestias, técnica, la carga…",
@@ -1654,46 +1673,139 @@
   },
   "workoutNewPr": "NUEVO PR",
   "workoutPrDiff": "e1RM · +{diff}",
-  "@workoutPrDiff": {"placeholders": {"diff": {"type": "String"}}},
+  "@workoutPrDiff": {
+    "placeholders": {
+      "diff": {
+        "type": "String"
+      }
+    }
+  },
   "workoutPrSemantics": "Nuevo PR en {exercise}: e1RM {value}. Abrir el ejercicio",
-  "@workoutPrSemantics": {"placeholders": {"exercise": {"type": "String"}, "value": {"type": "String"}}},
+  "@workoutPrSemantics": {
+    "placeholders": {
+      "exercise": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "workoutVideosUploading": "Subiendo videos",
   "workoutVideosUploadingFor": "Subiendo videos para {coach}",
-  "@workoutVideosUploadingFor": {"placeholders": {"coach": {"type": "String"}}},
+  "@workoutVideosUploadingFor": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
   "workoutVideosSent": "Videos enviados",
   "workoutVideosSentTo": "Videos enviados a {coach}",
-  "@workoutVideosSentTo": {"placeholders": {"coach": {"type": "String"}}},
+  "@workoutVideosSentTo": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
   "workoutVideosCount": "{done} de {total}",
-  "@workoutVideosCount": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}}},
+  "@workoutVideosCount": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "workoutVideosHint": "Podés cerrar la app: se terminan de subir cuando vuelvas a tener señal.",
   "placeSlot": "{n}.ª",
-  "@placeSlot": {"placeholders": {"n": {"type": "int"}}},
+  "@placeSlot": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "progressPlaceWhy": "¿Por qué {name} va en dos filas?",
-  "@progressPlaceWhy": {"placeholders": {"name": {"type": "String"}}},
+  "@progressPlaceWhy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "progressPlaceTip": "Tu coach lo puso en más de un lugar de tu semana. Cada uno se compara con el mismo día de la semana anterior, así un día más liviano no queda tapado por el otro.",
   "progressPlaceOnly": "Solo tus series de {place}. Los otros días tienen su propia fila en Tu progreso.",
-  "@progressPlaceOnly": {"placeholders": {"place": {"type": "String"}}},
+  "@progressPlaceOnly": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
   "lastFromDay": "{day}, sem. {week}",
-  "@lastFromDay": {"placeholders": {"day": {"type": "String"}, "week": {"type": "int"}}},
+  "@lastFromDay": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "week": {
+        "type": "int"
+      }
+    }
+  },
   "exerciseE1rmOf": "e1RM · {place}",
-  "@exerciseE1rmOf": {"placeholders": {"place": {"type": "String"}}},
+  "@exerciseE1rmOf": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
   "exerciseHistoryOf": "Historial · {place}",
-  "@exerciseHistoryOf": {"placeholders": {"place": {"type": "String"}}},
+  "@exerciseHistoryOf": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
   "exerciseSeeAllDays": "Ver todos los días",
   "exerciseSeeProgress": "Ver tu progreso",
   "exerciseVolumeThatDay": "Volumen ese día {volume}",
-  "@exerciseVolumeThatDay": {"placeholders": {"volume": {"type": "String"}}},
+  "@exerciseVolumeThatDay": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
   "skipMarkedToday": "Marcaste que no lo hacés",
   "skipUndoTrain": "Deshacer · lo voy a entrenar",
   "skipSwipeAction": "No lo haré",
   "skipUndo": "Deshacer",
   "skipSheetTitle": "¿No vas a hacer el {day}?",
-  "@skipSheetTitle": {"placeholders": {"day": {"type": "String"}}},
+  "@skipSheetTitle": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
   "skipSheetCounts": "Cuenta como no hecho en tu constancia.",
   "skipSheetNext": "Pasás al siguiente día del programa.",
   "skipSheetUndo": "Podés deshacerlo deslizando el día otra vez, o entrenarlo igual: al registrar una serie vuelve a ser un entreno normal.",
   "skipNoteLabel": "Contale a {coach} por qué (opcional)",
-  "@skipNoteLabel": {"placeholders": {"coach": {"type": "String"}}},
+  "@skipNoteLabel": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
   "skipNoteLabelNoCoach": "Contale a tu coach por qué (opcional)",
   "skipConfirm": "Marcar como no hecho",
   "skipSessionButton": "No voy a hacer este día",
@@ -1710,59 +1822,157 @@
   "voiceHint": "Máximo 2:00 · tocá ⏸ para escucharlo antes de mandar",
   "voiceMicDenied": "Para mandar audios, dale permiso al micrófono en los ajustes del teléfono.",
   "voicePreview": "Audio · {duration}",
-  "@voicePreview": {"placeholders": {"duration": {"type": "String"}}},
+  "@voicePreview": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
   "settingsAutoRest": "Descanso automático",
   "settingsAutoRestHint": "El timer arranca solo entre series del mismo ejercicio",
   "notifRemindersChannel": "Recordatorios",
   "notifRemindersChannelDesc": "Recordatorios de pagos y avisos de tu coach",
   "notifPaymentDueTodayTitle": "Hoy vence tu pago",
   "notifPaymentDueInTitle": "Tu pago vence {days, plural, =1{mañana} other{en {days} días}}",
-  "@notifPaymentDueInTitle": {"placeholders": {"days": {"type": "int"}}},
+  "@notifPaymentDueInTitle": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "notifPaymentDueTodayBody": "Pago a {coach} de {amount}.",
-  "@notifPaymentDueTodayBody": {"placeholders": {"coach": {"type": "String"}, "amount": {"type": "String"}}},
+  "@notifPaymentDueTodayBody": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "notifPaymentDueInBody": "Pago a {coach} de {amount} el {date}.",
-  "@notifPaymentDueInBody": {"placeholders": {"coach": {"type": "String"}, "amount": {"type": "String"}, "date": {"type": "String"}}},
+  "@notifPaymentDueInBody": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "notifTestTitle": "Haki",
   "notifTestBody": "Las notificaciones funcionan ✓",
   "agendaInPerson": "Sesión presencial",
   "agendaVirtual": "Sesión virtual",
   "agendaToday": "Hoy",
   "agendaCancelledLabel": "Cancelada · {when}",
-  "@agendaCancelledLabel": {"placeholders": {"when": {"type": "String"}}},
+  "@agendaCancelledLabel": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
   "agendaCancelledBody": "{coach} canceló esta sesión.",
-  "@agendaCancelledBody": {"placeholders": {"coach": {"type": "String"}}},
+  "@agendaCancelledBody": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
   "agendaDirections": "Cómo llegar",
   "agendaJoin": "Unirme",
   "agendaMessage": "Escribirle",
   "agendaCantGo": "No puedo ir",
   "agendaDeclined": "Le avisaste a {coach} que no podés ir.",
-  "@agendaDeclined": {"placeholders": {"coach": {"type": "String"}}},
+  "@agendaDeclined": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
   "agendaUndoDecline": "Deshacer · sí voy",
   "agendaDeclineTitle": "¿No podés ir?",
   "agendaDeclineInfo": "{coach} va a ver el aviso en su agenda. La sesión no se cancela: si quieren otro horario, escribile.",
-  "@agendaDeclineInfo": {"placeholders": {"coach": {"type": "String"}}},
+  "@agendaDeclineInfo": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
   "agendaDeclineReason": "Motivo (opcional)",
   "agendaDeclineConfirm": "Avisar a {coach}",
-  "@agendaDeclineConfirm": {"placeholders": {"coach": {"type": "String"}}},
+  "@agendaDeclineConfirm": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
   "agendaOpenError": "No se pudo abrir el link",
   "notifEventInvitedTitle": "{coach} te invitó a una sesión",
-  "@notifEventInvitedTitle": {"placeholders": {"coach": {"type": "String"}}},
+  "@notifEventInvitedTitle": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
   "notifEventInvitedSeriesTitle": "{coach} te invitó a sesiones semanales",
-  "@notifEventInvitedSeriesTitle": {"placeholders": {"coach": {"type": "String"}}},
+  "@notifEventInvitedSeriesTitle": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
   "notifEventChangedTitle": "{coach} cambió tu sesión",
-  "@notifEventChangedTitle": {"placeholders": {"coach": {"type": "String"}}},
+  "@notifEventChangedTitle": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
   "notifEventTimeChangedTitle": "Cambió la hora de tu sesión",
   "notifEventPlaceChangedTitle": "Cambió el lugar de tu sesión",
   "notifEventLinkChangedTitle": "Cambió el link de tu sesión",
   "notifEventCancelledTitle": "Se canceló tu sesión",
   "notifEventCancelledSeriesTitle": "Se cancelaron tus sesiones semanales",
   "notifEventEvery": "Los {days}",
-  "@notifEventEvery": {"placeholders": {"days": {"type": "String"}}},
+  "@notifEventEvery": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
   "notifEventUntil": "hasta el {date}",
-  "@notifEventUntil": {"placeholders": {"date": {"type": "String"}}},
+  "@notifEventUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "notifEventFrom": "desde el {date}",
-  "@notifEventFrom": {"placeholders": {"date": {"type": "String"}}},
-  "commonAnd": "y",
+  "@notifEventFrom": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "agendaKindInPerson": "Presencial",
   "agendaKindVirtual": "Virtual",
   "inboxTitle": "Avisos",
@@ -1770,17 +1980,274 @@
   "inboxEmptyTitle": "No tenés avisos",
   "inboxEmptyBody": "Acá te avisamos cuando tu coach te invite a una sesión, la cambie o la cancele, y de tus pagos.",
   "inboxButton": "{count, plural, =0{Avisos} =1{Avisos, 1 sin leer} other{Avisos, {count} sin leer}}",
-  "@inboxButton": {"placeholders": {"count": {"type": "int"}}},
+  "@inboxButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "agoNow": "Ahora",
   "agoMinutes": "Hace {n} min",
-  "@agoMinutes": {"placeholders": {"n": {"type": "int"}}},
+  "@agoMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "agoHours": "Hace {n} h",
-  "@agoHours": {"placeholders": {"n": {"type": "int"}}},
+  "@agoHours": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "notifEventReminderTitle": "Tu sesión con {coach} es a las {time}",
-  "@notifEventReminderTitle": {"placeholders": {"coach": {"type": "String"}, "time": {"type": "String"}}},
+  "@notifEventReminderTitle": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "notifEventReminderTomorrowTitle": "Mañana tenés sesión con {coach}",
-  "@notifEventReminderTomorrowTitle": {"placeholders": {"coach": {"type": "String"}}},
+  "@notifEventReminderTomorrowTitle": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
   "agendaGoing": "Voy",
   "agendaConfirmed": "Le confirmaste a {coach} que vas.",
-  "@agendaConfirmed": {"placeholders": {"coach": {"type": "String"}}}
+  "@agendaConfirmed": {
+    "placeholders": {
+      "coach": {
+        "type": "String"
+      }
+    }
+  },
+  "shareTitle": "Compartir entreno",
+  "shareAction": "Compartir",
+  "shareButton": "Compartir en historias",
+  "shareReps": "{count} reps",
+  "@shareReps": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsShare": "Compartir entrenos",
+  "settingsShareHint": "Botón para compartir tu entreno en historias",
+  "muscleAbductors": "Abductores",
+  "muscleAbs": "Abdominales",
+  "muscleAdductors": "Aductores",
+  "muscleArms": "Brazos",
+  "muscleBack": "Espalda",
+  "muscleBiceps": "Bíceps",
+  "muscleBrachialis": "Braquial",
+  "muscleBrachioradialis": "Braquiorradial",
+  "muscleCalves": "Pantorrillas",
+  "muscleChest": "Pecho",
+  "muscleCore": "Core",
+  "muscleForearms": "Antebrazos",
+  "muscleFrontDelts": "Deltoide frontal",
+  "muscleGastrocnemius": "Gemelos (gastrocnemios)",
+  "muscleGluteMedius": "Glúteo medio",
+  "muscleGluteMinimus": "Glúteo menor",
+  "muscleGlutes": "Glúteo mayor",
+  "muscleHamstrings": "Isquiotibiales",
+  "muscleHipFlexors": "Flexores de cadera",
+  "muscleLats": "Dorsales",
+  "muscleLegs": "Pierna",
+  "muscleLowerBack": "Lumbares",
+  "muscleLowerChest": "Pecho inferior",
+  "muscleLowerTraps": "Trapecio inferior",
+  "muscleMidChest": "Pecho medio",
+  "muscleMidTraps": "Trapecio medio",
+  "muscleNeck": "Cuello",
+  "muscleObliques": "Oblicuos",
+  "muscleQuads": "Cuádriceps",
+  "muscleRearDelts": "Deltoide posterior",
+  "muscleRhomboids": "Romboides",
+  "muscleRotatorCuff": "Manguito rotador",
+  "muscleSerratus": "Serrato anterior",
+  "muscleShoulders": "Hombro",
+  "muscleSideDelts": "Deltoide lateral",
+  "muscleSoleus": "Sóleo",
+  "muscleTeresMajor": "Redondo mayor",
+  "muscleTibialis": "Tibial anterior",
+  "muscleTransverseAbs": "Transverso abdominal",
+  "muscleTraps": "Trapecios",
+  "muscleTriceps": "Tríceps",
+  "muscleTricepsLongHead": "Tríceps cabeza larga",
+  "muscleUpperBack": "Espalda alta",
+  "muscleUpperChest": "Pecho superior",
+  "muscleUpperTraps": "Trapecio superior",
+  "sharePeriodDay": "Día",
+  "sharePeriodWeek": "Semana",
+  "sharePeriodMonth": "Mes",
+  "sharePeriodDaySub": "Este entreno",
+  "shareBackground": "Fondo",
+  "shareNoBackground": "Sin fondo",
+  "shareOpacity": "Opacidad",
+  "shareSave": "Guardar",
+  "shareSaved": "Guardado en tu galería",
+  "shareSaveError": "No se pudo guardar en la galería",
+  "shareColorObsidian": "Obsidiana",
+  "shareColorGold": "Dorado",
+  "shareColorTurquoise": "Turquesa",
+  "shareColorWhite": "Blanco",
+  "shareStRecord": "Récord",
+  "shareStSummary": "Resumen",
+  "shareStMuscles": "Músculos",
+  "shareStExercises": "Ejercicios",
+  "shareStWeek": "Mi semana",
+  "shareStNumbers": "Números",
+  "shareStRecords": "Récords",
+  "shareStProgram": "Programa",
+  "shareStWorkouts": "Entrenos",
+  "shareNewRecordGain": "Nuevo récord · e1RM · +{gain}",
+  "@shareNewRecordGain": {
+    "placeholders": {
+      "gain": {
+        "type": "String"
+      }
+    }
+  },
+  "shareBestE1Rm": "Mejor e1RM del día",
+  "shareVolume": "Volumen",
+  "shareSetsLabel": "Series",
+  "shareRecordsLabel": "Récords",
+  "shareDuration": "Duración",
+  "shareTime": "Tiempo",
+  "shareWorkoutsLabel": "Entrenos",
+  "shareVsLastWeek": "{delta} vs. la semana pasada",
+  "@shareVsLastWeek": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "shareSetsOf": "{done} de {total}",
+  "@shareSetsOf": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "shareAllSetsDone": "Todas hechas",
+  "shareE1RmNote": "Mejor e1RM de cada ejercicio",
+  "shareOfTotal": "de {count}",
+  "@shareOfTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shareWorkoutsDone": "entrenos hechos",
+  "shareWeekLegend": "✓ hecho · ✕ faltó · gris = descanso",
+  "shareStreak": "{count, plural, =1{Racha: 1 semana} other{Racha: {count} semanas seguidas}}",
+  "@shareStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shareMyWeek": "Mi semana",
+  "shareSame": "= igual",
+  "shareVsLastWeekShort": "vs. la semana pasada",
+  "shareRecordsThisWeek": "{count, plural, =1{1 récord esta semana} other{{count} récords esta semana}}",
+  "@shareRecordsThisWeek": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shareSetsPerMuscle": "Series por músculo",
+  "shareTargetLine": "Línea = lo que pide tu programa",
+  "shareWeekOf": "Semana {week} de {total}",
+  "@shareWeekOf": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "shareProgramWorkouts": "{done} de {total} entrenos del programa",
+  "@shareProgramWorkouts": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "shareOfDue": "de los entrenos que tocaban",
+  "shareBlockGain": "{name} +{gain} en el bloque",
+  "@shareBlockGain": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "gain": {
+        "type": "String"
+      }
+    }
+  },
+  "shareE1RmGain": "e1RM · +{gain}",
+  "@shareE1RmGain": {
+    "placeholders": {
+      "gain": {
+        "type": "String"
+      }
+    }
+  },
+  "shareRecordsOfMonth": "Récords del mes",
+  "shareMoreRecords": "{count, plural, =1{+ 1 récord más} other{+ {count} récords más}}",
+  "@shareMoreRecords": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shareVsMonth": "vs. {month}",
+  "@shareVsMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "shareToDate": "{month} · hasta hoy",
+  "@shareToDate": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "shareWeekDone": "¡Cumpliste tu semana!",
+  "shareNothing": "Todavía no hay entrenos para compartir",
+  "progressShare": "Compartir"
 }

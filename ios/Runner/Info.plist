@@ -68,6 +68,8 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Para grabar el video de tus series y mandárselo a tu coach.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Para guardar tus stickers de entrenos en tus fotos.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Para grabar el video de tus series con sonido.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

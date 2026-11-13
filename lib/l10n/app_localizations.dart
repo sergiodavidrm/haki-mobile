@@ -548,6 +548,12 @@ abstract class AppLocalizations {
   /// **'Entreno completado'**
   String get workoutCompleted;
 
+  /// No description provided for @workoutView.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver entreno'**
+  String get workoutView;
+
   /// No description provided for @workoutViewUploadVideos.
   ///
   /// In es, this message translates to:
@@ -901,6 +907,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tu nota'**
   String get sessionYourNote;
+
+  /// No description provided for @noteShort.
+  ///
+  /// In es, this message translates to:
+  /// **'Nota'**
+  String get noteShort;
 
   /// No description provided for @noteAdd.
   ///
@@ -4171,6 +4183,654 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Le confirmaste a {coach} que vas.'**
   String agendaConfirmed(String coach);
+
+  /// No description provided for @shareTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Compartir entreno'**
+  String get shareTitle;
+
+  /// No description provided for @shareAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Compartir'**
+  String get shareAction;
+
+  /// No description provided for @shareButton.
+  ///
+  /// In es, this message translates to:
+  /// **'Compartir en historias'**
+  String get shareButton;
+
+  /// No description provided for @shareReps.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} reps'**
+  String shareReps(int count);
+
+  /// No description provided for @settingsShare.
+  ///
+  /// In es, this message translates to:
+  /// **'Compartir entrenos'**
+  String get settingsShare;
+
+  /// No description provided for @settingsShareHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Botón para compartir tu entreno en historias'**
+  String get settingsShareHint;
+
+  /// No description provided for @muscleAbductors.
+  ///
+  /// In es, this message translates to:
+  /// **'Abductores'**
+  String get muscleAbductors;
+
+  /// No description provided for @muscleAbs.
+  ///
+  /// In es, this message translates to:
+  /// **'Abdominales'**
+  String get muscleAbs;
+
+  /// No description provided for @muscleAdductors.
+  ///
+  /// In es, this message translates to:
+  /// **'Aductores'**
+  String get muscleAdductors;
+
+  /// No description provided for @muscleArms.
+  ///
+  /// In es, this message translates to:
+  /// **'Brazos'**
+  String get muscleArms;
+
+  /// No description provided for @muscleBack.
+  ///
+  /// In es, this message translates to:
+  /// **'Espalda'**
+  String get muscleBack;
+
+  /// No description provided for @muscleBiceps.
+  ///
+  /// In es, this message translates to:
+  /// **'Bíceps'**
+  String get muscleBiceps;
+
+  /// No description provided for @muscleBrachialis.
+  ///
+  /// In es, this message translates to:
+  /// **'Braquial'**
+  String get muscleBrachialis;
+
+  /// No description provided for @muscleBrachioradialis.
+  ///
+  /// In es, this message translates to:
+  /// **'Braquiorradial'**
+  String get muscleBrachioradialis;
+
+  /// No description provided for @muscleCalves.
+  ///
+  /// In es, this message translates to:
+  /// **'Pantorrillas'**
+  String get muscleCalves;
+
+  /// No description provided for @muscleChest.
+  ///
+  /// In es, this message translates to:
+  /// **'Pecho'**
+  String get muscleChest;
+
+  /// No description provided for @muscleCore.
+  ///
+  /// In es, this message translates to:
+  /// **'Core'**
+  String get muscleCore;
+
+  /// No description provided for @muscleForearms.
+  ///
+  /// In es, this message translates to:
+  /// **'Antebrazos'**
+  String get muscleForearms;
+
+  /// No description provided for @muscleFrontDelts.
+  ///
+  /// In es, this message translates to:
+  /// **'Deltoide frontal'**
+  String get muscleFrontDelts;
+
+  /// No description provided for @muscleGastrocnemius.
+  ///
+  /// In es, this message translates to:
+  /// **'Gemelos (gastrocnemios)'**
+  String get muscleGastrocnemius;
+
+  /// No description provided for @muscleGluteMedius.
+  ///
+  /// In es, this message translates to:
+  /// **'Glúteo medio'**
+  String get muscleGluteMedius;
+
+  /// No description provided for @muscleGluteMinimus.
+  ///
+  /// In es, this message translates to:
+  /// **'Glúteo menor'**
+  String get muscleGluteMinimus;
+
+  /// No description provided for @muscleGlutes.
+  ///
+  /// In es, this message translates to:
+  /// **'Glúteo mayor'**
+  String get muscleGlutes;
+
+  /// No description provided for @muscleHamstrings.
+  ///
+  /// In es, this message translates to:
+  /// **'Isquiotibiales'**
+  String get muscleHamstrings;
+
+  /// No description provided for @muscleHipFlexors.
+  ///
+  /// In es, this message translates to:
+  /// **'Flexores de cadera'**
+  String get muscleHipFlexors;
+
+  /// No description provided for @muscleLats.
+  ///
+  /// In es, this message translates to:
+  /// **'Dorsales'**
+  String get muscleLats;
+
+  /// No description provided for @muscleLegs.
+  ///
+  /// In es, this message translates to:
+  /// **'Pierna'**
+  String get muscleLegs;
+
+  /// No description provided for @muscleLowerBack.
+  ///
+  /// In es, this message translates to:
+  /// **'Lumbares'**
+  String get muscleLowerBack;
+
+  /// No description provided for @muscleLowerChest.
+  ///
+  /// In es, this message translates to:
+  /// **'Pecho inferior'**
+  String get muscleLowerChest;
+
+  /// No description provided for @muscleLowerTraps.
+  ///
+  /// In es, this message translates to:
+  /// **'Trapecio inferior'**
+  String get muscleLowerTraps;
+
+  /// No description provided for @muscleMidChest.
+  ///
+  /// In es, this message translates to:
+  /// **'Pecho medio'**
+  String get muscleMidChest;
+
+  /// No description provided for @muscleMidTraps.
+  ///
+  /// In es, this message translates to:
+  /// **'Trapecio medio'**
+  String get muscleMidTraps;
+
+  /// No description provided for @muscleNeck.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuello'**
+  String get muscleNeck;
+
+  /// No description provided for @muscleObliques.
+  ///
+  /// In es, this message translates to:
+  /// **'Oblicuos'**
+  String get muscleObliques;
+
+  /// No description provided for @muscleQuads.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuádriceps'**
+  String get muscleQuads;
+
+  /// No description provided for @muscleRearDelts.
+  ///
+  /// In es, this message translates to:
+  /// **'Deltoide posterior'**
+  String get muscleRearDelts;
+
+  /// No description provided for @muscleRhomboids.
+  ///
+  /// In es, this message translates to:
+  /// **'Romboides'**
+  String get muscleRhomboids;
+
+  /// No description provided for @muscleRotatorCuff.
+  ///
+  /// In es, this message translates to:
+  /// **'Manguito rotador'**
+  String get muscleRotatorCuff;
+
+  /// No description provided for @muscleSerratus.
+  ///
+  /// In es, this message translates to:
+  /// **'Serrato anterior'**
+  String get muscleSerratus;
+
+  /// No description provided for @muscleShoulders.
+  ///
+  /// In es, this message translates to:
+  /// **'Hombro'**
+  String get muscleShoulders;
+
+  /// No description provided for @muscleSideDelts.
+  ///
+  /// In es, this message translates to:
+  /// **'Deltoide lateral'**
+  String get muscleSideDelts;
+
+  /// No description provided for @muscleSoleus.
+  ///
+  /// In es, this message translates to:
+  /// **'Sóleo'**
+  String get muscleSoleus;
+
+  /// No description provided for @muscleTeresMajor.
+  ///
+  /// In es, this message translates to:
+  /// **'Redondo mayor'**
+  String get muscleTeresMajor;
+
+  /// No description provided for @muscleTibialis.
+  ///
+  /// In es, this message translates to:
+  /// **'Tibial anterior'**
+  String get muscleTibialis;
+
+  /// No description provided for @muscleTransverseAbs.
+  ///
+  /// In es, this message translates to:
+  /// **'Transverso abdominal'**
+  String get muscleTransverseAbs;
+
+  /// No description provided for @muscleTraps.
+  ///
+  /// In es, this message translates to:
+  /// **'Trapecios'**
+  String get muscleTraps;
+
+  /// No description provided for @muscleTriceps.
+  ///
+  /// In es, this message translates to:
+  /// **'Tríceps'**
+  String get muscleTriceps;
+
+  /// No description provided for @muscleTricepsLongHead.
+  ///
+  /// In es, this message translates to:
+  /// **'Tríceps cabeza larga'**
+  String get muscleTricepsLongHead;
+
+  /// No description provided for @muscleUpperBack.
+  ///
+  /// In es, this message translates to:
+  /// **'Espalda alta'**
+  String get muscleUpperBack;
+
+  /// No description provided for @muscleUpperChest.
+  ///
+  /// In es, this message translates to:
+  /// **'Pecho superior'**
+  String get muscleUpperChest;
+
+  /// No description provided for @muscleUpperTraps.
+  ///
+  /// In es, this message translates to:
+  /// **'Trapecio superior'**
+  String get muscleUpperTraps;
+
+  /// No description provided for @sharePeriodDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Día'**
+  String get sharePeriodDay;
+
+  /// No description provided for @sharePeriodWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Semana'**
+  String get sharePeriodWeek;
+
+  /// No description provided for @sharePeriodMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'Mes'**
+  String get sharePeriodMonth;
+
+  /// No description provided for @sharePeriodDaySub.
+  ///
+  /// In es, this message translates to:
+  /// **'Este entreno'**
+  String get sharePeriodDaySub;
+
+  /// No description provided for @shareBackground.
+  ///
+  /// In es, this message translates to:
+  /// **'Fondo'**
+  String get shareBackground;
+
+  /// No description provided for @shareNoBackground.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin fondo'**
+  String get shareNoBackground;
+
+  /// No description provided for @shareOpacity.
+  ///
+  /// In es, this message translates to:
+  /// **'Opacidad'**
+  String get shareOpacity;
+
+  /// No description provided for @shareSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar'**
+  String get shareSave;
+
+  /// No description provided for @shareSaved.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardado en tu galería'**
+  String get shareSaved;
+
+  /// No description provided for @shareSaveError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo guardar en la galería'**
+  String get shareSaveError;
+
+  /// No description provided for @shareColorObsidian.
+  ///
+  /// In es, this message translates to:
+  /// **'Obsidiana'**
+  String get shareColorObsidian;
+
+  /// No description provided for @shareColorGold.
+  ///
+  /// In es, this message translates to:
+  /// **'Dorado'**
+  String get shareColorGold;
+
+  /// No description provided for @shareColorTurquoise.
+  ///
+  /// In es, this message translates to:
+  /// **'Turquesa'**
+  String get shareColorTurquoise;
+
+  /// No description provided for @shareColorWhite.
+  ///
+  /// In es, this message translates to:
+  /// **'Blanco'**
+  String get shareColorWhite;
+
+  /// No description provided for @shareStRecord.
+  ///
+  /// In es, this message translates to:
+  /// **'Récord'**
+  String get shareStRecord;
+
+  /// No description provided for @shareStSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen'**
+  String get shareStSummary;
+
+  /// No description provided for @shareStMuscles.
+  ///
+  /// In es, this message translates to:
+  /// **'Músculos'**
+  String get shareStMuscles;
+
+  /// No description provided for @shareStExercises.
+  ///
+  /// In es, this message translates to:
+  /// **'Ejercicios'**
+  String get shareStExercises;
+
+  /// No description provided for @shareStWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Mi semana'**
+  String get shareStWeek;
+
+  /// No description provided for @shareStNumbers.
+  ///
+  /// In es, this message translates to:
+  /// **'Números'**
+  String get shareStNumbers;
+
+  /// No description provided for @shareStRecords.
+  ///
+  /// In es, this message translates to:
+  /// **'Récords'**
+  String get shareStRecords;
+
+  /// No description provided for @shareStProgram.
+  ///
+  /// In es, this message translates to:
+  /// **'Programa'**
+  String get shareStProgram;
+
+  /// No description provided for @shareStWorkouts.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrenos'**
+  String get shareStWorkouts;
+
+  /// No description provided for @shareNewRecordGain.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo récord · e1RM · +{gain}'**
+  String shareNewRecordGain(String gain);
+
+  /// No description provided for @shareBestE1Rm.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejor e1RM del día'**
+  String get shareBestE1Rm;
+
+  /// No description provided for @shareVolume.
+  ///
+  /// In es, this message translates to:
+  /// **'Volumen'**
+  String get shareVolume;
+
+  /// No description provided for @shareSetsLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Series'**
+  String get shareSetsLabel;
+
+  /// No description provided for @shareRecordsLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Récords'**
+  String get shareRecordsLabel;
+
+  /// No description provided for @shareDuration.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración'**
+  String get shareDuration;
+
+  /// No description provided for @shareTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo'**
+  String get shareTime;
+
+  /// No description provided for @shareWorkoutsLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrenos'**
+  String get shareWorkoutsLabel;
+
+  /// No description provided for @shareVsLastWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'{delta} vs. la semana pasada'**
+  String shareVsLastWeek(String delta);
+
+  /// No description provided for @shareSetsOf.
+  ///
+  /// In es, this message translates to:
+  /// **'{done} de {total}'**
+  String shareSetsOf(int done, int total);
+
+  /// No description provided for @shareAllSetsDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas hechas'**
+  String get shareAllSetsDone;
+
+  /// No description provided for @shareE1RmNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejor e1RM de cada ejercicio'**
+  String get shareE1RmNote;
+
+  /// No description provided for @shareOfTotal.
+  ///
+  /// In es, this message translates to:
+  /// **'de {count}'**
+  String shareOfTotal(int count);
+
+  /// No description provided for @shareWorkoutsDone.
+  ///
+  /// In es, this message translates to:
+  /// **'entrenos hechos'**
+  String get shareWorkoutsDone;
+
+  /// No description provided for @shareWeekLegend.
+  ///
+  /// In es, this message translates to:
+  /// **'✓ hecho · ✕ faltó · gris = descanso'**
+  String get shareWeekLegend;
+
+  /// No description provided for @shareStreak.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{Racha: 1 semana} other{Racha: {count} semanas seguidas}}'**
+  String shareStreak(int count);
+
+  /// No description provided for @shareMyWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Mi semana'**
+  String get shareMyWeek;
+
+  /// No description provided for @shareSame.
+  ///
+  /// In es, this message translates to:
+  /// **'= igual'**
+  String get shareSame;
+
+  /// No description provided for @shareVsLastWeekShort.
+  ///
+  /// In es, this message translates to:
+  /// **'vs. la semana pasada'**
+  String get shareVsLastWeekShort;
+
+  /// No description provided for @shareRecordsThisWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 récord esta semana} other{{count} récords esta semana}}'**
+  String shareRecordsThisWeek(int count);
+
+  /// No description provided for @shareSetsPerMuscle.
+  ///
+  /// In es, this message translates to:
+  /// **'Series por músculo'**
+  String get shareSetsPerMuscle;
+
+  /// No description provided for @shareTargetLine.
+  ///
+  /// In es, this message translates to:
+  /// **'Línea = lo que pide tu programa'**
+  String get shareTargetLine;
+
+  /// No description provided for @shareWeekOf.
+  ///
+  /// In es, this message translates to:
+  /// **'Semana {week} de {total}'**
+  String shareWeekOf(int week, int total);
+
+  /// No description provided for @shareProgramWorkouts.
+  ///
+  /// In es, this message translates to:
+  /// **'{done} de {total} entrenos del programa'**
+  String shareProgramWorkouts(int done, int total);
+
+  /// No description provided for @shareOfDue.
+  ///
+  /// In es, this message translates to:
+  /// **'de los entrenos que tocaban'**
+  String get shareOfDue;
+
+  /// No description provided for @shareBlockGain.
+  ///
+  /// In es, this message translates to:
+  /// **'{name} +{gain} en el bloque'**
+  String shareBlockGain(String name, String gain);
+
+  /// No description provided for @shareE1RmGain.
+  ///
+  /// In es, this message translates to:
+  /// **'e1RM · +{gain}'**
+  String shareE1RmGain(String gain);
+
+  /// No description provided for @shareRecordsOfMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'Récords del mes'**
+  String get shareRecordsOfMonth;
+
+  /// No description provided for @shareMoreRecords.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{+ 1 récord más} other{+ {count} récords más}}'**
+  String shareMoreRecords(int count);
+
+  /// No description provided for @shareVsMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'vs. {month}'**
+  String shareVsMonth(String month);
+
+  /// No description provided for @shareToDate.
+  ///
+  /// In es, this message translates to:
+  /// **'{month} · hasta hoy'**
+  String shareToDate(String month);
+
+  /// No description provided for @shareWeekDone.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Cumpliste tu semana!'**
+  String get shareWeekDone;
+
+  /// No description provided for @shareNothing.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no hay entrenos para compartir'**
+  String get shareNothing;
+
+  /// No description provided for @progressShare.
+  ///
+  /// In es, this message translates to:
+  /// **'Compartir'**
+  String get progressShare;
 }
 
 class _AppLocalizationsDelegate

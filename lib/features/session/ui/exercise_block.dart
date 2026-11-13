@@ -39,7 +39,12 @@ class ExerciseBlock extends StatelessWidget {
     this.onCollapse,
     this.note,
     this.onSaveNote,
+    this.camera = true,
   });
+
+  /// Columna de la cámara (false = el coach no pide videos: sus columnas se
+  /// reparten ese ancho)
+  final bool camera;
 
   /// Nota del atleta para el coach (la del teléfono o la de la API).
   final String? note;
@@ -84,11 +89,36 @@ class ExerciseBlock extends StatelessWidget {
   int get _doneCount =>
       List.generate(_rowCount, (i) => savedFor(i + 1)).nonNulls.length;
 
+  /// "Sem. pasada: 116 lb × 12·12·12·12 · e1RM 163.8 lb" (null sin última vez)
+  Widget? lastLine(LastPerformanceDto? last, double? lastE1rm, HakiColors c) {
+    if (last == null || lastTime == null || last.sets.isEmpty) return null;
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: '$lastTime: ${setsSummary(last.sets, unit)}'),
+          if (lastE1rm != null) ...[
+            const TextSpan(text: ' · e1RM '),
+            TextSpan(
+              text: formatWeight(unit.fromKg(lastE1rm)),
+              style: TextStyle(fontWeight: FontWeight.w700, color: c.text),
+            ),
+            TextSpan(text: ' ${unit.label}'),
+          ],
+        ],
+      ),
+      style: TextStyle(
+        fontSize: 12,
+        color: c.textMuted,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final inSuperset = badge != null;
-    final cols = inSuperset ? SetCols.compact : SetCols.normal;
+    final cols = SetCols.of(compact: inSuperset, camera: camera);
     final done = _doneCount == _rowCount;
 
     final table = Column(
@@ -125,43 +155,18 @@ class ExerciseBlock extends StatelessWidget {
         dayExerciseId: exercise.id,
         streamMessageId: exercise.streamMessageId,
       ),
-      // "Sem. pasada: 116 lb × 12·12·12·12        e1RM 163.8 lb"
-      if (last != null && lastTime != null && last.sets.isNotEmpty) ...[
+      // "Sem. pasada: 116 lb × 12·12·12·12 · e1RM 163.8 lb" y, a la derecha
+      // en la misma línea, la pastilla "✎ Nota" (2026-11-12, opción B)
+      if (onSaveNote != null || (lastLine(last, lastE1rm, c) != null)) ...[
         const SizedBox(height: 10),
-        DefaultTextStyle.merge(
-          style: TextStyle(
-            fontSize: 12,
-            color: c.textMuted,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text('$lastTime: ${setsSummary(last.sets, unit)}'),
-              ),
-              if (lastE1rm != null)
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      const TextSpan(text: 'e1RM '),
-                      TextSpan(
-                        text: formatWeight(unit.fromKg(lastE1rm)),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: c.text,
-                        ),
-                      ),
-                      TextSpan(text: ' ${unit.label}'),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ],
-      if (onSaveNote != null) ...[
-        const SizedBox(height: 10),
-        AthleteNote(note: note, onSave: onSaveNote!),
+        if (onSaveNote != null)
+          AthleteNote(
+            note: note,
+            onSave: onSaveNote!,
+            leading: lastLine(last, lastE1rm, c),
+          )
+        else
+          lastLine(last, lastE1rm, c)!,
       ],
     ];
 

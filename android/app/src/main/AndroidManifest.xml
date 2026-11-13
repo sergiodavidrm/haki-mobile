@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <!-- Mensajes de voz del chat -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- Guardar stickers en la galería (gal) en Android 9 o anterior -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
     <application
         android:label="Haki"
         android:name="${applicationName}"

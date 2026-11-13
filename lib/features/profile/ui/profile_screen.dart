@@ -17,6 +17,7 @@ import '../../body/providers/body_providers.dart';
 import '../../body/ui/body_widgets.dart';
 import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
+import '../../share/providers/share_providers.dart';
 import '../data/streak_dto.dart';
 import '../providers/profile_providers.dart';
 import '../../../l10n/l10n.dart';
@@ -140,6 +141,8 @@ class _ProgressCard extends ConsumerWidget {
         .where((r) => r.isPr)
         .firstOrNull;
     final streak = s?.currentWeeks ?? 0;
+    // Compartir la semana sin buscar un entreno (Ajustes → Compartir entrenos)
+    final shareOn = ref.watch(shareWorkoutsEnabledProvider);
     final title = streak > 0 ? l.streakComplete(streak) : l.streakStart;
     final hint = streakHintOf(s);
     final subtitle = switch (hint.kind) {
@@ -162,7 +165,7 @@ class _ProgressCard extends ConsumerWidget {
       child: Semantics(
         button: true,
         label: '${l.progressTitle}. $title. $subtitle',
-        excludeSemantics: true,
+        excludeSemantics: !shareOn,
         child: Material(
           color: c.goldSurface,
           shape: RoundedRectangleBorder(
@@ -190,6 +193,21 @@ class _ProgressCard extends ConsumerWidget {
                           ),
                         ),
                       ),
+                      if (shareOn)
+                        SizedBox(
+                          width: 32,
+                          height: 24,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            iconSize: 18,
+                            tooltip: l.progressShare,
+                            onPressed: () => context.push(Routes.shareWeek),
+                            icon: Icon(
+                              Icons.ios_share,
+                              color: c.goldBright,
+                            ),
+                          ),
+                        ),
                       Icon(Icons.chevron_right, size: 20, color: c.goldBright),
                     ],
                   ),

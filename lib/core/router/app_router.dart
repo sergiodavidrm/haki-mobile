@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/auth/data/auth_repository.dart';
+import '../../features/share/ui/share_screen.dart';
+import '../../features/share/data/share_stickers.dart' show SharePeriod;
 import '../../features/auth/ui/athlete_gate.dart';
 import '../../features/auth/ui/login_screen.dart';
 import '../../features/auth/ui/signup_code_screen.dart';
@@ -63,6 +65,13 @@ abstract final class Routes {
   ) => '/ejercicio/$assignmentId/$dayId/$dayExerciseId';
   static String sessionDone(String assignmentId, String dayId) =>
       '/completado/$assignmentId/$dayId';
+
+  /// Compartir entreno en historias (Ajustes → Compartir entrenos)
+  static String share(String assignmentId, String dayId) =>
+      '/compartir/$assignmentId/$dayId';
+
+  /// Compartir sin un entreno (Perfil → Tu progreso): abre en Semana
+  static const shareWeek = '/compartir?periodo=semana';
 
   // Dentro del tab Programa (con la barra de tabs)
   static const programs = '/programa/todos';
@@ -166,6 +175,23 @@ GoRouter appRouter(Ref ref) {
         ),
       ),
       GoRoute(path: Routes.inbox, builder: (_, _) => const InboxScreen()),
+      GoRoute(
+        path: '/compartir',
+        builder: (_, state) => ShareScreen(
+          period: switch (state.uri.queryParameters['periodo']) {
+            'mes' => SharePeriod.month,
+            'dia' => SharePeriod.day,
+            _ => SharePeriod.week,
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/compartir/:assignmentId/:dayId',
+        builder: (_, state) => ShareScreen(
+          assignmentId: state.pathParameters['assignmentId']!,
+          dayId: state.pathParameters['dayId']!,
+        ),
+      ),
       GoRoute(
         path: '/ejercicio/:assignmentId/:dayId/:dayExerciseId',
         builder: (_, state) => ExerciseDetailScreen(

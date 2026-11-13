@@ -1141,6 +1141,39 @@ Canvas "Haki · Tema v2" https://claude.ai/artifact/KJi5b1ccQG1MsktWV9uwwx.
   cuenta desde mañana, igual que en la API). Tests en `session_sync_test` y
   `program_schedule_test`.
 
+### Niveles, XP y logros (2026-11-13, sin commitear ni probar en el emulador)
+
+Canvas https://claude.ai/artifact/Bis8fb6sbujFYsHdy5tn3d; API en
+`haki-api/CLAUDE.md` § Niveles, XP y logros. Todo en `features/levels/`:
+- `levelProvider` (`GET levels/{yo}`, necesita red; la API recalcula el XP)
+  y `dayXpProvider(assignmentId, dayId)` (`GET levels/{yo}/assignments/{a}/days/{d}`:
+  el entreno sube en cola, así que mientras la API no lo tenga completo
+  (`pending`) vuelve a preguntar 6 veces cada 4 s; al tenerlo invalida el nivel).
+- **Perfil:** con nivel, el avatar lleva el anillo de progreso (degradado del
+  color del rango al del siguiente) y la medallita del rango; tarjeta Nivel
+  (rango, barra de XP dorada, logros, "faltan N para el nivel N+1") → Nivel y
+  logros (`/perfil/nivel`). Pastilla de experiencia ("Intermedio") debajo del
+  nombre si el coach la deja ver (`/auth/me` `experience`).
+- **Nivel y logros:** anillo con el ícono, camino de rangos con íconos, cómo
+  sumar XP (valores fijos de `XpRules`) y grilla de logros (bloqueados con
+  "6 de 8").
+- **Entreno completado:** tarjeta "+190 XP" con el desglose, medallita y
+  barra; "¡Subiste al nivel N!" si subió. Si cambió de rango abre una vez
+  `/nuevo-rango/:rank?nivel=` (todo en el color del rango nuevo; botón Seguir;
+  "Compartir en historias" del mockup quedó para después).
+- **Switch del coach** (`/auth/me` `levelsEnabled`, o `showLevels` del nivel):
+  apagado no se muestra nada de esto. **El atleta también los puede ocultar**
+  (2026-11-13, Sergio): Ajustes → Entrenamiento → "Mostrar niveles y logros"
+  (`ShowGamification`, `shared_preferences` `show_gamification`, arranca
+  prendido; la fila solo aparece si el coach los prendió).
+  `gamificationVisibleProvider` = los dos; la pastilla de experiencia no
+  depende de esto. El XP se sigue sumando igual.
+- Colores de rango en `core/theme/rank_colors.dart` (oscuro/claro, `Rank`),
+  íconos en `levels/ui/rank_icon.dart` (`CustomPainter` con los mismos trazos
+  del web, grilla de 48). Textos `rank*`, `badge*`, `level*`, `xp*`.
+- Test: `test/levels_test.dart` (Nivel y logros en los dos temas, Nuevo rango
+  con los 5 rangos, anillo de Shōgun).
+
 ### Compartir: stickers para historias (2026-11-12, sin probar)
 
 Canvas https://claude.ai/artifact/XgxAnMeTfAh9gdVjzmFy2t (reemplaza a la v2

@@ -14,6 +14,9 @@ import '../data/session_plan.dart';
 import '../data/workout_prs.dart';
 import '../providers/session_providers.dart';
 import '../../../l10n/l10n.dart';
+import '../../levels/data/level_dto.dart';
+import '../../levels/providers/level_providers.dart';
+import '../../levels/ui/level_widgets.dart';
 
 // Resumen al finalizar el entreno (mockup "Entreno completado" del canvas Haki
 // Mobile): duración, series, volumen, nuevos PR (tocar abre el Detalle de
@@ -92,6 +95,10 @@ class WorkoutCompleteScreen extends ConsumerWidget {
                       child: Center(child: CircularProgressIndicator()),
                     ),
                   },
+                  if (ref.watch(gamificationVisibleProvider)) ...[
+                    const SizedBox(height: 12),
+                    _XpCard(assignmentId: assignmentId, dayId: dayId),
+                  ],
                   for (final pr in prs) ...[
                     const SizedBox(height: 12),
                     _PrCard(
@@ -416,5 +423,141 @@ class _VideosCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// "+190 XP" del entreno con el desglose y la barra del nivel (canvas "Haki ·
+/// Niveles y logros", App · Entreno completado). Si cambió de rango abre la
+/// pantalla de festejo una vez. Sin red o mientras el entreno sube: aviso.
+class _XpCard extends ConsumerStatefulWidget {
+  const _XpCard({required this.assignmentId, required this.dayId});
+
+  final String assignmentId;
+  final String dayId;
+
+  @override
+  ConsumerState<_XpCard> createState() => _XpCardState();
+}
+
+class _XpCardState extends ConsumerState<_XpCard> {
+  bool _celebrated = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final l = context.l10n;
+    final provider = dayXpProvider(widget.assignmentId, widget.dayId);
+    ref.listen(provider, (_, next) {
+      final xp = next.value;
+      if (xp == null || _celebrated || !xp.rankUp || !xp.level.showLevels) return;
+      _celebrated = true;
+      context.push(Routes.newRank(xp.rankAfter, xp.levelAfter));
+    });
+    final xp = ref.watch(provider).value;
+    if (xp != null && !xp.level.showLevels) return const SizedBox.shrink();
+
+    if (xp == null || xp.pending) {
+      return HakiCard(
+        child: Row(
+          children: [
+            Icon(Icons.bolt, color: c.goldBright),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                l.xpPending,
+                style: TextStyle(fontSize: 13, color: c.textSecondary),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final level = xp.level;
+    return HakiCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                '+${xp.points} XP',
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: c.goldBright),
+              ),
+              const SizedBox(width: 8),
+              Text(l.xpThisWorkout, style: TextStyle(fontSize: 13, color: c.textMuted)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          for (final item in xp.items.where((i) => i.points > 0))
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _label(context, item),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 13, color: c.textSecondary),
+                    ),
+                  ),
+                  Text(
+                    '+${item.points}',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: c.text),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 10),
+          Divider(height: 1, color: c.border),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              RankMedal(level.rank, size: 34),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    XpBar(progress: level.progress),
+                    const SizedBox(height: 6),
+                    Text(
+                      xp.levelUp
+                          ? l.xpLevelUp(level.level)
+                          : l.xpToNext(level.levelXp, level.levelCost, level.levelCost - level.levelXp, level.level + 1),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: xp.levelUp ? FontWeight.w700 : FontWeight.w400,
+                        color: xp.levelUp ? c.goldBright : c.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _label(BuildContext context, XpItemDto i) {
+    final l = context.l10n;
+    return switch (i.kind) {
+      'session' => i.points < 100 ? l.xpItemPartial : l.xpItemWorkout,
+      'all_sets' => l.xpItemAllSets,
+      'pr' => l.xpItemPr(i.detail ?? ''),
+      'video' => l.xpItemVideo(i.detail ?? ''),
+      'week' => l.xpItemWeek,
+      'streak' => l.xpItemStreak,
+      'program' => l.xpItemProgram,
+      'badge' => l.xpItemBadge(badgeName(l, i.key)),
+      'questionnaire' => l.xpItemQuestionnaire,
+      'body_log' => l.xpItemBodyLog,
+      _ => i.kind,
+    };
   }
 }

@@ -4831,6 +4831,372 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Compartir'**
   String get progressShare;
+
+  /// No description provided for @rankAwakening.
+  ///
+  /// In es, this message translates to:
+  /// **'Despertar'**
+  String get rankAwakening;
+
+  /// No description provided for @rankWarrior.
+  ///
+  /// In es, this message translates to:
+  /// **'Guerrero'**
+  String get rankWarrior;
+
+  /// No description provided for @rankSamurai.
+  ///
+  /// In es, this message translates to:
+  /// **'Samurái'**
+  String get rankSamurai;
+
+  /// No description provided for @rankDaimyo.
+  ///
+  /// In es, this message translates to:
+  /// **'Daimyō'**
+  String get rankDaimyo;
+
+  /// No description provided for @rankShogun.
+  ///
+  /// In es, this message translates to:
+  /// **'Shōgun'**
+  String get rankShogun;
+
+  /// No description provided for @experienceBeginner.
+  ///
+  /// In es, this message translates to:
+  /// **'Principiante'**
+  String get experienceBeginner;
+
+  /// No description provided for @experienceIntermediate.
+  ///
+  /// In es, this message translates to:
+  /// **'Intermedio'**
+  String get experienceIntermediate;
+
+  /// No description provided for @experienceAdvanced.
+  ///
+  /// In es, this message translates to:
+  /// **'Avanzado'**
+  String get experienceAdvanced;
+
+  /// No description provided for @badgeStreak.
+  ///
+  /// In es, this message translates to:
+  /// **'Racha de {n} semanas'**
+  String badgeStreak(int n);
+
+  /// No description provided for @badgeFirstWorkout.
+  ///
+  /// In es, this message translates to:
+  /// **'Primer entreno'**
+  String get badgeFirstWorkout;
+
+  /// No description provided for @badgeWorkouts.
+  ///
+  /// In es, this message translates to:
+  /// **'{n} entrenos'**
+  String badgeWorkouts(int n);
+
+  /// No description provided for @badgeFirstPr.
+  ///
+  /// In es, this message translates to:
+  /// **'Primer récord'**
+  String get badgeFirstPr;
+
+  /// No description provided for @badgePrs.
+  ///
+  /// In es, this message translates to:
+  /// **'{n} récords'**
+  String badgePrs(int n);
+
+  /// No description provided for @badgeTons.
+  ///
+  /// In es, this message translates to:
+  /// **'{n} toneladas'**
+  String badgeTons(int n);
+
+  /// No description provided for @badgeQuestionnaires.
+  ///
+  /// In es, this message translates to:
+  /// **'{n} cuestionarios'**
+  String badgeQuestionnaires(int n);
+
+  /// No description provided for @badgeProgramDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Programa terminado'**
+  String get badgeProgramDone;
+
+  /// No description provided for @badgeProgramPerfect.
+  ///
+  /// In es, this message translates to:
+  /// **'Programa al 100 %'**
+  String get badgeProgramPerfect;
+
+  /// No description provided for @badgeProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'{value} de {target}'**
+  String badgeProgress(int value, int target);
+
+  /// No description provided for @levelsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Nivel y logros'**
+  String get levelsTitle;
+
+  /// No description provided for @levelsOffline.
+  ///
+  /// In es, this message translates to:
+  /// **'Necesitás conexión para ver tu nivel.'**
+  String get levelsOffline;
+
+  /// No description provided for @levelsRanks.
+  ///
+  /// In es, this message translates to:
+  /// **'Rangos'**
+  String get levelsRanks;
+
+  /// No description provided for @levelsHowToEarn.
+  ///
+  /// In es, this message translates to:
+  /// **'Cómo sumar XP'**
+  String get levelsHowToEarn;
+
+  /// No description provided for @levelsNeverLose.
+  ///
+  /// In es, this message translates to:
+  /// **'El XP nunca se resta: si faltás, solo se corta la racha.'**
+  String get levelsNeverLose;
+
+  /// No description provided for @levelsBadges.
+  ///
+  /// In es, this message translates to:
+  /// **'Logros · {unlocked} de {total}'**
+  String levelsBadges(int unlocked, int total);
+
+  /// No description provided for @levelN.
+  ///
+  /// In es, this message translates to:
+  /// **'Nivel {level}'**
+  String levelN(int level);
+
+  /// No description provided for @levelXpOf.
+  ///
+  /// In es, this message translates to:
+  /// **'{xp} / {cost} XP · {total} XP en total'**
+  String levelXpOf(int xp, int cost, int total);
+
+  /// No description provided for @levelNextRank.
+  ///
+  /// In es, this message translates to:
+  /// **'Siguiente rango: {rank} en el nivel {level}'**
+  String levelNextRank(String rank, int level);
+
+  /// No description provided for @levelFrom.
+  ///
+  /// In es, this message translates to:
+  /// **'Nivel {start}+'**
+  String levelFrom(int start);
+
+  /// No description provided for @levelRange.
+  ///
+  /// In es, this message translates to:
+  /// **'Nivel {start}–{end}'**
+  String levelRange(int start, int end);
+
+  /// No description provided for @xpWayWorkout.
+  ///
+  /// In es, this message translates to:
+  /// **'Completar un entreno'**
+  String get xpWayWorkout;
+
+  /// No description provided for @xpWayAllSets.
+  ///
+  /// In es, this message translates to:
+  /// **'Hacer todas las series'**
+  String get xpWayAllSets;
+
+  /// No description provided for @xpWayPr.
+  ///
+  /// In es, this message translates to:
+  /// **'Romper un récord (e1RM)'**
+  String get xpWayPr;
+
+  /// No description provided for @xpWayWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Completar la semana'**
+  String get xpWayWeek;
+
+  /// No description provided for @xpWayStreak.
+  ///
+  /// In es, this message translates to:
+  /// **'Racha: por cada semana seguida'**
+  String get xpWayStreak;
+
+  /// No description provided for @xpWayQuestionnaire.
+  ///
+  /// In es, this message translates to:
+  /// **'Responder el cuestionario'**
+  String get xpWayQuestionnaire;
+
+  /// No description provided for @xpWayBodyLog.
+  ///
+  /// In es, this message translates to:
+  /// **'Registrar peso o medidas'**
+  String get xpWayBodyLog;
+
+  /// No description provided for @xpWayProgram.
+  ///
+  /// In es, this message translates to:
+  /// **'Terminar un programa'**
+  String get xpWayProgram;
+
+  /// No description provided for @newRankTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo rango'**
+  String get newRankTitle;
+
+  /// No description provided for @newRankReached.
+  ///
+  /// In es, this message translates to:
+  /// **'Llegaste al nivel {level}.'**
+  String newRankReached(int level);
+
+  /// No description provided for @newRankCoachSees.
+  ///
+  /// In es, this message translates to:
+  /// **'{name} lo va a ver'**
+  String newRankCoachSees(String name);
+
+  /// No description provided for @newRankContinue.
+  ///
+  /// In es, this message translates to:
+  /// **'Seguir'**
+  String get newRankContinue;
+
+  /// No description provided for @levelCardTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Nivel'**
+  String get levelCardTitle;
+
+  /// No description provided for @levelCardBadges.
+  ///
+  /// In es, this message translates to:
+  /// **'{n} logros'**
+  String levelCardBadges(int n);
+
+  /// No description provided for @levelCardHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta semana: +{week} XP · faltan {left} para el nivel {next}'**
+  String levelCardHint(int week, int left, int next);
+
+  /// No description provided for @xpPending.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu XP se suma cuando se sube el entreno.'**
+  String get xpPending;
+
+  /// No description provided for @xpThisWorkout.
+  ///
+  /// In es, this message translates to:
+  /// **'en este entreno'**
+  String get xpThisWorkout;
+
+  /// No description provided for @xpLevelUp.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Subiste al nivel {level}!'**
+  String xpLevelUp(int level);
+
+  /// No description provided for @xpToNext.
+  ///
+  /// In es, this message translates to:
+  /// **'{xp} / {cost} XP · faltan {left} para el nivel {next}'**
+  String xpToNext(int xp, int cost, int left, int next);
+
+  /// No description provided for @xpItemWorkout.
+  ///
+  /// In es, this message translates to:
+  /// **'Entreno completado'**
+  String get xpItemWorkout;
+
+  /// No description provided for @xpItemPartial.
+  ///
+  /// In es, this message translates to:
+  /// **'Entreno parcial'**
+  String get xpItemPartial;
+
+  /// No description provided for @xpItemAllSets.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas las series'**
+  String get xpItemAllSets;
+
+  /// No description provided for @xpItemPr.
+  ///
+  /// In es, this message translates to:
+  /// **'Récord · {exercise}'**
+  String xpItemPr(String exercise);
+
+  /// No description provided for @xpItemVideo.
+  ///
+  /// In es, this message translates to:
+  /// **'Video · {exercise}'**
+  String xpItemVideo(String exercise);
+
+  /// No description provided for @xpItemWeek.
+  ///
+  /// In es, this message translates to:
+  /// **'Semana completa'**
+  String get xpItemWeek;
+
+  /// No description provided for @xpItemStreak.
+  ///
+  /// In es, this message translates to:
+  /// **'Racha'**
+  String get xpItemStreak;
+
+  /// No description provided for @xpItemProgram.
+  ///
+  /// In es, this message translates to:
+  /// **'Programa terminado'**
+  String get xpItemProgram;
+
+  /// No description provided for @xpItemBadge.
+  ///
+  /// In es, this message translates to:
+  /// **'Logro · {name}'**
+  String xpItemBadge(String name);
+
+  /// No description provided for @xpItemQuestionnaire.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuestionario'**
+  String get xpItemQuestionnaire;
+
+  /// No description provided for @xpItemBodyLog.
+  ///
+  /// In es, this message translates to:
+  /// **'Peso o medidas'**
+  String get xpItemBodyLog;
+
+  /// No description provided for @settingsShowLevels.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostrar niveles y logros'**
+  String get settingsShowLevels;
+
+  /// No description provided for @settingsShowLevelsHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu nivel, XP y logros en el Perfil y al terminar un entreno'**
+  String get settingsShowLevelsHint;
 }
 
 class _AppLocalizationsDelegate

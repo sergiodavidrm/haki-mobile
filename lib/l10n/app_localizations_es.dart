@@ -2990,4 +2990,231 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get progressShare => 'Compartir';
+
+  @override
+  String get rankAwakening => 'Despertar';
+
+  @override
+  String get rankWarrior => 'Guerrero';
+
+  @override
+  String get rankSamurai => 'Samurái';
+
+  @override
+  String get rankDaimyo => 'Daimyō';
+
+  @override
+  String get rankShogun => 'Shōgun';
+
+  @override
+  String get experienceBeginner => 'Principiante';
+
+  @override
+  String get experienceIntermediate => 'Intermedio';
+
+  @override
+  String get experienceAdvanced => 'Avanzado';
+
+  @override
+  String badgeStreak(int n) {
+    return 'Racha de $n semanas';
+  }
+
+  @override
+  String get badgeFirstWorkout => 'Primer entreno';
+
+  @override
+  String badgeWorkouts(int n) {
+    return '$n entrenos';
+  }
+
+  @override
+  String get badgeFirstPr => 'Primer récord';
+
+  @override
+  String badgePrs(int n) {
+    return '$n récords';
+  }
+
+  @override
+  String badgeTons(int n) {
+    return '$n toneladas';
+  }
+
+  @override
+  String badgeQuestionnaires(int n) {
+    return '$n cuestionarios';
+  }
+
+  @override
+  String get badgeProgramDone => 'Programa terminado';
+
+  @override
+  String get badgeProgramPerfect => 'Programa al 100 %';
+
+  @override
+  String badgeProgress(int value, int target) {
+    return '$value de $target';
+  }
+
+  @override
+  String get levelsTitle => 'Nivel y logros';
+
+  @override
+  String get levelsOffline => 'Necesitás conexión para ver tu nivel.';
+
+  @override
+  String get levelsRanks => 'Rangos';
+
+  @override
+  String get levelsHowToEarn => 'Cómo sumar XP';
+
+  @override
+  String get levelsNeverLose =>
+      'El XP nunca se resta: si faltás, solo se corta la racha.';
+
+  @override
+  String levelsBadges(int unlocked, int total) {
+    return 'Logros · $unlocked de $total';
+  }
+
+  @override
+  String levelN(int level) {
+    return 'Nivel $level';
+  }
+
+  @override
+  String levelXpOf(int xp, int cost, int total) {
+    return '$xp / $cost XP · $total XP en total';
+  }
+
+  @override
+  String levelNextRank(String rank, int level) {
+    return 'Siguiente rango: $rank en el nivel $level';
+  }
+
+  @override
+  String levelFrom(int start) {
+    return 'Nivel $start+';
+  }
+
+  @override
+  String levelRange(int start, int end) {
+    return 'Nivel $start–$end';
+  }
+
+  @override
+  String get xpWayWorkout => 'Completar un entreno';
+
+  @override
+  String get xpWayAllSets => 'Hacer todas las series';
+
+  @override
+  String get xpWayPr => 'Romper un récord (e1RM)';
+
+  @override
+  String get xpWayWeek => 'Completar la semana';
+
+  @override
+  String get xpWayStreak => 'Racha: por cada semana seguida';
+
+  @override
+  String get xpWayQuestionnaire => 'Responder el cuestionario';
+
+  @override
+  String get xpWayBodyLog => 'Registrar peso o medidas';
+
+  @override
+  String get xpWayProgram => 'Terminar un programa';
+
+  @override
+  String get newRankTitle => 'Nuevo rango';
+
+  @override
+  String newRankReached(int level) {
+    return 'Llegaste al nivel $level.';
+  }
+
+  @override
+  String newRankCoachSees(String name) {
+    return '$name lo va a ver';
+  }
+
+  @override
+  String get newRankContinue => 'Seguir';
+
+  @override
+  String get levelCardTitle => 'Nivel';
+
+  @override
+  String levelCardBadges(int n) {
+    return '$n logros';
+  }
+
+  @override
+  String levelCardHint(int week, int left, int next) {
+    return 'Esta semana: +$week XP · faltan $left para el nivel $next';
+  }
+
+  @override
+  String get xpPending => 'Tu XP se suma cuando se sube el entreno.';
+
+  @override
+  String get xpThisWorkout => 'en este entreno';
+
+  @override
+  String xpLevelUp(int level) {
+    return '¡Subiste al nivel $level!';
+  }
+
+  @override
+  String xpToNext(int xp, int cost, int left, int next) {
+    return '$xp / $cost XP · faltan $left para el nivel $next';
+  }
+
+  @override
+  String get xpItemWorkout => 'Entreno completado';
+
+  @override
+  String get xpItemPartial => 'Entreno parcial';
+
+  @override
+  String get xpItemAllSets => 'Todas las series';
+
+  @override
+  String xpItemPr(String exercise) {
+    return 'Récord · $exercise';
+  }
+
+  @override
+  String xpItemVideo(String exercise) {
+    return 'Video · $exercise';
+  }
+
+  @override
+  String get xpItemWeek => 'Semana completa';
+
+  @override
+  String get xpItemStreak => 'Racha';
+
+  @override
+  String get xpItemProgram => 'Programa terminado';
+
+  @override
+  String xpItemBadge(String name) {
+    return 'Logro · $name';
+  }
+
+  @override
+  String get xpItemQuestionnaire => 'Cuestionario';
+
+  @override
+  String get xpItemBodyLog => 'Peso o medidas';
+
+  @override
+  String get settingsShowLevels => 'Mostrar niveles y logros';
+
+  @override
+  String get settingsShowLevelsHint =>
+      'Tu nivel, XP y logros en el Perfil y al terminar un entreno';
 }

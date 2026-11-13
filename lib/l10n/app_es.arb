@@ -2249,5 +2249,246 @@
   },
   "shareWeekDone": "¡Cumpliste tu semana!",
   "shareNothing": "Todavía no hay entrenos para compartir",
-  "progressShare": "Compartir"
+  "progressShare": "Compartir",
+  "rankAwakening": "Despertar",
+  "rankWarrior": "Guerrero",
+  "rankSamurai": "Samurái",
+  "rankDaimyo": "Daimyō",
+  "rankShogun": "Shōgun",
+  "experienceBeginner": "Principiante",
+  "experienceIntermediate": "Intermedio",
+  "experienceAdvanced": "Avanzado",
+  "badgeStreak": "Racha de {n} semanas",
+  "@badgeStreak": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "badgeFirstWorkout": "Primer entreno",
+  "badgeWorkouts": "{n} entrenos",
+  "@badgeWorkouts": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "badgeFirstPr": "Primer récord",
+  "badgePrs": "{n} récords",
+  "@badgePrs": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "badgeTons": "{n} toneladas",
+  "@badgeTons": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "badgeQuestionnaires": "{n} cuestionarios",
+  "@badgeQuestionnaires": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "badgeProgramDone": "Programa terminado",
+  "badgeProgramPerfect": "Programa al 100 %",
+  "badgeProgress": "{value} de {target}",
+  "@badgeProgress": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "levelsTitle": "Nivel y logros",
+  "levelsOffline": "Necesitás conexión para ver tu nivel.",
+  "levelsRanks": "Rangos",
+  "levelsHowToEarn": "Cómo sumar XP",
+  "levelsNeverLose": "El XP nunca se resta: si faltás, solo se corta la racha.",
+  "levelsBadges": "Logros · {unlocked} de {total}",
+  "@levelsBadges": {
+    "placeholders": {
+      "unlocked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "levelN": "Nivel {level}",
+  "@levelN": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "levelXpOf": "{xp} / {cost} XP · {total} XP en total",
+  "@levelXpOf": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      },
+      "cost": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "levelNextRank": "Siguiente rango: {rank} en el nivel {level}",
+  "@levelNextRank": {
+    "placeholders": {
+      "rank": {
+        "type": "String"
+      },
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "levelFrom": "Nivel {start}+",
+  "@levelFrom": {
+    "placeholders": {
+      "start": {
+        "type": "int"
+      }
+    }
+  },
+  "levelRange": "Nivel {start}–{end}",
+  "@levelRange": {
+    "placeholders": {
+      "start": {
+        "type": "int"
+      },
+      "end": {
+        "type": "int"
+      }
+    }
+  },
+  "xpWayWorkout": "Completar un entreno",
+  "xpWayAllSets": "Hacer todas las series",
+  "xpWayPr": "Romper un récord (e1RM)",
+  "xpWayWeek": "Completar la semana",
+  "xpWayStreak": "Racha: por cada semana seguida",
+  "xpWayQuestionnaire": "Responder el cuestionario",
+  "xpWayBodyLog": "Registrar peso o medidas",
+  "xpWayProgram": "Terminar un programa",
+  "newRankTitle": "Nuevo rango",
+  "newRankReached": "Llegaste al nivel {level}.",
+  "@newRankReached": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "newRankCoachSees": "{name} lo va a ver",
+  "@newRankCoachSees": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "newRankContinue": "Seguir",
+  "levelCardTitle": "Nivel",
+  "levelCardBadges": "{n} logros",
+  "@levelCardBadges": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "levelCardHint": "Esta semana: +{week} XP · faltan {left} para el nivel {next}",
+  "@levelCardHint": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      },
+      "left": {
+        "type": "int"
+      },
+      "next": {
+        "type": "int"
+      }
+    }
+  },
+  "xpPending": "Tu XP se suma cuando se sube el entreno.",
+  "xpThisWorkout": "en este entreno",
+  "xpLevelUp": "¡Subiste al nivel {level}!",
+  "@xpLevelUp": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "xpToNext": "{xp} / {cost} XP · faltan {left} para el nivel {next}",
+  "@xpToNext": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      },
+      "cost": {
+        "type": "int"
+      },
+      "left": {
+        "type": "int"
+      },
+      "next": {
+        "type": "int"
+      }
+    }
+  },
+  "xpItemWorkout": "Entreno completado",
+  "xpItemPartial": "Entreno parcial",
+  "xpItemAllSets": "Todas las series",
+  "xpItemPr": "Récord · {exercise}",
+  "@xpItemPr": {
+    "placeholders": {
+      "exercise": {
+        "type": "String"
+      }
+    }
+  },
+  "xpItemVideo": "Video · {exercise}",
+  "@xpItemVideo": {
+    "placeholders": {
+      "exercise": {
+        "type": "String"
+      }
+    }
+  },
+  "xpItemWeek": "Semana completa",
+  "xpItemStreak": "Racha",
+  "xpItemProgram": "Programa terminado",
+  "xpItemBadge": "Logro · {name}",
+  "@xpItemBadge": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "xpItemQuestionnaire": "Cuestionario",
+  "xpItemBodyLog": "Peso o medidas",
+  "settingsShowLevels": "Mostrar niveles y logros",
+  "settingsShowLevelsHint": "Tu nivel, XP y logros en el Perfil y al terminar un entreno"
 }

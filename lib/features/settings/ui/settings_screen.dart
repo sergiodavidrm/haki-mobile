@@ -15,6 +15,7 @@ import '../../auth/providers/auth_me_provider.dart';
 import '../../session/data/session_store.dart';
 import '../providers/settings_providers.dart';
 import '../../share/providers/share_providers.dart';
+import '../../levels/providers/level_providers.dart';
 import '../../../l10n/l10n.dart';
 
 // Ajustes: cuenta (Mis datos, cambiar contraseña), unidad de peso, vibración del timer,
@@ -35,6 +36,9 @@ class SettingsScreen extends ConsumerWidget {
     final vibrate = ref.watch(restVibrationProvider);
     final autoRest = ref.watch(autoRestProvider);
     final share = ref.watch(shareWorkoutsEnabledProvider);
+    // Solo si el coach prendió los niveles en el web
+    final coachLevels = ref.watch(authMeProvider).value?.levelsEnabled ?? false;
+    final showLevels = ref.watch(showGamificationProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -107,6 +111,16 @@ class SettingsScreen extends ConsumerWidget {
                     onChanged: ref.read(shareWorkoutsEnabledProvider.notifier).set,
                   ),
                 ),
+                if (coachLevels)
+                  _Row(
+                    title: l.settingsShowLevels,
+                    subtitle: l.settingsShowLevelsHint,
+                    trailing: Switch(
+                      value: showLevels,
+                      activeTrackColor: c.turquoise,
+                      onChanged: ref.read(showGamificationProvider.notifier).set,
+                    ),
+                  ),
                 _Row(
                   title: l.settingsRestVibration,
                   trailing: Switch(

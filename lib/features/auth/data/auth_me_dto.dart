@@ -22,7 +22,16 @@ class AuthMeDto {
     this.accessEndsAt,
     this.coach,
     this.personal,
+    this.levelsEnabled = true,
+    this.experience,
   });
+
+  /// Del coach: niveles y logros en la app (true si no viene: API vieja)
+  final bool levelsEnabled;
+
+  /// Experiencia que define el coach (1 Principiante, 2 Intermedio, 3
+  /// Avanzado), solo si el coach deja que el atleta la vea.
+  final int? experience;
 
   final bool exists;
   final String userId;
@@ -95,5 +104,7 @@ class AuthMeDto {
     personal: json['personal'] == null
         ? null
         : PersonalInfoDto.fromJson(json['personal'] as Map<String, dynamic>),
+    levelsEnabled: json['levelsEnabled'] as bool? ?? true,
+    experience: json['experience'] as int?,
   );
 }

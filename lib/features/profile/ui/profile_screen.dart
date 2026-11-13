@@ -19,6 +19,10 @@ import '../../program/data/program_schedule.dart';
 import '../../program/providers/program_providers.dart';
 import '../../share/providers/share_providers.dart';
 import '../data/streak_dto.dart';
+import '../../levels/data/level_dto.dart';
+import '../../levels/providers/level_providers.dart';
+import '../../levels/ui/level_widgets.dart';
+import '../../../core/theme/rank_colors.dart';
 import '../providers/profile_providers.dart';
 import '../../../l10n/l10n.dart';
 
@@ -36,6 +40,10 @@ class ProfileScreen extends ConsumerWidget {
     final name = ref.watch(displayNameProvider);
     final logs = ref.watch(bodyLogsProvider).value ?? const <BodyLogDto>[];
     final unit = ref.watch(bodyWeightUnitProvider);
+    // Niveles y logros: si el coach los apagó o el atleta los ocultó en Ajustes, no se muestran
+    final levelsOn = ref.watch(gamificationVisibleProvider);
+    final level = levelsOn ? ref.watch(levelProvider).value : null;
+    final experience = experienceName(context.l10n, me?.experience);
 
     return Scaffold(
       body: SafeArea(
@@ -45,6 +53,7 @@ class ProfileScreen extends ConsumerWidget {
             ref.invalidate(programSectionsProvider);
             ref.invalidate(streakProvider);
             ref.invalidate(recordsProvider);
+            ref.invalidate(levelProvider);
             // /auth/me trae las medidas que pidió el coach (puede cambiarlas);
             // bodyLogs depende de él, así que también se vuelve a pedir
             ref.invalidate(authMeProvider);
@@ -57,7 +66,29 @@ class ProfileScreen extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  UserAvatar(name: name, size: 60, highlighted: true),
+                  // Con nivel: anillo de progreso del nivel + medallita del rango
+                  if (level != null && level.showLevels)
+                    SizedBox.square(
+                      dimension: 68,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          LevelRing(
+                            level: level,
+                            size: 68,
+                            stroke: 4,
+                            child: UserAvatar(name: name, size: 54),
+                          ),
+                          Positioned(
+                            right: -4,
+                            bottom: -2,
+                            child: RankMedal(level.rank, size: 26),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    UserAvatar(name: name, size: 60, highlighted: true),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -78,6 +109,21 @@ class ProfileScreen extends ConsumerWidget {
                                 : sub,
                             style: TextStyle(fontSize: 13, color: c.textMuted),
                           ),
+                        if (experience != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(color: c.border),
+                              ),
+                              child: Text(
+                                experience,
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: c.textSecondary),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -94,6 +140,7 @@ class ProfileScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 20),
+              if (level != null && level.showLevels) _LevelCard(level: level),
               const _ProgressCard(),
               IntrinsicHeight(
                 child: Row(
@@ -315,6 +362,78 @@ class _ProgressCard extends ConsumerWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Nivel (canvas "Haki · Niveles y logros", App · Perfil): rango, barra de
+/// XP y logros; abre Nivel y logros.
+class _LevelCard extends StatelessWidget {
+  const _LevelCard({required this.level});
+
+  final LevelDto level;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final l = context.l10n;
+    final color = rankColor(context, level.rank);
+    final toNext = level.levelCost - level.levelXp;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: HakiCard(
+        onTap: () => context.push(Routes.levels),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l.levelCardTitle.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1,
+                      color: c.textMuted,
+                    ),
+                  ),
+                ),
+                Icon(Icons.chevron_right, size: 20, color: c.textMuted),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                RankMedal(level.rank, size: 40),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(text: '${l.levelN(level.level)} · '),
+                        TextSpan(text: rankName(l, level.rank), style: TextStyle(color: color)),
+                      ],
+                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: c.text),
+                  ),
+                ),
+                Text(
+                  l.levelCardBadges(level.unlockedCount),
+                  style: TextStyle(fontSize: 12, color: c.textMuted),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            XpBar(progress: level.progress),
+            const SizedBox(height: 8),
+            Text(
+              l.levelCardHint(level.weekXp, toNext, level.level + 1),
+              style: TextStyle(fontSize: 12, color: c.textMuted),
+            ),
+          ],
         ),
       ),
     );

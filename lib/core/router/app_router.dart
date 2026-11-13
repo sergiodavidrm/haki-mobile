@@ -36,6 +36,9 @@ import '../../features/chat/ui/chat_screen.dart';
 import '../../features/chat/ui/group_chat_screen.dart';
 import '../../features/questionnaire/ui/questionnaire_screen.dart';
 import '../../features/inbox/ui/inbox_screen.dart';
+import '../../features/levels/ui/levels_screen.dart';
+import '../../features/levels/ui/new_rank_screen.dart';
+import '../theme/rank_colors.dart';
 import '../widgets/app_shell.dart';
 
 part 'app_router.g.dart';
@@ -100,6 +103,12 @@ abstract final class Routes {
   static String progressExerciseStandalone(String exerciseId, {String? place}) =>
       '/progreso/e/$exerciseId${place == null ? '' : '?lugar=$place'}';
   static const coach = '/perfil/coach';
+
+  /// Nivel y logros (tarjeta Nivel del Perfil)
+  static const levels = '/perfil/nivel';
+
+  /// Festejo al cambiar de rango (desde Entreno completado)
+  static String newRank(Rank rank, int level) => '/nuevo-rango/${rank.name}?nivel=$level';
   static const chatCoach = '/chat/coach';
   static const chatGeneral = '/chat/general';
 
@@ -183,6 +192,13 @@ GoRouter appRouter(Ref ref) {
             'dia' => SharePeriod.day,
             _ => SharePeriod.week,
           },
+        ),
+      ),
+      GoRoute(
+        path: '/nuevo-rango/:rank',
+        builder: (_, state) => NewRankScreen(
+          rank: rankOf(state.pathParameters['rank']),
+          level: int.tryParse(state.uri.queryParameters['nivel'] ?? '') ?? 1,
         ),
       ),
       GoRoute(
@@ -338,6 +354,10 @@ GoRouter appRouter(Ref ref) {
                   GoRoute(
                     path: 'coach',
                     builder: (_, _) => const CoachScreen(),
+                  ),
+                  GoRoute(
+                    path: 'nivel',
+                    builder: (_, _) => const LevelsScreen(),
                   ),
                   GoRoute(
                     path: 'adherencia',

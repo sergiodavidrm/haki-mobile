@@ -3217,4 +3217,20 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get settingsShowLevelsHint =>
       'Tu nivel, XP y logros en el Perfil y al terminar un entreno';
+
+  @override
+  String get shareSnapchatError => 'No se pudo abrir Snapchat';
+
+  @override
+  String get shareMore => 'Más';
+
+  @override
+  String get shareCopy => 'Copiar';
+
+  @override
+  String get shareCopied =>
+      'Copiado. En tu historia de Instagram, mantené apretado y tocá Pegar';
+
+  @override
+  String get shareCopyError => 'No se pudo copiar';
 }

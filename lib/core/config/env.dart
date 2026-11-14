@@ -12,6 +12,10 @@ abstract final class Env {
   static const googleWebClientId = String.fromEnvironment('GOOGLE_WEB_CLIENT_ID');
   static const googleIosClientId = String.fromEnvironment('GOOGLE_IOS_CLIENT_ID');
 
+  // Snapchat Creative Kit (sticker sobre la cámara): Client ID de Snap Kit
+  // (kit.snapchat.com). Es público. Vacío = no se muestra el botón Snapchat.
+  static const snapClientId = String.fromEnvironment('SNAP_CLIENT_ID');
+
   /// Falla rápido si se corrió sin --dart-define-from-file.
   static void validate() {
     final missing = {

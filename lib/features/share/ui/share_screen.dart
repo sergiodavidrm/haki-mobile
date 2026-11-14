@@ -16,6 +16,8 @@ import '../../../core/widgets/back_header.dart';
 import '../../../l10n/l10n.dart';
 import '../data/share_format.dart';
 import '../data/share_stickers.dart';
+import '../data/snapchat_share.dart';
+import '../data/image_clipboard.dart';
 import '../providers/share_providers.dart';
 import 'stickers.dart';
 
@@ -49,10 +51,21 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
   double _opacity = 0.7;
   bool _busy = false;
 
-  Future<Uint8List> _png() async {
+  /// Botón Snapchat: Client ID configurado (env) y Snapchat instalado
+  bool _snapchat = false;
+
+  @override
+  void initState() {
+    super.initState();
+    SnapchatShare.isInstalled().then((v) {
+      if (mounted && v) setState(() => _snapchat = true);
+    });
+  }
+
+  Future<Uint8List> _png({double width = 1080}) async {
     final boundary =
         _sticker.currentContext!.findRenderObject() as RenderRepaintBoundary;
-    final image = await boundary.toImage(pixelRatio: 1080 / stickerWidth);
+    final image = await boundary.toImage(pixelRatio: width / stickerWidth);
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
     return bytes!.buffer.asUint8List();
   }
@@ -68,6 +81,48 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
       await SharePlus.instance.share(
         ShareParams(files: [XFile(file.path, mimeType: 'image/png')]),
       );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// Sticker sobre la cámara de Snapchat (el atleta se saca la foto ahí).
+  /// Snapchat acepta stickers de hasta 1 MB: si se pasa, se achica.
+  Future<void> _shareSnapchat({bool withSticker = true}) async {
+    final l = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      final boundary =
+          _sticker.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      final ratio = boundary.size.height / boundary.size.width;
+      var bytes = await _png(width: 720);
+      if (bytes.length > 1000000) bytes = await _png(width: 480);
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/haki_snap_${DateTime.now().millisecondsSinceEpoch}.png');
+      await file.writeAsBytes(bytes);
+      const widthDp = 240;
+      await SnapchatShare.shareSticker(file.path, widthDp: widthDp, heightDp: (widthDp * ratio).round(), withSticker: withSticker);
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(l.shareSnapchatError)));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// Copia el sticker como imagen para pegarlo en una historia de Instagram
+  Future<void> _copy() async {
+    final l = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/haki_copy_${DateTime.now().millisecondsSinceEpoch}.png');
+      await file.writeAsBytes(await _png());
+      await ImageClipboard.copy(file.path);
+      messenger.showSnackBar(SnackBar(content: Text(l.shareCopied)));
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(l.shareCopyError)));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -339,33 +394,41 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
             ),
           ),
 
-        // 5. Compartir / Guardar
+        // 5. Destinos como fila de botones redondos (estilo Hevy): Snapchat
+        // (sticker sobre la cámara, si está configurado e instalado), Copiar
+        // (pegarlo en la historia de Instagram), Guardar (galería) y Más
+        // (menú del teléfono)
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Expanded(
-                flex: 2,
-                child: FilledButton(
-                  onPressed: kind == null || _busy ? null : _share,
-                  child: _busy
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(l.shareAction),
+              if (_snapchat)
+                _Target(
+                  label: 'Snapchat',
+                  icon: Icons.photo_camera,
+                  background: ShareStoryColors.snapchatYellow,
+                  foreground: Colors.black,
+                  onTap: kind == null || _busy ? null : _shareSnapchat,
+                  // Prueba: mantener apretado abre la cámara sin sticker
+                  onLongPress: kind == null || _busy ? null : () => _shareSnapchat(withSticker: false),
                 ),
+              if (ImageClipboard.supported)
+                _Target(
+                  label: l.shareCopy,
+                  icon: Icons.copy_rounded,
+                  onTap: kind == null || _busy ? null : _copy,
+                ),
+              _Target(
+                label: l.shareSave,
+                icon: Icons.download_rounded,
+                onTap: kind == null || _busy ? null : _save,
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: SizedBox(
-                  height: 52,
-                  child: OutlinedButton(
-                    onPressed: kind == null || _busy ? null : _save,
-                    child: Text(l.shareSave),
-                  ),
-                ),
+              _Target(
+                label: l.shareMore,
+                icon: Icons.more_horiz,
+                busy: _busy,
+                onTap: kind == null || _busy ? null : _share,
               ),
             ],
           ),
@@ -562,4 +625,73 @@ class _CheckerPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_CheckerPainter oldDelegate) => false;
+}
+
+/// Botón redondo de destino (Snapchat, Guardar, Más): ícono de 56 px y el
+/// nombre abajo, como los de Hevy.
+class _Target extends StatelessWidget {
+  const _Target({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+    this.onLongPress,
+    this.background,
+    this.foreground,
+    this.busy = false,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final Color? background;
+  final Color? foreground;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final enabled = onTap != null;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: label,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Opacity(
+            opacity: enabled || busy ? 1 : 0.4,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: background ?? c.surfaceHigh,
+                    border: background == null ? Border.all(color: c.border) : null,
+                  ),
+                  alignment: Alignment.center,
+                  child: busy
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: c.goldBright),
+                        )
+                      : Icon(icon, size: 26, color: foreground ?? c.text),
+                ),
+                const SizedBox(height: 6),
+                Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: c.textSecondary)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

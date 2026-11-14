@@ -2490,5 +2490,10 @@
   "xpItemQuestionnaire": "Cuestionario",
   "xpItemBodyLog": "Peso o medidas",
   "settingsShowLevels": "Mostrar niveles y logros",
-  "settingsShowLevelsHint": "Tu nivel, XP y logros en el Perfil y al terminar un entreno"
+  "settingsShowLevelsHint": "Tu nivel, XP y logros en el Perfil y al terminar un entreno",
+  "shareSnapchatError": "No se pudo abrir Snapchat",
+  "shareMore": "Más",
+  "shareCopy": "Copiar",
+  "shareCopied": "Copiado. En tu historia de Instagram, mantené apretado y tocá Pegar",
+  "shareCopyError": "No se pudo copiar"
 }

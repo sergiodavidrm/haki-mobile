@@ -4,6 +4,9 @@ import 'package:flutter/painting.dart';
 /// en Instagram, así que no siguen el tema de la app. Canvas
 /// https://claude.ai/artifact/XgxAnMeTfAh9gdVjzmFy2t
 abstract final class ShareStoryColors {
+  /// Botón "Snapchat" de Compartir (amarillo de la marca, para reconocerlo)
+  static const snapchatYellow = Color(0xFFFFFC00);
+
   /// Fondos que se pueden elegir (con opacidad): obsidiana, dorado,
   /// turquesa, blanco. Sobre blanco el texto va oscuro.
   static const backgrounds = [

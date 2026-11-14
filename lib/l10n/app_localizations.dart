@@ -5197,6 +5197,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Tu nivel, XP y logros en el Perfil y al terminar un entreno'**
   String get settingsShowLevelsHint;
+
+  /// No description provided for @shareSnapchatError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo abrir Snapchat'**
+  String get shareSnapchatError;
+
+  /// No description provided for @shareMore.
+  ///
+  /// In es, this message translates to:
+  /// **'Más'**
+  String get shareMore;
+
+  /// No description provided for @shareCopy.
+  ///
+  /// In es, this message translates to:
+  /// **'Copiar'**
+  String get shareCopy;
+
+  /// No description provided for @shareCopied.
+  ///
+  /// In es, this message translates to:
+  /// **'Copiado. En tu historia de Instagram, mantené apretado y tocá Pegar'**
+  String get shareCopied;
+
+  /// No description provided for @shareCopyError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo copiar'**
+  String get shareCopyError;
 }
 
 class _AppLocalizationsDelegate

@@ -53,4 +53,6 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    // FileProvider para compartir stickers a Snapchat (MainActivity)
+    implementation("androidx.core:core-ktx:1.13.1")
 }

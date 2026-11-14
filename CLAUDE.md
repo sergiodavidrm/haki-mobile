@@ -1176,6 +1176,17 @@ Canvas https://claude.ai/artifact/Bis8fb6sbujFYsHdy5tn3d; API en
 
 ### Compartir: stickers para historias (2026-11-12, sin probar)
 
+**Snapchat (2026-11-13, sin probar; falta el Client ID):** botón "Snapchat ·
+sticker sobre la cámara" (solo Android, con `SNAP_CLIENT_ID` en el env y
+Snapchat instalado). Creative Kit sin SDK: `MethodChannel('haki/snapchat')` →
+`MainActivity.shareSticker` (Intent `ACTION_SEND` a `snapchat://creativekit/camera`
+con `CLIENT_ID`, `CLIENT_APP_NAME` y `sticker` JSON con la URI, 240 dp de ancho).
+PNG en la caché (720 px, 480 si pasa de 1 MB) por el FileProvider
+`${applicationId}.haki_share` (`res/xml/haki_share_paths.xml`); `<queries>`
+con `com.snapchat.android`. Mientras la app de Snap Kit no esté aprobada solo
+funciona con los Demo Users (Client ID **Staging**). Instagram (sticker +
+foto de fondo, App ID de Meta) sigue pendiente.
+
 Canvas https://claude.ai/artifact/XgxAnMeTfAh9gdVjzmFy2t (reemplaza a la v2
 con foto, descartada: el atleta pega el sticker en Instagram sobre su foto).
 **Apagado por defecto:** Ajustes → Entreno → "Compartir entrenos"

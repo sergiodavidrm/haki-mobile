@@ -849,5 +849,10 @@
   "xpItemQuestionnaire": "Check-in",
   "xpItemBodyLog": "Weight or measurements",
   "settingsShowLevels": "Show levels and badges",
-  "settingsShowLevelsHint": "Your level, XP and badges on your Profile and after a workout"
+  "settingsShowLevelsHint": "Your level, XP and badges on your Profile and after a workout",
+  "shareSnapchatError": "Couldn't open Snapchat",
+  "shareMore": "More",
+  "shareCopy": "Copy",
+  "shareCopied": "Copied. In your Instagram story, long-press and tap Paste",
+  "shareCopyError": "Couldn't copy"
 }

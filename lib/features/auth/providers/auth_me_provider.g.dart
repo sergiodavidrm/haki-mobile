@@ -146,3 +146,49 @@ final class VideosEnabledProvider extends $FunctionalProvider<bool, bool, bool>
 }
 
 String _$videosEnabledHash() => r'e8324aae7224a5eb14f5ab90d28f8d5e47497f7f';
+
+/// Escala de esfuerzo del coach (RIR o RPE). La API guarda siempre RIR.
+
+@ProviderFor(effortScale)
+final effortScaleProvider = EffortScaleProvider._();
+
+/// Escala de esfuerzo del coach (RIR o RPE). La API guarda siempre RIR.
+
+final class EffortScaleProvider
+    extends $FunctionalProvider<EffortScale, EffortScale, EffortScale>
+    with $Provider<EffortScale> {
+  /// Escala de esfuerzo del coach (RIR o RPE). La API guarda siempre RIR.
+  EffortScaleProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'effortScaleProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$effortScaleHash();
+
+  @$internal
+  @override
+  $ProviderElement<EffortScale> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  EffortScale create(Ref ref) {
+    return effortScale(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(EffortScale value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<EffortScale>(value),
+    );
+  }
+}
+
+String _$effortScaleHash() => r'83ab4b18202810dff48af3cbb6c251e57a8d786d';

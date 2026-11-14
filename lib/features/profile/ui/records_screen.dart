@@ -1,3 +1,4 @@
+import '../../auth/providers/auth_me_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -239,7 +240,7 @@ class _RecordRow extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  r.setLabel,
+                  r.setLabel(effortScaleOf(context)),
                   style: TextStyle(
                     fontSize: 12,
                     color: c.textMuted,

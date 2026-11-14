@@ -954,11 +954,11 @@ class $LocalSetsTable extends LocalSets
   );
   static const VerificationMeta _rirMeta = const VerificationMeta('rir');
   @override
-  late final GeneratedColumn<int> rir = GeneratedColumn<int>(
+  late final GeneratedColumn<double> rir = GeneratedColumn<double>(
     'rir',
     aliasedName,
     true,
-    type: DriftSqlType.int,
+    type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
@@ -1148,7 +1148,7 @@ class $LocalSetsTable extends LocalSets
         data['${effectivePrefix}reps'],
       ),
       rir: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
+        DriftSqlType.double,
         data['${effectivePrefix}rir'],
       ),
       updatedAt: attachedDatabase.typeMapping.read(
@@ -1182,7 +1182,9 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
   /// "KG" | "LB"
   final String weightUnit;
   final int? reps;
-  final int? rir;
+
+  /// RIR con medio punto (2026-11-14, schema 8): 1.5 = RPE 8,5
+  final double? rir;
   final DateTime updatedAt;
   final bool synced;
 
@@ -1216,7 +1218,7 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
       map['reps'] = Variable<int>(reps);
     }
     if (!nullToAbsent || rir != null) {
-      map['rir'] = Variable<int>(rir);
+      map['rir'] = Variable<double>(rir);
     }
     map['updated_at'] = Variable<DateTime>(updatedAt);
     map['synced'] = Variable<bool>(synced);
@@ -1259,7 +1261,7 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
       weight: serializer.fromJson<double?>(json['weight']),
       weightUnit: serializer.fromJson<String>(json['weightUnit']),
       reps: serializer.fromJson<int?>(json['reps']),
-      rir: serializer.fromJson<int?>(json['rir']),
+      rir: serializer.fromJson<double?>(json['rir']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       synced: serializer.fromJson<bool>(json['synced']),
       remoteId: serializer.fromJson<String?>(json['remoteId']),
@@ -1276,7 +1278,7 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
       'weight': serializer.toJson<double?>(weight),
       'weightUnit': serializer.toJson<String>(weightUnit),
       'reps': serializer.toJson<int?>(reps),
-      'rir': serializer.toJson<int?>(rir),
+      'rir': serializer.toJson<double?>(rir),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'synced': serializer.toJson<bool>(synced),
       'remoteId': serializer.toJson<String?>(remoteId),
@@ -1291,7 +1293,7 @@ class LocalSet extends DataClass implements Insertable<LocalSet> {
     Value<double?> weight = const Value.absent(),
     String? weightUnit,
     Value<int?> reps = const Value.absent(),
-    Value<int?> rir = const Value.absent(),
+    Value<double?> rir = const Value.absent(),
     DateTime? updatedAt,
     bool? synced,
     Value<String?> remoteId = const Value.absent(),
@@ -1387,7 +1389,7 @@ class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
   final Value<double?> weight;
   final Value<String> weightUnit;
   final Value<int?> reps;
-  final Value<int?> rir;
+  final Value<double?> rir;
   final Value<DateTime> updatedAt;
   final Value<bool> synced;
   final Value<String?> remoteId;
@@ -1433,7 +1435,7 @@ class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
     Expression<double>? weight,
     Expression<String>? weightUnit,
     Expression<int>? reps,
-    Expression<int>? rir,
+    Expression<double>? rir,
     Expression<DateTime>? updatedAt,
     Expression<bool>? synced,
     Expression<String>? remoteId,
@@ -1463,7 +1465,7 @@ class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
     Value<double?>? weight,
     Value<String>? weightUnit,
     Value<int?>? reps,
-    Value<int?>? rir,
+    Value<double?>? rir,
     Value<DateTime>? updatedAt,
     Value<bool>? synced,
     Value<String?>? remoteId,
@@ -1510,7 +1512,7 @@ class LocalSetsCompanion extends UpdateCompanion<LocalSet> {
       map['reps'] = Variable<int>(reps.value);
     }
     if (rir.present) {
-      map['rir'] = Variable<int>(rir.value);
+      map['rir'] = Variable<double>(rir.value);
     }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
@@ -3912,7 +3914,7 @@ typedef $$LocalSetsTableCreateCompanionBuilder = LocalSetsCompanion Function({
   Value<double?> weight,
   required String weightUnit,
   Value<int?> reps,
-  Value<int?> rir,
+  Value<double?> rir,
   required DateTime updatedAt,
   Value<bool> synced,
   Value<String?> remoteId,
@@ -3926,7 +3928,7 @@ typedef $$LocalSetsTableUpdateCompanionBuilder = LocalSetsCompanion Function({
   Value<double?> weight,
   Value<String> weightUnit,
   Value<int?> reps,
-  Value<int?> rir,
+  Value<double?> rir,
   Value<DateTime> updatedAt,
   Value<bool> synced,
   Value<String?> remoteId,
@@ -3977,7 +3979,7 @@ class $$LocalSetsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get rir => $composableBuilder(
+  ColumnFilters<double> get rir => $composableBuilder(
     column: $table.rir,
     builder: (column) => ColumnFilters(column),
   );
@@ -4042,7 +4044,7 @@ class $$LocalSetsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get rir => $composableBuilder(
+  ColumnOrderings<double> get rir => $composableBuilder(
     column: $table.rir,
     builder: (column) => ColumnOrderings(column),
   );
@@ -4099,7 +4101,7 @@ class $$LocalSetsTableAnnotationComposer
   GeneratedColumn<int> get reps =>
       $composableBuilder(column: $table.reps, builder: (column) => column);
 
-  GeneratedColumn<int> get rir =>
+  GeneratedColumn<double> get rir =>
       $composableBuilder(column: $table.rir, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
@@ -4147,7 +4149,7 @@ class $$LocalSetsTableTableManager
                 Value<double?> weight = const Value.absent(),
                 Value<String> weightUnit = const Value.absent(),
                 Value<int?> reps = const Value.absent(),
-                Value<int?> rir = const Value.absent(),
+                Value<double?> rir = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<bool> synced = const Value.absent(),
                 Value<String?> remoteId = const Value.absent(),
@@ -4175,7 +4177,7 @@ class $$LocalSetsTableTableManager
                 Value<double?> weight = const Value.absent(),
                 required String weightUnit,
                 Value<int?> reps = const Value.absent(),
-                Value<int?> rir = const Value.absent(),
+                Value<double?> rir = const Value.absent(),
                 required DateTime updatedAt,
                 Value<bool> synced = const Value.absent(),
                 Value<String?> remoteId = const Value.absent(),

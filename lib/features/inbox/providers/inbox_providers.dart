@@ -35,4 +35,20 @@ class MyInbox extends _$MyInbox {
       debugPrint('Inbox: no se pudo marcar leído ($e)');
     }
   }
+
+  /// Deslizar para borrar: se va de la lista al instante. Si la API falla,
+  /// vuelve a cargar la campana (el aviso reaparece) y devuelve false.
+  Future<bool> remove(String id) async {
+    final current = state.value;
+    if (current == null) return true;
+    state = AsyncData(current.without(id));
+    try {
+      await ref.read(inboxRepositoryProvider).delete(id);
+      return true;
+    } catch (e) {
+      debugPrint('Inbox: no se pudo borrar ($e)');
+      ref.invalidateSelf();
+      return false;
+    }
+  }
 }

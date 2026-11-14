@@ -1,3 +1,4 @@
+import '../../../core/units/effort.dart';
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -39,7 +40,7 @@ class PersonalRecordDto {
   /// Unidad en que cargó esa serie: el récord se muestra así.
   final WeightUnit unit;
   final int reps;
-  final int? rir;
+  final double? rir;
 
   /// Marca anterior; null = primera vez que lo hizo (no cuenta como PR).
   final double? previousE1RmKg;
@@ -50,9 +51,9 @@ class PersonalRecordDto {
   String get e1RmLabel => '${formatWeight(unit.fromKg(e1RmKg))} ${unit.label}';
 
   /// "121 lb × 12 · RIR 1"
-  String get setLabel {
+  String setLabel([EffortScale scale = EffortScale.rir]) {
     final base = '${formatWeight(unit.fromKg(weightKg))} ${unit.label} × $reps';
-    return rir == null ? base : '$base · RIR $rir';
+    return rir == null ? base : '$base · ${effortText(rir, scale)}';
   }
 
   /// "+4.9" (en la unidad del récord); null si es la primera vez.
@@ -72,7 +73,7 @@ class PersonalRecordDto {
         weightKg: (j['weightKg'] as num).toDouble(),
         unit: WeightUnit.parse(j['weightUnit'] as String? ?? 'KG'),
         reps: j['reps'] as int,
-        rir: j['rir'] as int?,
+        rir: (j['rir'] as num?)?.toDouble(),
         previousE1RmKg: (j['previousE1RmKg'] as num?)?.toDouble(),
       );
 }

@@ -323,9 +323,13 @@ class TrainingDayCard extends ConsumerWidget {
             ? l.commonToday
             : l.commonNext} · ${l.weekOfTotal(plan.week.weekNumber, program.totalWeeks)}';
 
+    // Día hecho: toda la tarjeta abre la Sesión pasada (ver lo hecho y subir
+    // videos); antes había que tocar el botón de abajo (Sergio, 2026-11-14)
+    final done = day.sessionStatus == SessionStatus.completed;
     return HakiCard(
       radius: 24,
       padding: const EdgeInsets.all(20),
+      onTap: done ? onOpenDone : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -413,14 +417,15 @@ class TrainingDayCard extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             switch (day.sessionStatus) {
-              SessionStatus.completed => Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.check_circle, color: c.turquoise, size: 22),
-                      const SizedBox(width: 8),
-                      Text(
+              SessionStatus.completed => Semantics(
+                button: true,
+                label: videos ? l.workoutViewUploadVideos : l.workoutView,
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: c.turquoise, size: 22),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
                         l.workoutCompleted,
                         style: TextStyle(
                           fontSize: 15,
@@ -428,27 +433,19 @@ class TrainingDayCard extends ConsumerWidget {
                           color: c.turquoise,
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: onOpenDone,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(46),
-                      foregroundColor: c.turquoise,
-                      side: BorderSide(color: c.turquoiseBorder),
                     ),
-                    icon: Icon(
-                      videos
-                          ? Icons.videocam_outlined
-                          : Icons.visibility_outlined,
-                      size: 18,
-                    ),
-                    label: Text(
-                      videos ? l.workoutViewUploadVideos : l.workoutView,
-                    ),
-                  ),
-                ],
+                    if (videos)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Icon(
+                          Icons.videocam_outlined,
+                          size: 18,
+                          color: c.textMuted,
+                        ),
+                      ),
+                    Icon(Icons.chevron_right, color: c.textMuted),
+                  ],
+                ),
               ),
               SessionStatus.skipped => Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

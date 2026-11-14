@@ -3234,4 +3234,95 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareCopyError => 'Couldn\'t copy';
+
+  @override
+  String get effortModerate => 'Moderate';
+
+  @override
+  String get effortHard => 'Hard';
+
+  @override
+  String get effortVeryHard => 'Very hard';
+
+  @override
+  String get effortNearFailure => 'Near failure';
+
+  @override
+  String get effortFailure => 'Failure';
+
+  @override
+  String get effortHintFourPlus => 'You had 4 or more left';
+
+  @override
+  String get effortHintNone => 'You had none left';
+
+  @override
+  String get effortHintMaybeOne => 'Maybe 1 left';
+
+  @override
+  String effortHintN(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You had $count left',
+      one: 'You had 1 left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String effortHintRange(int a, int b) {
+    return 'You had $a or $b left';
+  }
+
+  @override
+  String get effortWhatIsRpe => 'What is RPE?';
+
+  @override
+  String get effortWhatIsRir => 'What is RIR?';
+
+  @override
+  String get effortRpeExplain =>
+      'RPE is how hard the set was, from 6 to 10. Think: how many more reps could you do with good form?';
+
+  @override
+  String get effortRirExplain =>
+      'RIR is reps in reserve: how many more you could do with good form.';
+
+  @override
+  String get effortHalfTip =>
+      'If you are between two, use the half point (8.5).';
+
+  @override
+  String get effortGotIt => 'Got it';
+
+  @override
+  String get effortDone => 'Done';
+
+  @override
+  String get effortLess => 'Easier';
+
+  @override
+  String get effortMore => 'Harder';
+
+  @override
+  String get effortType => 'Type it';
+
+  @override
+  String get effortUseBars => 'Use the bars';
+
+  @override
+  String get effortTypeHelp => 'Empty = clear';
+
+  @override
+  String setEffortLabel(String scale, int set) {
+    return '$scale for set $set';
+  }
+
+  @override
+  String get inboxDelete => 'Delete';
+
+  @override
+  String get inboxDeleteError =>
+      'Couldn\'t delete the notice. Check your connection.';
 }

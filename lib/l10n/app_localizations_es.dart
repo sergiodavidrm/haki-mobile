@@ -3233,4 +3233,94 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get shareCopyError => 'No se pudo copiar';
+
+  @override
+  String get effortModerate => 'Moderado';
+
+  @override
+  String get effortHard => 'Duro';
+
+  @override
+  String get effortVeryHard => 'Muy duro';
+
+  @override
+  String get effortNearFailure => 'Casi al fallo';
+
+  @override
+  String get effortFailure => 'Al fallo';
+
+  @override
+  String get effortHintFourPlus => 'Te quedaban 4 o más';
+
+  @override
+  String get effortHintNone => 'No te quedaba ninguna';
+
+  @override
+  String get effortHintMaybeOne => 'Quizás te quedaba 1';
+
+  @override
+  String effortHintN(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Te quedaban $count',
+      one: 'Te quedaba 1',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String effortHintRange(int a, int b) {
+    return 'Te quedaban $a o $b';
+  }
+
+  @override
+  String get effortWhatIsRpe => '¿Qué es el RPE?';
+
+  @override
+  String get effortWhatIsRir => '¿Qué es el RIR?';
+
+  @override
+  String get effortRpeExplain =>
+      'El RPE es qué tan dura fue la serie, del 6 al 10. Pensalo así: ¿cuántas repeticiones más podías hacer con buena técnica?';
+
+  @override
+  String get effortRirExplain =>
+      'El RIR son las repeticiones que te quedaban: cuántas más podías hacer con buena técnica.';
+
+  @override
+  String get effortHalfTip => 'Si dudás entre dos, usá el medio punto (8,5).';
+
+  @override
+  String get effortGotIt => 'Entendido';
+
+  @override
+  String get effortDone => 'Listo';
+
+  @override
+  String get effortLess => 'Más fácil';
+
+  @override
+  String get effortMore => 'Más duro';
+
+  @override
+  String get effortType => 'Escribirlo';
+
+  @override
+  String get effortUseBars => 'Usar las barras';
+
+  @override
+  String get effortTypeHelp => 'Vacío = borrar';
+
+  @override
+  String setEffortLabel(String scale, int set) {
+    return '$scale de la serie $set';
+  }
+
+  @override
+  String get inboxDelete => 'Borrar';
+
+  @override
+  String get inboxDeleteError =>
+      'No se pudo borrar el aviso. Revisá tu conexión.';
 }

@@ -1,5 +1,5 @@
+import 'package:flutter/services.dart';
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -103,6 +103,10 @@ class _ShareScreenState extends ConsumerState<ShareScreen> {
       await file.writeAsBytes(bytes);
       const widthDp = 240;
       await SnapchatShare.shareSticker(file.path, widthDp: widthDp, heightDp: (widthDp * ratio).round(), withSticker: withSticker);
+    } on PlatformException catch (e) {
+      // Motivo del SDK (GENERIC_ERROR, SNAPCHAT_CANNOT_SHARE_CONTENT…) para
+      // diagnosticar mientras la app de Snap Kit está en Staging
+      messenger.showSnackBar(SnackBar(content: Text('${l.shareSnapchatError} (${e.message ?? e.code})')));
     } catch (_) {
       messenger.showSnackBar(SnackBar(content: Text(l.shareSnapchatError)));
     } finally {

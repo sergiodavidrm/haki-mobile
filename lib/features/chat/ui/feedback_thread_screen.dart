@@ -1,3 +1,4 @@
+import '../../auth/providers/auth_me_provider.dart';
 import '../data/voice.dart';
 import 'dart:async';
 
@@ -239,7 +240,7 @@ class _FeedbackThreadScreenState extends ConsumerState<FeedbackThreadScreen> {
                 for (final v in card.videos)
                   VideoThumb(
                     video: v,
-                    label: v.label(unit),
+                    label: v.label(unit, effortScaleOf(context)),
                     title: '${card.exerciseName} · ${context.l10n.setN(v.setNumber)}',
                   ),
               ],

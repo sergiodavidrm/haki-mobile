@@ -1,3 +1,4 @@
+import '../../../core/units/effort.dart';
 import 'dart:math';
 
 import '../../../core/format/dates.dart';
@@ -76,7 +77,7 @@ String setChip(LoggedSetDto s, WeightUnit unit) {
   final base = w == null || w <= 0
       ? reps
       : '${formatWeight(unit.fromKg(w))} ${unit.label} × $reps';
-  return s.rir == null ? base : '$base @${s.rir}';
+  return s.rir == null ? base : '$base @${formatEffort(s.rir, EffortScale.rir)}';
 }
 
 /// Series de hoy de un ejercicio (lo del teléfono gana sobre la API), como

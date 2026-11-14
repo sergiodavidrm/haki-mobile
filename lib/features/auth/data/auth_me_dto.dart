@@ -1,3 +1,4 @@
+import '../../../core/units/effort.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../body/data/body_measures.dart';
 import '../../profile/data/coach_profile_dto.dart';
@@ -17,6 +18,7 @@ class AuthMeDto {
     this.coachName,
     this.exerciseFeedbackEnabled = false,
     this.videoFeedbackEnabled = true,
+    this.effortScale = EffortScale.rir,
     this.bodyMeasurements = const [],
     this.weightCoachOnly = false,
     this.accessEndsAt,
@@ -51,6 +53,10 @@ class AuthMeDto {
   /// El coach pide videos de las series: sin esto no se muestra la cámara.
   /// true si no viene (API o caché de antes de 2026-11-02: había videos).
   final bool videoFeedbackEnabled;
+
+  /// Cómo se ve y se carga el esfuerzo (lo elige el coach): RIR o RPE.
+  /// RIR si no viene (API o caché de antes de 2026-11-14).
+  final EffortScale effortScale;
 
   /// Medidas que pidió el coach (estándar o creadas por él), en el orden del
   /// catálogo.
@@ -90,6 +96,7 @@ class AuthMeDto {
     coachName: json['coachName'] as String?,
     exerciseFeedbackEnabled: json['exerciseFeedbackEnabled'] as bool? ?? false,
     videoFeedbackEnabled: json['videoFeedbackEnabled'] as bool? ?? true,
+    effortScale: EffortScale.parse(json['effortScale'] as String?),
     bodyMeasurements: [
       for (final j in json['bodyMeasurements'] as List? ?? const [])
         ?BodyMeasure.fromJson(j),

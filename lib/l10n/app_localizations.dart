@@ -5227,6 +5227,156 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se pudo copiar'**
   String get shareCopyError;
+
+  /// No description provided for @effortModerate.
+  ///
+  /// In es, this message translates to:
+  /// **'Moderado'**
+  String get effortModerate;
+
+  /// No description provided for @effortHard.
+  ///
+  /// In es, this message translates to:
+  /// **'Duro'**
+  String get effortHard;
+
+  /// No description provided for @effortVeryHard.
+  ///
+  /// In es, this message translates to:
+  /// **'Muy duro'**
+  String get effortVeryHard;
+
+  /// No description provided for @effortNearFailure.
+  ///
+  /// In es, this message translates to:
+  /// **'Casi al fallo'**
+  String get effortNearFailure;
+
+  /// No description provided for @effortFailure.
+  ///
+  /// In es, this message translates to:
+  /// **'Al fallo'**
+  String get effortFailure;
+
+  /// No description provided for @effortHintFourPlus.
+  ///
+  /// In es, this message translates to:
+  /// **'Te quedaban 4 o más'**
+  String get effortHintFourPlus;
+
+  /// No description provided for @effortHintNone.
+  ///
+  /// In es, this message translates to:
+  /// **'No te quedaba ninguna'**
+  String get effortHintNone;
+
+  /// No description provided for @effortHintMaybeOne.
+  ///
+  /// In es, this message translates to:
+  /// **'Quizás te quedaba 1'**
+  String get effortHintMaybeOne;
+
+  /// No description provided for @effortHintN.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{Te quedaba 1} other{Te quedaban {count}}}'**
+  String effortHintN(int count);
+
+  /// No description provided for @effortHintRange.
+  ///
+  /// In es, this message translates to:
+  /// **'Te quedaban {a} o {b}'**
+  String effortHintRange(int a, int b);
+
+  /// No description provided for @effortWhatIsRpe.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Qué es el RPE?'**
+  String get effortWhatIsRpe;
+
+  /// No description provided for @effortWhatIsRir.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Qué es el RIR?'**
+  String get effortWhatIsRir;
+
+  /// No description provided for @effortRpeExplain.
+  ///
+  /// In es, this message translates to:
+  /// **'El RPE es qué tan dura fue la serie, del 6 al 10. Pensalo así: ¿cuántas repeticiones más podías hacer con buena técnica?'**
+  String get effortRpeExplain;
+
+  /// No description provided for @effortRirExplain.
+  ///
+  /// In es, this message translates to:
+  /// **'El RIR son las repeticiones que te quedaban: cuántas más podías hacer con buena técnica.'**
+  String get effortRirExplain;
+
+  /// No description provided for @effortHalfTip.
+  ///
+  /// In es, this message translates to:
+  /// **'Si dudás entre dos, usá el medio punto (8,5).'**
+  String get effortHalfTip;
+
+  /// No description provided for @effortGotIt.
+  ///
+  /// In es, this message translates to:
+  /// **'Entendido'**
+  String get effortGotIt;
+
+  /// No description provided for @effortDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Listo'**
+  String get effortDone;
+
+  /// No description provided for @effortLess.
+  ///
+  /// In es, this message translates to:
+  /// **'Más fácil'**
+  String get effortLess;
+
+  /// No description provided for @effortMore.
+  ///
+  /// In es, this message translates to:
+  /// **'Más duro'**
+  String get effortMore;
+
+  /// No description provided for @effortType.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribirlo'**
+  String get effortType;
+
+  /// No description provided for @effortUseBars.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar las barras'**
+  String get effortUseBars;
+
+  /// No description provided for @effortTypeHelp.
+  ///
+  /// In es, this message translates to:
+  /// **'Vacío = borrar'**
+  String get effortTypeHelp;
+
+  /// No description provided for @setEffortLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'{scale} de la serie {set}'**
+  String setEffortLabel(String scale, int set);
+
+  /// No description provided for @inboxDelete.
+  ///
+  /// In es, this message translates to:
+  /// **'Borrar'**
+  String get inboxDelete;
+
+  /// No description provided for @inboxDeleteError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo borrar el aviso. Revisá tu conexión.'**
+  String get inboxDeleteError;
 }
 
 class _AppLocalizationsDelegate

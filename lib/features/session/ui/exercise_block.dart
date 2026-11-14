@@ -1,3 +1,5 @@
+import '../../auth/providers/auth_me_provider.dart';
+import '../../../core/units/effort.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/haki_colors.dart';
@@ -15,7 +17,7 @@ typedef SaveSet = void Function(
   double? weight,
   WeightUnit unit,
   int? reps,
-  int? rir,
+  double? rir,
 );
 
 /// Un ejercicio de la sesión: encabezado, nota del coach, tabla de series y
@@ -184,7 +186,7 @@ class ExerciseBlock extends StatelessWidget {
                   behavior: HitTestBehavior.opaque,
                   child: _Title(
                     name: exercise.exerciseName,
-                    summary: exerciseSummary(exercise),
+                    summary: exerciseSummary(exercise, effortScaleOf(context)),
                     size: 17,
                   ),
                 ),
@@ -275,7 +277,7 @@ class ExerciseBlock extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                exerciseSummary(exercise),
+                exerciseSummary(exercise, effortScaleOf(context)),
                 style: TextStyle(fontSize: 12, color: c.textMuted),
               ),
               if (exercise.coachNote?.trim().isNotEmpty ?? false) ...[
@@ -294,7 +296,7 @@ class ExerciseBlock extends StatelessWidget {
 }
 
 /// "4 series · 10–12 reps · RIR 1" (el RIR solo si es igual en todas).
-String exerciseSummary(DayExerciseDto e) {
+String exerciseSummary(DayExerciseDto e, [EffortScale scale = EffortScale.rir]) {
   final sets = e.targetSets;
   if (sets.isEmpty) return l10n.noSetsPrescribed;
   final reps = sets.map((s) => s.reps).nonNulls.toList()..sort();
@@ -303,7 +305,7 @@ String exerciseSummary(DayExerciseDto e) {
     l10n.setsCount(sets.length),
     if (reps.isNotEmpty)
       '${reps.first == reps.last ? reps.first : '${reps.first}–${reps.last}'} ${l10n.repsShort}',
-    if (rirs.length == 1 && rirs.single != null) 'RIR ${rirs.single}',
+    if (rirs.length == 1 && rirs.single != null) effortText(rirs.single, scale),
   ].join(' · ');
 }
 

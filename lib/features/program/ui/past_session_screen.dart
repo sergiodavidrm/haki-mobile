@@ -1,3 +1,4 @@
+import '../../../core/units/effort.dart';
 import 'package:flutter/material.dart';
 
 import '../../share/providers/share_providers.dart';
@@ -509,7 +510,7 @@ class _PastSetRow extends StatelessWidget {
                 ),
                 if (t?.rir != null)
                   Text(
-                    'RIR ${t!.rir}',
+                    effortText(t!.rir, effortScaleOf(context)),
                     style: TextStyle(
                       fontSize: 11,
                       height: 1.25,
@@ -524,7 +525,7 @@ class _PastSetRow extends StatelessWidget {
           const SizedBox(width: SetCols.gap),
           value(cols.reps, saved?.reps?.toString()),
           const SizedBox(width: SetCols.gap),
-          value(cols.rir, saved?.rir?.toString()),
+          value(cols.rir, saved?.rir == null ? null : formatEffort(saved!.rir, effortScaleOf(context))),
           if (cols.hasAction) const SizedBox(width: SetCols.gap),
           if (cols.hasAction)
             SizedBox(

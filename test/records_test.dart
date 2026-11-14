@@ -52,7 +52,7 @@ void main() {
   test('etiquetas en la unidad de la serie', () {
     final r = rec('jalon', today, previous: 72.08, unit: WeightUnit.lb);
     expect(r.e1RmLabel, '163.8 lb');
-    expect(r.setLabel, '121 lb × 12 · RIR 1');
+    expect(r.setLabel(), '121 lb × 12 · RIR 1');
     expect(r.improvementLabel, '+4.9');
     expect(rec('x', today).improvementLabel, isNull);
   });

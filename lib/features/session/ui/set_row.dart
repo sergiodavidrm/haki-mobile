@@ -1,3 +1,5 @@
+import 'effort_panel.dart';
+import '../../../core/units/effort.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -129,7 +131,7 @@ class SetTableHeader extends StatelessWidget {
             const SizedBox(width: SetCols.gap),
             cell(context.l10n.repsHeader, cols.reps),
             const SizedBox(width: SetCols.gap),
-            cell('RIR', cols.rir),
+            cell(effortScaleOf(context).label, cols.rir),
             if (cols.hasAction) ...[
               const SizedBox(width: SetCols.gap),
               SizedBox(width: cols.action),
@@ -213,7 +215,7 @@ class SetRow extends StatefulWidget {
   final WeightUnit unit;
   final SavedSet? saved;
   final SetCols cols;
-  final void Function(double? weight, WeightUnit unit, int? reps, int? rir)
+  final void Function(double? weight, WeightUnit unit, int? reps, double? rir)
   onSave;
 
   /// [requested] = el coach pidió video de esta serie.
@@ -231,12 +233,27 @@ class _SetRowState extends State<SetRow> {
   late final _reps = TextEditingController(
     text: widget.saved?.reps?.toString() ?? '',
   );
-  late final _rir = TextEditingController(
-    text: widget.saved?.rir?.toString() ?? '',
-  );
+  /// Esfuerzo en RIR. Con RPE se carga con el panel de la escalera; con RIR,
+  /// con el teclado como antes (acepta medio punto: 1,5).
+  late double? _rir = widget.saved?.rir;
+  late final _rirText = TextEditingController(text: _plainRir(widget.saved?.rir));
   final _weightFocus = FocusNode();
   final _repsFocus = FocusNode();
   final _rirFocus = FocusNode();
+
+  static String _plainRir(double? rir) =>
+      rir == null ? '' : formatEffort(rir, EffortScale.rir);
+
+  static double? _parseRir(String s) {
+    final v = double.tryParse(s.trim().replaceAll(',', '.').replaceAll('+', ''));
+    return v == null ? null : toRir(v, EffortScale.rir);
+  }
+
+  /// El panel de la escalera solo va con RPE (decisión de Sergio 2026-11-14)
+  bool get _usesPanel => effortScaleOf(context) == EffortScale.rpe;
+
+  /// El panel de esfuerzo está abierto: perder el foco no cierra la fila.
+  bool _pickingEffort = false;
 
   /// El atleta tocó la fila para cargarla o corregirla.
   bool _editing = false;
@@ -276,11 +293,11 @@ class _SetRowState extends State<SetRow> {
     if (s == null) {
       return _weight.text.trim().isNotEmpty ||
           _reps.text.trim().isNotEmpty ||
-          _rir.text.trim().isNotEmpty;
+          _rir != null;
     }
     return _fmt(_parseWeight(_weight.text)) != _savedWeight(s) ||
         _parseInt(_reps.text) != s.reps ||
-        _parseInt(_rir.text) != s.rir;
+        _rir != s.rir;
   }
 
   @override
@@ -301,7 +318,8 @@ class _SetRowState extends State<SetRow> {
     if (!_editing && s != null) {
       _weight.text = _savedWeight(s);
       _reps.text = s.reps?.toString() ?? '';
-      _rir.text = s.rir?.toString() ?? '';
+      _rir = s.rir;
+      _rirText.text = _plainRir(s.rir);
     }
   }
 
@@ -311,16 +329,20 @@ class _SetRowState extends State<SetRow> {
     if (_openRow.value == this) _openRow.value = null;
     _weight.dispose();
     _reps.dispose();
-    _rir.dispose();
+    _rirText.dispose();
+    _rirFocus.dispose();
     _weightFocus.dispose();
     _repsFocus.dispose();
-    _rirFocus.dispose();
     super.dispose();
   }
 
   /// Abre la fila con el foco en la columna que tocó (peso si tocó otra parte
   /// de la fila, como el objetivo).
   void _startEditing([_Field field = _Field.weight]) {
+    if (field == _Field.rir && _usesPanel) {
+      _pickEffort();
+      return;
+    }
     setState(() => _editing = true);
     _openRow.value = this;
     final focus = switch (field) {
@@ -332,11 +354,29 @@ class _SetRowState extends State<SetRow> {
   }
 
   void _onFocusChange(bool hasFocus) {
-    if (!hasFocus) _commit();
+    if (!hasFocus && !_pickingEffort) _commit();
+  }
+
+  /// Panel de esfuerzo (escalera curva) en lugar del teclado. "Listo" guarda
+  /// la serie y cierra la fila; cerrarlo sin elegir deja el valor como estaba.
+  Future<void> _pickEffort() async {
+    _pickingEffort = true;
+    FocusManager.instance.primaryFocus?.unfocus();
+    final picked = await showEffortPanel(
+      context,
+      scale: effortScaleOf(context),
+      initialRir: _rir ?? widget.target?.rir,
+    );
+    _pickingEffort = false;
+    if (!mounted) return;
+    if (picked != null) _rir = picked.rir;
+    _commit();
   }
 
   /// Guarda si hubo cambios y cierra la fila.
   void _commit() {
+    // Con RIR el valor sale del campo de texto (con RPE lo pone el panel)
+    if (!_usesPanel) _rir = _parseRir(_rirText.text);
     // Cualquier cambio en peso, reps o RIR se guarda tal cual: lo que no
     // escribió queda vacío (antes exigía reps y un atleta que solo cargaba el
     // peso no guardaba nada).
@@ -345,7 +385,7 @@ class _SetRowState extends State<SetRow> {
         _parseWeight(_weight.text),
         _rowUnit,
         _parseInt(_reps.text),
-        _parseInt(_rir.text),
+        _rir,
       );
     }
     if (_editing) setState(() => _editing = false);
@@ -357,6 +397,7 @@ class _SetRowState extends State<SetRow> {
     final c = context.colors;
     final t = widget.target;
     final cols = widget.cols;
+    final scale = effortScaleOf(context);
     // Objetivo con su unidad, en dos líneas para que entre en la columna
     // ("110 kg × 12" se cortaba): arriba el peso (o las reps si no hay peso),
     // abajo "12 reps · RIR 2". Lo que el coach no puso no aparece. Los inputs
@@ -370,7 +411,7 @@ class _SetRowState extends State<SetRow> {
     final objective = targetWeight ?? targetReps ?? '';
     final subParts = [
       if (targetWeight != null && targetReps != null) targetReps,
-      if (t?.rir != null) 'RIR ${t!.rir}',
+      if (t?.rir != null) effortText(t!.rir, scale),
     ];
     final objectiveSub = subParts.isEmpty ? null : subParts.join(' · ');
 
@@ -388,14 +429,24 @@ class _SetRowState extends State<SetRow> {
         focusNode: _repsFocus,
         width: cols.reps,
         label: context.l10n.setRepsLabel(widget.setNumber),
+        action: _usesPanel ? TextInputAction.done : TextInputAction.next,
       );
-      rir = _Input(
-        controller: _rir,
-        focusNode: _rirFocus,
-        width: cols.rir,
-        label: context.l10n.setRirLabel(widget.setNumber),
-        action: TextInputAction.done,
-      );
+      rir = _usesPanel
+          ? _EffortCell(
+              width: cols.rir,
+              text: _rir == null ? null : formatEffort(_rir, scale),
+              label: context.l10n.setEffortLabel(scale.label, widget.setNumber),
+              onTap: _pickEffort,
+            )
+          : _Input(
+              controller: _rirText,
+              focusNode: _rirFocus,
+              width: cols.rir,
+              decimal: true,
+              plus: true,
+              label: context.l10n.setRirLabel(widget.setNumber),
+              action: TextInputAction.done,
+            );
     } else {
       final s = widget.saved;
       weight = _Value(
@@ -412,7 +463,7 @@ class _SetRowState extends State<SetRow> {
       );
       rir = _Value(
         width: cols.rir,
-        text: s?.rir?.toString(),
+        text: s?.rir == null ? null : formatEffort(s!.rir, scale),
         empty: s == null,
         onTap: () => _startEditing(_Field.rir),
       );
@@ -677,6 +728,57 @@ class SetCameraButton extends ConsumerWidget {
   }
 }
 
+/// Celda del esfuerzo con la fila abierta: se ve como un campo, pero al
+/// tocarla sube el panel de la escalera (no el teclado).
+class _EffortCell extends StatelessWidget {
+  const _EffortCell({
+    required this.width,
+    required this.text,
+    required this.label,
+    required this.onTap,
+  });
+
+  final double width;
+  final String? text;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Semantics(
+      button: true,
+      label: label,
+      value: text,
+      excludeSemantics: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          width: width,
+          height: 38,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: c.background,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: c.gold, width: 1.5),
+          ),
+          child: Text(
+            text ?? '',
+            maxLines: 1,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: c.text,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _Input extends StatelessWidget {
   const _Input({
     required this.controller,
@@ -684,6 +786,7 @@ class _Input extends StatelessWidget {
     required this.label,
     this.focusNode,
     this.decimal = false,
+    this.plus = false,
     this.action = TextInputAction.next,
   });
 
@@ -692,6 +795,9 @@ class _Input extends StatelessWidget {
   final double width;
   final String label;
   final bool decimal;
+
+  /// Acepta "+" (RIR "5+")
+  final bool plus;
 
   /// next = pasa al siguiente campo; done en el último (cierra el teclado y
   /// la fila se guarda sola).
@@ -717,7 +823,7 @@ class _Input extends StatelessWidget {
           keyboardType: TextInputType.numberWithOptions(decimal: decimal),
           inputFormatters: [
             FilteringTextInputFormatter.allow(
-              RegExp(decimal ? r'[0-9.,]' : r'[0-9]'),
+              RegExp(plus ? r'[0-9.,+]' : decimal ? r'[0-9.,]' : r'[0-9]'),
             ),
           ],
           style: TextStyle(

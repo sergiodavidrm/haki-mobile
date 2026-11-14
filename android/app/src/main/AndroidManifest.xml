@@ -41,10 +41,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- Stickers a Snapchat (MainActivity): le pasa el PNG de la caché -->
+        <!-- Snap Kit: Client ID (Staging/Production) de env/*.json (SNAP_CLIENT_ID) -->
+        <meta-data
+            android:name="com.snap.kit.clientId"
+            android:value="${snapClientId}" />
+        <!-- PNG de la caché para Snapchat (el SDK usa "<applicationId>.fileprovider")
+             y para copiar el sticker -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.haki_share"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

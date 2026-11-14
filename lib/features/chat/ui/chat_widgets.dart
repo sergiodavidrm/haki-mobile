@@ -1,3 +1,4 @@
+import '../../auth/providers/auth_me_provider.dart';
 import '../data/voice.dart';
 import 'voice_widgets.dart';
 import 'package:flutter/material.dart';
@@ -283,7 +284,7 @@ class VideoCardBubble extends StatelessWidget {
                   for (final v in card.videos)
                     VideoThumb(
                       video: v,
-                      label: v.label(unit),
+                      label: v.label(unit, effortScaleOf(context)),
                       title: '${card.exerciseName} · ${context.l10n.setN(v.setNumber)}',
                     ),
                 ],

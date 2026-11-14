@@ -1,3 +1,4 @@
+import '../../auth/providers/auth_me_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -917,7 +918,7 @@ class _RecordsCard extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          '${r.setLabel} · e1RM ${r.e1RmLabel}',
+                          '${r.setLabel(effortScaleOf(context))} · e1RM ${r.e1RmLabel}',
                           style: TextStyle(fontSize: 12, color: c.textMuted),
                         ),
                       ],

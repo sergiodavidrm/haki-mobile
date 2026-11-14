@@ -50,3 +50,6 @@ app.*.map.json
 # Config por ambiente (solo se versiona env/example.json)
 /env/*.json
 !/env/example.json
+
+# Reportes de Gradle (lint/R8)
+/android/build/

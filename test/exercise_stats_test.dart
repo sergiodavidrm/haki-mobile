@@ -4,7 +4,7 @@ import 'package:haki_mobile/features/exercise/data/exercise_history.dart';
 import 'package:haki_mobile/features/exercise/data/exercise_stats.dart';
 import 'package:haki_mobile/features/program/data/assignment_dtos.dart';
 
-LoggedSetDto set(int n, double? kg, int? reps, [int? rir]) => LoggedSetDto(
+LoggedSetDto set(int n, double? kg, int? reps, [double? rir]) => LoggedSetDto(
   setNumber: n,
   weightKg: kg,
   weightUnit: 'KG',

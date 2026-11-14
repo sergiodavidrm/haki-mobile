@@ -50,7 +50,7 @@ class LocalSetEntry {
   final double? weight;
   final WeightUnit unit;
   final int? reps;
-  final int? rir;
+  final double? rir;
 
   /// false = todavía no llegó a la API.
   final bool synced;
@@ -274,7 +274,7 @@ class SessionStore {
     required double? weight,
     required WeightUnit unit,
     required int? reps,
-    required int? rir,
+    required double? rir,
   }) async {
     await start(assignmentId, dayId);
     await _db

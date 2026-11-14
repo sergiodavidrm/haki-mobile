@@ -1,23 +1,23 @@
 package com.hakifit.haki_mobile
 
-import android.app.PendingIntent
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import androidx.core.content.FileProvider
+import com.snap.creativekit.SnapCreative
+import com.snap.creativekit.api.SnapCreativeKitCompletionCallback
+import com.snap.creativekit.api.SnapCreativeKitSendError
+import com.snap.creativekit.models.SnapLiveCameraContent
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import org.json.JSONObject
 import java.io.File
 
 class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        // Compartir un sticker a la cámara de Snapchat (Creative Kit, sin SDK):
+        // Compartir un sticker a la cámara de Snapchat (Creative Kit, SDK oficial):
         // lib/features/share/data/snapchat_share.dart
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "haki/snapchat")
             .setMethodCallHandler { call, result ->
@@ -26,13 +26,11 @@ class MainActivity : FlutterActivity() {
                     "shareSticker" -> try {
                         shareSticker(
                             path = call.argument<String>("path")!!,
-                            clientId = call.argument<String>("clientId")!!,
-                            appName = call.argument<String>("appName") ?: "Haki",
                             widthDp = call.argument<Int>("widthDp") ?: 240,
                             heightDp = call.argument<Int>("heightDp") ?: 240,
                             withSticker = call.argument<Boolean>("withSticker") ?: true,
+                            result = result,
                         )
-                        result.success(true)
                     } catch (e: Exception) {
                         result.error("snapchat", e.message, null)
                     }
@@ -55,7 +53,7 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun copyImage(path: String) {
-        val uri = FileProvider.getUriForFile(this, "$packageName.haki_share", File(path))
+        val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", File(path))
         val clip = ClipData.newUri(contentResolver, "Haki", uri)
         (getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(clip)
     }
@@ -67,37 +65,25 @@ class MainActivity : FlutterActivity() {
         false
     }
 
-    // Abre la cámara de Snapchat con el sticker encima ("Share to Camera"):
-    // https://github.com/Snapchat/creative-kit
-    private fun shareSticker(path: String, clientId: String, appName: String, widthDp: Int, heightDp: Int, withSticker: Boolean) {
-        val uri = FileProvider.getUriForFile(this, "$packageName.haki_share", File(path))
-        grantUriPermission(SNAPCHAT, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-        val back = PendingIntent.getActivity(
-            this, 0, Intent(this, MainActivity::class.java),
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_IMMUTABLE
-            else PendingIntent.FLAG_ONE_SHOT,
-        )
-        val sticker = JSONObject()
-            .put("uri", uri.toString())
-            .put("posX", 0.5)
-            .put("posY", 0.5)
-            .put("rotation", 0)
-            .put("widthDp", widthDp)
-            .put("heightDp", heightDp)
-
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            setPackage(SNAPCHAT)
-            setDataAndType(Uri.parse("snapchat://creativekit/camera"), "*/*")
-            putExtra("CLIENT_ID", clientId)
-            putExtra("CLIENT_APP_NAME", appName)
-            putExtra("RESULT_INTENT_EXTRA", back)
-            // Sin sticker = solo la cámara (prueba para separar config de imagen)
-            if (withSticker) putExtra("sticker", sticker.toString())
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    // Abre la cámara de Snapchat con el sticker encima ("Share to Camera") con
+    // el SDK oficial de Creative Kit (Client ID del manifest). Responde a Flutter
+    // cuando Snapchat abrió o con el motivo del error.
+    private fun shareSticker(path: String, widthDp: Int, heightDp: Int, withSticker: Boolean, result: MethodChannel.Result) {
+        val api = SnapCreative.getApi(this)
+        val content = SnapLiveCameraContent()
+        if (withSticker) {
+            val sticker = SnapCreative.getMediaFactory(this).getSnapStickerFromFile(File(path))
+            sticker.setWidthDp(widthDp.toFloat())
+            sticker.setHeightDp(heightDp.toFloat())
+            sticker.setPosX(0.5f)
+            sticker.setPosY(0.5f)
+            content.setSnapSticker(sticker)
         }
-        startActivity(intent)
+        api.sendWithCompletionHandler(content, object : SnapCreativeKitCompletionCallback {
+            override fun onSendSuccess() = result.success(true)
+            override fun onSendFailed(error: SnapCreativeKitSendError) =
+                result.error("snapchat", error.name, null)
+        })
     }
 
     companion object {

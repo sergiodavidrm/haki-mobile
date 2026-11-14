@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:haki_mobile/core/theme/app_theme.dart';
 import 'package:haki_mobile/core/theme/haki_colors.dart';
+import 'package:haki_mobile/core/units/effort.dart';
 import 'package:haki_mobile/core/units/weight_unit.dart';
 import 'package:haki_mobile/features/auth/providers/auth_me_provider.dart';
 import 'package:haki_mobile/features/program/data/assignment_dtos.dart';
@@ -11,10 +12,18 @@ import 'package:haki_mobile/features/session/ui/set_row.dart';
 import 'package:haki_mobile/l10n/l10n.dart';
 
 // Serie ya guardada (60 kg × 10 · RIR 2): la fila está cerrada hasta que la tocan.
-Future<void> pumpRow(WidgetTester tester, {bool videos = true}) async {
+Future<void> pumpRow(
+  WidgetTester tester, {
+  bool videos = true,
+  void Function(double? rir)? onSave,
+  EffortScale scale = EffortScale.rir,
+}) async {
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [videosEnabledProvider.overrideWithValue(videos)],
+      overrides: [
+        videosEnabledProvider.overrideWithValue(videos),
+        effortScaleProvider.overrideWithValue(scale),
+      ],
       child: MaterialApp(
         theme: buildAppTheme(HakiColors.obsidian),
         locale: const Locale('es'),
@@ -33,7 +42,7 @@ Future<void> pumpRow(WidgetTester tester, {bool videos = true}) async {
               synced: true,
             ),
             cols: SetCols.normal,
-            onSave: (_, _, _, _) {},
+            onSave: (_, _, _, rir) => onSave?.call(rir),
             onVideo: (_) {},
           ),
         ),
@@ -61,11 +70,41 @@ void main() {
     expect(focusedText(tester), '10');
   });
 
-  testWidgets('tocar el RIR deja el foco en el RIR', (tester) async {
-    await pumpRow(tester);
+  testWidgets('con RIR, tocar el RIR deja el foco en el RIR (teclado)', (
+    tester,
+  ) async {
+    double? saved;
+    await pumpRow(tester, onSave: (rir) => saved = rir);
     await tester.tap(find.text('2'));
     await tester.pumpAndSettle();
     expect(focusedText(tester), '2');
+    // Acepta medio punto
+    await tester.enterText(find.byType(TextField).last, '1,5');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(saved, 1.5);
+  });
+
+  testWidgets('con RPE, tocar el RPE abre el panel (sin teclado)', (
+    tester,
+  ) async {
+    double? saved;
+    await pumpRow(
+      tester,
+      scale: EffortScale.rpe,
+      onSave: (rir) => saved = rir,
+    );
+    // RIR 2 = RPE 8
+    await tester.tap(find.text('8'));
+    await tester.pumpAndSettle();
+    expect(find.text('Duro'), findsOneWidget);
+    expect(focusedText(tester), isNull);
+    // + = más duro: RPE 8 → 8,5 (RIR 1,5) y Listo guarda la serie
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Listo'));
+    await tester.pumpAndSettle();
+    expect(saved, 1.5);
   });
 
   testWidgets('tocar el peso (o el resto de la fila) deja el foco en el peso', (

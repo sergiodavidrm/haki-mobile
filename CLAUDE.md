@@ -844,8 +844,9 @@ Tab Programa (`features/program/ui/`, 2026-10-17):
   unidad en que se cargaron, objetivo, nota del atleta y **cámara en cada
   serie registrada** (2026-10-22: se pueden subir videos después del gym;
   mismo flujo y cola que la Sesión, `queueSetVideo` en
-  `session/ui/set_video_flow.dart`, botón `SetCameraButton`). En Hoy, un día
-  completado muestra "Ver entreno · subir videos" → esta pantalla. Los videos
+  `session/ui/set_video_flow.dart`, botón `SetCameraButton`). En Hoy, en un día
+  completado **toda la tarjeta** abre esta pantalla ("Entreno completado ›",
+  con cámara si el coach pide videos; 2026-11-14, antes un botón abajo). Los videos
   se ven en el Chat (tarjeta del ejercicio), no acá (decisión de Sergio
   2026-11-05). Tocar el nombre de un ejercicio abre el Detalle de
   ejercicio (2026-11-07); ahí esa sesión va con su fecha ("Semana 2 · 27
@@ -1071,7 +1072,10 @@ app abierta, `ChatPush`; ese push también recarga `myAgendaProvider`).
 Campana en el header de Hoy (`_InboxButton`, badge dorado con los no
 leídos) → `/avisos` (`InboxScreen`): icono, título y texto en negrita +
 punto dorado si no está leído, "Hace 2 h" (`formatAgo`), "Marcar leídos"
-(`POST inbox/me/read`, se marca al instante en el teléfono). Tocar un aviso
+(`POST inbox/me/read`, se marca al instante en el teléfono). Deslizar a la
+izquierda **borra** el aviso (`DELETE inbox/me/{id}`, sin confirmar; si falla
+reaparece con un aviso; 2026-11-14). Leer no borra; la API muestra 60 días y
+el tick borra de la BD lo más viejo. Tocar un aviso
 lo marca leído y, si es de una sesión, abre Hoy en ese día. Tipos:
 `event_invited` / `event_changed` / `event_cancelled` / `payment_reminder`.
 El texto sale de `hakiPushText` (el mismo del push, en el idioma de la app):
@@ -1176,16 +1180,25 @@ Canvas https://claude.ai/artifact/Bis8fb6sbujFYsHdy5tn3d; API en
 
 ### Compartir: stickers para historias (2026-11-12, sin probar)
 
-**Snapchat (2026-11-13, sin probar; falta el Client ID):** botón "Snapchat ·
-sticker sobre la cámara" (solo Android, con `SNAP_CLIENT_ID` en el env y
-Snapchat instalado). Creative Kit sin SDK: `MethodChannel('haki/snapchat')` →
-`MainActivity.shareSticker` (Intent `ACTION_SEND` a `snapchat://creativekit/camera`
-con `CLIENT_ID`, `CLIENT_APP_NAME` y `sticker` JSON con la URI, 240 dp de ancho).
-PNG en la caché (720 px, 480 si pasa de 1 MB) por el FileProvider
-`${applicationId}.haki_share` (`res/xml/haki_share_paths.xml`); `<queries>`
-con `com.snapchat.android`. Mientras la app de Snap Kit no esté aprobada solo
-funciona con los Demo Users (Client ID **Staging**). Instagram (sticker +
-foto de fondo, App ID de Meta) sigue pendiente.
+**Snapchat (2026-11-14, SDK oficial; probado por Sergio en su S25 con
+`elchira_1`: abre la cámara con el sticker):** botón
+"Snapchat" (solo Android, con `SNAP_CLIENT_ID` en el env y Snapchat
+instalado). `com.snap.creativekit:creativekit:3.0.0` (Maven Central) →
+`MainActivity.shareSticker`: `SnapCreative.getApi(...).sendWithCompletionHandler`
+con `SnapLiveCameraContent` + `SnapSticker` (240 dp); el error del SDK
+(`GENERIC_ERROR`, `SNAPCHAT_CANNOT_SHARE_CONTENT`…) sale en el aviso. El
+Client ID va en el manifest (`com.snap.kit.clientId` = `${snapClientId}`,
+que `build.gradle.kts` saca de los `--dart-define` del env). FileProvider
+`${applicationId}.fileprovider` (el SDK exige esa autoridad; también lo usa
+"Copiar"), `res/xml/haki_share_paths.xml`. Antes (2026-11-13) el intent iba a
+mano y Snapchat contestaba "Something went wrong": le faltaban `KIT_VERSION`
+y otros datos que pone el SDK. Con el Client ID **Staging** solo funciona con
+los Demo Users (`elchira_1` logueado en Snapchat). Instagram: el atleta guarda
+o copia el PNG y lo pega en su historia (sin App ID de Meta).
+**Release:** `android/app/proguard-rules.pro` (keep de `com.snap.**` +
+firmas de Retrofit); sin eso R8 rompía Core Kit y la APK se cerraba al abrir.
+Instagram no deja abrir la cámara con un sticker (solo el editor con fondo
+armado y App ID de Meta): se queda con Guardar / Copiar.
 
 Canvas https://claude.ai/artifact/XgxAnMeTfAh9gdVjzmFy2t (reemplaza a la v2
 con foto, descartada: el atleta pega el sticker en Instagram sobre su foto).
@@ -1282,3 +1295,28 @@ Hecho van por `_putOrSkip`: 400/404/409/422 = queda sin subir, la corrida
 sigue (series, Finalizar, videos) y lo rechazado se reintenta a los 10 min.
 Red caída, 401 y 5xx siguen cortando la corrida con backoff.
 
+
+
+### Esfuerzo: RIR / RPE y panel de la escalera (2026-11-14, sin probar)
+
+Canvas https://claude.ai/artifact/H1YnM3DHqK7u1ayh87A65s (opción C).
+- La API manda siempre RIR (`double?`, medio punto); `/auth/me`
+  `effortScale` → `effortScaleProvider` / `effortScaleOf(context)`.
+  `core/units/effort.dart`: `toScale`, `toRir`, `formatEffort` (RIR 4+ = "4+",
+  coma en español), `effortText` ("RPE 8,5"), títulos y "Te quedaban…".
+- drift **schema 8**: `LocalSets.rir` pasa a real (`alterTable` copia los datos).
+- **RIR 5 = "5+"** (lejos del fallo, tope de la escala; el campo acepta "5+").
+- **El panel solo va con RPE** (Sergio, 2026-11-14): con RIR la celda sigue
+  con teclado (acepta medio punto, "1,5"). La Sesión vuelve a pedir
+  `/auth/me` al abrirse (antes un cambio del coach con la app abierta no
+  llegaba hasta pasar por segundo plano).
+- Sesión con RPE: tocar la celda (cerrada o abierta) abre `showEffortPanel`
+  (`session/ui/effort_panel.dart`) en vez del teclado: 9 barras en curva
+  (RIR 4 → 0 / RPE 6 → 10), tocar o arrastrar, − / + de a medio punto,
+  teclado para escribirlo (vacío = borrar), "? RPE" con la hoja de ayuda
+  (se cierra con Entendido o tocando afuera) y Listo, que guarda la serie y
+  cierra la fila. Colores turquesa → dorado → carmesí (`effort_colors.dart`).
+  Arranca en lo cargado o en lo que pidió el coach (si no, 2).
+- En la escala del coach también: encabezado de la tabla, objetivo, resumen
+  del ejercicio, Sesión pasada, historial del Detalle, tarjeta de videos del
+  chat, Récords y Tu progreso.

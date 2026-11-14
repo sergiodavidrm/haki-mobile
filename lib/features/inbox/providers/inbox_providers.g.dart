@@ -38,7 +38,7 @@ final class MyInboxProvider extends $AsyncNotifierProvider<MyInbox, Inbox> {
   MyInbox create() => MyInbox();
 }
 
-String _$myInboxHash() => r'ed13fe59d3ce38086236227a6e7d06d64a9b4feb';
+String _$myInboxHash() => r'803b0d00f26b6f05c67e8cad3ae026eecd11628a';
 
 /// Campana de avisos. Se recarga al volver a primer plano y cuando llega un
 /// push de la API con la app abierta (`ChatPush`).

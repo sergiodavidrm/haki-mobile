@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -67,7 +68,7 @@ class InboxScreen extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(14, 4, 14, 24),
             itemCount: value.items.length,
             separatorBuilder: (_, _) => const SizedBox(height: 8),
-            itemBuilder: (_, i) => _InboxTile(item: value.items[i]),
+            itemBuilder: (_, i) => _Swipe(item: value.items[i]),
           ),
           AsyncError() => ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -82,6 +83,60 @@ class InboxScreen extends ConsumerWidget {
           ),
           _ => const Center(child: HakiLoader()),
         },
+      ),
+    );
+  }
+}
+
+/// Deslizar a la izquierda borra el aviso (sin confirmar; leerlo no lo borra).
+class _Swipe extends ConsumerWidget {
+  const _Swipe({required this.item});
+
+  final InboxItem item;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final l = context.l10n;
+    return Dismissible(
+      key: ValueKey(item.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        decoration: BoxDecoration(
+          color: c.track,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.delete_outline, size: 20, color: c.textSecondary),
+            const SizedBox(width: 6),
+            Text(
+              l.inboxDelete,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: c.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+      onDismissed: (_) async {
+        final messenger = ScaffoldMessenger.of(context);
+        final ok = await ref.read(myInboxProvider.notifier).remove(item.id);
+        if (!ok) {
+          messenger.showSnackBar(SnackBar(content: Text(l.inboxDeleteError)));
+        }
+      },
+      child: Semantics(
+        customSemanticsActions: {
+          CustomSemanticsAction(label: l.inboxDelete): () =>
+              ref.read(myInboxProvider.notifier).remove(item.id),
+        },
+        child: _InboxTile(item: item),
       ),
     );
   }

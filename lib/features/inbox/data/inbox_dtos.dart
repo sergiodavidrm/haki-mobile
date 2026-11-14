@@ -60,6 +60,12 @@ class Inbox {
     return Inbox(items: next, unread: next.where((i) => !i.read).length);
   }
 
+  /// Sin el aviso [id] (deslizar para borrar), sin esperar a la API.
+  Inbox without(String id) {
+    final next = [for (final i in items) if (i.id != id) i];
+    return Inbox(items: next, unread: next.where((i) => !i.read).length);
+  }
+
   factory Inbox.fromJson(Map<String, dynamic> j) => Inbox(
     items: [
       for (final e in j['items'] as List? ?? const [])

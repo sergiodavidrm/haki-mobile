@@ -1,3 +1,5 @@
+import '../../auth/providers/auth_me_provider.dart';
+import '../../../core/units/effort.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -731,7 +733,7 @@ class _SetTable extends StatelessWidget {
           Text(l.setHeader, style: head),
           Text(unit.label.toUpperCase(), style: head),
           Text(l.repsHeader, style: head),
-          Text('RIR', style: head),
+          Text(effortScaleOf(context).label, style: head),
         ], line: false),
         for (final s in sets)
           row([
@@ -760,7 +762,7 @@ class _SetTable extends StatelessWidget {
               ),
             ),
             Text(
-              '${s.rir ?? '–'}',
+              formatEffort(s.rir, effortScaleOf(context)),
               style: TextStyle(
                 fontSize: 14,
                 color: c.textSecondary,

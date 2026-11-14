@@ -1,3 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/widgets.dart';
+import '../../../core/units/effort.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/cache/api_cache.dart';
@@ -35,3 +38,13 @@ String displayName(Ref ref) {
 @riverpod
 bool videosEnabled(Ref ref) =>
     ref.watch(authMeProvider).value?.videoFeedbackEnabled ?? true;
+
+/// Escala de esfuerzo del coach (RIR o RPE). La API guarda siempre RIR.
+@riverpod
+EffortScale effortScale(Ref ref) =>
+    ref.watch(authMeProvider).value?.effortScale ?? EffortScale.rir;
+
+/// Escala de esfuerzo para widgets sin `ref` (se lee una vez; la Sesión hace
+/// `watch` y reconstruye todo si el coach la cambia).
+EffortScale effortScaleOf(BuildContext context) =>
+    ProviderScope.containerOf(context, listen: false).read(effortScaleProvider);

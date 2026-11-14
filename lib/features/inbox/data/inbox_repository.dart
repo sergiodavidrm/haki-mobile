@@ -23,6 +23,9 @@ class InboxRepository {
   /// ids null = todos.
   Future<void> markRead([List<String>? ids]) =>
       _api.post<void>('/inbox/me/read', data: {'ids': ids});
+
+  /// Borra un aviso (deslizar en la campana).
+  Future<void> delete(String id) => _api.delete<void>('/inbox/me/$id');
 }
 
 @Riverpod(keepAlive: true)

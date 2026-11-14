@@ -1,3 +1,5 @@
+import '../../../core/cache/api_cache.dart';
+import '../../../core/units/effort.dart';
 import 'dart:async';
 
 import '../../auth/providers/auth_me_provider.dart';
@@ -59,6 +61,13 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     _tick = Timer.periodic(const Duration(minutes: 1), (_) => setState(() {}));
     // Entrar a la sesión = empezarla (idempotente si ya estaba empezada)
     ref.read(sessionStoreProvider).start(_a, _d);
+    // Configuración del coach al día (RIR/RPE, videos) aunque la app no haya
+    // pasado por segundo plano: muestra la copia y actualiza atrás
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(apiCacheProvider).expire();
+      ref.invalidate(authMeProvider);
+    });
   }
 
   @override
@@ -71,6 +80,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final day = ref.watch(sessionDayProvider(_a, _d));
+    // Escala del coach (RIR/RPE): si cambia, se redibuja toda la Sesión
+    ref.watch(effortScaleProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -477,7 +488,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     ].join(' × ');
     final target = [
       if (load.isNotEmpty) load,
-      if (t?.rir != null) 'RIR ${t!.rir}',
+      if (t?.rir != null) effortText(t!.rir, ref.read(effortScaleProvider)),
     ].join(' · ');
     return NextSetInfo(
       exerciseName: r.exercise.exerciseName,
@@ -805,7 +816,7 @@ class _CollapsedGroup extends StatelessWidget {
         ? g.exercises.single.exerciseName
         : context.l10n.supersetN(g.letter!);
     final subtitle = single
-        ? exerciseSummary(g.exercises.single)
+        ? exerciseSummary(g.exercises.single, effortScaleOf(context))
         : g.exercises
               .map((e) => '${g.badgeOf(e)} ${e.exerciseName}')
               .join(' · ');

@@ -1,3 +1,4 @@
+import '../../../core/units/effort.dart';
 import 'package:stream_chat_flutter_core/stream_chat_flutter_core.dart';
 
 import '../../../core/units/weight_unit.dart';
@@ -21,15 +22,15 @@ class CardVideo {
   final String url;
   final double? weightKg;
   final int? reps;
-  final int? rir;
+  final double? rir;
 
   /// "116 lb × 12 · RIR 1"; sin peso "12 reps · RIR 1".
-  String label(WeightUnit unit) {
+  String label(WeightUnit unit, [EffortScale scale = EffortScale.rir]) {
     final w = weightKg;
     final base = w == null || w <= 0
         ? '${reps ?? '–'} ${l10n.repsShort}'
         : '${formatWeight(unit.fromKg(w))} ${unit.label} × ${reps ?? '–'}';
-    return rir == null ? base : '$base · RIR $rir';
+    return rir == null ? base : '$base · ${effortText(rir, scale)}';
   }
 }
 
@@ -72,7 +73,7 @@ class VideoCard {
               url: a.assetUrl!,
               weightKg: (a.extraData['weight'] as num?)?.toDouble(),
               reps: _int(a.extraData['reps']),
-              rir: _int(a.extraData['rir']),
+              rir: (a.extraData['rir'] as num?)?.toDouble(),
             ),
       ]..sort((a, b) => a.setNumber.compareTo(b.setNumber)),
     );

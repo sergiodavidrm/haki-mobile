@@ -21,7 +21,7 @@ class SavedSet {
   final double? weight;
   final WeightUnit unit;
   final int? reps;
-  final int? rir;
+  final double? rir;
 
   /// false = guardada en el teléfono, todavía no llegó a la API.
   final bool synced;

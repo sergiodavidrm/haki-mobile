@@ -2495,5 +2495,57 @@
   "shareMore": "Más",
   "shareCopy": "Copiar",
   "shareCopied": "Copiado. En tu historia de Instagram, mantené apretado y tocá Pegar",
-  "shareCopyError": "No se pudo copiar"
+  "shareCopyError": "No se pudo copiar",
+  "effortModerate": "Moderado",
+  "effortHard": "Duro",
+  "effortVeryHard": "Muy duro",
+  "effortNearFailure": "Casi al fallo",
+  "effortFailure": "Al fallo",
+  "effortHintFourPlus": "Te quedaban 4 o más",
+  "effortHintNone": "No te quedaba ninguna",
+  "effortHintMaybeOne": "Quizás te quedaba 1",
+  "effortHintN": "{count, plural, =1{Te quedaba 1} other{Te quedaban {count}}}",
+  "@effortHintN": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "effortHintRange": "Te quedaban {a} o {b}",
+  "@effortHintRange": {
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "effortWhatIsRpe": "¿Qué es el RPE?",
+  "effortWhatIsRir": "¿Qué es el RIR?",
+  "effortRpeExplain": "El RPE es qué tan dura fue la serie, del 6 al 10. Pensalo así: ¿cuántas repeticiones más podías hacer con buena técnica?",
+  "effortRirExplain": "El RIR son las repeticiones que te quedaban: cuántas más podías hacer con buena técnica.",
+  "effortHalfTip": "Si dudás entre dos, usá el medio punto (8,5).",
+  "effortGotIt": "Entendido",
+  "effortDone": "Listo",
+  "effortLess": "Más fácil",
+  "effortMore": "Más duro",
+  "effortType": "Escribirlo",
+  "effortUseBars": "Usar las barras",
+  "effortTypeHelp": "Vacío = borrar",
+  "setEffortLabel": "{scale} de la serie {set}",
+  "@setEffortLabel": {
+    "placeholders": {
+      "scale": {
+        "type": "String"
+      },
+      "set": {
+        "type": "int"
+      }
+    }
+  },
+  "inboxDelete": "Borrar",
+  "inboxDeleteError": "No se pudo borrar el aviso. Revisá tu conexión."
 }

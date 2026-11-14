@@ -6,7 +6,9 @@ import '../../../core/config/env.dart';
 
 /// Sticker a la cámara de Snapchat (Creative Kit, "Share to Camera"): abre
 /// Snapchat con el sticker encima para sacarse la foto o el video. Lo hace
-/// MainActivity.kt (Android); en iOS todavía no.
+/// MainActivity.kt con el SDK de Creative Kit (Android); en iOS todavía no.
+/// El Client ID va en el manifest (`com.snap.kit.clientId`, sale del env al
+/// compilar); acá solo decide si se muestra el botón.
 /// Necesita `SNAP_CLIENT_ID` (Snap Kit). Mientras la app de Snap Kit no esté
 /// aprobada solo funciona con las cuentas de prueba (Demo Users).
 class SnapchatShare {
@@ -28,8 +30,6 @@ class SnapchatShare {
   static Future<void> shareSticker(String path, {required int widthDp, required int heightDp, bool withSticker = true}) =>
       _channel.invokeMethod<void>('shareSticker', {
         'path': path,
-        'clientId': Env.snapClientId,
-        'appName': 'Haki',
         'widthDp': widthDp,
         'heightDp': heightDp,
         'withSticker': withSticker,

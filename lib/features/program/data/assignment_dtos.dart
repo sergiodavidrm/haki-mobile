@@ -449,14 +449,14 @@ class TargetSetDto {
   final int setNumber;
   final double? weightKg;
   final int? reps;
-  final int? rir;
+  final double? rir;
   final bool requestVideo;
 
   factory TargetSetDto.fromJson(Map<String, dynamic> j) => TargetSetDto(
     setNumber: j['setNumber'] as int,
     weightKg: (j['weight'] as num?)?.toDouble(),
     reps: j['reps'] as int?,
-    rir: j['rir'] as int?,
+    rir: (j['rir'] as num?)?.toDouble(),
     requestVideo: j['requestVideo'] == true,
   );
 }
@@ -484,7 +484,7 @@ class LoggedSetDto {
   final double? weightKg;
   final String weightUnit;
   final int? reps;
-  final int? rir;
+  final double? rir;
 
   /// Video ya subido de esta serie.
   final String? videoUrl;
@@ -495,7 +495,7 @@ class LoggedSetDto {
     weightKg: (j['weight'] as num?)?.toDouble(),
     weightUnit: j['weightUnit'] as String? ?? 'KG',
     reps: j['reps'] as int?,
-    rir: j['rir'] as int?,
+    rir: (j['rir'] as num?)?.toDouble(),
     videoUrl: j['videoUrl'] as String?,
     updatedAt: DateTime.tryParse(j['updatedAt'] as String? ?? ''),
   );

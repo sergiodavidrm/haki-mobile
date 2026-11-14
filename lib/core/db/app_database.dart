@@ -82,7 +82,8 @@ class LocalSets extends Table {
   /// "KG" | "LB"
   TextColumn get weightUnit => text()();
   IntColumn get reps => integer().nullable()();
-  IntColumn get rir => integer().nullable()();
+  /// RIR con medio punto (2026-11-14, schema 8): 1.5 = RPE 8,5
+  RealColumn get rir => real().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
   BoolColumn get synced => boolean().withDefault(const Constant(false))();
 
@@ -149,7 +150,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'haki'));
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -169,6 +170,15 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(localSessions, localSessions.skippedAt);
         await m.addColumn(localSessions, localSessions.skipNote);
         await m.addColumn(localSessions, localSessions.skipSynced);
+      }
+      // RIR con medio punto: la columna pasa de entero a real (copia los datos)
+      if (from < 8) {
+        await m.alterTable(
+          TableMigration(
+            localSets,
+            columnTransformer: {localSets.rir: localSets.rir.cast<double>()},
+          ),
+        );
       }
     },
   );

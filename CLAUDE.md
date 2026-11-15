@@ -1074,7 +1074,7 @@ leídos) → `/avisos` (`InboxScreen`): icono, título y texto en negrita +
 punto dorado si no está leído, "Hace 2 h" (`formatAgo`), "Marcar leídos"
 (`POST inbox/me/read`, se marca al instante en el teléfono). Deslizar a la
 izquierda **borra** el aviso (`DELETE inbox/me/{id}`, sin confirmar; si falla
-reaparece con un aviso; 2026-11-14). Leer no borra; la API muestra 60 días y
+reaparece con un aviso; 2026-11-14). Leer no borra; la API muestra 7 días y
 el tick borra de la BD lo más viejo. Tocar un aviso
 lo marca leído y, si es de una sesión, abre Hoy en ese día. Tipos:
 `event_invited` / `event_changed` / `event_cancelled` / `payment_reminder`.

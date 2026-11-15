@@ -5377,6 +5377,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se pudo borrar el aviso. Revisá tu conexión.'**
   String get inboxDeleteError;
+
+  /// No description provided for @videosExpired.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 video vencido · se guardan 30 días} other{{count} videos vencidos · se guardan 30 días}}'**
+  String videosExpired(int count);
 }
 
 class _AppLocalizationsDelegate

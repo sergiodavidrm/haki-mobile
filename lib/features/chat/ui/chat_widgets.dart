@@ -290,6 +290,22 @@ class VideoCardBubble extends StatelessWidget {
                 ],
               ),
             ),
+          if (card.expiredVideos > 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+              child: Row(
+                children: [
+                  Icon(Icons.auto_delete_outlined, size: 15, color: c.textMuted),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      context.l10n.videosExpired(card.expiredVideos),
+                      style: TextStyle(fontSize: 12, color: c.textMuted),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           if (card.note != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),

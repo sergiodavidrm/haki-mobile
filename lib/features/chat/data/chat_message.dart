@@ -43,6 +43,7 @@ class VideoCard {
     this.dayNumber,
     required this.videos,
     this.note,
+    this.expiredVideos = 0,
   });
 
   final String exerciseName;
@@ -50,6 +51,9 @@ class VideoCard {
   final int? dayNumber;
   final List<CardVideo> videos;
   final String? note;
+
+  /// Videos de la tarjeta borrados a los 30 días de subidos (la API los cuenta)
+  final int expiredVideos;
 
   /// "Sem 2 · Día 3"
   String? get dayLabel => weekNumber == null || dayNumber == null
@@ -65,6 +69,7 @@ class VideoCard {
       weekNumber: _int(m.extraData['weekNumber']),
       dayNumber: _int(m.extraData['dayNumber']),
       note: (m.text ?? '').trim().isEmpty ? null : m.text!.trim(),
+      expiredVideos: _int(m.extraData['expiredVideos']) ?? 0,
       videos: [
         for (final a in m.attachments)
           if (a.assetUrl != null)

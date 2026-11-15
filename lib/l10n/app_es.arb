@@ -2547,5 +2547,13 @@
     }
   },
   "inboxDelete": "Borrar",
-  "inboxDeleteError": "No se pudo borrar el aviso. Revisá tu conexión."
+  "inboxDeleteError": "No se pudo borrar el aviso. Revisá tu conexión.",
+  "videosExpired": "{count, plural, =1{1 video vencido · se guardan 30 días} other{{count} videos vencidos · se guardan 30 días}}",
+  "@videosExpired": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

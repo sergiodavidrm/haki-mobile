@@ -3323,4 +3323,15 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get inboxDeleteError =>
       'No se pudo borrar el aviso. Revisá tu conexión.';
+
+  @override
+  String videosExpired(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count videos vencidos · se guardan 30 días',
+      one: '1 video vencido · se guardan 30 días',
+    );
+    return '$_temp0';
+  }
 }

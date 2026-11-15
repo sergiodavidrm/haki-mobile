@@ -3325,4 +3325,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get inboxDeleteError =>
       'Couldn\'t delete the notice. Check your connection.';
+
+  @override
+  String videosExpired(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count expired videos · kept for 30 days',
+      one: '1 expired video · kept for 30 days',
+    );
+    return '$_temp0';
+  }
 }

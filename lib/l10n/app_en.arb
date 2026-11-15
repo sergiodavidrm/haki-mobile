@@ -879,5 +879,6 @@
   "effortTypeHelp": "Empty = clear",
   "setEffortLabel": "{scale} for set {set}",
   "inboxDelete": "Delete",
-  "inboxDeleteError": "Couldn't delete the notice. Check your connection."
+  "inboxDeleteError": "Couldn't delete the notice. Check your connection.",
+  "videosExpired": "{count, plural, =1{1 expired video · kept for 30 days} other{{count} expired videos · kept for 30 days}}"
 }

@@ -2555,5 +2555,19 @@
         "type": "int"
       }
     }
-  }
+  },
+  "legalTerms": "Términos",
+  "legalTermsFull": "Términos y condiciones",
+  "legalPrivacy": "Privacidad",
+  "legalPrivacyPolicy": "Política de privacidad",
+  "legalHelp": "Ayuda",
+  "legalSection": "Legal y ayuda",
+  "legalAnd": "y la",
+  "legalSignupBefore": "Al crear tu cuenta aceptás los",
+  "legalAcceptBefore": "Leí y acepto los",
+  "legalHealthConsent": "Acepto que Haki guarde mis datos de salud y entrenamiento (peso, medidas, lesiones, entrenos, videos y cuestionarios) y que mi coach los vea.",
+  "legalHealthConsentHint": "Podés pedir verlos, corregirlos o borrarlos cuando quieras escribiendo a info@hakifit.com.",
+  "legalCheckBoth": "Marcá las dos casillas para aceptar",
+  "legalAcceptedOn": "Aceptaste los términos el {date}",
+  "@legalAcceptedOn": {"placeholders": {"date": {"type": "String"}}}
 }

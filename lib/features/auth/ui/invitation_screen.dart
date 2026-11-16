@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/legal/legal_links.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../../../core/widgets/haki_card.dart';
@@ -39,13 +40,23 @@ class InvitationGate extends ConsumerWidget {
   }
 }
 
-class _InvitationScreen extends ConsumerWidget {
+class _InvitationScreen extends ConsumerStatefulWidget {
   const _InvitationScreen({required this.invitation});
 
   final MyInvitationDto invitation;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_InvitationScreen> createState() => _InvitationScreenState();
+}
+
+class _InvitationScreenState extends ConsumerState<_InvitationScreen> {
+  // Las dos obligatorias para Aceptar (Términos + datos de salud, Ley 8968)
+  bool _terms = false;
+  bool _health = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final invitation = widget.invitation;
     final c = context.colors;
     final l = context.l10n;
     final state = ref.watch(invitationAccepterProvider);
@@ -96,9 +107,38 @@ class _InvitationScreen extends ConsumerWidget {
         const SizedBox(height: 12),
         Text(apiErrorMessage(state.error!), style: TextStyle(color: c.danger)),
       ],
-      const SizedBox(height: 28),
+      const SizedBox(height: 20),
+      _ConsentBox(
+        value: _terms,
+        onChanged: (v) => setState(() => _terms = v),
+        child: LegalSentence(
+          before: l.legalAcceptBefore,
+          middle: l.legalAnd,
+          after: '.',
+          fontSize: 14,
+          textAlign: WrapAlignment.start,
+          color: c.text,
+        ),
+      ),
+      const SizedBox(height: 10),
+      _ConsentBox(
+        value: _health,
+        onChanged: (v) => setState(() => _health = v),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(l.legalHealthConsent, style: TextStyle(color: c.text, fontSize: 14, height: 1.45)),
+          const SizedBox(height: 4),
+          Text(l.legalHealthConsentHint,
+              style: TextStyle(color: c.textMuted, fontSize: 12, height: 1.45)),
+        ]),
+      ),
+      const SizedBox(height: 20),
+      if (!(_terms && _health)) ...[
+        Text(l.legalCheckBoth,
+            textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 13)),
+        const SizedBox(height: 10),
+      ],
       FilledButton(
-        onPressed: state.isLoading
+        onPressed: state.isLoading || !(_terms && _health)
             ? null
             : () => ref.read(invitationAccepterProvider.notifier).accept(invitation.id),
         child: state.isLoading
@@ -112,6 +152,45 @@ class _InvitationScreen extends ConsumerWidget {
         child: Text(l.inviteNotMine, style: TextStyle(color: c.textMuted)),
       ),
     ]);
+  }
+}
+
+/// Casilla grande (toda la fila tocable) con su texto.
+class _ConsentBox extends StatelessWidget {
+  const _ConsentBox({required this.value, required this.onChanged, required this.child});
+
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Material(
+      color: c.surface,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => onChanged(!value),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(6, 6, 14, 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: value ? c.goldBorder : c.border),
+          ),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Checkbox(
+              value: value,
+              onChanged: (v) => onChanged(v ?? false),
+              activeColor: c.gold,
+              checkColor: c.onAccent,
+            ),
+            const SizedBox(width: 2),
+            Expanded(child: Padding(padding: const EdgeInsets.only(top: 12), child: child)),
+          ]),
+        ),
+      ),
+    );
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/legal/legal_links.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../../../l10n/l10n.dart';
@@ -126,6 +127,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                       : Text(l.signupSubmit),
                 ),
+                const SizedBox(height: 12),
+                LegalSentence(before: l.legalSignupBefore, middle: l.legalAnd, after: '.'),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

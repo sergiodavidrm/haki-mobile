@@ -3336,4 +3336,47 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get legalTerms => 'Terms';
+
+  @override
+  String get legalTermsFull => 'Terms and conditions';
+
+  @override
+  String get legalPrivacy => 'Privacy';
+
+  @override
+  String get legalPrivacyPolicy => 'Privacy Policy';
+
+  @override
+  String get legalHelp => 'Help';
+
+  @override
+  String get legalSection => 'Legal and help';
+
+  @override
+  String get legalAnd => 'and the';
+
+  @override
+  String get legalSignupBefore => 'By creating your account you accept the';
+
+  @override
+  String get legalAcceptBefore => 'I have read and accept the';
+
+  @override
+  String get legalHealthConsent =>
+      'I agree that Haki stores my health and training data (weight, measurements, injuries, workouts, videos and questionnaires) and that my coach can see it.';
+
+  @override
+  String get legalHealthConsentHint =>
+      'You can ask to see, correct or delete it anytime by writing to info@hakifit.com.';
+
+  @override
+  String get legalCheckBoth => 'Check both boxes to accept';
+
+  @override
+  String legalAcceptedOn(String date) {
+    return 'You accepted the terms on $date';
+  }
 }

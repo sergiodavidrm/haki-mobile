@@ -124,6 +124,11 @@ encontramos tu invitación" (entrar con otra cuenta / volver a buscar). Un
 coach ve un mensaje + cerrar sesión. Queda un usuario huérfano en
 `auth.users` si nunca acepta (aceptado).
 
+**Términos (2026-11-16, canvas https://claude.ai/artifact/B1T8yC6TgipDix17gh2ScY):**
+Invitación pendiente lleva dos casillas obligatorias (Términos + Privacidad y
+datos de salud) antes de Aceptar; la app manda `{ acceptTerms, healthConsent }`.
+Login con `LegalLinksRow` al pie y Crear cuenta con el aviso (`LegalSentence`).
+
 **Crear cuenta (2026-10-25):** Login → "¿Primera vez? Creá tu cuenta" →
 `/registro` (email, contraseña con requisitos en vivo: `PasswordChecks` en
 `auth/data/password_policy.dart`, misma regla que Supabase y el web; repetir)
@@ -892,8 +897,11 @@ Perfil (`features/profile/` + `features/body/`, 2026-10-18):
   invalida `/auth/me`), Vibrar al terminar el descanso (`RestVibration`,
   `shared_preferences` `rest_vibrate`; apaga el háptico y usa el canal Android
   `rest_timer_done_quiet`, porque la vibración es fija por canal) y Cerrar
-  sesión (avisa si hay series sin subir). Del mockup faltan: videos solo con
-  Wi-Fi, notificaciones, Google Fit, idioma, ayuda, términos y versión.
+  sesión (avisa si hay series sin subir). **Legal y ayuda** (2026-11-16):
+  Términos, Política de privacidad y Ayuda (guía del atleta) abren
+  hakifit.com en el navegador (`core/legal/legal_links.dart`) + "Aceptaste
+  los términos el …" (`termsAcceptedAt` de `/auth/me`). Del mockup faltan:
+  videos solo con Wi-Fi, notificaciones, Google Fit y versión.
 - `DayWeightUnit` escucha `bodyWeightUnit` (no `authMe` directo): refrescar
   `/auth/me` no pisa el switch del día; cambiar la unidad en Ajustes sí.
 - `/perfil/peso` y `/perfil/medidas/m/:key` (`BodySeriesScreen`, misma

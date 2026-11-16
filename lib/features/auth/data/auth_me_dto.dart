@@ -26,7 +26,12 @@ class AuthMeDto {
     this.personal,
     this.levelsEnabled = true,
     this.experience,
+    this.termsAcceptedAt,
   });
+
+  /// Cuándo aceptó los Términos (al aceptar la invitación). null = cuenta de
+  /// antes de 2026-11-16 o API vieja.
+  final DateTime? termsAcceptedAt;
 
   /// Del coach: niveles y logros en la app (true si no viene: API vieja)
   final bool levelsEnabled;
@@ -113,5 +118,8 @@ class AuthMeDto {
         : PersonalInfoDto.fromJson(json['personal'] as Map<String, dynamic>),
     levelsEnabled: json['levelsEnabled'] as bool? ?? true,
     experience: json['experience'] as int?,
+    termsAcceptedAt: json['termsAcceptedAt'] == null
+        ? null
+        : DateTime.tryParse(json['termsAcceptedAt'] as String)?.toLocal(),
   );
 }

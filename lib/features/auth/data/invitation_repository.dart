@@ -49,8 +49,11 @@ class InvitationRepository {
         : MyInvitationDto.fromJson(invitation as Map<String, dynamic>);
   }
 
-  Future<void> accept(String invitationId) =>
-      _api.post<void>('/invitations/$invitationId/accept');
+  /// Las dos casillas (Términos y datos de salud) son obligatorias en la API.
+  Future<void> accept(String invitationId) => _api.post<void>(
+        '/invitations/$invitationId/accept',
+        data: {'acceptTerms': true, 'healthConsent': true},
+      );
 }
 
 @Riverpod(keepAlive: true)

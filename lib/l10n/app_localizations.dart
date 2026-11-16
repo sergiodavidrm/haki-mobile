@@ -5383,6 +5383,84 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{count, plural, =1{1 video vencido · se guardan 30 días} other{{count} videos vencidos · se guardan 30 días}}'**
   String videosExpired(int count);
+
+  /// No description provided for @legalTerms.
+  ///
+  /// In es, this message translates to:
+  /// **'Términos'**
+  String get legalTerms;
+
+  /// No description provided for @legalTermsFull.
+  ///
+  /// In es, this message translates to:
+  /// **'Términos y condiciones'**
+  String get legalTermsFull;
+
+  /// No description provided for @legalPrivacy.
+  ///
+  /// In es, this message translates to:
+  /// **'Privacidad'**
+  String get legalPrivacy;
+
+  /// No description provided for @legalPrivacyPolicy.
+  ///
+  /// In es, this message translates to:
+  /// **'Política de privacidad'**
+  String get legalPrivacyPolicy;
+
+  /// No description provided for @legalHelp.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayuda'**
+  String get legalHelp;
+
+  /// No description provided for @legalSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Legal y ayuda'**
+  String get legalSection;
+
+  /// No description provided for @legalAnd.
+  ///
+  /// In es, this message translates to:
+  /// **'y la'**
+  String get legalAnd;
+
+  /// No description provided for @legalSignupBefore.
+  ///
+  /// In es, this message translates to:
+  /// **'Al crear tu cuenta aceptás los'**
+  String get legalSignupBefore;
+
+  /// No description provided for @legalAcceptBefore.
+  ///
+  /// In es, this message translates to:
+  /// **'Leí y acepto los'**
+  String get legalAcceptBefore;
+
+  /// No description provided for @legalHealthConsent.
+  ///
+  /// In es, this message translates to:
+  /// **'Acepto que Haki guarde mis datos de salud y entrenamiento (peso, medidas, lesiones, entrenos, videos y cuestionarios) y que mi coach los vea.'**
+  String get legalHealthConsent;
+
+  /// No description provided for @legalHealthConsentHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Podés pedir verlos, corregirlos o borrarlos cuando quieras escribiendo a info@hakifit.com.'**
+  String get legalHealthConsentHint;
+
+  /// No description provided for @legalCheckBoth.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcá las dos casillas para aceptar'**
+  String get legalCheckBoth;
+
+  /// No description provided for @legalAcceptedOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptaste los términos el {date}'**
+  String legalAcceptedOn(String date);
 }
 
 class _AppLocalizationsDelegate

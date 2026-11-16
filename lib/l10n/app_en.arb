@@ -880,5 +880,18 @@
   "setEffortLabel": "{scale} for set {set}",
   "inboxDelete": "Delete",
   "inboxDeleteError": "Couldn't delete the notice. Check your connection.",
-  "videosExpired": "{count, plural, =1{1 expired video · kept for 30 days} other{{count} expired videos · kept for 30 days}}"
+  "videosExpired": "{count, plural, =1{1 expired video · kept for 30 days} other{{count} expired videos · kept for 30 days}}",
+  "legalTerms": "Terms",
+  "legalTermsFull": "Terms and conditions",
+  "legalPrivacy": "Privacy",
+  "legalPrivacyPolicy": "Privacy Policy",
+  "legalHelp": "Help",
+  "legalSection": "Legal and help",
+  "legalAnd": "and the",
+  "legalSignupBefore": "By creating your account you accept the",
+  "legalAcceptBefore": "I have read and accept the",
+  "legalHealthConsent": "I agree that Haki stores my health and training data (weight, measurements, injuries, workouts, videos and questionnaires) and that my coach can see it.",
+  "legalHealthConsentHint": "You can ask to see, correct or delete it anytime by writing to info@hakifit.com.",
+  "legalCheckBoth": "Check both boxes to accept",
+  "legalAcceptedOn": "You accepted the terms on {date}"
 }

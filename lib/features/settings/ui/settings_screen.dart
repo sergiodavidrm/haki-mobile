@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/format/dates.dart';
+import '../../../core/legal/legal_links.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
@@ -205,6 +207,32 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ],
             ),
+            _Section(l.legalSection),
+            _Group(
+              children: [
+                _Row(
+                  title: l.legalTermsFull,
+                  trailing: Icon(Icons.open_in_new, size: 18, color: c.textMuted),
+                  onTap: () => openLegal(LegalUrls.terms),
+                ),
+                _Row(
+                  title: l.legalPrivacyPolicy,
+                  trailing: Icon(Icons.open_in_new, size: 18, color: c.textMuted),
+                  onTap: () => openLegal(LegalUrls.privacy),
+                ),
+                _Row(
+                  title: l.legalHelp,
+                  trailing: Icon(Icons.open_in_new, size: 18, color: c.textMuted),
+                  onTap: () => openLegal(LegalUrls.help),
+                ),
+              ],
+            ),
+            if (ref.watch(authMeProvider).value?.termsAcceptedAt case final at?) ...[
+              const SizedBox(height: 8),
+              Text(l.legalAcceptedOn('${formatDayMonth(at)} ${at.year}'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: c.textMuted, fontSize: 12)),
+            ],
             const SizedBox(height: 18),
             OutlinedButton(
               style: OutlinedButton.styleFrom(

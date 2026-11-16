@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:go_router/go_router.dart';
 
+import '../../../core/legal/legal_links.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/haki_colors.dart';
 import '../data/auth_repository.dart';
@@ -136,6 +137,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 16),
+                  const LegalLinksRow(),
                 ],
               ),
             ),

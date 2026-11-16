@@ -203,10 +203,7 @@ class _Brand extends StatelessWidget {
         child: const HakiLogoMark(size: 15, pulse: false),
       ),
       const SizedBox(width: 5),
-      const Text(
-        'haki',
-        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
-      ),
+      Text('haki', style: hakiWordmarkStyle(fontSize: 13)),
     ],
   );
 }

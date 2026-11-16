@@ -186,6 +186,24 @@ class HakiMarkPainter extends CustomPainter {
       a.length == b.length && Iterable.generate(a.length).every((i) => a[i] == b[i]);
 }
 
+/// Estilo del logotipo "haki": Raleway 800 como en el web (solo para el
+/// logotipo; el resto de la app sigue con la fuente del sistema). La fuente es
+/// variable: el peso va como FontVariation.
+TextStyle hakiWordmarkStyle({
+  required double fontSize,
+  Color? color,
+  double letterSpacing = 0,
+}) =>
+    TextStyle(
+      fontFamily: 'Raleway',
+      fontSize: fontSize,
+      fontWeight: FontWeight.w800,
+      fontVariations: const [FontVariation('wght', 800)],
+      letterSpacing: letterSpacing,
+      height: 1,
+      color: color,
+    );
+
 /// Logo completo para login/splash: isotipo en recuadro + "haki" + "FITNESS COACHING".
 class HakiLogo extends StatelessWidget {
   const HakiLogo({super.key});
@@ -209,12 +227,7 @@ class HakiLogo extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text('haki',
-            style: TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 2,
-                height: 1,
-                color: c.text)),
+            style: hakiWordmarkStyle(fontSize: 48, letterSpacing: 1, color: c.text)),
         const SizedBox(height: 6),
         Text('FITNESS COACHING',
             style: TextStyle(

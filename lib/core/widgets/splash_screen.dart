@@ -73,11 +73,9 @@ class _SplashScreenState extends State<SplashScreen>
                     children: [
                       Text(
                         'haki',
-                        style: TextStyle(
+                        style: hakiWordmarkStyle(
                           fontSize: 52,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 2,
-                          height: 1,
+                          letterSpacing: 1,
                           color: c.text,
                         ),
                       ),

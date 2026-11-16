@@ -308,12 +308,7 @@ class _Header extends ConsumerWidget {
         const SizedBox(width: 8),
         Text(
           'haki',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-            letterSpacing: .6,
-            color: c.text,
-          ),
+          style: hakiWordmarkStyle(fontSize: 22, letterSpacing: .3, color: c.text),
         ),
         const Spacer(),
         _InboxButton(unread: unread),

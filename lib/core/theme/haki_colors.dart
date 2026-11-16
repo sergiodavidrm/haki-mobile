@@ -141,24 +141,26 @@ class HakiColors extends ThemeExtension<HakiColors> {
     currentWeekTrack: Color(0xFF3A2F12),
   );
 
-  /// Tema claro v2 (2026-11-07, canvas "Haki · Tema v2"): fondo gris frío
-  /// (el crema se veía pálido), cards blancas con sombra, botón primario
-  /// obsidiana. Dorado y turquesa más oscuros donde son texto.
+  /// Tema claro (2026-11-15, opción B del canvas "Haki · App claro, fondo y
+  /// botón"): los mismos colores que el web (fondo cálido #F7F6F3, bordes y
+  /// textos de `_variables.css`) y botón primario dorado. Antes (tema v2,
+  /// 2026-11-07) era gris frío #EEF0F3 con botón obsidiana. Cards blancas con
+  /// sombra; dorado y turquesa más oscuros donde son texto.
   static const light = HakiColors(
-    background: Color(0xFFEEF0F3),
+    background: Color(0xFFF7F6F3),
     surface: Color(0xFFFFFFFF),
-    surfaceHigh: Color(0xFFF4F5F7),
+    surfaceHigh: Color(0xFFF0EEE9),
     navBar: Color(0xFFFFFFFF),
-    border: Color(0xFFE2E5EA),
-    text: Color(0xFF111316),
-    textSecondary: Color(0xFF3B4048),
-    textMuted: Color(0xFF5E646E),
+    border: Color(0xFFE3E0D8),
+    text: Color(0xFF141414),
+    textSecondary: Color(0xFF3D3D3D),
+    textMuted: Color(0xFF575757),
     gold: Color(0xFFB8922A),
     goldBright: Color(0xFF7A5C0C),
-    goldSurface: Color(0xFFFBF3DF),
+    goldSurface: Color(0xFFFBF4E2),
     goldBorder: Color(0xFFEAD9A8),
     turquoise: Color(0xFF00766C),
-    turquoiseSurface: Color(0xFFE0F2F0),
+    turquoiseSurface: Color(0xFFE3F5F3),
     turquoiseBorder: Color(0xFFBFE3DF),
     turquoiseMuted: Color(0xFF3F7A75),
     danger: Color(0xFFD93036),
@@ -167,9 +169,9 @@ class HakiColors extends ThemeExtension<HakiColors> {
     cardio: Color(0xFFFF7A45),
     cardioText: Color(0xFFB4501A),
     onAccent: Color(0xFF141414),
-    primary: Color(0xFF141414),
-    onPrimary: Color(0xFFFFFFFF),
-    track: Color(0xFFE4E7EC),
+    primary: Color(0xFFB8922A),
+    onPrimary: Color(0xFF141414),
+    track: Color(0xFFEBE8E1),
     // Dorado como en el oscuro (el borde obsidiana se veía pesado, Sergio)
     todayBorder: Color(0xFFB8922A),
     cardShadow: [
@@ -181,7 +183,7 @@ class HakiColors extends ThemeExtension<HakiColors> {
     weekTabSelectedText: Color(0xFF111316),
     weekTabSelectedBorder: Color(0x00000000),
     currentWeekFill: Color(0xFF00766C),
-    currentWeekTrack: Color(0xFFE4E7EC),
+    currentWeekTrack: Color(0xFFEBE8E1),
   );
 
   @override

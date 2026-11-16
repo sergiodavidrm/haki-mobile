@@ -1041,8 +1041,20 @@ margen de la zona segura) → `dart run flutter_launcher_icons` (config en
 en `ios/Runner.xcodeproj/project.pbxproj` (bug): descartar ese cambio con
 `git checkout` después de correrla.
 
-Pendiente de marca: fuente Raleway para el wordmark "haki" (el web la usa) y
-el dorado del logo del web es `#C9A84C` vs. `gold` `#B8922A` del tema.
+**Logotipo en Raleway (2026-11-15):** "haki" usa `hakiWordmarkStyle`
+(`core/widgets/haki_logo.dart`): Raleway 800 como el web, en el login
+(`HakiLogo`), el splash, el header de Hoy y los stickers. La fuente va
+incluida (`assets/fonts/Raleway-Variable.ttf`, variable, de google/fonts,
+licencia OFL en `Raleway-OFL.txt`; el peso va con `FontVariation('wght',
+800)`). **Solo el logotipo**: el resto de la app sigue con la fuente del
+sistema (Raleway tiene números que se confunden a tamaño chico).
+
+**Tema claro = web (2026-11-15, opción B del canvas
+https://claude.ai/artifact/X5SjZ5E2LmzNysXvpHd4Nc):** `HakiColors.light` pasó
+del gris frío del tema v2 (#EEF0F3, botón obsidiana) a los colores del web:
+fondo #F7F6F3, bordes #E3E0D8, textos #141414 / #3D3D3D / #575757 y
+**botón primario dorado** (`primary` #B8922A con texto #141414; también el
+"hoy" de la tira). Design system: https://claude.ai/artifact/6mqouN7u59tdnxYom3jbz3.
 
 ### Agenda: sesión con el coach en Hoy (2026-11-11, sin probar)
 

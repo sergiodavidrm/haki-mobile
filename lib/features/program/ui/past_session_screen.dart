@@ -1,3 +1,4 @@
+import '../../session/ui/target_cell.dart';
 import '../../../core/units/effort.dart';
 import 'package:flutter/material.dart';
 
@@ -459,10 +460,6 @@ class _PastSetRow extends StatelessWidget {
     final c = context.colors;
     final cols = SetCols.of(compact: false, camera: camera);
     final t = target;
-    final objective = [
-      if (t?.weightKg != null) formatWeight(unit.fromKg(t!.weightKg!)),
-      if (t?.reps != null) '${t!.reps}',
-    ].join(' × ');
 
     Widget value(double width, String? text) => SizedBox(
       width: width,
@@ -492,33 +489,9 @@ class _PastSetRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: SetCols.afterSet),
+          // Mismo objetivo que la Sesión, con la unidad (antes "50 × 12")
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  objective.isEmpty ? '—' : objective,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    height: 1.25,
-                    color: c.turquoiseMuted,
-                  ),
-                ),
-                if (t?.rir != null)
-                  Text(
-                    effortText(t!.rir, effortScaleOf(context)),
-                    style: TextStyle(
-                      fontSize: 11,
-                      height: 1.25,
-                      color: c.textMuted,
-                    ),
-                  ),
-              ],
-            ),
+            child: TargetCell(target: t, unit: unit, color: c.turquoiseMuted),
           ),
           const SizedBox(width: SetCols.gap),
           value(cols.weight, weight == null ? null : formatWeight(weight!)),

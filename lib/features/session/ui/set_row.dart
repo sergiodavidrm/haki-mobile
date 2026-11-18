@@ -1,4 +1,5 @@
 import 'effort_panel.dart';
+import 'target_cell.dart';
 import '../../../core/units/effort.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -115,14 +116,19 @@ class SetTableHeader extends StatelessWidget {
             cell(compact ? '#' : context.l10n.setHeader, cols.set),
             const SizedBox(width: SetCols.afterSet),
             Expanded(
+              // Se achica si no entra, como los demás títulos (2026-11-17:
+              // "OBJETIVO" se cortaba en "OBJETIV" con letra grande)
               child: ExcludeSemantics(
-                child: Text(
-                  compact
-                      ? context.l10n.targetHeaderShort
-                      : context.l10n.targetHeader,
-                  style: style,
-                  maxLines: 1,
-                  overflow: TextOverflow.clip,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    compact
+                        ? context.l10n.targetHeaderShort
+                        : context.l10n.targetHeader,
+                    style: style,
+                    maxLines: 1,
+                  ),
                 ),
               ),
             ),
@@ -398,22 +404,8 @@ class _SetRowState extends State<SetRow> {
     final t = widget.target;
     final cols = widget.cols;
     final scale = effortScaleOf(context);
-    // Objetivo con su unidad, en dos líneas para que entre en la columna
-    // ("110 kg × 12" se cortaba): arriba el peso (o las reps si no hay peso),
-    // abajo "12 reps · RIR 2". Lo que el coach no puso no aparece. Los inputs
-    // van sin placeholder: el hint parecía un valor cargado.
-    final targetWeight = t?.weightKg == null
-        ? null
-        : '${formatWeight(widget.unit.fromKg(t!.weightKg!))} ${widget.unit.label}';
-    final targetReps = t?.reps == null
-        ? null
-        : '${t!.reps} ${context.l10n.repsShort}';
-    final objective = targetWeight ?? targetReps ?? '';
-    final subParts = [
-      if (targetWeight != null && targetReps != null) targetReps,
-      if (t?.rir != null) effortText(t!.rir, scale),
-    ];
-    final objectiveSub = subParts.isEmpty ? null : subParts.join(' · ');
+    // Objetivo: TargetCell (peso arriba, "12 reps · RIR 2" abajo). Los
+    // inputs van sin placeholder: el hint parecía un valor cargado.
 
     final Widget weight, reps, rir;
     if (_editable) {
@@ -486,44 +478,7 @@ class _SetRowState extends State<SetRow> {
             ),
           ),
           const SizedBox(width: SetCols.afterSet),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Si igual no entra (superserie, "308.6 lb"), se achica en
-                // vez de cortarse
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    objective,
-                    maxLines: 1,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      height: 1.25,
-                      color: c.turquoise,
-                    ),
-                  ),
-                ),
-                if (objectiveSub != null)
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      objectiveSub,
-                      maxLines: 1,
-                      style: TextStyle(
-                        fontSize: 11,
-                        height: 1.25,
-                        color: c.textMuted,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+          Expanded(child: TargetCell(target: t, unit: widget.unit)),
           const SizedBox(width: SetCols.gap),
           weight,
           const SizedBox(width: SetCols.gap),

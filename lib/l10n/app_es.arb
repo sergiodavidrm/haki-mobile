@@ -504,8 +504,8 @@
   "restResumeRest": "Seguir descanso",
   "restCloseTimer": "Cerrar timer",
   "setHeader": "SERIE",
-  "targetHeaderShort": "OBJ.",
-  "targetHeader": "OBJETIVO",
+  "targetHeaderShort": "META",
+  "targetHeader": "META",
   "repsHeader": "REPS",
   "setWeightLabel": "Peso de la serie {set} en {unit}",
   "@setWeightLabel": {

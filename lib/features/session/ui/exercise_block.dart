@@ -220,8 +220,10 @@ class ExerciseBlock extends StatelessWidget {
       );
     }
 
-    // Carril A1/A2: letra arriba y línea hacia el ejercicio de abajo.
-    return Stack(
+    // Carril A1/A2: letra arriba y línea hacia el ejercicio de abajo. La
+    // tabla arranca pegada al carril (2026-11-17), no debajo del nombre: 18 dp
+    // más para el objetivo, que se cortaba.
+    final header = Stack(
       children: [
         Positioned(
           left: 0,
@@ -237,19 +239,6 @@ class ExerciseBlock extends StatelessWidget {
             ),
           ),
         ),
-        if (showRail)
-          Positioned(
-            left: 12,
-            top: 22,
-            bottom: 0,
-            width: 2,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: c.turquoise.withValues(alpha: .55),
-                borderRadius: BorderRadius.circular(1),
-              ),
-            ),
-          ),
         Padding(
           padding: const EdgeInsets.only(left: 36),
           child: Column(
@@ -284,11 +273,39 @@ class ExerciseBlock extends StatelessWidget {
                 const SizedBox(height: 8),
                 _CoachNote(exercise.coachNote!.trim()),
               ],
-              const SizedBox(height: 6),
-              table,
-              ...extras,
             ],
           ),
+        ),
+      ],
+    );
+    return Stack(
+      children: [
+        if (showRail)
+          Positioned(
+            left: 12,
+            top: 22,
+            bottom: 0,
+            width: 2,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: c.turquoise.withValues(alpha: .55),
+                borderRadius: BorderRadius.circular(1),
+              ),
+            ),
+          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            header,
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.only(left: 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [table, ...extras],
+              ),
+            ),
+          ],
         ),
       ],
     );

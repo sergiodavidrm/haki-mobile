@@ -1301,13 +1301,13 @@ abstract class AppLocalizations {
   /// No description provided for @targetHeaderShort.
   ///
   /// In es, this message translates to:
-  /// **'OBJ.'**
+  /// **'META'**
   String get targetHeaderShort;
 
   /// No description provided for @targetHeader.
   ///
   /// In es, this message translates to:
-  /// **'OBJETIVO'**
+  /// **'META'**
   String get targetHeader;
 
   /// No description provided for @repsHeader.

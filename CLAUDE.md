@@ -795,7 +795,13 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
   fila (visible y corregible; peso y RIR no), nunca completarlas en silencio. Inputs **sin placeholder** (el hint parecía un
   valor cargado); el objetivo va con unidad en dos líneas (2026-10-27:
   "110 kg × 12" se cortaba): arriba el peso ("60 kg", o "12 reps" sin peso) y
-  abajo "12 reps · RIR 2" (se achica si no entra), y lo que el coach no puso no aparece. Cámara en **todas** las series: dorada con punto = pedida por el
+  abajo "12 reps · RIR 2", y lo que el coach no puso no aparece. **`TargetCell`**
+  (`session/ui/target_cell.dart`, 2026-11-17), la misma en la Sesión pasada:
+  arriba **"35 × 12"** sin unidad (está en el encabezado KG/LB; "12 reps" sin
+  peso) y abajo solo el esfuerzo ("RIR 2"): 2 líneas como mucho (Sergio,
+  2026-11-17; antes "12 reps · RIR 2" abajo en un `FittedBox` quedaba
+  ilegible en superseries o con letra grande). En la superserie la tabla
+  arranca pegada al carril (18 dp), no debajo del nombre (36). Cámara en **todas** las series: dorada con punto = pedida por el
   coach, tachada = no pedida (al tocarla confirma "Tu entrenador no solicitó
   video…"), nube turquesa = en la cola, turquesa con check = subido (tocar
   = grabar otro que lo reemplaza). Ver § Subida de videos. Ejercicios sin series y sin la siguiente

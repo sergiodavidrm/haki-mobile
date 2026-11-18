@@ -762,10 +762,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setHeader => 'SET';
 
   @override
-  String get targetHeaderShort => 'TGT.';
+  String get targetHeaderShort => 'GOAL';
 
   @override
-  String get targetHeader => 'TARGET';
+  String get targetHeader => 'GOAL';
 
   @override
   String get repsHeader => 'REPS';

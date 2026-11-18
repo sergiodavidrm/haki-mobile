@@ -761,10 +761,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get setHeader => 'SERIE';
 
   @override
-  String get targetHeaderShort => 'OBJ.';
+  String get targetHeaderShort => 'META';
 
   @override
-  String get targetHeader => 'OBJETIVO';
+  String get targetHeader => 'META';
 
   @override
   String get repsHeader => 'REPS';

@@ -92,6 +92,77 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordChangeFailed => 'We couldn\'t change it. Try again.';
 
   @override
+  String get passwordCurrent => 'Current password';
+
+  @override
+  String get passwordForgotCurrent =>
+      'Don\'t remember it? We\'ll email you a code';
+
+  @override
+  String get passwordCurrentWrong => 'Your current password isn\'t correct.';
+
+  @override
+  String get passwordCodeTooSoon =>
+      'Wait a moment before asking for another code.';
+
+  @override
+  String get passwordCreated => 'Password created';
+
+  @override
+  String get passwordCreateHint =>
+      'You sign in with Google today. With a password you\'ll also be able to sign in with your email. Google keeps working the same.';
+
+  @override
+  String passwordCodeSentTo(String email) {
+    return 'We sent a code to $email';
+  }
+
+  @override
+  String get settingsCreatePassword => 'Create password';
+
+  @override
+  String get settingsCreatePasswordHint => 'You only sign in with Google';
+
+  @override
+  String get authForgotPassword => 'Forgot it?';
+
+  @override
+  String get resetTitle => 'Forgot your password?';
+
+  @override
+  String get resetSubtitle =>
+      'Enter your account email and we\'ll send you a 6-digit code to create a new one.';
+
+  @override
+  String get resetSendCode => 'Send code';
+
+  @override
+  String get resetRemembered => 'Remembered it?';
+
+  @override
+  String resetCodeSubtitle(String email) {
+    return 'If $email has a Haki account, we sent it a 6-digit code.';
+  }
+
+  @override
+  String get resetNext => 'Next';
+
+  @override
+  String get resetOtherEmail => 'Use another email';
+
+  @override
+  String get resetNewTitle => 'New password';
+
+  @override
+  String get resetNewSubtitle => 'Choose your new password and you\'re in.';
+
+  @override
+  String get resetBackToCode => 'Back to the code';
+
+  @override
+  String get resetSave => 'Save and sign in';
+
+  @override
   String get signOutPendingTitle => 'You have workouts not uploaded';
 
   @override

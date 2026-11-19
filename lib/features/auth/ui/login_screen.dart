@@ -87,6 +87,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     decoration: InputDecoration(labelText: l.authPassword),
                     validator: (v) => (v == null || v.isEmpty) ? l.authEnterPassword : null,
                   ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: loading
+                          ? null
+                          : () => context.push(Routes.resetPasswordFor(_email.text.trim())),
+                      child: Text(l.authForgotPassword),
+                    ),
+                  ),
                   if (state.hasError) ...[
                     const SizedBox(height: 12),
                     Text(loginErrorMessage(state.error!), style: TextStyle(color: c.danger)),

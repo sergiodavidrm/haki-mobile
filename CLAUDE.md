@@ -141,6 +141,23 @@ el código del email" (reenvía y abre esa pantalla). Si el email ya tenía
 cuenta, Supabase no avisa ni manda código (para no revelar emails): la
 pantalla dice "¿Ya tenés cuenta? Iniciá sesión".
 
+**Contraseña (2026-11-19, sin probar en el emulador; canvas "Haki ·
+Contraseñas" https://claude.ai/artifact/LpgY2gwfCVYaJ5vnMMK3tT):**
+- **Olvidé mi contraseña:** "¿La olvidaste?" en el Login → `/recuperar`
+  (email) → `/recuperar/codigo` (6 dígitos, pasa solo) → `/recuperar/nueva`
+  (`password_reset_screens.dart`, rutas públicas). Al guardar,
+  `setPasswordWithCode` (verifyOTP `recovery` + updateUser): aparece la sesión
+  y el router manda a Hoy. El código se confirma recién ahí; si se confirmara
+  en el paso 2 el router saltaría a Hoy sin dejar elegir la contraseña.
+- **Ajustes → Cuenta:** siempre hay fila. Con contraseña, **Cambiar** (pide
+  la actual, `changePassword` la verifica con `signInWithPassword`; "¿No te
+  la acordás?" pasa al modo código). Solo Google, **Crear** (manda el código
+  al abrir la hoja). Requisitos en vivo (`PasswordRules`) y errores en
+  `password_widgets.dart`.
+- `hasPassword` = identidad `email` o `user_metadata.has_password`
+  (`setPassword` lo marca: Supabase no agrega la identidad a una cuenta de
+  Google que guarda contraseña).
+
 **Auth/navegación:** el login no navega; `appRouterProvider` escucha
 `onAuthStateChange` y el `redirect` manda a `/login` o `/` según haya sesión.
 Para agregar rutas protegidas basta con sumarlas al `GoRouter`.

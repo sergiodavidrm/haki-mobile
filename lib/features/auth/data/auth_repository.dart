@@ -33,15 +33,56 @@ class AuthRepository {
     return email?.split('@').first ?? '';
   }
 
-  /// Entra con email/password (la invitación le pidió una). Solo con Google no
-  /// tiene contraseña que cambiar.
-  bool get hasPassword =>
-      _auth.currentUser?.identities?.any((i) => i.provider == 'email') ?? false;
+  /// Tiene contraseña: cuenta creada con email, o de Google que después creó
+  /// una. Supabase no le agrega la identidad `email` a una cuenta de Google
+  /// que guarda contraseña, por eso además se marca `has_password` en
+  /// user_metadata (ver [setPassword]).
+  bool get hasPassword {
+    final user = _auth.currentUser;
+    if (user == null) return false;
+    if (user.identities?.any((i) => i.provider == 'email') ?? false) return true;
+    return user.userMetadata?['has_password'] == true;
+  }
 
   Stream<AuthState> authChanges() => _auth.onAuthStateChange;
 
-  Future<void> changePassword(String password) =>
-      _auth.updateUser(UserAttributes(password: password));
+  /// Guarda la contraseña nueva y marca `has_password`.
+  Future<void> setPassword(String password) => _auth.updateUser(
+    UserAttributes(password: password, data: {'has_password': true}),
+  );
+
+  /// Cambiar: comprueba la actual con un login (Supabase no la pide para
+  /// cambiarla) y después guarda la nueva. Mismo usuario: no cambia nada más.
+  Future<void> changePassword(String current, String password) async {
+    final email = this.email;
+    if (email == null) throw StateError('Sin sesión');
+    await _auth.signInWithPassword(email: email, password: current);
+    await setPassword(password);
+  }
+
+  /// Manda el código de 6 dígitos para crear o recuperar la contraseña
+  /// (plantilla "Reset password" de Supabase con `{{ .Token }}`). Si el email
+  /// no tiene cuenta, Supabase no avisa.
+  Future<void> sendPasswordCode(String email) =>
+      _auth.resetPasswordForEmail(email.trim());
+
+  /// Confirma el código y guarda la contraseña. Con o sin sesión: sin sesión
+  /// (olvidé mi contraseña) deja la sesión iniciada y el router manda a Hoy.
+  /// Supabase valida este código siempre, aunque "Secure password change"
+  /// esté apagado (el nonce de `reauthenticate()` solo se valida con esa
+  /// opción prendida: por eso no se usa).
+  Future<void> setPasswordWithCode(
+    String email,
+    String code,
+    String password,
+  ) async {
+    await _auth.verifyOTP(
+      type: OtpType.recovery,
+      email: email.trim(),
+      token: code.trim(),
+    );
+    await setPassword(password);
+  }
 
   Future<void> signIn(String email, String password) =>
       _auth.signInWithPassword(email: email.trim(), password: password);

@@ -1,7 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/format/dates.dart';
 import '../../../core/legal/legal_links.dart';
@@ -13,6 +14,8 @@ import '../../../core/widgets/back_header.dart';
 import '../../../core/widgets/haki_card.dart';
 import '../../../core/widgets/section_label.dart';
 import '../../auth/data/auth_repository.dart';
+import '../../auth/data/password_policy.dart';
+import '../../auth/ui/password_widgets.dart';
 import '../../auth/providers/auth_me_provider.dart';
 import '../../session/data/session_store.dart';
 import '../providers/settings_providers.dart';
@@ -58,12 +61,16 @@ class SettingsScreen extends ConsumerWidget {
                   onTap: () => context.push(Routes.personalInfo),
                   trailing: Icon(Icons.chevron_right, color: c.textMuted),
                 ),
-                if (auth.hasPassword)
-                  _Row(
-                    title: l.settingsChangePassword,
-                    onTap: () => _showPasswordSheet(context),
-                    trailing: Icon(Icons.chevron_right, color: c.textMuted),
-                  ),
+                // Con contraseña: Cambiar (pide la actual). Solo Google: Crear
+                // (pide un código del email).
+                _Row(
+                  title: auth.hasPassword
+                      ? l.settingsChangePassword
+                      : l.settingsCreatePassword,
+                  subtitle: auth.hasPassword ? null : l.settingsCreatePasswordHint,
+                  onTap: () => _showPasswordSheet(context, withCode: !auth.hasPassword),
+                  trailing: Icon(Icons.chevron_right, color: c.textMuted),
+                ),
               ],
             ),
             _Section(l.settingsTraining),
@@ -355,53 +362,111 @@ class _Row extends StatelessWidget {
   }
 }
 
-Future<void> _showPasswordSheet(BuildContext context) => showModalBottomSheet(
-  context: context,
-  isScrollControlled: true,
-  backgroundColor: context.colors.surface,
-  shape: const RoundedRectangleBorder(
-    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-  ),
-  builder: (_) => const _PasswordSheet(),
-);
+Future<void> _showPasswordSheet(BuildContext context, {required bool withCode}) =>
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: context.colors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => _PasswordSheet(withCode: withCode),
+    );
 
+/// Cambiar contraseña (con la actual) o Crear contraseña (cuenta solo de
+/// Google, con un código del email). "¿No te la acordás?" pasa al modo código.
+/// Canvas "Haki · Contraseñas" https://claude.ai/artifact/LpgY2gwfCVYaJ5vnMMK3tT.
 class _PasswordSheet extends ConsumerStatefulWidget {
-  const _PasswordSheet();
+  const _PasswordSheet({required this.withCode});
+
+  final bool withCode;
 
   @override
   ConsumerState<_PasswordSheet> createState() => _PasswordSheetState();
 }
 
 class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
+  final _current = TextEditingController();
+  final _code = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
+  late bool _withCode = widget.withCode;
+  // Solo Google: crear (no "cambiar")
+  late final bool _creating = widget.withCode;
+  Timer? _timer;
+  int _resendIn = 0;
   String? _error;
 
   @override
+  void initState() {
+    super.initState();
+    for (final t in [_current, _code, _password, _confirm]) {
+      t.addListener(() => setState(() {}));
+    }
+    if (_withCode) _sendCode();
+  }
+
+  @override
   void dispose() {
-    _password.dispose();
-    _confirm.dispose();
+    _timer?.cancel();
+    for (final t in [_current, _code, _password, _confirm]) {
+      t.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> _save() async {
-    final p = _password.text;
-    if (p.length < 6) {
-      return setState(() => _error = context.l10n.passwordMinLength);
+  Future<void> _sendCode() async {
+    final auth = ref.read(authRepositoryProvider);
+    setState(() => _error = null);
+    try {
+      await auth.sendPasswordCode(auth.email ?? '');
+      if (!mounted) return;
+      _timer?.cancel();
+      setState(() => _resendIn = passwordCodeCooldown);
+      _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+        if (!mounted) return t.cancel();
+        setState(() => _resendIn--);
+        if (_resendIn <= 0) t.cancel();
+      });
+    } catch (e) {
+      if (mounted) setState(() => _error = passwordErrorMessage(e));
     }
-    if (p != _confirm.text) {
+  }
+
+  void _useCode() {
+    setState(() => _withCode = true);
+    _sendCode();
+  }
+
+  bool get _canSave {
+    final email = ref.read(authRepositoryProvider).email ?? '';
+    final first = _withCode
+        ? _code.text.length == passwordCodeLength
+        : _current.text.isNotEmpty;
+    return first &&
+        PasswordChecks(_password.text, email: email).ok &&
+        _confirm.text.isNotEmpty;
+  }
+
+  Future<void> _save() async {
+    if (_password.text != _confirm.text) {
       return setState(() => _error = context.l10n.passwordsDontMatch);
     }
     setState(() => _error = null);
-    final ok = await ref.read(passwordChangerProvider.notifier).change(p);
+    final saver = ref.read(passwordChangerProvider.notifier);
+    final ok = _withCode
+        ? await saver.setWithCode(_code.text, _password.text)
+        : await saver.change(_current.text, _password.text);
     if (!mounted) return;
     if (ok) {
+      final l = context.l10n;
       Navigator.pop(context);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(context.l10n.passwordUpdated)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_creating ? l.passwordCreated : l.passwordUpdated)),
+      );
     } else {
       setState(
-        () => _error = _passwordError(ref.read(passwordChangerProvider).error),
+        () => _error = passwordErrorMessage(ref.read(passwordChangerProvider).error),
       );
     }
   }
@@ -410,7 +475,9 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final l = context.l10n;
+    final email = ref.watch(authRepositoryProvider).email ?? '';
     final saving = ref.watch(passwordChangerProvider).isLoading;
+    final checks = PasswordChecks(_password.text, email: email);
     return Padding(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -418,60 +485,88 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
         16,
         28 + MediaQuery.viewInsetsOf(context).bottom,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            l.settingsChangePassword,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: c.text,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              _creating ? l.settingsCreatePassword : l.settingsChangePassword,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: c.text),
             ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _password,
-            obscureText: true,
-            autofocus: true,
-            textInputAction: TextInputAction.next,
-            decoration: InputDecoration(labelText: l.passwordNew),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _confirm,
-            obscureText: true,
-            textInputAction: TextInputAction.done,
-            onSubmitted: (_) => _save(),
-            decoration: InputDecoration(labelText: l.passwordRepeat),
-          ),
-          if (_error != null) ...[
-            const SizedBox(height: 10),
-            Text(_error!, style: TextStyle(fontSize: 13, color: c.danger)),
+            if (_creating) ...[
+              const SizedBox(height: 8),
+              Text(l.passwordCreateHint,
+                  style: TextStyle(fontSize: 14, height: 1.45, color: c.textSecondary)),
+            ],
+            const SizedBox(height: 16),
+            if (_withCode) ...[
+              Text(l.passwordCodeSentTo(email),
+                  style: TextStyle(fontSize: 13, color: c.textMuted)),
+              const SizedBox(height: 8),
+              PasswordCodeField(controller: _code, autofocus: true),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: _resendIn > 0 ? null : _sendCode,
+                  child: Text(_resendIn > 0 ? l.codeResendIn(_resendIn) : l.codeResend),
+                ),
+              ),
+            ] else ...[
+              TextField(
+                controller: _current,
+                obscureText: true,
+                autofocus: true,
+                autofillHints: const [AutofillHints.password],
+                textInputAction: TextInputAction.next,
+                decoration: InputDecoration(labelText: l.passwordCurrent),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(onPressed: _useCode, child: Text(l.passwordForgotCurrent)),
+              ),
+            ],
+            const SizedBox(height: 4),
+            TextField(
+              controller: _password,
+              obscureText: true,
+              autofillHints: const [AutofillHints.newPassword],
+              textInputAction: TextInputAction.next,
+              decoration: InputDecoration(
+                labelText: _creating ? l.authPassword : l.passwordNew,
+              ),
+            ),
+            const SizedBox(height: 8),
+            PasswordRules(checks: checks),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _confirm,
+              obscureText: true,
+              autofillHints: const [AutofillHints.newPassword],
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _canSave ? _save() : null,
+              decoration: InputDecoration(labelText: l.passwordRepeat),
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 10),
+              Text(_error!, style: TextStyle(fontSize: 13, color: c.danger)),
+            ],
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: saving || !_canSave ? null : _save,
+              child: Text(
+                saving
+                    ? l.commonSaving
+                    : _creating
+                    ? l.settingsCreatePassword
+                    : l.commonSave,
+              ),
+            ),
           ],
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: saving ? null : _save,
-            child: Text(saving ? l.commonSaving : l.commonSave),
-          ),
-        ],
+        ),
       ),
     );
   }
-}
-
-/// Errores de Supabase al cambiar la contraseña, traducidos.
-String _passwordError(Object? error) {
-  if (error is AuthException) {
-    return switch (error.code) {
-      'same_password' => l10n.passwordSame,
-      'weak_password' => l10n.passwordWeak,
-      'reauthentication_needed' => l10n.passwordReauth,
-      _ => l10n.passwordChangeFailed,
-    };
-  }
-  return l10n.errorOfflineRetry;
 }
 
 /// Cerrar sesión borra los datos del teléfono (LocalDataGuard): si queda algo

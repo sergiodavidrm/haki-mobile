@@ -368,15 +368,18 @@ abstract class _$PersonalInfoSaver extends $AsyncNotifier<void> {
   }
 }
 
-/// Ajustes → Cambiar contraseña (Supabase). El estado es el guardado en curso.
+/// Ajustes → Cambiar contraseña (con la actual) o Crear / recuperar (con el
+/// código del email). El estado es el guardado en curso.
 
 @ProviderFor(PasswordChanger)
 final passwordChangerProvider = PasswordChangerProvider._();
 
-/// Ajustes → Cambiar contraseña (Supabase). El estado es el guardado en curso.
+/// Ajustes → Cambiar contraseña (con la actual) o Crear / recuperar (con el
+/// código del email). El estado es el guardado en curso.
 final class PasswordChangerProvider
     extends $AsyncNotifierProvider<PasswordChanger, void> {
-  /// Ajustes → Cambiar contraseña (Supabase). El estado es el guardado en curso.
+  /// Ajustes → Cambiar contraseña (con la actual) o Crear / recuperar (con el
+  /// código del email). El estado es el guardado en curso.
   PasswordChangerProvider._()
     : super(
         from: null,
@@ -396,9 +399,10 @@ final class PasswordChangerProvider
   PasswordChanger create() => PasswordChanger();
 }
 
-String _$passwordChangerHash() => r'882c39317f2aeca962bd9d06ab8785a077914548';
+String _$passwordChangerHash() => r'd6e1a23f3c67fe9c7a1a270bf1cf88d210f1117a';
 
-/// Ajustes → Cambiar contraseña (Supabase). El estado es el guardado en curso.
+/// Ajustes → Cambiar contraseña (con la actual) o Crear / recuperar (con el
+/// código del email). El estado es el guardado en curso.
 
 abstract class _$PasswordChanger extends $AsyncNotifier<void> {
   FutureOr<void> build();

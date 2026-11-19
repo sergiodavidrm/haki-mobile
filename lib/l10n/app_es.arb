@@ -27,6 +27,41 @@
   "passwordWeak": "Es muy débil. Probá con una más larga.",
   "passwordReauth": "Por seguridad, cerrá sesión, volvé a entrar y probá de nuevo.",
   "passwordChangeFailed": "No pudimos cambiarla. Probá de nuevo.",
+  "passwordCurrent": "Contraseña actual",
+  "passwordForgotCurrent": "¿No te la acordás? Te mandamos un código",
+  "passwordCurrentWrong": "La contraseña actual no es correcta.",
+  "passwordCodeTooSoon": "Esperá un momento antes de pedir otro código.",
+  "passwordCreated": "Contraseña creada",
+  "passwordCreateHint": "Hoy entrás con Google. Con una contraseña vas a poder entrar también con tu email. Google sigue funcionando igual.",
+  "passwordCodeSentTo": "Te mandamos un código a {email}",
+  "@passwordCodeSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsCreatePassword": "Crear contraseña",
+  "settingsCreatePasswordHint": "Hoy entrás solo con Google",
+  "authForgotPassword": "¿La olvidaste?",
+  "resetTitle": "¿Olvidaste tu contraseña?",
+  "resetSubtitle": "Escribí el email de tu cuenta y te mandamos un código de 6 dígitos para crear una nueva.",
+  "resetSendCode": "Mandar código",
+  "resetRemembered": "¿Te acordaste?",
+  "resetCodeSubtitle": "Si {email} tiene una cuenta en Haki, te llegó un código de 6 dígitos.",
+  "@resetCodeSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "resetNext": "Siguiente",
+  "resetOtherEmail": "Usar otro email",
+  "resetNewTitle": "Nueva contraseña",
+  "resetNewSubtitle": "Elegí tu contraseña nueva y entrás directo.",
+  "resetBackToCode": "Volver al código",
+  "resetSave": "Guardar y entrar",
   "signOutPendingTitle": "Tenés entrenos sin subir",
   "signOutPendingBody": "Hay series guardadas en el teléfono que todavía no llegaron a tu coach. Si cerrás sesión ahora se pierden. Conectate a internet y esperá a que se suban.",
   "signOutAnyway": "Cerrar igual",

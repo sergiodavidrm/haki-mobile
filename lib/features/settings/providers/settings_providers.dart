@@ -158,17 +158,25 @@ class PersonalInfoSaver extends _$PersonalInfoSaver {
   }
 }
 
-/// Ajustes → Cambiar contraseña (Supabase). El estado es el guardado en curso.
+/// Ajustes → Cambiar contraseña (con la actual) o Crear / recuperar (con el
+/// código del email). El estado es el guardado en curso.
 @riverpod
 class PasswordChanger extends _$PasswordChanger {
   @override
   FutureOr<void> build() {}
 
-  Future<bool> change(String password) async {
+  Future<bool> change(String current, String password) => _run(
+    () => ref.read(authRepositoryProvider).changePassword(current, password),
+  );
+
+  Future<bool> setWithCode(String code, String password) {
+    final auth = ref.read(authRepositoryProvider);
+    return _run(() => auth.setPasswordWithCode(auth.email ?? '', code, password));
+  }
+
+  Future<bool> _run(Future<void> Function() action) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => ref.read(authRepositoryProvider).changePassword(password),
-    );
+    state = await AsyncValue.guard(action);
     return !state.hasError;
   }
 }

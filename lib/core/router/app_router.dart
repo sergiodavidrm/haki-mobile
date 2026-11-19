@@ -9,6 +9,7 @@ import '../../features/share/ui/share_screen.dart';
 import '../../features/share/data/share_stickers.dart' show SharePeriod;
 import '../../features/auth/ui/athlete_gate.dart';
 import '../../features/auth/ui/login_screen.dart';
+import '../../features/auth/ui/password_reset_screens.dart';
 import '../../features/auth/ui/signup_code_screen.dart';
 import '../../features/auth/ui/signup_screen.dart';
 import '../../features/body/ui/log_measures_screen.dart';
@@ -50,9 +51,20 @@ abstract final class Routes {
   static String signUpCode(String email) =>
       '/registro/codigo?email=${Uri.encodeQueryComponent(email)}';
 
+  /// Olvidé mi contraseña: email → código → nueva.
+  static const resetPassword = '/recuperar';
+  static String resetPasswordFor(String email) =>
+      '$resetPassword?email=${Uri.encodeQueryComponent(email)}';
+  static String resetCode(String email) =>
+      '$resetPassword/codigo?email=${Uri.encodeQueryComponent(email)}';
+  static String resetNew(String email, String code) =>
+      '$resetPassword/nueva?email=${Uri.encodeQueryComponent(email)}&code=$code';
+
   /// Rutas que se ven sin sesión.
   static bool isPublic(String location) =>
-      location == login || location.startsWith(signUp);
+      location == login ||
+      location.startsWith(signUp) ||
+      location.startsWith(resetPassword);
   static const program = '/programa';
   static const chat = '/chat';
   static const profile = '/perfil';
@@ -163,6 +175,25 @@ GoRouter appRouter(Ref ref) {
             path: 'codigo',
             builder: (_, state) => SignUpCodeScreen(
               email: state.uri.queryParameters['email'] ?? '',
+            ),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: Routes.resetPassword,
+        builder: (_, state) =>
+            ResetEmailScreen(initialEmail: state.uri.queryParameters['email'] ?? ''),
+        routes: [
+          GoRoute(
+            path: 'codigo',
+            builder: (_, state) =>
+                ResetCodeScreen(email: state.uri.queryParameters['email'] ?? ''),
+          ),
+          GoRoute(
+            path: 'nueva',
+            builder: (_, state) => ResetNewPasswordScreen(
+              email: state.uri.queryParameters['email'] ?? '',
+              code: state.uri.queryParameters['code'] ?? '',
             ),
           ),
         ],

@@ -260,6 +260,132 @@ abstract class AppLocalizations {
   /// **'No pudimos cambiarla. Probá de nuevo.'**
   String get passwordChangeFailed;
 
+  /// No description provided for @passwordCurrent.
+  ///
+  /// In es, this message translates to:
+  /// **'Contraseña actual'**
+  String get passwordCurrent;
+
+  /// No description provided for @passwordForgotCurrent.
+  ///
+  /// In es, this message translates to:
+  /// **'¿No te la acordás? Te mandamos un código'**
+  String get passwordForgotCurrent;
+
+  /// No description provided for @passwordCurrentWrong.
+  ///
+  /// In es, this message translates to:
+  /// **'La contraseña actual no es correcta.'**
+  String get passwordCurrentWrong;
+
+  /// No description provided for @passwordCodeTooSoon.
+  ///
+  /// In es, this message translates to:
+  /// **'Esperá un momento antes de pedir otro código.'**
+  String get passwordCodeTooSoon;
+
+  /// No description provided for @passwordCreated.
+  ///
+  /// In es, this message translates to:
+  /// **'Contraseña creada'**
+  String get passwordCreated;
+
+  /// No description provided for @passwordCreateHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy entrás con Google. Con una contraseña vas a poder entrar también con tu email. Google sigue funcionando igual.'**
+  String get passwordCreateHint;
+
+  /// No description provided for @passwordCodeSentTo.
+  ///
+  /// In es, this message translates to:
+  /// **'Te mandamos un código a {email}'**
+  String passwordCodeSentTo(String email);
+
+  /// No description provided for @settingsCreatePassword.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear contraseña'**
+  String get settingsCreatePassword;
+
+  /// No description provided for @settingsCreatePasswordHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy entrás solo con Google'**
+  String get settingsCreatePasswordHint;
+
+  /// No description provided for @authForgotPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'¿La olvidaste?'**
+  String get authForgotPassword;
+
+  /// No description provided for @resetTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Olvidaste tu contraseña?'**
+  String get resetTitle;
+
+  /// No description provided for @resetSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribí el email de tu cuenta y te mandamos un código de 6 dígitos para crear una nueva.'**
+  String get resetSubtitle;
+
+  /// No description provided for @resetSendCode.
+  ///
+  /// In es, this message translates to:
+  /// **'Mandar código'**
+  String get resetSendCode;
+
+  /// No description provided for @resetRemembered.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Te acordaste?'**
+  String get resetRemembered;
+
+  /// No description provided for @resetCodeSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Si {email} tiene una cuenta en Haki, te llegó un código de 6 dígitos.'**
+  String resetCodeSubtitle(String email);
+
+  /// No description provided for @resetNext.
+  ///
+  /// In es, this message translates to:
+  /// **'Siguiente'**
+  String get resetNext;
+
+  /// No description provided for @resetOtherEmail.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar otro email'**
+  String get resetOtherEmail;
+
+  /// No description provided for @resetNewTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva contraseña'**
+  String get resetNewTitle;
+
+  /// No description provided for @resetNewSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegí tu contraseña nueva y entrás directo.'**
+  String get resetNewSubtitle;
+
+  /// No description provided for @resetBackToCode.
+  ///
+  /// In es, this message translates to:
+  /// **'Volver al código'**
+  String get resetBackToCode;
+
+  /// No description provided for @resetSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar y entrar'**
+  String get resetSave;
+
   /// No description provided for @signOutPendingTitle.
   ///
   /// In es, this message translates to:

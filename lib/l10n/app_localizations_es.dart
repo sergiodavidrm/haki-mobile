@@ -92,6 +92,77 @@ class AppLocalizationsEs extends AppLocalizations {
   String get passwordChangeFailed => 'No pudimos cambiarla. Probá de nuevo.';
 
   @override
+  String get passwordCurrent => 'Contraseña actual';
+
+  @override
+  String get passwordForgotCurrent =>
+      '¿No te la acordás? Te mandamos un código';
+
+  @override
+  String get passwordCurrentWrong => 'La contraseña actual no es correcta.';
+
+  @override
+  String get passwordCodeTooSoon =>
+      'Esperá un momento antes de pedir otro código.';
+
+  @override
+  String get passwordCreated => 'Contraseña creada';
+
+  @override
+  String get passwordCreateHint =>
+      'Hoy entrás con Google. Con una contraseña vas a poder entrar también con tu email. Google sigue funcionando igual.';
+
+  @override
+  String passwordCodeSentTo(String email) {
+    return 'Te mandamos un código a $email';
+  }
+
+  @override
+  String get settingsCreatePassword => 'Crear contraseña';
+
+  @override
+  String get settingsCreatePasswordHint => 'Hoy entrás solo con Google';
+
+  @override
+  String get authForgotPassword => '¿La olvidaste?';
+
+  @override
+  String get resetTitle => '¿Olvidaste tu contraseña?';
+
+  @override
+  String get resetSubtitle =>
+      'Escribí el email de tu cuenta y te mandamos un código de 6 dígitos para crear una nueva.';
+
+  @override
+  String get resetSendCode => 'Mandar código';
+
+  @override
+  String get resetRemembered => '¿Te acordaste?';
+
+  @override
+  String resetCodeSubtitle(String email) {
+    return 'Si $email tiene una cuenta en Haki, te llegó un código de 6 dígitos.';
+  }
+
+  @override
+  String get resetNext => 'Siguiente';
+
+  @override
+  String get resetOtherEmail => 'Usar otro email';
+
+  @override
+  String get resetNewTitle => 'Nueva contraseña';
+
+  @override
+  String get resetNewSubtitle => 'Elegí tu contraseña nueva y entrás directo.';
+
+  @override
+  String get resetBackToCode => 'Volver al código';
+
+  @override
+  String get resetSave => 'Guardar y entrar';
+
+  @override
   String get signOutPendingTitle => 'Tenés entrenos sin subir';
 
   @override

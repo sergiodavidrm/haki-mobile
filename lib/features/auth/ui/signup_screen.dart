@@ -8,6 +8,7 @@ import '../../../core/theme/haki_colors.dart';
 import '../../../l10n/l10n.dart';
 import '../data/password_policy.dart';
 import '../providers/signup_controller.dart';
+import 'password_widgets.dart';
 
 // Crear cuenta con email y contraseña (Google está en el Login). Después va
 // al código de 6 dígitos que manda Supabase.
@@ -95,13 +96,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   validator: (_) => checks.ok ? null : l.signupWeakPassword,
                 ),
                 const SizedBox(height: 12),
-                _Rule(ok: checks.length, text: l.signupRuleLength),
-                _Rule(ok: checks.letter, text: l.signupRuleLetter),
-                _Rule(ok: checks.digit, text: l.signupRuleDigit),
-                _Rule(
-                  ok: checks.notEmail && _password.text.isNotEmpty,
-                  text: l.signupRuleNotEmail,
-                ),
+                PasswordRules(checks: checks, showNotEmail: true),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _repeat,
@@ -145,28 +140,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _Rule extends StatelessWidget {
-  const _Rule({required this.ok, required this.text});
-
-  final bool ok;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(children: [
-        Icon(ok ? Icons.check : Icons.circle_outlined,
-            size: 18, color: ok ? c.turquoise : c.textMuted),
-        const SizedBox(width: 8),
-        Text(text,
-            style: TextStyle(fontSize: 13, color: ok ? c.textSecondary : c.textMuted)),
-      ]),
     );
   }
 }

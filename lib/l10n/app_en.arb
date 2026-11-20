@@ -228,6 +228,7 @@
   "exerciseUnitToggle": "Unit for this exercise: {unit}. Switch to {other}",
   "setRepsLabel": "Reps of set {set}",
   "setRirLabel": "RIR of set {set}",
+  "setCopyTarget": "Copy the target to set {set}",
   "setLog": "Log set {set}",
   "setEdit": "Edit set {set}",
   "setVideoUploading": "Video of set {set} uploading",

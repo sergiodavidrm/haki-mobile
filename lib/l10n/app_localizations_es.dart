@@ -861,6 +861,11 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String setCopyTarget(int set) {
+    return 'Copiar el objetivo a la serie $set';
+  }
+
+  @override
   String setLog(int set) {
     return 'Cargar serie $set';
   }

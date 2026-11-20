@@ -1466,6 +1466,12 @@ abstract class AppLocalizations {
   /// **'RIR de la serie {set}'**
   String setRirLabel(int set);
 
+  /// No description provided for @setCopyTarget.
+  ///
+  /// In es, this message translates to:
+  /// **'Copiar el objetivo a la serie {set}'**
+  String setCopyTarget(int set);
+
   /// No description provided for @setLog.
   ///
   /// In es, this message translates to:

@@ -862,6 +862,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String setCopyTarget(int set) {
+    return 'Copy the target to set $set';
+  }
+
+  @override
   String setLog(int set) {
     return 'Log set $set';
   }

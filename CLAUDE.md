@@ -800,7 +800,16 @@ status `pending` (la BD no acepta `in_progress`, ver `haki-api/CLAUDE.md`).
   `set_row.dart`: abrir otra guarda y cierra la anterior). Tocar una fila la
   abre para cargar/corregir, **con el foco en la columna tocada** (peso, reps o
   RIR; el resto de la fila → peso; 2026-11-02, `_Field` en `set_row.dart`,
-  tests en `test/set_row_test.dart`). Sin check: se guarda sola al salir de la fila si
+  tests en `test/set_row_test.dart`). **Copiar el objetivo (2026-11-19, opción
+  B, sin probar en el emulador):** tocar el objetivo ("35 × 12") de una serie
+  sin cargar pasa peso y reps a la fila (vibración leve) y abre el esfuerzo
+  (escalera con RPE; teclado en la celda RIR con RIR). El esfuerzo **no** se
+  copia (las pistas de Rendimiento comparan el real con el pedido; la
+  escalera arranca en lo pedido y el atleta lo confirma con Listo). Se guarda
+  al salir de la fila; sin esfuerzo queda vacío. Serie ya cargada: tocar el
+  objetivo abre la fila como antes. Descartados: doble toque (demora el toque
+  simple y nadie lo descubre), deslizar (choca con "No lo haré") y copiar
+  también el esfuerzo (opción C). Falta la pista de la primera vez. Sin check: se guarda sola al salir de la fila si
   cambió peso, reps o RIR (2026-10-26), tal cual: lo que no escribió queda
   vacío, reps incluidas (decisión de Sergio; antes exigía reps escritas y un
   atleta que solo cargaba el peso no guardaba nada). Si el coach corrige una serie desde el web

@@ -359,6 +359,39 @@ class _SetRowState extends State<SetRow> {
     WidgetsBinding.instance.addPostFrameCallback((_) => focus.requestFocus());
   }
 
+  /// Se puede copiar el objetivo: serie sin cargar, cerrada y con peso o reps
+  /// pedidos.
+  bool get _canCopyTarget {
+    final t = widget.target;
+    return !_editing &&
+        widget.saved == null &&
+        t != null &&
+        (t.weightKg != null || t.reps != null);
+  }
+
+  /// Toque en el objetivo de una serie vacía (2026-11-19, opción B): pasa el
+  /// peso y las reps pedidos a la fila y abre el esfuerzo (escalera con RPE,
+  /// teclado en la celda con RIR). El esfuerzo no se copia: lo tiene que
+  /// poner el atleta (las pistas de Rendimiento comparan el real con el
+  /// pedido). Se guarda al salir de la fila, como siempre.
+  void _copyTarget() {
+    final t = widget.target!;
+    HapticFeedback.selectionClick();
+    _weight.text = t.weightKg == null
+        ? ''
+        : formatWeight(widget.unit.fromKg(t.weightKg!));
+    _reps.text = t.reps?.toString() ?? '';
+    setState(() => _editing = true);
+    _openRow.value = this;
+    if (_usesPanel) {
+      _pickEffort();
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _rirFocus.requestFocus(),
+      );
+    }
+  }
+
   void _onFocusChange(bool hasFocus) {
     if (!hasFocus && !_pickingEffort) _commit();
   }
@@ -478,7 +511,19 @@ class _SetRowState extends State<SetRow> {
             ),
           ),
           const SizedBox(width: SetCols.afterSet),
-          Expanded(child: TargetCell(target: t, unit: widget.unit)),
+          Expanded(
+            child: _canCopyTarget
+                ? Semantics(
+                    button: true,
+                    label: context.l10n.setCopyTarget(widget.setNumber),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: _copyTarget,
+                      child: TargetCell(target: t, unit: widget.unit),
+                    ),
+                  )
+                : TargetCell(target: t, unit: widget.unit),
+          ),
           const SizedBox(width: SetCols.gap),
           weight,
           const SizedBox(width: SetCols.gap),

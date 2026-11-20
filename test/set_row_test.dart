@@ -151,6 +151,103 @@ void main() {
     expect(find.byIcon(Icons.videocam_off_outlined), findsNothing);
   });
 
+  group('tocar el objetivo copia peso y reps', () {
+    // Serie sin cargar con objetivo 35 × 12 · RIR 2
+    late List<(double?, WeightUnit, int?, double?)> saves;
+
+    Future<void> pumpTarget(
+      WidgetTester tester, {
+      EffortScale scale = EffortScale.rir,
+      SavedSet? saved,
+    }) async {
+      saves = [];
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [effortScaleProvider.overrideWithValue(scale)],
+          child: MaterialApp(
+            theme: buildAppTheme(HakiColors.obsidian),
+            locale: const Locale('es'),
+            supportedLocales: supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            home: Scaffold(
+              body: Column(
+                children: [
+                  SetRow(
+                    setNumber: 1,
+                    target: const TargetSetDto(
+                      setNumber: 1,
+                      weightKg: 35,
+                      reps: 12,
+                      rir: 2,
+                    ),
+                    unit: WeightUnit.kg,
+                    saved: saved,
+                    cols: SetCols.normal,
+                    onSave: (w, u, r, rir) => saves.add((w, u, r, rir)),
+                    onVideo: (_) {},
+                  ),
+                  const TextField(key: Key('otro')),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('con RIR: copia y deja el foco en el RIR vacío', (
+      tester,
+    ) async {
+      await pumpTarget(tester);
+      await tester.tap(find.text('35 × 12'));
+      await tester.pumpAndSettle();
+      expect(focusedText(tester), '');
+      await tester.enterText(find.byType(TextField).at(2), '3');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(saves.single, (35.0, WeightUnit.kg, 12, 3.0));
+    });
+
+    testWidgets('con RIR: salir sin esfuerzo guarda peso y reps', (
+      tester,
+    ) async {
+      await pumpTarget(tester);
+      await tester.tap(find.text('35 × 12'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('otro')));
+      await tester.pumpAndSettle();
+      expect(saves.single, (35.0, WeightUnit.kg, 12, null));
+    });
+
+    testWidgets('con RPE: copia y abre el panel', (tester) async {
+      await pumpTarget(tester, scale: EffortScale.rpe);
+      await tester.tap(find.text('35 × 12'));
+      await tester.pumpAndSettle();
+      expect(find.text('Listo'), findsOneWidget);
+      await tester.tap(find.text('Listo'));
+      await tester.pumpAndSettle();
+      // Arranca en lo pedido (RIR 2) y el atleta lo confirmó con Listo
+      expect(saves.single, (35.0, WeightUnit.kg, 12, 2.0));
+    });
+
+    testWidgets('una serie ya cargada no se pisa', (tester) async {
+      await pumpTarget(
+        tester,
+        saved: const SavedSet(
+          weight: 30,
+          unit: WeightUnit.kg,
+          reps: 10,
+          rir: 1,
+          synced: true,
+        ),
+      );
+      await tester.tap(find.text('35 × 12'));
+      await tester.pumpAndSettle();
+      // Abre la fila como antes (foco en el peso), sin copiar
+      expect(focusedText(tester), '30');
+    });
+  });
+
   group('unidad con la fila abierta', () {
     // Serie sin cargar; [unit] la maneja el test (switch del día o del ejercicio).
     late ValueNotifier<WeightUnit> dayUnit;

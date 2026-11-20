@@ -580,6 +580,14 @@
       }
     }
   },
+  "setCopyTarget": "Copiar el objetivo a la serie {set}",
+  "@setCopyTarget": {
+    "placeholders": {
+      "set": {
+        "type": "int"
+      }
+    }
+  },
   "setLog": "Cargar serie {set}",
   "@setLog": {
     "placeholders": {
